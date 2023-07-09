@@ -2,6 +2,7 @@
 	// your script goes here
 </script>
 
-<h1 class="text-3xl font-bold underline">Hello world!</h1>
-<p>It is a layout for Sign up / Login</p>
-<slot />
+<main class="flex h-full">
+	<img src="/auth.png" class="hidden w-1/2 md:block" alt="Auth Placeholder" />
+	<slot />
+</main>

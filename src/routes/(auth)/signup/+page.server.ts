@@ -13,7 +13,7 @@ export const load = async ({ locals }) => {
 };
 
 export const actions = {
-	default: async ({ request, locals }) => {
+	signUp: async ({ request, locals }) => {
 		const form = await superValidate(request, signupSchema);
 
 		// Convenient validation check:
@@ -28,13 +28,17 @@ export const actions = {
 		try {
 			// Create user
 			await locals.pb.collection('users').create(form.data);
-			// Add user to locals
-			await locals.pb.collection('users').authWithPassword(form.data.email, form.data.password);
+			// Send verification email
+			await locals.pb.collection('users').requestVerification(form.data.email);
 		} catch (_) {
-			form.errors.email = ['Email is already in use.'];
+			// Check if email is not verified
+			locals.pb.authStore.clear();
+			// Send verification email
+			await locals.pb.collection('users').requestVerification(form.data.email);
+			form.errors.email = ['Email is not verified. Check ur email inbox. Try to log in again.'];
 			return { form };
 		}
 
-		throw redirect(303, '/');
+		throw redirect(303, '/login');
 	}
 };

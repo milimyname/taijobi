@@ -2,7 +2,14 @@
 export default {
 	content: ['./src/**/*.{html,js,svelte,ts}'],
 	theme: {
-		extend: {}
+		extend: {
+			colors: {
+				primary: '#0A6EBD'
+			},
+			screens: {
+				xm: '400px'
+			}
+		}
 	},
-	plugins: []
+	plugins: [require('@tailwindcss/forms')]
 };
