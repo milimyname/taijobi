@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+// Remove tap highlight for mobile
+* {
+	-webkit-tap-highlight-color: transparent; /* Safari, older versions of Chrome */
+	-moz-tap-highlight-color: transparent; /* Firefox */
+	-ms-tap-highlight-color: transparent; /* Internet Explorer/Edge */
+	tap-highlight-color: transparent; /* Newer versions of Chrome, Android Browser, and some other browsers */
+}
+
+body {
+	font-family: 'Livvic', sans-serif;
+}
+
+button,
+a {
+	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}

@@ -1,7 +1,7 @@
 import { redirect } from '@sveltejs/kit';
-import type { RequestEvent, RequestHandler } from '../../../api/$types';
 
-export const GET: RequestHandler = async ({ locals, url, cookies }: RequestEvent) => {
+/** @type {import('./$types').RequestHandler} */
+export const GET = async ({ locals, url, cookies }) => {
 	const redirectURL = `${url.origin}/auth/oauth2-redirect`;
 	const expectedState = cookies.get('state');
 	const codeVerifier = cookies.get('codeVerifier');
@@ -27,9 +27,14 @@ export const GET: RequestHandler = async ({ locals, url, cookies }: RequestEvent
 	}
 
 	try {
-		await locals.pb
+		const { meta, record } = await locals.pb
 			.collection('users')
 			.authWithOAuth2Code(provider.name, code || '', codeVerifier, redirectURL);
+
+		// Update user's profile
+		await locals.pb.collection('users').update(record.id, {
+			oauth2ImageUrl: meta.avatarUrl
+		});
 	} catch (err) {
 		console.log('Error logging in with 0Auth user - ', err);
 	}

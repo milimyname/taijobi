@@ -10,3 +10,9 @@ export const signupSchema = z.object({
 	password: z.string().min(8).max(32),
 	passwordConfirm: z.string().min(8).max(32)
 });
+
+export const profileData = z.object({
+	username: z.string().min(3).max(32).optional(),
+	email: z.string().email().optional(),
+	avatar: z.string().url().optional()
+});
