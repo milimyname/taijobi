@@ -1,35 +1,44 @@
-# ---- Build Stage ----
-FROM node:lts-alpine AS build
+# Stage 1: Build the application
+FROM node:lts-alpine as builder
 
-# Create app directory
-WORKDIR /usr/src/app
+ENV NODE_ENV development
 
-# Copy project file
-COPY package*.json ./
+RUN npm install -g pnpm
 
-# Install pnpm and build dependencies
-RUN npm install -g pnpm && pnpm install
+WORKDIR /app
 
-# Copy app files
+COPY package*.json pnpm-lock.yaml* ./
+
+# Install Python 3 before installing npm packages
+RUN apk add --no-cache python3
+RUN ln -sf python3 /usr/bin/python
+
+# Now you can install npm packages
+RUN pnpm i
+
 COPY . .
 
-# Build app
-RUN pnpm build
+ENV NODE_ENV production
 
-# ---- Run Stage ----
-FROM node:lts-alpine AS run
+# Set the environment variable with the path to Python 3
+ENV YOUTUBE_DL_PYTHON_PATH=/usr/bin/python3
 
-# Set working directory
-WORKDIR /usr/src/app
+RUN pnpm run build
 
-# Install serve
-RUN npm install -g serve
+# Stage 2: Create the production image
+FROM node:lts-alpine
 
-# Copy built app
-COPY --from=build /usr/src/app/build ./build
+WORKDIR /app
 
-# Expose port
-EXPOSE 5000
+# Install Python 3 and other required packages
+RUN apk add --no-cache python3
 
-# Run the app
-CMD ["serve", "-s", "build", "-l", "5000"]
+# Set up a symlink to 'python' binary to be used by youtube-dl-exec
+RUN ln -sf python3 /usr/bin/python
+
+# Copy the built files from the previous stage
+COPY --from=builder /app .
+
+ENV PORT=3000
+
+CMD ["node", "./build"]
