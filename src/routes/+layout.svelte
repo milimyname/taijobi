@@ -1,7 +1,7 @@
 <script>
 	import '../app.css';
 
-	let audioUrl = '';
+	// let audioUrl = '';
 
 	// // Call api youtube-dl
 	// onMount(async () => {
@@ -22,11 +22,11 @@
 	// });
 </script>
 
-{#if audioUrl}
+<!-- {#if audioUrl}
 	<audio controls>
 		<source src={audioUrl} type="audio/webm" />
 		Your browser does not support the audio element.
 	</audio>
-{/if}
+{/if} -->
 
 <slot />

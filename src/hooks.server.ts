@@ -1,4 +1,3 @@
-import { PUBLIC_POCKETBASE_URL } from '$env/static/public';
 import PocketBase from 'pocketbase';
 import { sequence } from '@sveltejs/kit/hooks';
 
@@ -6,7 +5,7 @@ import { sequence } from '@sveltejs/kit/hooks';
 async function auth({ event, resolve }) {
 	const prod = process.env.NODE_ENV === 'production' ? true : false;
 
-	event.locals.pb = new PocketBase(PUBLIC_POCKETBASE_URL);
+	event.locals.pb = new PocketBase(import.meta.env.VITE_POCKETBASE_URL);
 
 	// load the store data from the request cookie string
 	event.locals.pb.authStore.loadFromCookie(event.request.headers.get('cookie') || '');

@@ -15,8 +15,11 @@ export default {
 			boxShadow: {
 				profile: '0px -18px 10px 0px rgba(64, 168, 240, 0.10)',
 				pricing: ' 0px -18px 10px 0px rgba(130, 197, 247x, 0.10)'
+			},
+			height: {
+				17: '17rem'
 			}
 		}
 	},
-	plugins: [require('@tailwindcss/forms')]
+	plugins: [require('@tailwindcss/forms'), require('tailwindcss-dotted-background')]
 };
