@@ -56,5 +56,55 @@ export const hiraganaStore = writable([
 	'を',
 	'ん'
 ]);
-export const currentHiragana = writable('あ');
+export const katakanaStore = writable([
+	'ア',
+	'イ',
+	'ウ',
+	'エ',
+	'オ',
+	'カ',
+	'キ',
+	'ク',
+	'ケ',
+	'コ',
+	'サ',
+	'シ',
+	'ス',
+	'セ',
+	'ソ',
+	'タ',
+	'チ',
+	'ツ',
+	'テ',
+	'ト',
+	'ナ',
+	'ニ',
+	'ヌ',
+	'ネ',
+	'ノ',
+	'ハ',
+	'ヒ',
+	'フ',
+	'ヘ',
+	'ホ',
+	'マ',
+	'ミ',
+	'ム',
+	'メ',
+	'モ',
+	'ヤ',
+	'ユ',
+	'ヨ',
+	'ラ',
+	'リ',
+	'ル',
+	'レ',
+	'ロ',
+	'ワ',
+	'ヲ',
+	'ン'
+]);
+
+export const currentLetter = writable('');
 export const progressSlider = writable(1);
+export const currentAlphabet = writable('');

@@ -8,7 +8,8 @@
 		isLongPress,
 		strokeColor,
 		showProgressSlider,
-		progressSlider
+		currentAlphabet,
+		currentLetter
 	} from '$lib/utils/stores';
 	import { icons } from '$lib/utils/icons';
 	import {
@@ -18,6 +19,8 @@
 		clearCanvas
 	} from '$lib/utils/actions';
 	import { onMount } from 'svelte';
+	import { hiragana } from '$lib/static/hiragana';
+	import { katakana } from '$lib/static/katakana';
 
 	let longPressTimer: NodeJS.Timeout;
 	let canvas: HTMLCanvasElement | null,
@@ -58,7 +61,7 @@
 			</a>
 			<div class="flex gap-10 sm:flex-col">
 				<a href="/signup">{@html icons.signup} </a>
-				<a href="/saved">{@html icons.saved} </a>
+				<a href="/studying">{@html icons.saved} </a>
 				<a href="/news">{@html icons.news} </a>
 				<form action="/logout" method="POST">
 					<button type="submit">
@@ -98,7 +101,15 @@
 					{@html icons.erase}
 				</button>
 				<button
-					on:click={() => ($animateSVG = !$animateSVG)}
+					on:click={() => {
+						$animateSVG = false;
+						setTimeout(
+							() => ($animateSVG = true),
+							$currentAlphabet === 'hiragana'
+								? hiragana[$currentLetter].ds.length * 1000
+								: katakana[$currentLetter].ds.length * 1000
+						);
+					}}
 					class="transition-transform active:rotate-180"
 				>
 					{@html icons.animate}

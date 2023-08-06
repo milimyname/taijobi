@@ -5,7 +5,9 @@
 		hiraganaStore,
 		showProgressSlider,
 		progressSlider,
-		innerWidthStore
+		innerWidthStore,
+		katakanaStore,
+		currentAlphabet
 	} from '$lib/utils/stores';
 	import { clickOutside } from '$lib/utils/clickOutside';
 	import { spring } from 'svelte/motion';
@@ -14,7 +16,6 @@
 
 	let mousedown = false;
 	let progress = spring(getRandomNumber(1, 46));
-	// Add a separate spring for the border radius
 
 	const start = () => {
 		mousedown = true;
@@ -37,7 +38,8 @@
 		let newProgress = (x / width) * 100;
 
 		// Limit the newProgress to the length of hiraganaStore array
-		const maxLength = $hiraganaStore.length;
+		const maxLength =
+			$currentAlphabet === 'hiragana' ? $hiraganaStore.length : $katakanaStore.length;
 		newProgress = Math.min(Math.max(newProgress, 1), maxLength);
 
 		// Update the progress with the spring animation
@@ -47,7 +49,10 @@
 
 	$: {
 		// Update the progress value
-		if ($progress > $hiraganaStore.length) $progress = $hiraganaStore.length;
+		if ($currentAlphabet === 'hiragana' && $progress > $hiraganaStore.length)
+			$progress = $hiraganaStore.length;
+		if ($currentAlphabet === 'katakana' && $progress > $katakanaStore.length)
+			$progress = $katakanaStore.length;
 		if ($progress < 1) $progress = 1;
 
 		// Update the progress slider value
@@ -57,7 +62,6 @@
 		$innerWidthStore > twSmallScreen && ($showProgressSlider = false);
 	}
 </script>
-
 
 {#if $showProgressSlider}
 	<button

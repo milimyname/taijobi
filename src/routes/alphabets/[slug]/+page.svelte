@@ -3,19 +3,21 @@
 	import { onMount } from 'svelte';
 	import {
 		innerWidthStore,
-		animateSVG,
-		lastPoint,
-		strokeColor,
 		progressSlider,
-		currentHiragana,
-		hiraganaStore
+		currentLetter,
+		hiraganaStore,
+		katakanaStore,
+		currentAlphabet
 	} from '$lib/utils/stores';
 	import { cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
-	import Letter from '../Letter.svelte';
 	import { icons } from '$lib/utils/icons';
 	import { clearCanvas } from '$lib/utils/actions';
 	import { toRomaji } from 'wanakana';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
+	import Letter from '../Letter.svelte';
+	import Canvas from '../Canvas.svelte';
 
 	const rotateYCard = tweened(0, {
 		duration: 2000,
@@ -30,78 +32,33 @@
 			lineTo: (arg0: number, arg1: number) => void;
 			stroke: () => void;
 			lineWidth: number;
+			lineJoin: string;
+			lineCap: string;
 		};
-	let isDrawing = false;
-	// You can set the initial color here
 
-	function startDrawing(event: any) {
-		isDrawing = true;
-		$lastPoint = getXY(event);
-		event.preventDefault();
-	}
+	// Get the last segment of the URL path (assuming it contains the identifier you need)
+	$currentAlphabet = $page.url.pathname.split('/').pop() as 'hiragana' | 'katakana' | 'kanji';
 
-	function stopDrawing() {
-		isDrawing = false;
-	}
-
-	function drawOnCanvas(event: any) {
-		if (!isDrawing) return;
-		ctx.beginPath();
-		ctx.moveTo($lastPoint.x, $lastPoint.y);
-		let currentPoint = getXY(event);
-		ctx.lineTo(currentPoint.x, currentPoint.y);
-
-		ctx.strokeStyle = $strokeColor; // Set the stroke color
-		ctx.stroke();
-		$lastPoint = currentPoint;
-	}
-
-	function getXY(event: any) {
-		let rect = canvas.getBoundingClientRect();
-		if (event.touches) {
-			// If it is a touch event
-			return {
-				x: event.touches[0].clientX - rect.left,
-				y: event.touches[0].clientY - rect.top
-			};
-		} else {
-			// If it is a mouse event
-			return {
-				x: event.clientX - rect.left,
-				y: event.clientY - rect.top
-			};
-		}
-	}
-
-	// Initialize the context when canvas is defined
+	// Get canvas and context
 	onMount(() => {
+		canvas = document.querySelector('canvas');
 		ctx = canvas.getContext('2d');
-		ctx.lineWidth = $innerWidthStore > twSmallScreen ? 15 : 10;
-		ctx.lineJoin = 'round'; // Set the line join property
-		ctx.lineCap = 'round'; // Set the line cap property
 	});
 </script>
 
-<section class="flex flex-1 flex-col justify-around sm:gap-10">
+<section class="flex flex-1 flex-col justify-center gap-5 sm:gap-10">
+	<button
+		on:click={() => {
+			goto('/alphabets');
+		}}
+		class="flex items-center gap-5 sm:hidden"
+	>
+		{@html icons.previous}
+		<span>Go Back</span>
+	</button>
 	<Letter rotationY={$rotateYCard} />
-	<div style="perspective: 3000px; position: relative;">
-		<canvas
-			bind:this={canvas}
-			on:mousedown={startDrawing}
-			on:mouseup={stopDrawing}
-			on:mousemove|preventDefault={drawOnCanvas}
-			on:mouseleave={stopDrawing}
-			on:touchstart={startDrawing}
-			on:touchend={stopDrawing}
-			on:touchmove|preventDefault={drawOnCanvas}
-			on:touchcancel={stopDrawing}
-			width={$innerWidthStore > twSmallScreen ? 600 : 352}
-			height={$innerWidthStore > twSmallScreen ? 600 : 502}
-			style={`transform: rotateY(${-$rotateYCard}deg); transform-style: preserve-3d; backface-visibility: hidden;`}
-			class="relative z-10 mx-auto cursor-pointer
-				{$rotateYCard > 90 ? 'hidden' : 'block'} 
-			 rounded-xl border shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200"
-		/>
+	<div style="perspective: 3000px; position: relative;" class="mb-10">
+		<Canvas rotationY={$rotateYCard} {canvas} {ctx} />
 
 		<div
 			style={`transform: rotateY(${180 - $rotateYCard}deg); backface-visibility: hidden;`}
@@ -109,17 +66,17 @@
 				{$rotateYCard > 90 ? 'block' : 'hidden'} 
 				 flex h-[504px] w-[354px] flex-col items-center justify-center gap-5 rounded-xl border p-5 shadow-sm sm:h-[600px] sm:w-[600px]"
 		>
-			<h1 class="text-9xl font-medium">{toRomaji($currentHiragana).toUpperCase()}</h1>
+			<h1 class="text-9xl font-medium">{toRomaji($currentLetter).toUpperCase()}</h1>
 			<p class="text-lg">Romanji</p>
 		</div>
 
-		<p
+		<span
 			class=" {$rotateYCard > 40 && $rotateYCard < 175
 				? 'hidden'
 				: 'text-black'}  fixed right-5 top-5 z-30 text-lg font-medium md:right-40 lg:right-96"
 		>
 			{Math.floor($progressSlider)}
-		</p>
+		</span>
 
 		<button
 			on:click|preventDefault={() => {
@@ -134,7 +91,9 @@
 		<button
 			on:click|preventDefault={() => {
 				clearCanvas(ctx, canvas);
-				$progressSlider < $hiraganaStore.length ? $progressSlider++ : $progressSlider;
+				const length =
+					$currentAlphabet === 'hiragana' ? $hiraganaStore.length : $katakanaStore.length;
+				$progressSlider < length ? $progressSlider++ : $progressSlider;
 			}}
 			class="previousLetter fixed -bottom-10 right-0 z-30 rounded-full border bg-white p-2 shadow-sm transition-all lg:right-[22rem]"
 		>
@@ -146,7 +105,6 @@
 				fixed bottom-5 right-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all md:right-40 lg:right-96"
 			on:click={() => {
 				$rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0);
-				$animateSVG = !$animateSVG;
 			}}
 		>
 			{@html icons.backside}

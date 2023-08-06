@@ -48,6 +48,7 @@
 
 	$: {
 		innerWidth > twSmallScreen && ($showNav = false);
+		innerWidth > twSmallScreen && ($showAppNav = false);
 		// Set innerWidth to store
 		$innerWidthStore = innerWidth;
 	}
@@ -67,7 +68,7 @@
 			</a>
 			<div class="flex gap-10 sm:flex-col">
 				<a href="/signup">{@html icons.signup} </a>
-				<a href="/saved">{@html icons.saved} </a>
+				<a href="/studying">{@html icons.school} </a>
 				<a href="/news">{@html icons.news} </a>
 				<form action="/logout" method="POST">
 					<button type="submit">

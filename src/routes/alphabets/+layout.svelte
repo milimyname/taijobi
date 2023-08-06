@@ -3,6 +3,7 @@
 	import { twSmallScreen } from '$lib/utils/constants';
 	import { showNav, innerWidthStore } from '$lib/utils/stores';
 	import DrawingNav from './DrawingNav.svelte';
+	import { icons } from '$lib/utils/icons';
 
 	let innerWidth: number;
 	$: {
