@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { twSmallScreen } from '$lib/utils/constants';
-	import { fly, slide } from 'svelte/transition';
+	import { fly } from 'svelte/transition';
 	import { sineIn } from 'svelte/easing';
 	import {
 		animateSVG,
@@ -45,12 +45,6 @@
 
 {#if !$showProgressSlider}
 	<nav
-		transition:slide={{
-			delay: 0,
-			duration: 250,
-			axis: 'y',
-			easing: sineIn
-		}}
 		class=" {!$isLongPress
 			? 'w-full px-10 py-4'
 			: 'ml-auto p-2'} z-40 flex items-center justify-between rounded-full bg-black text-white transition-all sm:h-full sm:w-auto sm:flex-col sm:justify-center sm:gap-10 sm:p-5"

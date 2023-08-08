@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { slide } from 'svelte/transition';
-	import { sineIn } from 'svelte/easing';
 	import {
 		hiraganaStore,
 		showProgressSlider,
@@ -68,12 +66,6 @@
 		use:clickOutside
 		on:outsideclick={() => ($showProgressSlider = false)}
 		class="z-40 mx-auto w-full overflow-hidden rounded-full bg-slate-400 shadow-2xl"
-		transition:slide={{
-			delay: 0,
-			duration: 250,
-			axis: 'y',
-			easing: sineIn
-		}}
 		on:mousedown={start}
 		on:mouseup={end}
 		on:mousemove|preventDefault={move}

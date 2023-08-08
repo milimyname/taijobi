@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { twSmallScreen } from '$lib/utils/constants';
 	import { onMount } from 'svelte';
 	import {
 		innerWidthStore,
@@ -46,15 +45,15 @@
 	});
 </script>
 
-<section class="flex flex-1 flex-col justify-center gap-5 sm:gap-10">
+<section class="flex flex-1 flex-col justify-center gap-3 sm:gap-10">
 	<button
 		on:click={() => {
 			goto('/alphabets');
 		}}
-		class="flex items-center gap-5 sm:hidden"
+		class="flex items-center gap-2 sm:hidden"
 	>
 		{@html icons.previous}
-		<span>Go Back</span>
+		<span>Back</span>
 	</button>
 	<Letter rotationY={$rotateYCard} />
 	<div style="perspective: 3000px; position: relative;" class="mb-10">
