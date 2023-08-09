@@ -97,12 +97,7 @@
 				<button
 					on:click={() => {
 						$animateSVG = false;
-						setTimeout(
-							() => ($animateSVG = true),
-							$currentAlphabet === 'hiragana'
-								? hiragana[$currentLetter].ds.length * 1000
-								: katakana[$currentLetter].ds.length * 1000
-						);
+						setTimeout(() => ($animateSVG = true), 250);
 					}}
 					class="transition-transform active:rotate-180"
 				>

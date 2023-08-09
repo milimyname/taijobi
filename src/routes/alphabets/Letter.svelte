@@ -40,7 +40,7 @@
 				stroke-width={$currentAlphabet === 'hiragana' ? '3' : '60'}
 				stroke-linecap="round"
 				stroke-linejoin="round"
-				transition:draw={{ duration: 1000, delay: index * 1000, easing: quintOut }}
+				in:draw={{ duration: 1000, delay: index * 1000, easing: quintOut }}
 			/>
 		{/if}
 	{/each}
