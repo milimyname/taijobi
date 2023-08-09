@@ -29,19 +29,21 @@
 		// Get the slider element reference
 		const sliderElement = e.target;
 
-		// Calculate the x position relative to the slider element
-		let rect = sliderElement.getBoundingClientRect();
-		let x = e.type === 'touchmove' ? e.touches[0].clientX - rect.left : e.clientX - rect.left;
-		let width = rect.right - rect.left;
-		let newProgress = (x / width) * 100;
-
-		// Limit the newProgress to the length of hiraganaStore array
+		// Get the alphabet store length
 		const maxLength =
 			$currentAlphabet === 'hiragana' ? $hiraganaStore.length : $katakanaStore.length;
+
+		// Calculate the x position relative to the slider element
+		let newProgress =
+			e.type === 'touchmove'
+				? (e.touches[0].clientX / sliderElement.offsetWidth) * maxLength
+				: (e.clientX / sliderElement.offsetWidth) * maxLength;
+
+		// Limit the newProgress to the length of alphabet array
 		newProgress = Math.min(Math.max(newProgress, 1), maxLength);
 
 		// Update the progress with the spring animation
-		progress.set(newProgress);
+		$progress = Math.floor(newProgress);
 		$progressSlider = Math.floor(newProgress);
 	};
 
@@ -65,7 +67,7 @@
 	<button
 		use:clickOutside
 		on:outsideclick={() => ($showProgressSlider = false)}
-		class="z-40 mx-auto w-full overflow-hidden rounded-full bg-slate-400 shadow-2xl"
+		class="z-40 mx-auto w-full cursor-ew-resize overflow-hidden rounded-full bg-slate-400 shadow-2xl"
 		on:mousedown={start}
 		on:mouseup={end}
 		on:mousemove|preventDefault={move}
@@ -74,7 +76,7 @@
 		on:touchmove|preventDefault={move}
 	>
 		<div
-			class="bar relative rounded-full bg-[#0A6EBD] py-8 shadow-xl"
+			class="bar relative h-[67px] rounded-full bg-[#0A6EBD] shadow-xl"
 			style={`width: ${
 				Math.floor($progressSlider) > 0 ? Math.floor($progressSlider) * hiraganaWidthMulitplier : 0
 			}%;`}
