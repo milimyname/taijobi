@@ -1,5 +1,4 @@
 <script lang="ts">
-	
 </script>
 
 <div class="grid flex-1 grid-cols-3">
@@ -11,6 +10,9 @@
 			</li>
 			<li>
 				<a href="alphabets/katakana"> Katakana </a>
+			</li>
+			<li>
+				<a href="alphabets/kanji"> Kanji </a>
 			</li>
 		</ul>
 	</section>

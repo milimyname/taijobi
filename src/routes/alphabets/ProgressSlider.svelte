@@ -5,15 +5,22 @@
 		progressSlider,
 		innerWidthStore,
 		katakanaStore,
-		currentAlphabet
+		currentAlphabet,
+		kanjiStore
 	} from '$lib/utils/stores';
 	import { clickOutside } from '$lib/utils/clickOutside';
 	import { spring } from 'svelte/motion';
-	import { hiraganaWidthMulitplier, twSmallScreen } from '$lib/utils/constants';
+	import {
+		hiraganaWidthMulitplier,
+		kanjiWidthMulitplier,
+		twSmallScreen
+	} from '$lib/utils/constants';
 	import { getRandomNumber } from '$lib/utils/actions';
 
 	let mousedown = false;
 	let progress = spring(getRandomNumber(1, 46));
+	// Get the width multiplier for the progress slider
+	let progressWidthMultiplier: number;
 
 	const start = () => {
 		mousedown = true;
@@ -30,8 +37,20 @@
 		const sliderElement = e.target;
 
 		// Get the alphabet store length
-		const maxLength =
-			$currentAlphabet === 'hiragana' ? $hiraganaStore.length : $katakanaStore.length;
+		let maxLength;
+		switch ($currentAlphabet) {
+			case 'katakana':
+				maxLength = $katakanaStore.length;
+				progressWidthMultiplier = hiraganaWidthMulitplier;
+				break;
+			case 'kanji':
+				maxLength = $kanjiStore.length;
+				progressWidthMultiplier = kanjiWidthMulitplier;
+				break;
+			default:
+				maxLength = $hiraganaStore.length;
+				progressWidthMultiplier = hiraganaWidthMulitplier;
+		}
 
 		// Calculate the x position relative to the slider element
 		let newProgress =
@@ -53,6 +72,9 @@
 			$progress = $hiraganaStore.length;
 		if ($currentAlphabet === 'katakana' && $progress > $katakanaStore.length)
 			$progress = $katakanaStore.length;
+		if ($currentAlphabet === 'kanji' && $progress > $kanjiStore.length)
+			$progress = $kanjiStore.length;
+
 		if ($progress < 1) $progress = 1;
 
 		// Update the progress slider value
@@ -78,7 +100,7 @@
 		<div
 			class="bar relative h-[67px] rounded-full bg-[#0A6EBD] shadow-xl"
 			style={`width: ${
-				Math.floor($progressSlider) > 0 ? Math.floor($progressSlider) * hiraganaWidthMulitplier : 0
+				Math.floor($progressSlider) > 0 ? Math.floor($progressSlider) * progressWidthMultiplier : 0
 			}%;`}
 		/>
 	</button>

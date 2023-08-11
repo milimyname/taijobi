@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { kanjiStore } from './../../lib/utils/stores.ts';
 	import {
 		animateSVG,
 		currentLetter,
@@ -11,22 +12,44 @@
 	import { quintOut } from 'svelte/easing';
 	import { hiragana } from '$lib/static/hiragana';
 	import { katakana } from '$lib/static/katakana';
+	import { kanji } from '$lib/static/kanji';
 
 	export let rotationY: number;
 
-	// Determine which object (hiragana or katakana) to use based on the URL path
-	const currentObject = $currentAlphabet === 'hiragana' ? hiragana : katakana;
+	// Set the correct viewBox for the SVG
+	let viewBox: string;
 
-	// Get current hiragana from store
-	$: $currentLetter =
-		$currentAlphabet === 'hiragana'
-			? $hiraganaStore[$progressSlider - 1]
-			: $katakanaStore[$progressSlider - 1];
+	// Determine which object (hiragana, katakana, kanji) to use based on the URL path
+	let currentObject: any;
+	switch ($currentAlphabet) {
+		case 'katakana':
+			currentObject = katakana;
+			break;
+		case 'kanji':
+			currentObject = kanji;
+			break;
+		default:
+			currentObject = hiragana;
+	}
+
+	$: switch ($currentAlphabet) {
+		case 'katakana':
+			$currentLetter = $katakanaStore[$progressSlider - 1];
+			viewBox = '0 0 1024 1024';
+			break;
+		case 'kanji':
+			$currentLetter = $kanjiStore[$progressSlider - 1];
+			viewBox = '0 0 109 109';
+			break;
+		default:
+			$currentLetter = $hiraganaStore[$progressSlider - 1];
+			viewBox = '0 0 80 87';
+	}
 </script>
 
 <svg
 	xmlns="http://www.w3.org/2000/svg"
-	viewBox={$currentAlphabet === 'hiragana' ? '0 0 80 87' : '0 0 1024 1024'}
+	{viewBox}
 	fill="none"
 	class="absolute left-1/2 top-[45%] sm:left-[55%] sm:top-1/2 {rotationY > 30
 		? 'hidden'
@@ -37,7 +60,7 @@
 			<path
 				d={path}
 				stroke="black"
-				stroke-width={$currentAlphabet === 'hiragana' ? '3' : '60'}
+				stroke-width={$currentAlphabet === 'katakana' ? '60' : '3'}
 				stroke-linecap="round"
 				stroke-linejoin="round"
 				in:draw={{ duration: 1000, delay: index * 1000, easing: quintOut }}

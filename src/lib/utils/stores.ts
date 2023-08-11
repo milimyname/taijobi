@@ -104,6 +104,28 @@ export const katakanaStore = writable([
 	'ヲ',
 	'ン'
 ]);
+export const kanjiStore = writable([
+	'一',
+	'二',
+	'三',
+	'四',
+	'五',
+	'六',
+	'七',
+	'八',
+	'九',
+	'十',
+	'百',
+	'千',
+	'上',
+	'下',
+	'左',
+	'右',
+	'中',
+	'大',
+	'小',
+	'月'
+]);
 
 export const currentLetter = writable('');
 export const progressSlider = writable(1);

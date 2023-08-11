@@ -1,5 +1,6 @@
 export const twSmallScreen = 640;
 export const hiraganaWidthMulitplier = 2.17;
+export const kanjiWidthMulitplier = 5;
 
 export const navItems = [
 	{

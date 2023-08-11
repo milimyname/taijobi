@@ -1,7 +1,7 @@
 <script lang="ts">
+	import { kanjiStore } from './../../../lib/utils/stores.ts';
 	import { onMount } from 'svelte';
 	import {
-		innerWidthStore,
 		progressSlider,
 		currentLetter,
 		hiraganaStore,
@@ -37,6 +37,19 @@
 
 	// Get the last segment of the URL path (assuming it contains the identifier you need)
 	$currentAlphabet = $page.url.pathname.split('/').pop() as 'hiragana' | 'katakana' | 'kanji';
+
+	// Get the alphabet store length
+	let alphabetLengh: number;
+	$: switch ($currentAlphabet) {
+		case 'katakana':
+			alphabetLengh = $katakanaStore.length;
+			break;
+		case 'kanji':
+			alphabetLengh = $kanjiStore.length;
+			break;
+		default:
+			alphabetLengh = $hiraganaStore.length;
+	}
 
 	// Get canvas and context
 	onMount(() => {
@@ -90,9 +103,7 @@
 		<button
 			on:click|preventDefault={() => {
 				clearCanvas(ctx, canvas);
-				const length =
-					$currentAlphabet === 'hiragana' ? $hiraganaStore.length : $katakanaStore.length;
-				$progressSlider < length ? $progressSlider++ : $progressSlider;
+				$progressSlider < alphabetLengh ? $progressSlider++ : $progressSlider;
 			}}
 			class="previousLetter fixed -bottom-10 right-0 z-30 rounded-full border bg-white p-2 shadow-sm transition-all lg:right-[22rem]"
 		>
