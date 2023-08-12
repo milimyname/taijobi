@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { kanjiStore } from './../../../lib/utils/stores.ts';
+	import { kanjiStore } from '$lib/utils/stores';
 	import { onMount } from 'svelte';
 	import {
 		progressSlider,
