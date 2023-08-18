@@ -23,6 +23,6 @@
 		<a href="alphabets/">Phrases & Idioms</a>
 	</section>
 	<section>
-		<a href="alphabets">Phrases & Idioms</a>
+		<a href="flashcards">Flash Cards</a>
 	</section>
 </div>

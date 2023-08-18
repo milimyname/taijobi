@@ -19,6 +19,7 @@
 
 	let mousedown = false;
 	let progress = spring(getRandomNumber(1, 46));
+
 	// Get the width multiplier for the progress slider
 	let progressWidthMultiplier: number;
 
@@ -68,12 +69,17 @@
 
 	$: {
 		// Update the progress value
-		if ($currentAlphabet === 'hiragana' && $progress > $hiraganaStore.length)
-			$progress = $hiraganaStore.length;
-		if ($currentAlphabet === 'katakana' && $progress > $katakanaStore.length)
-			$progress = $katakanaStore.length;
-		if ($currentAlphabet === 'kanji' && $progress > $kanjiStore.length)
-			$progress = $kanjiStore.length;
+		switch ($currentAlphabet) {
+			case 'hiragana':
+				progressWidthMultiplier = hiraganaWidthMulitplier;
+				break;
+			case 'katakana':
+				progressWidthMultiplier = hiraganaWidthMulitplier;
+				break;
+			case 'kanji':
+				progressWidthMultiplier = kanjiWidthMulitplier;
+				break;
+		}
 
 		if ($progress < 1) $progress = 1;
 

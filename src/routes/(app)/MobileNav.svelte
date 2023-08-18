@@ -5,6 +5,8 @@
 	import { clickOutside } from '$lib/utils/clickOutside';
 	import { icons } from '$lib/utils/icons';
 	import { navItems } from '$lib/utils/constants';
+
+	
 </script>
 
 {#if $showNav}

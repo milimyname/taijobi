@@ -11,6 +11,9 @@
 
 body {
 	font-family: 'Livvic', sans-serif;
+	::-webkit-scrollbar {
+		display: none;
+	}
 }
 
 button,

@@ -9,14 +9,15 @@
 		currentAlphabet
 	} from '$lib/utils/stores';
 	import { cubicOut } from 'svelte/easing';
-	import { tweened } from 'svelte/motion';
+	import { spring, tweened } from 'svelte/motion';
 	import { icons } from '$lib/utils/icons';
-	import { clearCanvas } from '$lib/utils/actions';
+	import { clearCanvas, getRandomNumber } from '$lib/utils/actions';
 	import { toRomaji } from 'wanakana';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import Letter from '../Letter.svelte';
 	import Canvas from '../Canvas.svelte';
+	import { kanji } from '$lib/static/kanji';
 
 	const rotateYCard = tweened(0, {
 		duration: 2000,
@@ -40,15 +41,17 @@
 
 	// Get the alphabet store length
 	let alphabetLengh: number;
-	$: switch ($currentAlphabet) {
-		case 'katakana':
-			alphabetLengh = $katakanaStore.length;
-			break;
-		case 'kanji':
-			alphabetLengh = $kanjiStore.length;
-			break;
-		default:
-			alphabetLengh = $hiraganaStore.length;
+	$: {
+		switch ($currentAlphabet) {
+			case 'katakana':
+				alphabetLengh = $katakanaStore.length;
+				break;
+			case 'kanji':
+				alphabetLengh = $kanjiStore.length;
+				break;
+			default:
+				alphabetLengh = $hiraganaStore.length;
+		}
 	}
 
 	// Get canvas and context
@@ -76,18 +79,25 @@
 			style={`transform: rotateY(${180 - $rotateYCard}deg); backface-visibility: hidden;`}
 			class="relative z-10 mx-auto
 				{$rotateYCard > 90 ? 'block' : 'hidden'} 
-				 flex h-[504px] w-[354px] flex-col items-center justify-center gap-5 rounded-xl border p-5 shadow-sm sm:h-[600px] sm:w-[600px]"
+				 flex h-[504px] w-[354px] flex-col items-center justify-center
+				 {$currentAlphabet === 'kanji' ? 'gap-1' : 'gap-5'}  
+				 rounded-xl border p-5 shadow-sm sm:h-[600px] sm:w-[600px]"
 		>
-			<h1 class="text-9xl font-medium">{toRomaji($currentLetter).toUpperCase()}</h1>
-			<p class="text-lg">Romanji</p>
+			{#if $currentAlphabet === 'kanji'}
+				<h1 class="text-5xl font-medium">{kanji[$currentLetter].meaning}</h1>
+				<p class="text-sm">Meaning</p>
+			{:else}
+				<h1 class="text-9xl font-medium">{toRomaji($currentLetter).toUpperCase()}</h1>
+				<p class="text-lg">Romanji</p>
+			{/if}
 		</div>
 
 		<span
-			class=" {$rotateYCard > 40 && $rotateYCard < 175
+			class="{$rotateYCard > 5 && $rotateYCard < 175
 				? 'hidden'
-				: 'text-black'}  fixed right-5 top-5 z-30 text-lg font-medium md:right-40 lg:right-96"
+				: 'text-black'} fixed right-5 top-5 z-30 text-lg font-medium md:right-40 lg:right-96"
 		>
-			{Math.floor($progressSlider)}
+			{$currentLetter}
 		</span>
 
 		<button
@@ -111,7 +121,7 @@
 		</button>
 
 		<button
-			class="{$rotateYCard > 40 && $rotateYCard < 175 ? 'hidden' : 'block'}
+			class="{$rotateYCard > 5 && $rotateYCard < 175 ? 'hidden' : 'block'}
 				fixed bottom-5 right-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all md:right-40 lg:right-96"
 			on:click={() => {
 				$rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0);

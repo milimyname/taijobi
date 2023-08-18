@@ -8,7 +8,8 @@ export function clickOutside(node) {
 		if (
 			e.target.closest('nav') ||
 			e.target.closest('.previousLetter') ||
-			e.target.closest('.nextLetter')
+			e.target.closest('.nextLetter') ||
+			e.target.closest('.flashcard')
 		)
 			return;
 		if (!node.contains(e.target)) node.dispatchEvent(new CustomEvent('outsideclick'));
@@ -18,7 +19,8 @@ export function clickOutside(node) {
 		if (
 			e.target.closest('nav') ||
 			e.target.closest('.previousLetter') ||
-			e.target.closest('.nextLetter')
+			e.target.closest('.nextLetter') ||
+			e.target.closest('.flashcard')
 		)
 			return;
 		if (!node.contains(e.target)) node.dispatchEvent(new CustomEvent('outsideclick'));
