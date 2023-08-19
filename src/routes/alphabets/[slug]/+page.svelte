@@ -9,15 +9,21 @@
 		currentAlphabet
 	} from '$lib/utils/stores';
 	import { cubicOut } from 'svelte/easing';
-	import { spring, tweened } from 'svelte/motion';
+	import { tweened } from 'svelte/motion';
 	import { icons } from '$lib/utils/icons';
-	import { clearCanvas, getRandomNumber } from '$lib/utils/actions';
+	import { clearCanvas } from '$lib/utils/actions';
 	import { toRomaji } from 'wanakana';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import Letter from '../Letter.svelte';
 	import Canvas from '../Canvas.svelte';
 	import { kanji } from '$lib/static/kanji';
+	import { superForm } from 'sveltekit-superforms/client';
+
+	export let data;
+
+	// Client API:
+	const { form, enhance } = superForm(data.form);
 
 	const rotateYCard = tweened(0, {
 		duration: 2000,
@@ -38,6 +44,7 @@
 
 	// Get the last segment of the URL path (assuming it contains the identifier you need)
 	$currentAlphabet = $page.url.pathname.split('/').pop() as 'hiragana' | 'katakana' | 'kanji';
+	let savedKanji: boolean = false;
 
 	// Get the alphabet store length
 	let alphabetLengh: number;
@@ -52,6 +59,12 @@
 			default:
 				alphabetLengh = $hiraganaStore.length;
 		}
+
+		// Check whether the current letter is saved in the db
+		savedKanji = false;
+		data.flashcards.forEach((flashcard) => {
+			if (flashcard.word === $currentLetter) savedKanji = true;
+		});
 	}
 
 	// Get canvas and context
@@ -79,21 +92,79 @@
 			style={`transform: rotateY(${180 - $rotateYCard}deg); backface-visibility: hidden;`}
 			class="relative z-10 mx-auto
 				{$rotateYCard > 90 ? 'block' : 'hidden'} 
-				 flex h-[504px] w-[354px] flex-col items-center justify-center
+				 flex h-[504px] w-[354px] flex-col
 				 {$currentAlphabet === 'kanji' ? 'gap-1' : 'gap-5'}  
-				 rounded-xl border p-5 shadow-sm sm:h-[600px] sm:w-[600px]"
+				 rounded-xl border p-10 shadow-sm sm:h-[600px] sm:w-[600px]"
 		>
 			{#if $currentAlphabet === 'kanji'}
-				<h1 class="text-5xl font-medium">{kanji[$currentLetter].meaning}</h1>
-				<p class="text-sm">Meaning</p>
+				<div class="grid-rows-[max-content 1fr] grid h-full">
+					<h2 class="text-center text-9xl">{$currentLetter}</h2>
+					<div>
+						<h2 class="text-4xl font-medium">{kanji[$currentLetter].meaning}</h2>
+						<p class=" text-sm text-gray-300">Meaning</p>
+					</div>
+					<div>
+						<h4 class="text-lg tracking-widest">{kanji[$currentLetter].onyomi}</h4>
+						<p class=" text-sm text-gray-300">Onyomi</p>
+					</div>
+					{#if kanji[$currentLetter].kunyomi.length > 0}
+						<div>
+							<h4 class="text-lg tracking-widest">{kanji[$currentLetter].kunyomi}</h4>
+							<p class=" text-sm text-gray-300">Kunyomi</p>
+						</div>
+					{/if}
+				</div>
 			{:else}
-				<h1 class="text-9xl font-medium">{toRomaji($currentLetter).toUpperCase()}</h1>
+				<h2 class="text-9xl font-medium">{toRomaji($currentLetter).toUpperCase()}</h2>
 				<p class="text-lg">Romanji</p>
 			{/if}
 		</div>
 
+		{#if $currentAlphabet === 'kanji'}
+			<form method="POST" use:enhance>
+				<input type="text" name="user_id" class="invisible hidden" bind:value={$form.user_id} />
+				<input type="text" name="word" class="invisible hidden" bind:value={$form.word} />
+				<input
+					type="text"
+					name="translation"
+					class="invisible hidden"
+					bind:value={$form.translation}
+				/>
+				<input type="text" name="type" class="invisible hidden" bind:value={$form.type} />
+				<button
+					on:click={() => {
+						$form.word = $currentLetter;
+						$form.translation = kanji[$currentLetter].meaning;
+						$form.user_id = data.user.id;
+						$form.type = 'kanji';
+
+						savedKanji = !savedKanji;
+					}}
+					class="{$rotateYCard > 5 ? 'hidden' : 'text-black'} 
+				fixed left-5 top-5 z-30 text-lg font-medium md:right-40 lg:right-96"
+				>
+					<!-- {@html icons.heart} -->
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke-width="1.5"
+						stroke="currentColor"
+						class="h-6 w-6 transition-all {savedKanji &&
+							'fill-black'} hover:scale-110 active:scale-110"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+						/>
+					</svg>
+				</button>
+			</form>
+		{/if}
+
 		<span
-			class="{$rotateYCard > 5 && $rotateYCard < 175
+			class="{$rotateYCard > 5
 				? 'hidden'
 				: 'text-black'} fixed right-5 top-5 z-30 text-lg font-medium md:right-40 lg:right-96"
 		>

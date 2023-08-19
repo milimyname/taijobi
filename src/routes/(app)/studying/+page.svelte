@@ -1,4 +1,5 @@
 <script lang="ts">
+	export let data;
 </script>
 
 <div class="grid flex-1 grid-cols-3">
@@ -26,3 +27,5 @@
 		<a href="flashcards">Flash Cards</a>
 	</section>
 </div>
+
+{@html data.result}

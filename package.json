@@ -44,6 +44,8 @@
 	"type": "module",
 	"dependencies": {
 		"@melt-ui/svelte": "^0.31.3",
+		"kuroshiro": "^1.2.0",
+		"kuroshiro-analyzer-kuromoji": "^1.1.0",
 		"pocketbase": "^0.15.3",
 		"wanakana": "^5.1.0",
 		"youtube-dl-exec": "^2.4.7"

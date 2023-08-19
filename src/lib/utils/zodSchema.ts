@@ -16,3 +16,10 @@ export const profileData = z.object({
 	email: z.string().email().optional(),
 	avatar: z.string().url().optional()
 });
+
+export const flashCard = z.object({
+	user_id: z.string().optional(),
+	word: z.string().optional(),
+	translation: z.string().optional(),
+	type: z.string().optional()
+});
