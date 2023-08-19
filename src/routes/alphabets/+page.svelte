@@ -1,1 +1,1 @@
-<a href="/studying" class="flex flex-1 items-center justify-center">Home</a>
+<a href="/studying" class="flex items-center justify-center bg-blue-500 p-5">Home</a>

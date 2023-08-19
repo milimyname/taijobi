@@ -115,8 +115,8 @@
 					{/if}
 				</div>
 			{:else}
-				<h2 class="text-9xl font-medium">{toRomaji($currentLetter).toUpperCase()}</h2>
-				<p class="text-lg">Romanji</p>
+				<h2 class="text-center text-9xl font-medium">{toRomaji($currentLetter).toUpperCase()}</h2>
+				<p class="text-center text-lg">Romanji</p>
 			{/if}
 		</div>
 

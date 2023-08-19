@@ -1,21 +1,23 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { clickOutside } from '$lib/utils/clickOutside';
 	import { maxWidthCard, minWidthCard } from '$lib/utils/constants';
+	import { icons } from '$lib/utils/icons.js';
 	import { onMount } from 'svelte';
 
-	const cards = [
+	export let data;
+
+	let cards = new Set();
+
+	const exampleCards = [
 		'Card 1',
-		'Card 2',
-		'Card 3',
-		'Card 4',
-		'Card 5',
-		'Card 6',
-		'Card 7',
-		'Card 8',
-		'Card 9',
-		'Card 10',
-		'Card 11',
-		'Card 12'
+		'Card 1',
+		'Card 1',
+		'Card 1',
+		'Card 1',
+		'Card 1',
+		'Card 1',
+		'Card 1'
 	];
 
 	let touchStartY = 0;
@@ -27,7 +29,7 @@
 	let mountedCards: NodeListOf<HTMLButtonElement>;
 
 	onMount(() => {
-		mountedCards = document.querySelectorAll('button');
+		mountedCards = document.querySelectorAll('.flashcard');
 
 		mountedCards.forEach((card, i) => {
 			// Calculate the card width based on its distance from the top of the viewport
@@ -37,10 +39,27 @@
 
 			// Apply the calculated width to the card
 			card.style.width = `${normalizedWidth}px`;
+
+			if (mountedCards.length === 1)
+				card.style.top = `${(i + 1) * (window.innerHeight / 3 / mountedCards.length)}px`;
 			// Apply the calculated top position to the card
-			card.style.top = `${i * (window.innerHeight / mountedCards.length)}px`;
+			else card.style.top = `${i * (window.innerHeight / mountedCards.length)}px`;
 		});
 	});
+
+	$: {
+		// Populate card array from data flashcards by type
+		data.flashcards.forEach((card: { type: string }) => {
+			cards.add(card.type);
+		});
+
+		// Example data
+		cards.add('word');
+		cards.add('idiom');
+		cards.add('phrase');
+		cards.add('random');
+		cards.add('favourite');
+	}
 
 	const handleMouseWheel = (e: { deltaY: any }) => {
 		const scroll = Math.sign(e.deltaY) * scrollIncrement;
@@ -82,7 +101,7 @@
 			const normalizedWidth =
 				minWidthCard + (maxWidthCard - minWidthCard) * (cardTop / window.innerHeight);
 
-			// Apply the calculated width to the card
+			// // Apply the calculated width to the card
 			card.style.width = `${normalizedWidth}px`;
 
 			// Check if the card is off the section screen
@@ -130,6 +149,7 @@
 		const card = e.currentTarget;
 		card.style.transform = 'translate(-50%, -100%) skew(2deg, 2deg)';
 		currentCardZindex = card.style.zIndex;
+		card.classList.add('pointer-events-auto');
 		card.style.zIndex = '110';
 	};
 </script>
@@ -138,13 +158,25 @@
 	<div class="fixed top-0 z-[100] h-screen w-full bg-black opacity-50 transition-all" />
 {/if}
 
+<section class="z-[99] w-full py-5">
+	<button
+		on:click={() => {
+			goto('/alphabets');
+		}}
+		class="flex items-center gap-2"
+	>
+		{@html icons.previous}
+		<span>Back</span>
+	</button>
+</section>
+
 <section
 	class="relative mt-10 flex h-screen w-full flex-col p-5"
 	on:mousewheel|preventDefault={handleMouseWheel}
 	on:touchstart={handleTouchStart}
 	on:touchmove|preventDefault={handleTouchMove}
 >
-	{#each cards as card, i}
+	{#each Array.from(cards) as card, i}
 		{@const j = i + 1}
 		<button
 			on:click|preventDefault={handleCardClick}
@@ -162,11 +194,15 @@
 				top: ${i * 60}px;
 				z-index: ${j};
 			`}
-			class="flashcard absolute left-1/2 right-1/2 mx-auto flex h-60 w-full -translate-x-1/2 -translate-y-1/2 cursor-pointer select-none justify-center rounded-2xl bg-blue-200 p-4"
+			class="flashcard absolute left-1/2 right-1/2 mx-auto flex h-60 w-full -translate-x-1/2 -translate-y-1/2 cursor-pointer select-none flex-col items-center justify-between rounded-2xl bg-blue-200 p-4"
 		>
-			{card}
+			<h4 class="text-4xl">{card === 'kanji' ? '漢字' : card}</h4>
+			<button
+				on:click={() => goto(`flashcards/${card}`)}
+				class="open-flashcard rounded-full bg-black px-4 py-2 text-white"
+			>
+				Open it
+			</button>
 		</button>
 	{/each}
 </section>
-
-<h1 class="z-[99] w-full bg-red-200 p-5 text-center">hi</h1>
