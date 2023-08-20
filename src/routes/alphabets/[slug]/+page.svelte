@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { kanjiStore } from '$lib/utils/stores';
+	import { kanjiStore, randomNumberSlider } from '$lib/utils/stores';
 	import { onMount } from 'svelte';
 	import {
 		progressSlider,
@@ -11,25 +11,23 @@
 	import { cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
 	import { icons } from '$lib/utils/icons';
-	import { clearCanvas } from '$lib/utils/actions';
+	import { clearCanvas, getRandomNumber } from '$lib/utils/actions';
 	import { toRomaji } from 'wanakana';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import Letter from '../Letter.svelte';
 	import Canvas from '../Canvas.svelte';
 	import { kanji } from '$lib/static/kanji';
-	import { superForm } from 'sveltekit-superforms/client';
+	import { pocketbase } from '$lib/utils/pocketbase';
 
 	export let data;
-
-	// Client API:
-	const { form, enhance } = superForm(data.form);
 
 	const rotateYCard = tweened(0, {
 		duration: 2000,
 		easing: cubicOut
 	});
-
+	// Get the alphabet store length
+	let alphabetLengh: number;
 	let canvas: HTMLCanvasElement,
 		ctx: {
 			strokeStyle: string;
@@ -42,12 +40,11 @@
 			lineCap: string;
 		};
 
-	// Get the last segment of the URL path (assuming it contains the identifier you need)
-	$currentAlphabet = $page.url.pathname.split('/').pop() as 'hiragana' | 'katakana' | 'kanji';
 	let savedKanji: boolean = false;
 
-	// Get the alphabet store length
-	let alphabetLengh: number;
+	// Get the last segment of the URL path (assuming it contains the identifier you need)
+	$currentAlphabet = $page.url.pathname.split('/').pop() as 'hiragana' | 'katakana' | 'kanji';
+
 	$: {
 		switch ($currentAlphabet) {
 			case 'katakana':
@@ -62,10 +59,44 @@
 
 		// Check whether the current letter is saved in the db
 		savedKanji = false;
-		data.flashcards.forEach((flashcard) => {
+		data.flashcards.forEach((flashcard: { word: string }) => {
 			if (flashcard.word === $currentLetter) savedKanji = true;
 		});
+
+		// Set the progress slider to the current letter
+		$randomNumberSlider =
+			$currentAlphabet === 'kanji' ? getRandomNumber(1, 240) : getRandomNumber(1, 46);
 	}
+
+	// Create/delete a flashcard for kanji
+	const handleSavedKanji = async () => {
+		let card;
+		try {
+			// Remove the word from db
+			card = await pocketbase.collection('flashcards').getFirstListItem(`word="${$currentLetter}"`);
+
+			await pocketbase.collection('flashcards').delete(card.id);
+
+			// Remove the word from the flashcards array
+			data.flashcards = data.flashcards.filter((flashcard) => flashcard.word !== $currentLetter);
+		} catch (e) {
+			// Create a new flash card
+			await pocketbase.collection('flashcards').create({
+				word: $currentLetter,
+				meaning: kanji[$currentLetter].meaning,
+				user_id: data.user.id,
+				type: 'kanji'
+			});
+
+			// Add the word to the flashcards array
+			data.flashcards = [
+				...data.flashcards,
+				{
+					word: $currentLetter
+				}
+			];
+		}
+	};
 
 	// Get canvas and context
 	onMount(() => {
@@ -121,46 +152,30 @@
 		</div>
 
 		{#if $currentAlphabet === 'kanji'}
-			<form method="POST" use:enhance>
-				<input type="text" name="user_id" class="invisible hidden" bind:value={$form.user_id} />
-				<input type="text" name="word" class="invisible hidden" bind:value={$form.word} />
-				<input
-					type="text"
-					name="translation"
-					class="invisible hidden"
-					bind:value={$form.translation}
-				/>
-				<input type="text" name="type" class="invisible hidden" bind:value={$form.type} />
-				<button
-					on:click={() => {
-						$form.word = $currentLetter;
-						$form.translation = kanji[$currentLetter].meaning;
-						$form.user_id = data.user.id;
-						$form.type = 'kanji';
-
-						savedKanji = !savedKanji;
-					}}
-					class="{$rotateYCard > 5 ? 'hidden' : 'text-black'} 
+			<button
+				on:click={() => {
+					handleSavedKanji();
+					savedKanji = !savedKanji;
+				}}
+				class="{$rotateYCard > 5 ? 'hidden' : 'text-black'} 
 				fixed left-5 top-5 z-30 text-lg font-medium md:right-40 lg:right-96"
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke-width="1.5"
+					stroke="currentColor"
+					class="h-6 w-6 transition-all {savedKanji &&
+						'fill-black'} hover:scale-110 active:scale-110"
 				>
-					<!-- {@html icons.heart} -->
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke-width="1.5"
-						stroke="currentColor"
-						class="h-6 w-6 transition-all {savedKanji &&
-							'fill-black'} hover:scale-110 active:scale-110"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-						/>
-					</svg>
-				</button>
-			</form>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+					/>
+				</svg>
+			</button>
 		{/if}
 
 		<span
