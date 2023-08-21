@@ -18,7 +18,7 @@
 	import { getRandomNumber } from '$lib/utils/actions';
 
 	let mousedown = false;
-	let progress = spring(getRandomNumber(1, 46), {
+	let progress = spring(getRandomNumber(1, 240), {
 		stiffness: 0.1,
 		damping: 0.4
 	});
@@ -26,8 +26,16 @@
 	// Get the width multiplier for the progress slider
 	let progressWidthMultiplier: number;
 
-	const start = () => {
+	let initialX = 0; // track the initial X position on drag start
+	let initialValue = 0; // track the initial slider value on drag start
+
+	const start = (e: any) => {
 		mousedown = true;
+
+		initialValue = $progress; // store the initial slider value
+
+		if (e.type === 'touchstart') initialX = e.touches[0].clientX;
+		else initialX = e.clientX;
 	};
 
 	const end = () => {
@@ -35,10 +43,17 @@
 	};
 
 	const move = (e: any) => {
-		if (!mousedown && e.type !== 'touchmove') return;
+		if (!mousedown) return;
 
-		// Get the slider element reference
-		const sliderElement = e.target;
+		let currentX;
+
+		currentX = e.type === 'touchmove' ? e.touches[0].clientX : (currentX = e.clientX);
+
+		const deltaX = currentX - initialX; // difference from initial position
+		const sensitivity = 0.5; // adjust as needed for smoother or sharper response
+		let change = Math.round(deltaX * sensitivity);
+
+		let newProgress = initialValue + change;
 
 		// Get the alphabet store length
 		let maxLength;
@@ -55,12 +70,6 @@
 				maxLength = $hiraganaStore.length;
 				progressWidthMultiplier = hiraganaWidthMulitplier;
 		}
-
-		// Calculate the x position relative to the slider element
-		let newProgress =
-			e.type === 'touchmove'
-				? (e.touches[0].clientX / sliderElement.offsetWidth) * maxLength
-				: (e.clientX / sliderElement.offsetWidth) * maxLength;
 
 		// Limit the newProgress to the length of alphabet array
 		newProgress = Math.min(Math.max(newProgress, 1), maxLength);

@@ -25,17 +25,17 @@
 
 	$: switch ($currentAlphabet) {
 		case 'katakana':
-			$currentLetter = $katakanaStore[$progressSlider - 1];
+			$currentLetter = $katakanaStore[Math.min($progressSlider - 1, $katakanaStore.length - 1)];
 			viewBox = '0 0 1024 1024';
 			currentObject = katakana;
 			break;
 		case 'kanji':
-			$currentLetter = $kanjiStore[$progressSlider - 1];
+			$currentLetter = $kanjiStore[Math.min($progressSlider - 1, $kanjiStore.length - 1)];
 			viewBox = '0 0 109 109';
 			currentObject = kanji;
 			break;
 		default:
-			$currentLetter = $hiraganaStore[$progressSlider - 1];
+			$currentLetter = $hiraganaStore[Math.min($progressSlider - 1, $hiraganaStore.length - 1)];
 			viewBox = '0 0 80 87';
 			currentObject = hiragana;
 	}
