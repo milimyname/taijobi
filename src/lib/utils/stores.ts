@@ -351,8 +351,6 @@ export const currentLetter = writable('');
 export const progressSlider = writable(1);
 export const currentAlphabet = writable('');
 
-export const randomNumberSlider = writable(0);
-
 /*
 '丁'
 '世'

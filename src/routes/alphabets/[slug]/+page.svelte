@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { kanjiStore, randomNumberSlider } from '$lib/utils/stores';
+	import { kanjiStore } from '$lib/utils/stores';
 	import { onMount } from 'svelte';
 	import {
 		progressSlider,
@@ -11,7 +11,7 @@
 	import { cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
 	import { icons } from '$lib/utils/icons';
-	import { clearCanvas, getRandomNumber } from '$lib/utils/actions';
+	import { clearCanvas } from '$lib/utils/actions';
 	import { toRomaji } from 'wanakana';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
@@ -62,10 +62,6 @@
 		data.flashcards.forEach((flashcard: { word: string }) => {
 			if (flashcard.word === $currentLetter) savedKanji = true;
 		});
-
-		// Set the progress slider to the current letter
-		$randomNumberSlider =
-			$currentAlphabet === 'kanji' ? getRandomNumber(1, 240) : getRandomNumber(1, 46);
 	}
 
 	// Create/delete a flashcard for kanji
@@ -125,7 +121,7 @@
 				{$rotateYCard > 90 ? 'block' : 'hidden'} 
 				 flex h-[504px] w-[354px] flex-col
 				 {$currentAlphabet === 'kanji' ? 'gap-1' : 'gap-5'}  
-				 rounded-xl border p-10 shadow-sm sm:h-[600px] sm:w-[600px]"
+				 justify-center rounded-xl border p-10 shadow-sm sm:h-[600px] sm:w-[600px]"
 		>
 			{#if $currentAlphabet === 'kanji'}
 				<div class="grid-rows-[max-content 1fr] grid h-full">

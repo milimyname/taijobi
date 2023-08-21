@@ -18,7 +18,7 @@
 		? 'hidden'
 		: 'block'} max-w-80 } max-h-80 -translate-x-1/2 -translate-y-1/2 opacity-20 sm:-translate-y-1/2"
 >
-	{#each kanji['野'].ds as path, index}
+	{#each kanji['口'].ds as path, index}
 		{#if $animateSVG}
 			<path
 				d={path}

@@ -534,7 +534,8 @@ export const grade1Kanji = {
 		],
 		grade: 1,
 		meaning: 'mouth',
-		onyomi: ['コウ']
+		onyomi: ['コウ'],
+		kunyomi: ['くち']
 	},
 	手: {
 		ds: [
@@ -3783,7 +3784,11 @@ export const grade3Kanji = {
 		onyomi: ['ベン'],
 		kunyomi: ['つと-める']
 	},
-	動: {},
+	動: {
+		ds: [],
+		grade: 3,
+		meaning: 'move'
+	},
 	勝: {},
 	化: {},
 	区: {},

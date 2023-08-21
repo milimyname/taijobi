@@ -18,7 +18,10 @@
 	import { getRandomNumber } from '$lib/utils/actions';
 
 	let mousedown = false;
-	let progress = spring(getRandomNumber(1, 46));
+	let progress = spring(getRandomNumber(1, 46), {
+		stiffness: 0.1,
+		damping: 0.4
+	});
 
 	// Get the width multiplier for the progress slider
 	let progressWidthMultiplier: number;

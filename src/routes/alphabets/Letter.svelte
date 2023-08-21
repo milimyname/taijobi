@@ -13,6 +13,7 @@
 	import { hiragana } from '$lib/static/hiragana';
 	import { katakana } from '$lib/static/katakana';
 	import { kanji } from '$lib/static/kanji';
+	import { getRandomNumber } from '$lib/utils/actions.js';
 
 	export let rotationY: number;
 
