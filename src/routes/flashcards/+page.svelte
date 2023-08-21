@@ -4,21 +4,13 @@
 	import { maxWidthCard, minWidthCard } from '$lib/utils/constants';
 	import { icons } from '$lib/utils/icons.js';
 	import { onMount } from 'svelte';
+	import { fly } from 'svelte/transition';
+	import { quintIn } from 'svelte/easing';
+	import { clickedAddFlashcard } from '$lib/utils/stores.js';
 
 	export let data;
 
 	let cards = new Set();
-
-	const exampleCards = [
-		'Card 1',
-		'Card 1',
-		'Card 1',
-		'Card 1',
-		'Card 1',
-		'Card 1',
-		'Card 1',
-		'Card 1'
-	];
 
 	let touchStartY = 0;
 	let touchCurrentY = 0;
@@ -154,13 +146,13 @@
 	};
 </script>
 
-{#if clickedCard}
+{#if clickedCard || $clickedAddFlashcard}
 	<div class="fixed top-0 z-[100] h-screen w-full bg-black opacity-50 transition-all" />
 {/if}
 
-<section class="z-[99] w-full py-5">
+<section class="z-[99] flex w-full justify-between py-5">
 	<button
-		on:click={() => {
+		on:click|preventDefault={() => {
 			goto('/alphabets');
 		}}
 		class="flex items-center gap-2"
@@ -168,7 +160,32 @@
 		{@html icons.previous}
 		<span>Back</span>
 	</button>
+	<button
+		on:click|preventDefault={() => {
+			$clickedAddFlashcard = !$clickedAddFlashcard;
+			console.log($clickedAddFlashcard);
+		}}
+		class="add-flashcard-btn transition-all hover:scale-110 active:scale-110"
+	>
+		{@html icons.flashcard}
+	</button>
 </section>
+
+{#if $clickedAddFlashcard}
+	<div
+		class="add-flashcard-btn absolute -bottom-0 z-[101] h-2/3 w-full rounded-t-2xl bg-white p-5"
+		transition:fly={{
+			delay: 0,
+			duration: 500,
+			opacity: 0,
+			y: 100,
+			easing: quintIn
+		}}
+	>
+		<div class="mx-auto mb-8 h-1.5 w-12 flex-shrink-0 rounded-full bg-gray-300" />
+		<h4 class="text-2xl">Add a new flashcard</h4>
+	</div>
+{/if}
 
 <section
 	class="relative mt-10 flex h-screen w-full flex-col p-5"
@@ -183,6 +200,7 @@
 			use:clickOutside
 			on:outsideclick={(e) => {
 				clickedCard = false;
+				$clickedAddFlashcard = false;
 				e.currentTarget.style.transform = 'translate(-50%, -50%) skew(0deg, 0deg)';
 				e.currentTarget.style.zIndex = currentCardZindex;
 				// After resetting the clicked card, re-sort the cards by top position
