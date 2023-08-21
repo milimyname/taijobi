@@ -3887,7 +3887,7 @@ export const grade3Kanji = {
 	岸: { ds: [], grade: 3, meaning: 'shore', onyomi: ['ガン'], kunyomi: ['きし'] },
 	島: { ds: [], grade: 3, meaning: 'island', onyomi: ['トウ'], kunyomi: ['しま'] },
 	州: { ds: [], grade: 3, meaning: 'state, province', onyomi: ['シュウ'], kunyomi: ['しま'] },
-	帳: { ds: [], grade: 3, meaning: 'notebook', onyomi: ['チョウ'], kunyomi: [とばり] },
+	帳: { ds: [], grade: 3, meaning: 'notebook', onyomi: ['チョウ'], kunyomi: ['とばり'] },
 	平: {
 		ds: [],
 		grade: 3,
