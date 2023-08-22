@@ -177,7 +177,7 @@
 		transition:fly={{
 			delay: 0,
 			duration: 500,
-			opacity: 0,
+			opacity: 1,
 			y: 100,
 			easing: quintIn
 		}}
