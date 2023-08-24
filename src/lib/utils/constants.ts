@@ -1,6 +1,7 @@
 export const twSmallScreen = 640;
 export const hiraganaWidthMulitplier = 2.17;
-export const kanjiWidthMulitplier = 0.416;
+export const kanjiWidthMulitplier = 0.227;
+export const kanjiLength = 440;
 export const minWidthCard = 250;
 export const maxWidthCard = 350;
 
