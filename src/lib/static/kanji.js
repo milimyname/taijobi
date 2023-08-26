@@ -10708,6 +10708,1304 @@ export const grade4Kanji = {
 	}
 };
 
+export const grade5Knaji = {
+	久: {
+		ds: [],
+		grade: 5,
+		meaning: 'long time',
+		onyomi: ['キュウ'],
+		kunyomi: ['ひさ-しい']
+	},
+	仏: {
+		ds: [],
+		grade: 5,
+		meaning: 'Buddha',
+		onyomi: ['ブツ'],
+		kunyomi: ['ほとけ']
+	},
+	仮: {
+		ds: [],
+		grade: 5,
+		meaning: 'temporary',
+		onyomi: ['カ'],
+		kunyomi: ['かり']
+	},
+	件: {
+		ds: [],
+		grade: 5,
+		meaning: 'affair',
+		onyomi: ['ケン'],
+		kunyomi: []
+	},
+	任: {
+		ds: [],
+		grade: 5,
+		meaning: 'duty',
+		onyomi: ['ニン'],
+		kunyomi: ['まか-せる', 'まか-す']
+	},
+	似: {
+		ds: [],
+		grade: 5,
+		meaning: 'similar',
+		onyomi: ['ジ'],
+		kunyomi: ['に-る']
+	},
+	余: {
+		ds: [],
+		grade: 5,
+		meaning: 'too much',
+		onyomi: ['ヨ'],
+		kunyomi: ['あま-る', 'あま-す']
+	},
+	価: {
+		ds: [],
+		grade: 5,
+		meaning: 'value',
+		onyomi: ['カ'],
+		kunyomi: ['あたい']
+	},
+	保: {
+		ds: [],
+		grade: 5,
+		meaning: 'preserve',
+		onyomi: ['ホ'],
+		kunyomi: ['たも-つ']
+	},
+	修: {
+		ds: [],
+		grade: 5,
+		meaning: 'discipline',
+		onyomi: ['シュウ'],
+		kunyomi: ['おさ-める', 'おさ-まる']
+	},
+	俵: {
+		ds: [],
+		grade: 5,
+		meaning: 'bag',
+		onyomi: ['ヒョウ'],
+		kunyomi: ['たわら']
+	},
+	個: {
+		ds: [],
+		grade: 5,
+		meaning: 'individual',
+		onyomi: ['コ'],
+		kunyomi: []
+	},
+	備: {
+		ds: [],
+		grade: 5,
+		meaning: 'provide',
+		onyomi: ['ビ'],
+		kunyomi: ['そな-える', 'そな-わる']
+	},
+	像: {
+		ds: [],
+		grade: 5,
+		meaning: 'statue',
+		onyomi: ['ゾウ'],
+		kunyomi: []
+	},
+	再: {
+		ds: [],
+		grade: 5,
+		meaning: 'again',
+		onyomi: ['サイ'],
+		kunyomi: ['ふたた-び']
+	},
+	刊: {
+		ds: [],
+		grade: 5,
+		meaning: 'publish',
+		onyomi: ['カン'],
+		kunyomi: []
+	},
+	判: {
+		ds: [],
+		grade: 5,
+		meaning: 'judge',
+		onyomi: ['ハン'],
+		kunyomi: ['わか-る']
+	},
+	制: {
+		ds: [],
+		grade: 5,
+		meaning: 'control',
+		onyomi: ['セイ'],
+		kunyomi: []
+	},
+	券: {
+		ds: [],
+		grade: 5,
+		meaning: 'ticket',
+		onyomi: ['ケン'],
+		kunyomi: []
+	},
+	則: {
+		ds: [],
+		grade: 5,
+		meaning: 'rule',
+		onyomi: ['ソク'],
+		kunyomi: []
+	},
+	効: {
+		ds: [],
+		grade: 5,
+		meaning: 'effect',
+		onyomi: ['コウ'],
+		kunyomi: ['き-く']
+	},
+	務: {
+		ds: [],
+		grade: 5,
+		meaning: 'task',
+		onyomi: ['ム'],
+		kunyomi: ['つと-める', 'つと-まる']
+	},
+	勢: {
+		ds: [],
+		grade: 5,
+		meaning: 'power',
+		onyomi: ['セイ'],
+		kunyomi: ['いきお-い']
+	},
+	厚: {
+		ds: [],
+		grade: 5,
+		meaning: 'thick',
+		onyomi: ['コウ'],
+		kunyomi: ['あつ-い']
+	},
+	句: {
+		ds: [],
+		grade: 5,
+		meaning: 'phrase',
+		onyomi: ['ク'],
+		kunyomi: []
+	},
+	可: {
+		ds: [],
+		grade: 5,
+		meaning: 'possible',
+		onyomi: ['カ'],
+		kunyomi: []
+	},
+	営: {
+		ds: [],
+		grade: 5,
+		meaning: 'manage',
+		onyomi: ['エイ'],
+		kunyomi: ['いとな-む']
+	},
+	因: {
+		ds: [],
+		grade: 5,
+		meaning: 'cause',
+		onyomi: ['イン'],
+		kunyomi: ['よ-る']
+	},
+	団: {
+		ds: [],
+		grade: 5,
+		meaning: 'group',
+		onyomi: ['ダン', 'トン'],
+		kunyomi: []
+	},
+	圧: {
+		ds: [],
+		grade: 5,
+		meaning: 'pressure',
+		onyomi: ['アツ'],
+		kunyomi: []
+	},
+	在: {
+		ds: [],
+		grade: 5,
+		meaning: 'exist',
+		onyomi: ['ザイ'],
+		kunyomi: ['あ-る']
+	},
+	均: {
+		ds: [],
+		grade: 5,
+		meaning: 'level',
+		onyomi: ['キン'],
+		kunyomi: []
+	},
+	基: {
+		ds: [],
+		grade: 5,
+		meaning: 'foundation',
+		onyomi: ['キ'],
+		kunyomi: []
+	},
+	報: {
+		ds: [],
+		grade: 5,
+		meaning: 'report',
+		onyomi: ['ホウ'],
+		kunyomi: ['むく-いる']
+	},
+	境: {
+		ds: [],
+		grade: 5,
+		meaning: 'boundary',
+		onyomi: ['キョウ'],
+		kunyomi: ['さかい']
+	},
+	墓: {
+		ds: [],
+		grade: 5,
+		meaning: 'grave',
+		onyomi: ['ボ'],
+		kunyomi: ['はか']
+	},
+	増: {
+		ds: [],
+		grade: 5,
+		meaning: 'increase',
+		onyomi: ['ゾウ'],
+		kunyomi: ['ま-す', 'ふ-える', 'ふ-やす']
+	},
+	夢: {
+		ds: [],
+		grade: 5,
+		meaning: 'dream',
+		onyomi: ['ム'],
+		kunyomi: ['ゆめ']
+	},
+	妻: {
+		ds: [],
+		grade: 5,
+		meaning: 'wife',
+		onyomi: ['サイ'],
+		kunyomi: ['つま']
+	},
+	婦: {
+		ds: [],
+		grade: 5,
+		meaning: 'lady',
+		onyomi: ['フ'],
+		kunyomi: []
+	},
+	容: {
+		ds: [],
+		grade: 5,
+		meaning: 'contain',
+		onyomi: ['ヨウ'],
+		kunyomi: []
+	},
+	寄: {
+		ds: [],
+		grade: 5,
+		meaning: 'approach',
+		onyomi: ['キ'],
+		kunyomi: ['よ-る', 'よ-せる']
+	},
+	富: {
+		ds: [],
+		grade: 5,
+		meaning: 'wealth',
+		onyomi: ['フ', 'フウ'],
+		kunyomi: ['と-む', 'とみ']
+	},
+	導: {
+		ds: [],
+		grade: 5,
+		meaning: 'guide',
+		onyomi: ['ドウ'],
+		kunyomi: ['みちび-く']
+	},
+	居: {
+		ds: [],
+		grade: 5,
+		meaning: 'reside',
+		onyomi: ['キョ'],
+		kunyomi: ['い-る']
+	},
+	属: {
+		ds: [],
+		grade: 5,
+		meaning: 'belong',
+		onyomi: ['ゾク'],
+		kunyomi: []
+	},
+	布: {
+		ds: [],
+		grade: 5,
+		meaning: 'linen',
+		onyomi: ['フ'],
+		kunyomi: ['ぬの']
+	},
+	師: {
+		ds: [],
+		grade: 5,
+		meaning: 'expert',
+		onyomi: ['シ'],
+		kunyomi: []
+	},
+	常: {
+		ds: [],
+		grade: 5,
+		meaning: 'usual',
+		onyomi: ['ジョウ'],
+		kunyomi: ['つね', 'とこ']
+	},
+	幹: {
+		ds: [],
+		grade: 5,
+		meaning: 'tree trunk',
+		onyomi: ['カン'],
+		kunyomi: []
+	},
+	序: {
+		ds: [],
+		grade: 5,
+		meaning: 'preface',
+		onyomi: ['ジョ'],
+		kunyomi: []
+	},
+	弁: {
+		ds: [],
+		grade: 5,
+		meaning: 'valve',
+		onyomi: ['ベン'],
+		kunyomi: []
+	},
+	張: {
+		ds: [],
+		grade: 5,
+		meaning: 'stretch',
+		onyomi: ['チョウ'],
+		kunyomi: ['は-る']
+	},
+	往: {
+		ds: [],
+		grade: 5,
+		meaning: 'journey',
+		onyomi: ['オウ'],
+		kunyomi: []
+	},
+	復: {
+		ds: [],
+		grade: 5,
+		meaning: 'restore',
+		onyomi: ['フク'],
+		kunyomi: ['また']
+	},
+	徳: {
+		ds: [],
+		grade: 5,
+		meaning: 'virtue',
+		onyomi: ['トク'],
+		kunyomi: []
+	},
+	志: {
+		ds: [],
+		grade: 5,
+		meaning: 'intention',
+		onyomi: ['シ'],
+		kunyomi: ['こころざし']
+	},
+	応: {
+		ds: [],
+		grade: 5,
+		meaning: 'respond',
+		onyomi: ['オウ'],
+		kunyomi: ['あた-る']
+	},
+	快: {
+		ds: [],
+		grade: 5,
+		meaning: 'cheerful',
+		onyomi: ['カイ'],
+		kunyomi: ['こころよ-い']
+	},
+	性: {
+		ds: [],
+		grade: 5,
+		meaning: 'gender',
+		onyomi: ['セイ', 'ショウ'],
+		kunyomi: []
+	},
+	恩: {
+		ds: [],
+		grade: 5,
+		meaning: 'grace',
+		onyomi: ['オン'],
+		kunyomi: []
+	},
+	情: {
+		ds: [],
+		grade: 5,
+		meaning: 'feelings',
+		onyomi: ['ジョウ'],
+		kunyomi: ['なさ-け']
+	},
+	態: {
+		ds: [],
+		grade: 5,
+		meaning: 'condition',
+		onyomi: ['タイ'],
+		kunyomi: []
+	},
+	慣: {
+		ds: [],
+		grade: 5,
+		meaning: 'accustomed',
+		onyomi: ['カン'],
+		kunyomi: ['な-れる', 'な-らす']
+	},
+	承: {
+		ds: [],
+		grade: 5,
+		meaning: 'acquiesce',
+		onyomi: ['ショウ'],
+		kunyomi: ['うけたまわ-る']
+	},
+	技: {
+		ds: [],
+		grade: 5,
+		meaning: 'skill',
+		onyomi: ['ギ'],
+		kunyomi: ['わざ']
+	},
+	招: {
+		ds: [],
+		grade: 5,
+		meaning: 'beckon',
+		onyomi: ['ショウ'],
+		kunyomi: ['まね-く']
+	},
+	授: {
+		ds: [],
+		grade: 5,
+		meaning: 'instruct',
+		onyomi: ['ジュ'],
+		kunyomi: ['さず-ける', 'さず-かる']
+	},
+	採: {
+		ds: [],
+		grade: 5,
+		meaning: 'pick',
+		onyomi: ['サイ'],
+		kunyomi: ['と-る']
+	},
+	接: {
+		ds: [],
+		grade: 5,
+		meaning: 'touch',
+		onyomi: ['セツ'],
+		kunyomi: ['つ-ぐ']
+	},
+	提: {
+		ds: [],
+		grade: 5,
+		meaning: 'propose',
+		onyomi: ['テイ', 'チョウ', 'ダイ'],
+		kunyomi: ['さ-げる']
+	},
+	損: {
+		ds: [],
+		grade: 5,
+		meaning: 'loss',
+		onyomi: ['ソン'],
+		kunyomi: ['そこ-なう', 'そこ-ねる']
+	},
+	支: {
+		ds: [],
+		grade: 5,
+		meaning: 'branch',
+		onyomi: ['シ'],
+		kunyomi: ['ささ-える']
+	},
+	政: {
+		ds: [],
+		grade: 5,
+		meaning: 'politics',
+		onyomi: ['セイ', 'ショウ'],
+		kunyomi: []
+	},
+	故: {
+		ds: [],
+		grade: 5,
+		meaning: 'circumstances',
+		onyomi: ['コ'],
+		kunyomi: ['ゆえ']
+	},
+	敵: {
+		ds: [],
+		grade: 5,
+		meaning: 'enemy',
+		onyomi: ['テキ'],
+		kunyomi: ['かたき']
+	},
+	断: {
+		ds: [],
+		grade: 5,
+		meaning: 'sever',
+		onyomi: ['ダン'],
+		kunyomi: ['た-つ', 'ことわ-る']
+	},
+	旧: {
+		ds: [],
+		grade: 5,
+		meaning: 'old times',
+		onyomi: ['キュウ'],
+		kunyomi: []
+	},
+	易: {
+		ds: [],
+		grade: 5,
+		meaning: 'easy',
+		onyomi: ['エキ', 'イ'],
+		kunyomi: ['やさ-しい']
+	},
+	暴: {
+		ds: [],
+		grade: 5,
+		meaning: 'outburst',
+		onyomi: ['ボウ'],
+		kunyomi: ['あば-く', 'あば-れる']
+	},
+	条: {
+		ds: [],
+		grade: 5,
+		meaning: 'clause',
+		onyomi: ['ジョウ'],
+		kunyomi: []
+	},
+	枝: {
+		ds: [],
+		grade: 5,
+		meaning: 'branch',
+		onyomi: ['シ'],
+		kunyomi: ['えだ']
+	},
+	査: {
+		ds: [],
+		grade: 5,
+		meaning: 'investigate',
+		onyomi: ['サ'],
+		kunyomi: []
+	},
+	格: {
+		ds: [],
+		grade: 5,
+		meaning: 'status',
+		onyomi: ['カク'],
+		kunyomi: []
+	},
+	桜: {
+		ds: [],
+		grade: 5,
+		meaning: 'cherry tree',
+		onyomi: ['オウ', 'ヨウ'],
+		kunyomi: ['さくら']
+	},
+	検: {
+		ds: [],
+		grade: 5,
+		meaning: 'examination',
+		onyomi: ['ケン'],
+		kunyomi: []
+	},
+	構: {
+		ds: [],
+		grade: 5,
+		meaning: 'construct',
+		onyomi: ['コウ'],
+		kunyomi: ['かま-える', 'かま-う']
+	},
+	武: {
+		ds: [],
+		grade: 5,
+		meaning: 'military',
+		onyomi: ['ブ', 'ム'],
+		kunyomi: ['たけ']
+	},
+	比: {
+		ds: [],
+		grade: 5,
+		meaning: 'compare',
+		onyomi: ['ヒ'],
+		kunyomi: ['くら-べる']
+	},
+	永: {
+		ds: [],
+		grade: 5,
+		meaning: 'eternity',
+		onyomi: ['エイ'],
+		kunyomi: ['なが-い']
+	},
+	河: {
+		ds: [],
+		grade: 5,
+		meaning: 'river',
+		onyomi: ['カ'],
+		kunyomi: ['かわ']
+	},
+	液: {
+		ds: [],
+		grade: 5,
+		meaning: 'fluid',
+		onyomi: ['エキ'],
+		kunyomi: []
+	},
+	混: {
+		ds: [],
+		grade: 5,
+		meaning: 'mix',
+		onyomi: ['コン'],
+		kunyomi: ['ま-じる', 'ま-ざる', 'ま-ぜる', 'こ-む']
+	},
+	減: {
+		ds: [],
+		grade: 5,
+		meaning: 'decrease',
+		onyomi: ['ゲン'],
+		kunyomi: ['へ-る', 'へ-らす']
+	},
+	測: {
+		ds: [],
+		grade: 5,
+		meaning: 'fathom',
+		onyomi: ['ソク'],
+		kunyomi: ['はか-る']
+	},
+	準: {
+		ds: [],
+		grade: 5,
+		meaning: 'standard',
+		onyomi: ['ジュン'],
+		kunyomi: []
+	},
+	演: {
+		ds: [],
+		grade: 5,
+		meaning: 'perform',
+		onyomi: ['エン'],
+		kunyomi: []
+	},
+	潔: {
+		ds: [],
+		grade: 5,
+		meaning: 'undefiled',
+		onyomi: ['ケツ'],
+		kunyomi: ['いさぎよ-い']
+	},
+	災: {
+		ds: [],
+		grade: 5,
+		meaning: 'disaster',
+		onyomi: ['サイ'],
+		kunyomi: ['わざわ-い']
+	},
+	燃: {
+		ds: [],
+		grade: 5,
+		meaning: 'burn',
+		onyomi: ['ネン'],
+		kunyomi: ['も-える', 'も-やす', 'も-す']
+	},
+	版: {
+		ds: [],
+		grade: 5,
+		meaning: 'printing block',
+		onyomi: ['ハン'],
+		kunyomi: []
+	},
+	犯: {
+		ds: [],
+		grade: 5,
+		meaning: 'crime',
+		onyomi: ['ハン'],
+		kunyomi: ['おか-す']
+	},
+	状: {
+		ds: [],
+		grade: 5,
+		meaning: 'status quo',
+		onyomi: ['ジョウ'],
+		kunyomi: []
+	},
+	独: {
+		ds: [],
+		grade: 5,
+		meaning: 'alone',
+		onyomi: ['ドク'],
+		kunyomi: ['ひと-り']
+	},
+	率: {
+		ds: [],
+		grade: 5,
+		meaning: 'ratio',
+		onyomi: ['ソツ', 'リツ', 'シュツ'],
+		kunyomi: ['ひき-いる']
+	},
+	現: {
+		ds: [],
+		grade: 5,
+		meaning: 'present',
+		onyomi: ['ゲン'],
+		kunyomi: ['あらわ-れる', 'あらわ-す']
+	},
+	留: {
+		ds: [],
+		grade: 5,
+		meaning: 'detain',
+		onyomi: ['リュウ'],
+		kunyomi: ['と-める', 'と-まる']
+	},
+	略: {
+		ds: [],
+		grade: 5,
+		meaning: 'abbreviation',
+		onyomi: ['リャク'],
+		kunyomi: []
+	},
+	益: {
+		ds: [],
+		grade: 5,
+		meaning: 'benefit',
+		onyomi: ['エキ', 'ヤク'],
+		kunyomi: []
+	},
+	眼: {
+		ds: [],
+		grade: 5,
+		meaning: 'eyeball',
+		onyomi: ['ガン'],
+		kunyomi: ['まなこ']
+	},
+	破: {
+		ds: [],
+		grade: 5,
+		meaning: 'rend',
+		onyomi: ['ハ'],
+		kunyomi: ['やぶ-る', 'やぶ-れる']
+	},
+	確: {
+		ds: [],
+		grade: 5,
+		meaning: 'certain',
+		onyomi: ['カク'],
+		kunyomi: ['たし-か', 'たし-かめる']
+	},
+	示: {
+		ds: [],
+		grade: 5,
+		meaning: 'indicate',
+		onyomi: ['ジ'],
+		kunyomi: ['しめ-す']
+	},
+	祖: {
+		ds: [],
+		grade: 5,
+		meaning: 'ancestor',
+		onyomi: ['ソ'],
+		kunyomi: []
+	},
+	禁: {
+		ds: [],
+		grade: 5,
+		meaning: 'prohibition',
+		onyomi: ['キン'],
+		kunyomi: []
+	},
+	移: {
+		ds: [],
+		grade: 5,
+		meaning: 'shift',
+		onyomi: ['イ'],
+		kunyomi: ['うつ-る', 'うつ-す']
+	},
+	程: {
+		ds: [],
+		grade: 5,
+		meaning: 'extent',
+		onyomi: ['テイ'],
+		kunyomi: ['ほど']
+	},
+	税: {
+		ds: [],
+		grade: 5,
+		meaning: 'tax',
+		onyomi: ['ゼイ'],
+		kunyomi: []
+	},
+	築: {
+		ds: [],
+		grade: 5,
+		meaning: 'fabricate',
+		onyomi: ['チク'],
+		kunyomi: ['きず-く']
+	},
+	精: {
+		ds: [],
+		grade: 5,
+		meaning: 'refined',
+		onyomi: ['セイ', 'ショウ'],
+		kunyomi: []
+	},
+	素: {
+		ds: [],
+		grade: 5,
+		meaning: 'elementary',
+		onyomi: ['ソ', 'ス'],
+		kunyomi: []
+	},
+	経: {
+		ds: [],
+		grade: 5,
+		meaning: 'manage',
+		onyomi: ['ケイ'],
+		kunyomi: ['へ-る']
+	},
+	統: {
+		ds: [],
+		grade: 5,
+		meaning: 'unite',
+		onyomi: ['トウ'],
+		kunyomi: ['す-べる']
+	},
+	絶: {
+		ds: [],
+		grade: 5,
+		meaning: 'discontinue',
+		onyomi: ['ゼツ'],
+		kunyomi: ['た-える', 'た-やす', 'た-つ']
+	},
+	綿: {
+		ds: [],
+		grade: 5,
+		meaning: 'cotton',
+		onyomi: ['メン'],
+		kunyomi: ['わた']
+	},
+	総: {
+		ds: [],
+		grade: 5,
+		meaning: 'whole',
+		onyomi: ['ソウ'],
+		kunyomi: []
+	},
+	編: {
+		ds: [],
+		grade: 5,
+		meaning: 'compilation',
+		onyomi: ['ヘン'],
+		kunyomi: ['あ-む']
+	},
+	績: {
+		ds: [],
+		grade: 5,
+		meaning: 'exploits',
+		onyomi: ['セキ'],
+		kunyomi: []
+	},
+	織: {
+		ds: [],
+		grade: 5,
+		meaning: 'weave',
+		onyomi: ['ショク'],
+		kunyomi: ['お-る']
+	},
+	罪: {
+		ds: [],
+		grade: 5,
+		meaning: 'guilt',
+		onyomi: ['ザイ'],
+		kunyomi: ['つみ']
+	},
+	群: {
+		ds: [],
+		grade: 5,
+		meaning: 'flock',
+		onyomi: ['グン'],
+		kunyomi: ['む-れる', 'む-れ', '（むら）']
+	},
+	義: {
+		ds: [],
+		grade: 5,
+		meaning: 'righteousness',
+		onyomi: ['ギ'],
+		kunyomi: []
+	},
+	耕: {
+		ds: [],
+		grade: 5,
+		meaning: 'till',
+		onyomi: ['コウ'],
+		kunyomi: ['たがや-す']
+	},
+	職: {
+		ds: [],
+		grade: 5,
+		meaning: 'employment',
+		onyomi: ['ショク'],
+		kunyomi: []
+	},
+	肥: {
+		ds: [],
+		grade: 5,
+		meaning: 'fertilizer',
+		onyomi: ['ヒ'],
+		kunyomi: ['こ-える', 'こえ', 'こ-やす', 'こ-やし']
+	},
+	能: {
+		ds: [],
+		grade: 5,
+		meaning: 'ability',
+		onyomi: ['ノウ'],
+		kunyomi: []
+	},
+	興: {
+		ds: [],
+		grade: 5,
+		meaning: 'entertain',
+		onyomi: ['コウ'],
+		kunyomi: ['おこ-る', 'おこ-す']
+	},
+	舌: {
+		ds: [],
+		grade: 5,
+		meaning: 'tongue',
+		onyomi: ['ゼツ'],
+		kunyomi: ['した']
+	},
+	舎: {
+		ds: [],
+		grade: 5,
+		meaning: 'cottage',
+		onyomi: ['シャ'],
+		kunyomi: ['やど']
+	},
+	術: {
+		ds: [],
+		grade: 5,
+		meaning: 'art',
+		onyomi: ['ジュツ'],
+		kunyomi: []
+	},
+	衛: {
+		ds: [],
+		grade: 5,
+		meaning: 'defense',
+		onyomi: ['エイ'],
+		kunyomi: []
+	},
+	製: {
+		ds: [],
+		grade: 5,
+		meaning: 'manufacture',
+		onyomi: ['セイ'],
+		kunyomi: []
+	},
+	複: {
+		ds: [],
+		grade: 5,
+		meaning: 'duplicate',
+		onyomi: ['フク'],
+		kunyomi: []
+	},
+	規: {
+		ds: [],
+		grade: 5,
+		meaning: 'rule',
+		onyomi: ['キ'],
+		kunyomi: []
+	},
+	解: {
+		ds: [],
+		grade: 5,
+		meaning: 'untie',
+		onyomi: ['カイ', 'ゲ'],
+		kunyomi: ['と-く', 'と-かす', 'と-ける']
+	},
+	設: {
+		ds: [],
+		grade: 5,
+		meaning: 'establish',
+		onyomi: ['セツ'],
+		kunyomi: ['もう-ける']
+	},
+	許: {
+		ds: [],
+		grade: 5,
+		meaning: 'permit',
+		onyomi: ['キョ'],
+		kunyomi: ['ゆる-す']
+	},
+	証: {
+		ds: [],
+		grade: 5,
+		meaning: 'evidence',
+		onyomi: ['ショウ'],
+		kunyomi: []
+	},
+	評: {
+		ds: [],
+		grade: 5,
+		meaning: 'evaluate',
+		onyomi: ['ヒョウ'],
+		kunyomi: []
+	},
+	講: {
+		ds: [],
+		grade: 5,
+		meaning: 'lecture',
+		onyomi: ['コウ'],
+		kunyomi: []
+	},
+	謝: {
+		ds: [],
+		grade: 5,
+		meaning: 'apologize',
+		onyomi: ['シャ'],
+		kunyomi: ['あやま-る']
+	},
+	識: {
+		ds: [],
+		grade: 5,
+		meaning: 'discriminating',
+		onyomi: ['シキ'],
+		kunyomi: []
+	},
+	護: {
+		ds: [],
+		grade: 5,
+		meaning: 'safeguard',
+		onyomi: ['ゴ'],
+		kunyomi: []
+	},
+	豊: {
+		ds: [],
+		grade: 5,
+		meaning: 'bountiful',
+		onyomi: ['ホウ', 'ブ'],
+		kunyomi: ['ゆた-か']
+	},
+	財: {
+		ds: [],
+		grade: 5,
+		meaning: 'property',
+		onyomi: ['ザイ', 'サイ'],
+		kunyomi: []
+	},
+	貧: {
+		ds: [],
+		grade: 5,
+		meaning: 'poverty',
+		onyomi: ['ヒン', 'ビン'],
+		kunyomi: ['まず-しい']
+	},
+	責: {
+		ds: [],
+		grade: 5,
+		meaning: 'blame',
+		onyomi: ['セキ'],
+		kunyomi: ['せ-める']
+	},
+	貸: {
+		ds: [],
+		grade: 5,
+		meaning: 'lend',
+		onyomi: ['タイ'],
+		kunyomi: ['か-す']
+	},
+	貿: {
+		ds: [],
+		grade: 5,
+		meaning: 'trade',
+		onyomi: ['ボウ'],
+		kunyomi: []
+	},
+	賀: {
+		ds: [],
+		grade: 5,
+		meaning: 'congratulations',
+		onyomi: ['ガ'],
+		kunyomi: []
+	},
+	資: {
+		ds: [],
+		grade: 5,
+		meaning: 'assets',
+		onyomi: ['シ'],
+		kunyomi: []
+	},
+	賛: {
+		ds: [],
+		grade: 5,
+		meaning: 'approve',
+		onyomi: ['サン'],
+		kunyomi: []
+	},
+	質: {
+		ds: [],
+		grade: 5,
+		meaning: 'substance',
+		onyomi: ['シツ', 'シチ', 'チ'],
+		kunyomi: []
+	},
+	輸: {
+		ds: [],
+		grade: 5,
+		meaning: 'transport',
+		onyomi: ['ユ'],
+		kunyomi: []
+	},
+	述: {
+		ds: [],
+		grade: 5,
+		meaning: 'mention',
+		onyomi: ['ジュツ'],
+		kunyomi: ['の-べる']
+	},
+	迷: {
+		ds: [],
+		grade: 5,
+		meaning: 'astray',
+		onyomi: ['メイ'],
+		kunyomi: ['まよ-う']
+	},
+	退: {
+		ds: [],
+		grade: 5,
+		meaning: 'retreat',
+		onyomi: ['タイ'],
+		kunyomi: ['しりぞ-く', 'しりぞ-ける']
+	},
+	逆: {
+		ds: [],
+		grade: 5,
+		meaning: 'inverted',
+		onyomi: ['ギャク'],
+		kunyomi: ['さか', 'さか-らう']
+	},
+	造: {
+		ds: [],
+		grade: 5,
+		meaning: 'create',
+		onyomi: ['ゾウ'],
+		kunyomi: ['つく-る']
+	},
+	過: {
+		ds: [],
+		grade: 5,
+		meaning: 'overdo',
+		onyomi: ['カ'],
+		kunyomi: ['す-ぎる', 'す-ごす', 'あやま-つ', 'あやま-ち']
+	},
+	適: {
+		ds: [],
+		grade: 5,
+		meaning: 'suitable',
+		onyomi: ['テキ'],
+		kunyomi: []
+	},
+	酸: {
+		ds: [],
+		grade: 5,
+		meaning: 'acid',
+		onyomi: ['サン'],
+		kunyomi: []
+	},
+	鉱: {
+		ds: [],
+		grade: 5,
+		meaning: 'mineral',
+		onyomi: ['コウ'],
+		kunyomi: []
+	},
+	銅: {
+		ds: [],
+		grade: 5,
+		meaning: 'copper',
+		onyomi: ['ドウ'],
+		kunyomi: []
+	},
+	銭: {
+		ds: [],
+		grade: 5,
+		meaning: 'coin',
+		onyomi: ['セン'],
+		kunyomi: ['ぜに']
+	},
+	防: {
+		ds: [],
+		grade: 5,
+		meaning: 'prevent',
+		onyomi: ['ボウ'],
+		kunyomi: ['ふせ-ぐ']
+	},
+	限: {
+		ds: [],
+		grade: 5,
+		meaning: 'limit',
+		onyomi: ['ゲン'],
+		kunyomi: ['かぎ-る']
+	},
+	険: {
+		ds: [],
+		grade: 5,
+		meaning: 'precipitous',
+		onyomi: ['ケン'],
+		kunyomi: ['けわ-しい']
+	},
+	際: {
+		ds: [],
+		grade: 5,
+		meaning: 'occasion',
+		onyomi: ['サイ'],
+		kunyomi: ['きわ']
+	},
+	雑: {
+		ds: [],
+		grade: 5,
+		meaning: 'miscellaneous',
+		onyomi: ['ザツ'],
+		kunyomi: ['まじ-える', 'まじ-る']
+	},
+	非: {
+		ds: [],
+		grade: 5,
+		meaning: 'un-',
+		onyomi: ['ヒ'],
+		kunyomi: []
+	},
+	預: {
+		ds: [],
+		grade: 5,
+		meaning: 'deposit',
+		onyomi: ['ヨ'],
+		kunyomi: ['あず-ける', 'あず-かる']
+	},
+	領: {
+		ds: [],
+		grade: 5,
+		meaning: 'jurisdiction',
+		onyomi: ['リョウ'],
+		kunyomi: []
+	},
+	額: {
+		ds: [],
+		grade: 5,
+		meaning: 'amount',
+		onyomi: ['ガク'],
+		kunyomi: []
+	},
+	飼: {
+		ds: [],
+		grade: 5,
+		meaning: 'domesticate',
+		onyomi: ['シ'],
+		kunyomi: ['か-う']
+	}
+};
+
 export const kanji = {
 	...grade1Kanji,
 	...grade2Kanji,
