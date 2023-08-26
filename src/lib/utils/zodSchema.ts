@@ -17,9 +17,15 @@ export const profileData = z.object({
 	avatar: z.string().url().optional()
 });
 
-export const flashCard = z.object({
-	user_id: z.string().optional(),
-	word: z.string().optional(),
-	translation: z.string().optional(),
-	type: z.string().optional()
+export const flashcardSchema = z.object({
+	name: z.string(),
+	meaning: z.string().optional(),
+	type: z.string(),
+	flashcards_id: z.string().optional()
+});
+
+export const flashcardsSchema = z.object({
+	name: z.string(),
+	description: z.string().optional(),
+	user_id: z.string()
 });

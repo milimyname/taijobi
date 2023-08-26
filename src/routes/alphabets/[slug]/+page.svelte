@@ -6,7 +6,9 @@
 		currentLetter,
 		hiraganaStore,
 		katakanaStore,
-		currentAlphabet
+		currentAlphabet,
+		selectedKanjiGrade,
+		searchKanji
 	} from '$lib/utils/stores';
 	import { cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
@@ -59,8 +61,8 @@
 
 		// Check whether the current letter is saved in the db
 		savedKanji = false;
-		data.flashcards.forEach((flashcard: { word: string }) => {
-			if (flashcard.word === $currentLetter) savedKanji = true;
+		data.flashcard.forEach((flashcard: { name: string }) => {
+			if (flashcard.name === $currentLetter) savedKanji = true;
 		});
 	}
 
@@ -68,27 +70,29 @@
 	const handleSavedKanji = async () => {
 		let card;
 		try {
-			// Remove the word from db
-			card = await pocketbase.collection('flashcards').getFirstListItem(`word="${$currentLetter}"`);
+			// Remove the name from db
+			card = await pocketbase.collection('flashcard').getFirstListItem(`name="${$currentLetter}"`);
 
-			await pocketbase.collection('flashcards').delete(card.id);
+			await pocketbase.collection('flashcard').delete(card.id);
 
-			// Remove the word from the flashcards array
-			data.flashcards = data.flashcards.filter((flashcard) => flashcard.word !== $currentLetter);
+			// Remove the name from the flashcards array
+			data.flashcard = data.flashcard.filter(
+				(flashcard: { name: string }) => flashcard.name !== $currentLetter
+			);
 		} catch (e) {
 			// Create a new flash card
-			await pocketbase.collection('flashcards').create({
-				word: $currentLetter,
+			await pocketbase.collection('flashcard').create({
+				name: $currentLetter,
 				meaning: kanji[$currentLetter].meaning,
-				user_id: data.user.id,
+				flashcards_id: data.kanji_id,
 				type: 'kanji'
 			});
 
 			// Add the word to the flashcards array
-			data.flashcards = [
-				...data.flashcards,
+			data.flashcard = [
+				...data.flashcard,
 				{
-					word: $currentLetter
+					name: $currentLetter
 				}
 			];
 		}
@@ -101,18 +105,40 @@
 	});
 </script>
 
-<section class="flex flex-1 flex-col justify-center gap-3 sm:gap-10">
-	<button
-		on:click={() => {
-			goto('/alphabets');
-		}}
-		class="flex items-center gap-2 sm:hidden"
-	>
-		{@html icons.previous}
-		<span>Back</span>
-	</button>
+<section class="flex flex-1 flex-col justify-center gap-2 sm:gap-10">
+	<div class="relative flex justify-between">
+		<button
+			on:click={() => {
+				goto('/studying');
+			}}
+			class="flex items-center gap-2 sm:hidden"
+		>
+			{@html icons.previous}
+			<span>Back</span>
+		</button>
+
+		{#if $currentAlphabet === 'kanji'}
+			<div class="kanji-search">
+				<label for="search">
+					{@html icons.search}
+				</label>
+				<input
+					type="text"
+					id="search"
+					bind:value={$searchKanji}
+					on:input={(e) => {
+						// Limit the search to one character
+						if (e.target.value.length > 1) e.target.value = e.target.value.slice(0, 1);
+					}}
+					autocomplete="off"
+					class="w-14 border-hidden bg-white outline-none focus:border-transparent focus:bg-transparent focus:ring-0 focus:ring-transparent"
+				/>
+			</div>
+		{/if}
+	</div>
+
 	<Letter rotationY={$rotateYCard} />
-	<div style="perspective: 3000px; position: relative;" class="mb-10">
+	<div style="perspective: 3000px; position: relative;">
 		<Canvas rotationY={$rotateYCard} {canvas} {ctx} />
 
 		<div
@@ -134,10 +160,10 @@
 						<h4 class="text-lg tracking-widest">{kanji[$currentLetter].onyomi}</h4>
 						<p class=" text-sm text-gray-300">Onyomi</p>
 					</div>
-					{#if kanji[$currentLetter].kunyomi.length > 0}
+					{#if kanji[$currentLetter].kunyomi && kanji[$currentLetter].kunyomi.length > 0}
 						<div>
 							<h4 class="text-lg tracking-widest">{kanji[$currentLetter].kunyomi}</h4>
-							<p class=" text-sm text-gray-300">Kunyomi</p>
+							<p class="text-sm text-gray-300">Kunyomi</p>
 						</div>
 					{/if}
 				</div>
@@ -154,7 +180,7 @@
 					savedKanji = !savedKanji;
 				}}
 				class="{$rotateYCard > 5 ? 'hidden' : 'text-black'} 
-				fixed left-5 top-5 z-30 text-lg font-medium md:right-40 lg:right-96"
+				fixed left-5 top-5 z-30 text-lg font-medium md:left-40 lg:left-96"
 			>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -183,26 +209,6 @@
 		</span>
 
 		<button
-			on:click|preventDefault={() => {
-				clearCanvas(ctx, canvas);
-				$progressSlider > 1 ? $progressSlider-- : $progressSlider;
-			}}
-			class="previousLetter fixed -bottom-10 z-30 rounded-full border bg-white p-2 shadow-sm transition-all lg:left-[22rem]"
-		>
-			{@html icons.previous}
-		</button>
-
-		<button
-			on:click|preventDefault={() => {
-				clearCanvas(ctx, canvas);
-				$progressSlider < alphabetLengh ? $progressSlider++ : $progressSlider;
-			}}
-			class="previousLetter fixed -bottom-10 right-0 z-30 rounded-full border bg-white p-2 shadow-sm transition-all lg:right-[22rem]"
-		>
-			{@html icons.next}
-		</button>
-
-		<button
 			class="{$rotateYCard > 5 && $rotateYCard < 175 ? 'hidden' : 'block'}
 				fixed bottom-5 right-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all md:right-40 lg:right-96"
 			on:click={() => {
@@ -210,6 +216,45 @@
 			}}
 		>
 			{@html icons.backside}
+		</button>
+	</div>
+
+	<div class=" flex items-center justify-between sm:mx-auto sm:w-[600px]">
+		<button
+			on:click|preventDefault={() => {
+				clearCanvas(ctx, canvas);
+				$progressSlider > 1 ? $progressSlider-- : $progressSlider;
+				$searchKanji = '';
+			}}
+			class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
+		>
+			{@html icons.previous}
+		</button>
+
+		{#if $currentAlphabet === 'kanji'}
+			<select
+				name="kanji-grade"
+				id="kanji-grade"
+				class="border-hidden bg-none pr-3 outline-none focus:border-transparent focus:ring-0"
+				bind:value={$selectedKanjiGrade}
+			>
+				<option value="0">All Grades</option>
+				<option value="1">Grade 1</option>
+				<option value="2">Grade 2</option>
+				<option value="3">Grade 3</option>
+				<option value="4">Grade 4</option>
+			</select>
+		{/if}
+
+		<button
+			on:click|preventDefault={() => {
+				clearCanvas(ctx, canvas);
+				$progressSlider < alphabetLengh ? $progressSlider++ : $progressSlider;
+				$searchKanji = '';
+			}}
+			class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
+		>
+			{@html icons.next}
 		</button>
 	</div>
 </section>

@@ -6,19 +6,17 @@
 		innerWidthStore,
 		katakanaStore,
 		currentAlphabet,
-		kanjiStore
+		kanjiLength,
+		kanjiWidthMulitplier,
+		searchKanji
 	} from '$lib/utils/stores';
 	import { clickOutside } from '$lib/utils/clickOutside';
 	import { spring } from 'svelte/motion';
-	import {
-		hiraganaWidthMulitplier,
-		kanjiWidthMulitplier,
-		twSmallScreen
-	} from '$lib/utils/constants';
+	import { hiraganaWidthMulitplier, twSmallScreen } from '$lib/utils/constants';
 	import { getRandomNumber } from '$lib/utils/actions';
 
 	let mousedown = false;
-	let progress = spring(getRandomNumber(1, 240), {
+	let progress = spring(getRandomNumber(1, $kanjiLength), {
 		stiffness: 0.1,
 		damping: 0.4
 	});
@@ -63,8 +61,8 @@
 				progressWidthMultiplier = hiraganaWidthMulitplier;
 				break;
 			case 'kanji':
-				maxLength = $kanjiStore.length;
-				progressWidthMultiplier = kanjiWidthMulitplier;
+				maxLength = $kanjiLength;
+				progressWidthMultiplier = $kanjiWidthMulitplier;
 				break;
 			default:
 				maxLength = $hiraganaStore.length;
@@ -76,7 +74,8 @@
 
 		// Update the progress with the spring animation
 		$progress = Math.floor(newProgress);
-		$progressSlider = Math.floor(newProgress);
+
+		$searchKanji = '';
 	};
 
 	$: {
@@ -89,7 +88,7 @@
 				progressWidthMultiplier = hiraganaWidthMulitplier;
 				break;
 			case 'kanji':
-				progressWidthMultiplier = kanjiWidthMulitplier;
+				progressWidthMultiplier = $kanjiWidthMulitplier;
 				break;
 		}
 

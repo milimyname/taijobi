@@ -6,14 +6,17 @@
 		hiraganaStore,
 		progressSlider,
 		katakanaStore,
-		currentAlphabet
+		currentAlphabet,
+		selectedKanjiGrade,
+		kanjiLength,
+		kanjiWidthMulitplier,
+		searchKanji
 	} from '$lib/utils/stores';
 	import { draw } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 	import { hiragana } from '$lib/static/hiragana';
 	import { katakana } from '$lib/static/katakana';
 	import { kanji } from '$lib/static/kanji';
-	import { getRandomNumber } from '$lib/utils/actions.js';
 
 	export let rotationY: number;
 
@@ -30,15 +33,58 @@
 			currentObject = katakana;
 			break;
 		case 'kanji':
-			$currentLetter = $kanjiStore[Math.min($progressSlider - 1, $kanjiStore.length - 1)];
 			viewBox = '0 0 109 109';
-			currentObject = kanji;
+			// Get only the kanji that match the selected grade if selectedKanjiGrade is not 0
+			// kanji is an object of objects, so we need to use Object.values() to get an array of objects
+			// Then we filter the array of objects based on the grade
+			// Finally, return  the array of objects back to an object of objects
+
+			if (+$selectedKanjiGrade !== 0) {
+				// Filter the kanji objects based on the selected grade
+				const filteredKanji = {};
+
+				for (const kanjiChar in kanji) {
+					if (kanji[kanjiChar].grade === +$selectedKanjiGrade)
+						filteredKanji[kanjiChar] = kanji[kanjiChar];
+				}
+
+				$kanjiLength = Object.values(filteredKanji).length;
+				$kanjiWidthMulitplier = 100 / $kanjiLength;
+
+				// Check if progressSlider is within valid range
+				const sliderIndex = Math.min($progressSlider - 1, $kanjiLength - 1);
+				const kanjiKeys = Object.keys(filteredKanji);
+
+				// Set the current letter based on sliderIndex
+				$currentLetter = kanjiKeys[sliderIndex];
+
+				currentObject = filteredKanji;
+
+				// Set the current letter to the first kanji if the searchKanji is not empty
+				if ($searchKanji && kanjiKeys.find((k) => $searchKanji === k))
+					$currentLetter = $searchKanji;
+			} else {
+				currentObject = kanji;
+				$currentLetter = $kanjiStore[Math.min($progressSlider - 1, $kanjiStore.length - 1)];
+
+				// Get the length of the kanji
+				$kanjiLength = $kanjiStore.length;
+
+				// Get the width multiplier for the progress slider
+				$kanjiWidthMulitplier = 100 / $kanjiLength;
+
+				// Set the current letter to the first kanji if the searchKanji is not empty
+				if ($searchKanji && $kanjiStore.find((k) => $searchKanji === k))
+					$currentLetter = $searchKanji;
+			}
+
 			break;
 		default:
 			$currentLetter = $hiraganaStore[Math.min($progressSlider - 1, $hiraganaStore.length - 1)];
 			viewBox = '0 0 80 87';
 			currentObject = hiragana;
 	}
+
 </script>
 
 <svg

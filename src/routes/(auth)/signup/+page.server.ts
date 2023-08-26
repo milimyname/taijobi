@@ -1,6 +1,6 @@
 import { superValidate } from 'sveltekit-superforms/server';
 import { fail, redirect } from '@sveltejs/kit';
-import { signupSchema } from '$lib/utils/zodSchema.ts';
+import { signupSchema } from '$lib/utils/zodSchema';
 
 export const load = async ({ locals }) => {
 	// Redirect if already logged in
