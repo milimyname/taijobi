@@ -4,7 +4,7 @@
 	import { goto } from '$app/navigation';
 	import { clickOutside } from '$lib/utils/clickOutside';
 	import { maxWidthCard, minWidthCard } from '$lib/utils/constants';
-	import { onDestroy, onMount } from 'svelte';
+	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 	import {
@@ -47,26 +47,11 @@
 			if (mountedCards.length === 1)
 				card.style.top = `${(i + 1) * (window.innerHeight / 3 / mountedCards.length)}px`;
 			else if (mountedCards.length < 6)
-				card.style.top = `${(i + 1) * (window.innerHeight / 2 / mountedCards.length)}px`;
+				card.style.top = `${(i + 1) * (window.innerHeight / 4 / mountedCards.length)}px`;
 			// Apply the calculated top position to the card
 			else card.style.top = `${i * (window.innerHeight / mountedCards.length)}px`;
 		});
 	});
-
-	$: {
-		// Update the cards array when the data changes
-		cards = [];
-
-		data.flashcards.forEach((card: Card) => {
-			cards.push(card);
-		});
-
-		// Set other cards to be normal
-		if (mountedCards)
-			mountedCards.forEach((card) => {
-				card.style.transform = 'translate(-50%, -50%) skew(0deg, 0deg)';
-			});
-	}
 
 	const handleMouseWheel = (e: { deltaY: any }) => {
 		const scroll = Math.sign(e.deltaY) * scrollIncrement;
@@ -106,9 +91,10 @@
 			}, 500);
 		});
 
-		// Clear the form
+		// Clear the form data
 		$form.name = '';
 		$form.description = '';
+		$form.id = '';
 	};
 
 	const handleCardClick = (e: { currentTarget: any }) => {
@@ -135,10 +121,38 @@
 			$clickedFlashCard = false;
 		}
 	});
+
+	$: if (!$clickedFlashCard) {
+		// Clear the form data
+		$form.name = '';
+		$form.description = '';
+		$form.id = '';
+	}
+
+	$: {
+		// Update the cards array when the data changes
+		cards = [];
+
+		data.flashcards.forEach((card: Card) => {
+			cards.push(card);
+		});
+
+		// Set other cards to be normal
+		if (mountedCards)
+			mountedCards.forEach((card) => {
+				card.style.transform = 'translate(-50%, -50%) skew(0deg, 0deg)';
+			});
+	}
 </script>
 
 <Vault {enhance}>
-	<h4 class="text-2xl">Create a new collection</h4>
+	{#if $clickedEditFlashcard}
+		<h4 class="text-2xl">Edit collection</h4>
+	{:else if $clickedDeleteFlashcard}
+		<h4 class="text-2xl">Delete collection</h4>
+	{:else}
+		<h4 class="text-2xl">Add a new collection</h4>
+	{/if}
 	<div class="mb-auto flex flex-col gap-5">
 		<fieldset class=" flex w-full flex-col md:w-2/3">
 			<label for="name" class="hidden">Collection Name</label>
@@ -167,8 +181,7 @@
 		</fieldset>
 		<fieldset class=" flex w-full flex-col md:w-2/3">
 			<label for="description" class="hidden">Description</label>
-			<input
-				type="text"
+			<textarea
 				name="description"
 				placeholder="Description"
 				class="
@@ -181,6 +194,7 @@
 				aria-invalid={$errors.description ? 'true' : undefined}
 				bind:value={$form.description}
 				{...$constraints.description}
+				rows="5"
 			/>
 			{#if $errors.description}
 				<span
@@ -195,19 +209,19 @@
 		<button
 			formaction="?/edit"
 			class="w-full rounded-md bg-gray-400 py-2 text-lg font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm lg:w-2/3"
-			>Edit Collection
+			>Edit
 		</button>
 	{:else if $clickedDeleteFlashcard}
 		<button
 			formaction="?/delete"
 			class="w-full rounded-md bg-red-400 py-2 text-lg font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-red-500 active:translate-y-1 active:shadow-sm lg:w-2/3"
-			>Delete Collection
+			>Delete
 		</button>
 	{:else}
 		<button
 			formaction="?/add"
 			class="w-full rounded-md bg-black py-2 text-lg font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm lg:w-2/3"
-			>Add Collection
+			>Add
 		</button>
 	{/if}
 </Vault>
@@ -241,7 +255,7 @@
 			<div
 				class="flex {card.name !== 'kanji'
 					? 'w-2/3'
-					: 'gap-8'} items-center justify-between rounded-full bg-black px-4 py-2 text-white"
+					: 'gap-8'}  items-center justify-between rounded-full bg-black px-4 py-2 text-white"
 			>
 				{#if card.name !== 'kanji'}
 					<button

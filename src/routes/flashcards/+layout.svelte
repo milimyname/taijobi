@@ -24,7 +24,7 @@
 	class="flex h-full select-none flex-col items-center overflow-hidden bg-white px-3 py-5 transition-all {$clickedAddFlashcard &&
 		'mt-5 rounded-t-2xl py-14'}"
 >
-	<section class="z-[99] flex w-full justify-between py-5">
+	<nav class="z-[99] flex w-full justify-between p-5">
 		<button
 			on:click|preventDefault={() => {
 				goto($page.route.id?.length < 12 ? '/studying' : '/flashcards');
@@ -40,7 +40,7 @@
 		>
 			{@html icons.collection}
 		</button>
-	</section>
+	</nav>
 
 	<slot />
 </main>
