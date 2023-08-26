@@ -26,6 +26,7 @@ export const flashcardSchema = z.object({
 
 export const flashcardsSchema = z.object({
 	name: z.string(),
-	description: z.string().optional(),
+	description: z.string().max(100).optional(),
+	id: z.string().optional(),
 	user_id: z.string()
 });

@@ -10,7 +10,11 @@ export const load = (async ({ locals }) => {
 	if (!collection_kanji)
 		collection_kanji = await locals.pb
 			.collection('flashcards')
-			.create({ name: 'kanji', user_id: locals.pb.authStore.model.id });
+			.create({
+				name: 'kanji',
+				user_id: locals.pb.authStore.model.id,
+				description: 'It is a list of saved kanji.'
+			});
 
 	// Get all flashcards
 	const flashcard = await locals.pb.collection('flashcard').getFullList();

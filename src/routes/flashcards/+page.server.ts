@@ -19,7 +19,7 @@ export const load = (async ({ locals }) => {
 }) satisfies PageServerLoad;
 
 export const actions = {
-	default: async ({ request, locals }) => {
+	add: async ({ request, locals }) => {
 		const form = await superValidate(request, flashcardsSchema);
 
 		// Convenient validation check:
@@ -31,7 +31,7 @@ export const actions = {
 		let folder_flashcards;
 
 		try {
-			// Create user
+			// Create a new collection of flashcards
 			folder_flashcards = await locals.pb
 				.collection('flashcards')
 				.create({ name: form.data.name, description: form.data.description, user_id: id });
@@ -41,5 +41,40 @@ export const actions = {
 		}
 
 		throw redirect(303, `/flashcards/${folder_flashcards.id}`);
+	},
+	edit: async ({ request, locals }) => {
+		const form = await superValidate(request, flashcardsSchema);
+
+		// Convenient validation check:
+		if (!form.valid) return fail(400, { form });
+
+		try {
+			// Update the flashcard
+			await locals.pb.collection('flashcards').update(form.data.id, {
+				name: form.data.name,
+				description: form.data.description
+			});
+		} catch (_) {
+			form.errors.name = ['Name already exists'];
+			return { form };
+		}
+
+		return { form };
+	},
+	delete: async ({ request, locals }) => {
+		const form = await superValidate(request, flashcardsSchema);
+
+		// Convenient validation check:
+		if (!form.valid) return fail(400, { form });
+
+		try {
+			// Delete the flashcard
+			await locals.pb.collection('flashcards').delete(form.data.id);
+		} catch (_) {
+			form.errors.name = ['Cannot delete flashcard'];
+			return { form };
+		}
+
+		return { form };
 	}
 };

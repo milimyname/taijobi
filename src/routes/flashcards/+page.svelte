@@ -1,18 +1,30 @@
 <script lang="ts">
+	import { icons } from '$lib/utils/icons';
 	import Vault from './Vault.svelte';
 	import { goto } from '$app/navigation';
 	import { clickOutside } from '$lib/utils/clickOutside';
 	import { maxWidthCard, minWidthCard } from '$lib/utils/constants';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
-	import { clickedAddFlashcard, clickedFlashCard } from '$lib/utils/stores.js';
+	import {
+		clickedAddFlashcard,
+		clickedFlashCard,
+		clickedEditFlashcard,
+		clickedDeleteFlashcard
+	} from '$lib/utils/stores.js';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { handleScroll, sortCards } from '$lib/utils/actions.js';
 
 	export let data;
 
-	let cards = []; // Array of cards
+	type Card = {
+		id: string;
+		name: string;
+		description: string;
+	};
+
+	let cards: Card[] = []; // Array of cards
 	let touchStartY = 0;
 	let touchCurrentY = 0;
 	const scrollIncrement = 8; // Adjust this value to control scroll speed
@@ -34,16 +46,26 @@
 
 			if (mountedCards.length === 1)
 				card.style.top = `${(i + 1) * (window.innerHeight / 3 / mountedCards.length)}px`;
+			else if (mountedCards.length < 6)
+				card.style.top = `${(i + 1) * (window.innerHeight / 2 / mountedCards.length)}px`;
 			// Apply the calculated top position to the card
 			else card.style.top = `${i * (window.innerHeight / mountedCards.length)}px`;
 		});
 	});
 
 	$: {
-		// Populate card array from data flashcards by type
-		data.flashcards.forEach((card: any) => {
+		// Update the cards array when the data changes
+		cards = [];
+
+		data.flashcards.forEach((card: Card) => {
 			cards.push(card);
 		});
+
+		// Set other cards to be normal
+		if (mountedCards)
+			mountedCards.forEach((card) => {
+				card.style.transform = 'translate(-50%, -50%) skew(0deg, 0deg)';
+			});
 	}
 
 	const handleMouseWheel = (e: { deltaY: any }) => {
@@ -67,7 +89,9 @@
 		currentTarget: { style: { transform: string; zIndex: string } };
 	}) => {
 		$clickedFlashCard = false;
+		$clickedEditFlashcard = false;
 		$clickedAddFlashcard = false;
+		$clickedDeleteFlashcard = false;
 		e.currentTarget.style.transform = 'translate(-50%, -50%) skew(0deg, 0deg)';
 		e.currentTarget.style.zIndex = currentCardZindex;
 
@@ -81,6 +105,10 @@
 				card.classList.remove('pointer-events-none');
 			}, 500);
 		});
+
+		// Clear the form
+		$form.name = '';
+		$form.description = '';
 	};
 
 	const handleCardClick = (e: { currentTarget: any }) => {
@@ -101,8 +129,10 @@
 
 	// Client API:
 	const { form, errors, constraints, enhance } = superForm(data.form, {
+		taintedMessage: null,
 		onUpdated: () => {
-			if (!$errors.name) $clickedAddFlashcard = false;
+			if (!$errors.name || !$errors.description) $clickedAddFlashcard = false;
+			$clickedFlashCard = false;
 		}
 	});
 </script>
@@ -125,6 +155,7 @@
                   "
 				aria-invalid={$errors.name ? 'true' : undefined}
 				bind:value={$form.name}
+				disabled={$form.name === 'kanji'}
 				{...$constraints.name}
 			/>
 			{#if $errors.name}
@@ -158,11 +189,27 @@
 				>
 			{/if}
 		</fieldset>
+		<input type="hidden" name="id" bind:value={$form.id} />
 	</div>
-	<button
-		class="text-md w-full rounded-md bg-black py-2 font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm lg:w-2/3"
-		>Add Collection</button
-	>
+	{#if $clickedEditFlashcard}
+		<button
+			formaction="?/edit"
+			class="w-full rounded-md bg-gray-400 py-2 text-lg font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm lg:w-2/3"
+			>Edit Collection
+		</button>
+	{:else if $clickedDeleteFlashcard}
+		<button
+			formaction="?/delete"
+			class="w-full rounded-md bg-red-400 py-2 text-lg font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-red-500 active:translate-y-1 active:shadow-sm lg:w-2/3"
+			>Delete Collection
+		</button>
+	{:else}
+		<button
+			formaction="?/add"
+			class="w-full rounded-md bg-black py-2 text-lg font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm lg:w-2/3"
+			>Add Collection
+		</button>
+	{/if}
 </Vault>
 
 <section
@@ -185,16 +232,66 @@
 			`}
 			class="flashcard absolute left-1/2 right-1/2 mx-auto flex h-60 w-full -translate-x-1/2 -translate-y-1/2 cursor-pointer select-none flex-col items-center justify-between rounded-2xl bg-blue-200 p-4"
 		>
-			<h4 class="text-4xl">{card.name === 'kanji' ? '漢字' : card.name}</h4>
-			<button
-				on:click|stopPropagation={() => {
-					$clickedFlashCard = false;
-					goto(`flashcards/${card.id}`);
-				}}
-				class="open-flashcard rounded-full bg-black px-4 py-2 text-white"
+			<div>
+				<h4 class="break-all {card.name.length > 5 ? 'text-xl font-bold' : 'text-4xl'}">
+					{card.name === 'kanji' ? '漢字' : card.name}
+				</h4>
+				<p>{card.description}</p>
+			</div>
+			<div
+				class="flex {card.name !== 'kanji'
+					? 'w-2/3'
+					: 'gap-8'} items-center justify-between rounded-full bg-black px-4 py-2 text-white"
 			>
-				Open it
-			</button>
+				{#if card.name !== 'kanji'}
+					<button
+						on:click|stopPropagation={() => {
+							$clickedAddFlashcard = true;
+							$clickedDeleteFlashcard = true;
+							// Fill out the form with the current card data
+							$form.name = card.name;
+							$form.description = card.description;
+							$form.id = card.id;
+						}}
+					>
+						{@html icons.delete}
+					</button>
+				{/if}
+				<button
+					on:click|stopPropagation={() => {
+						$clickedAddFlashcard = true;
+						$clickedEditFlashcard = true;
+						// Fill out the form with the current card data
+						$form.name = card.name;
+						$form.description = card.description;
+						$form.id = card.id;
+					}}
+				>
+					{@html icons.edit}
+				</button>
+				<button
+					on:click|stopPropagation={() => {
+						$clickedFlashCard = false;
+						goto(`flashcards/${card.id}`);
+					}}
+					class="open-flashcard"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke-width="1.5"
+						stroke="currentColor"
+						class="h-5 w-5"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"
+						/>
+					</svg>
+				</button>
+			</div>
 		</button>
 	{/each}
 </section>

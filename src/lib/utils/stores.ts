@@ -9,6 +9,8 @@ export const strokeColor = writable('#000000');
 export const innerWidthStore = writable(0);
 export const lastPoint = writable({ x: 0, y: 0 });
 export const clickedAddFlashcard = writable(false);
+export const clickedEditFlashcard = writable(false);
+export const clickedDeleteFlashcard = writable(false);
 export const clickedFlashCard = writable(false);
 export const selectedKanjiGrade = writable('0');
 
