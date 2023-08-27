@@ -98,7 +98,6 @@ export const handleScroll = (scroll: number, mountedCards: NodeListOf<HTMLButton
 export const uploadCroppedImage = async (
 	imageSrc: string,
 	cropperDetails: CropperDetails,
-	formData: FormData,
 	inputFile: HTMLInputElement,
 	user_id: string
 ) => {
@@ -135,8 +134,6 @@ export const uploadCroppedImage = async (
 		canvas.toBlob(async (blob) => {
 			// Make sure the blob is not null
 			if (!blob) return;
-			// Append the cropped image Blob to the formData
-			formData.append('avatar', blob);
 
 			// Delete the previous profile image
 			await pocketbase.collection('users').update(user_id, {
@@ -145,7 +142,9 @@ export const uploadCroppedImage = async (
 			});
 
 			// Upload the cropped image
-			await pocketbase.collection('users').update(user_id, formData);
+			await pocketbase.collection('users').update(user_id, {
+				avatar: blob
+			});
 
 			// Reset variables and UI state
 			uploadingProfilePic.set(false);

@@ -13,7 +13,6 @@
 		taintedMessage: null
 	});
 
-	const formData = new FormData();
 	let imageSrc: string;
 	let inputFile: HTMLInputElement;
 	let crop = { x: 0, y: 0 };
@@ -92,8 +91,6 @@
 				on:change={async (e) => {
 					const file = e.target.files[0];
 
-					formData.append('image', file);
-
 					imageSrc = URL.createObjectURL(file);
 
 					$uploadingProfilePic = true;
@@ -143,7 +140,7 @@
 			>
 			<button
 				on:click={async () =>
-					await uploadCroppedImage(imageSrc, cropperDetails, formData, inputFile, data.user.id)}
+					await uploadCroppedImage(imageSrc, cropperDetails, inputFile, data.user.id)}
 				class="rounded-full bg-black px-4 py-2 text-white"
 			>
 				Upload
