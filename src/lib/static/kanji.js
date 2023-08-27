@@ -10714,7 +10714,7 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'long time',
 		onyomi: ['キュウ'],
-		kunyomi: ['ひさ-しい']
+		kunyomi: ['ひさ']
 	},
 	仏: {
 		ds: [],
@@ -10726,7 +10726,7 @@ export const grade5Knaji = {
 	仮: {
 		ds: [],
 		grade: 5,
-		meaning: 'temporary',
+		meaning: 'sham',
 		onyomi: ['カ'],
 		kunyomi: ['かり']
 	},
@@ -10740,14 +10740,14 @@ export const grade5Knaji = {
 	任: {
 		ds: [],
 		grade: 5,
-		meaning: 'duty',
+		meaning: 'resposibility',
 		onyomi: ['ニン'],
-		kunyomi: ['まか-せる', 'まか-す']
+		kunyomi: ['まか-せる']
 	},
 	似: {
 		ds: [],
 		grade: 5,
-		meaning: 'similar',
+		meaning: 'resemble',
 		onyomi: ['ジ'],
 		kunyomi: ['に-る']
 	},
@@ -10756,7 +10756,7 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'too much',
 		onyomi: ['ヨ'],
-		kunyomi: ['あま-る', 'あま-す']
+		kunyomi: ['あま-る']
 	},
 	価: {
 		ds: [],
@@ -10777,12 +10777,12 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'discipline',
 		onyomi: ['シュウ'],
-		kunyomi: ['おさ-める', 'おさ-まる']
+		kunyomi: ['おさ-める']
 	},
 	俵: {
 		ds: [],
 		grade: 5,
-		meaning: 'bag',
+		meaning: 'straw bag',
 		onyomi: ['ヒョウ'],
 		kunyomi: ['たわら']
 	},
@@ -10798,7 +10798,7 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'provide',
 		onyomi: ['ビ'],
-		kunyomi: ['そな-える', 'そな-わる']
+		kunyomi: ['そな-える']
 	},
 	像: {
 		ds: [],
@@ -10811,7 +10811,7 @@ export const grade5Knaji = {
 		ds: [],
 		grade: 5,
 		meaning: 'again',
-		onyomi: ['サイ'],
+		onyomi: ['サイ', 'サ'],
 		kunyomi: ['ふたた-び']
 	},
 	刊: {
@@ -10847,7 +10847,7 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'rule',
 		onyomi: ['ソク'],
-		kunyomi: []
+		kunyomi: ['のっと-る']
 	},
 	効: {
 		ds: [],
@@ -10859,9 +10859,9 @@ export const grade5Knaji = {
 	務: {
 		ds: [],
 		grade: 5,
-		meaning: 'task',
+		meaning: 'duty',
 		onyomi: ['ム'],
-		kunyomi: ['つと-める', 'つと-まる']
+		kunyomi: ['つと-める']
 	},
 	勢: {
 		ds: [],
@@ -10908,7 +10908,7 @@ export const grade5Knaji = {
 	団: {
 		ds: [],
 		grade: 5,
-		meaning: 'group',
+		meaning: 'association',
 		onyomi: ['ダン', 'トン'],
 		kunyomi: []
 	},
@@ -10938,7 +10938,7 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'foundation',
 		onyomi: ['キ'],
-		kunyomi: []
+		kunyomi: ['もとーずく']
 	},
 	報: {
 		ds: [],
@@ -10966,7 +10966,7 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'increase',
 		onyomi: ['ゾウ'],
-		kunyomi: ['ま-す', 'ふ-える', 'ふ-やす']
+		kunyomi: ['ま-す', 'ふ-える']
 	},
 	夢: {
 		ds: [],
@@ -11001,14 +11001,14 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'approach',
 		onyomi: ['キ'],
-		kunyomi: ['よ-る', 'よ-せる']
+		kunyomi: ['よ-る']
 	},
 	富: {
 		ds: [],
 		grade: 5,
-		meaning: 'wealth',
-		onyomi: ['フ', 'フウ'],
-		kunyomi: ['と-む', 'とみ']
+		meaning: 'abundant',
+		onyomi: ['フ'],
+		kunyomi: ['とみ']
 	},
 	導: {
 		ds: [],
@@ -11048,16 +11048,16 @@ export const grade5Knaji = {
 	常: {
 		ds: [],
 		grade: 5,
-		meaning: 'usual',
+		meaning: 'normal',
 		onyomi: ['ジョウ'],
-		kunyomi: ['つね', 'とこ']
+		kunyomi: ['つね']
 	},
 	幹: {
 		ds: [],
 		grade: 5,
 		meaning: 'tree trunk',
 		onyomi: ['カン'],
-		kunyomi: []
+		kunyomi: ['みき']
 	},
 	序: {
 		ds: [],
@@ -11092,7 +11092,7 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'restore',
 		onyomi: ['フク'],
-		kunyomi: ['また']
+		kunyomi: []
 	},
 	徳: {
 		ds: [],
@@ -11113,7 +11113,7 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'respond',
 		onyomi: ['オウ'],
-		kunyomi: ['あた-る']
+		kunyomi: []
 	},
 	快: {
 		ds: [],
@@ -11127,7 +11127,7 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'gender',
 		onyomi: ['セイ', 'ショウ'],
-		kunyomi: []
+		kunyomi: ['さが']
 	},
 	恩: {
 		ds: [],
@@ -11155,13 +11155,13 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'accustomed',
 		onyomi: ['カン'],
-		kunyomi: ['な-れる', 'な-らす']
+		kunyomi: ['な-れる']
 	},
 	承: {
 		ds: [],
 		grade: 5,
 		meaning: 'acquiesce',
-		onyomi: ['ショウ'],
+		onyomi: ['ショウ', 'ジョウ'],
 		kunyomi: ['うけたまわ-る']
 	},
 	技: {
@@ -11183,7 +11183,7 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'instruct',
 		onyomi: ['ジュ'],
-		kunyomi: ['さず-ける', 'さず-かる']
+		kunyomi: ['さず-ける']
 	},
 	採: {
 		ds: [],
@@ -11203,7 +11203,7 @@ export const grade5Knaji = {
 		ds: [],
 		grade: 5,
 		meaning: 'propose',
-		onyomi: ['テイ', 'チョウ', 'ダイ'],
+		onyomi: ['テイ'],
 		kunyomi: ['さ-げる']
 	},
 	損: {
@@ -11211,12 +11211,12 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'loss',
 		onyomi: ['ソン'],
-		kunyomi: ['そこ-なう', 'そこ-ねる']
+		kunyomi: ['そこ-ねる']
 	},
 	支: {
 		ds: [],
 		grade: 5,
-		meaning: 'branch',
+		meaning: 'support',
 		onyomi: ['シ'],
 		kunyomi: ['ささ-える']
 	},
@@ -11224,8 +11224,8 @@ export const grade5Knaji = {
 		ds: [],
 		grade: 5,
 		meaning: 'politics',
-		onyomi: ['セイ', 'ショウ'],
-		kunyomi: []
+		onyomi: ['セイ'],
+		kunyomi: ['まつりごと']
 	},
 	故: {
 		ds: [],
@@ -11244,9 +11244,9 @@ export const grade5Knaji = {
 	断: {
 		ds: [],
 		grade: 5,
-		meaning: 'sever',
+		meaning: 'decline, refuse',
 		onyomi: ['ダン'],
-		kunyomi: ['た-つ', 'ことわ-る']
+		kunyomi: ['ことわ-る']
 	},
 	旧: {
 		ds: [],
@@ -11259,7 +11259,7 @@ export const grade5Knaji = {
 		ds: [],
 		grade: 5,
 		meaning: 'easy',
-		onyomi: ['エキ', 'イ'],
+		onyomi: ['エキ'],
 		kunyomi: ['やさ-しい']
 	},
 	暴: {
@@ -11267,14 +11267,14 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'outburst',
 		onyomi: ['ボウ'],
-		kunyomi: ['あば-く', 'あば-れる']
+		kunyomi: ['あば-く']
 	},
 	条: {
 		ds: [],
 		grade: 5,
 		meaning: 'clause',
 		onyomi: ['ジョウ'],
-		kunyomi: []
+		kunyomi: ['くだり']
 	},
 	枝: {
 		ds: [],
@@ -11300,14 +11300,14 @@ export const grade5Knaji = {
 	桜: {
 		ds: [],
 		grade: 5,
-		meaning: 'cherry tree',
-		onyomi: ['オウ', 'ヨウ'],
+		meaning: 'cherry',
+		onyomi: ['オウ'],
 		kunyomi: ['さくら']
 	},
 	検: {
 		ds: [],
 		grade: 5,
-		meaning: 'examination',
+		meaning: 'examine',
 		onyomi: ['ケン'],
 		kunyomi: []
 	},
@@ -11316,14 +11316,14 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'construct',
 		onyomi: ['コウ'],
-		kunyomi: ['かま-える', 'かま-う']
+		kunyomi: ['かま-える']
 	},
 	武: {
 		ds: [],
 		grade: 5,
 		meaning: 'military',
 		onyomi: ['ブ', 'ム'],
-		kunyomi: ['たけ']
+		kunyomi: []
 	},
 	比: {
 		ds: [],
@@ -11342,7 +11342,7 @@ export const grade5Knaji = {
 	河: {
 		ds: [],
 		grade: 5,
-		meaning: 'river',
+		meaning: 'stream',
 		onyomi: ['カ'],
 		kunyomi: ['かわ']
 	},
@@ -11358,19 +11358,19 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'mix',
 		onyomi: ['コン'],
-		kunyomi: ['ま-じる', 'ま-ざる', 'ま-ぜる', 'こ-む']
+		kunyomi: ['ま-じる']
 	},
 	減: {
 		ds: [],
 		grade: 5,
 		meaning: 'decrease',
 		onyomi: ['ゲン'],
-		kunyomi: ['へ-る', 'へ-らす']
+		kunyomi: ['へ-る']
 	},
 	測: {
 		ds: [],
 		grade: 5,
-		meaning: 'fathom',
+		meaning: 'measure',
 		onyomi: ['ソク'],
 		kunyomi: ['はか-る']
 	},
@@ -11407,7 +11407,7 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'burn',
 		onyomi: ['ネン'],
-		kunyomi: ['も-える', 'も-やす', 'も-す']
+		kunyomi: ['も-える']
 	},
 	版: {
 		ds: [],
@@ -11426,7 +11426,7 @@ export const grade5Knaji = {
 	状: {
 		ds: [],
 		grade: 5,
-		meaning: 'status quo',
+		meaning: 'form',
 		onyomi: ['ジョウ'],
 		kunyomi: []
 	},
@@ -11440,23 +11440,23 @@ export const grade5Knaji = {
 	率: {
 		ds: [],
 		grade: 5,
-		meaning: 'ratio',
-		onyomi: ['ソツ', 'リツ', 'シュツ'],
+		meaning: 'rate',
+		onyomi: ['ソツ', 'リツ'],
 		kunyomi: ['ひき-いる']
 	},
 	現: {
 		ds: [],
 		grade: 5,
-		meaning: 'present',
+		meaning: 'appear',
 		onyomi: ['ゲン'],
-		kunyomi: ['あらわ-れる', 'あらわ-す']
+		kunyomi: ['あらわ-れる']
 	},
 	留: {
 		ds: [],
 		grade: 5,
 		meaning: 'detain',
-		onyomi: ['リュウ'],
-		kunyomi: ['と-める', 'と-まる']
+		onyomi: ['リュウ', 'ル'],
+		kunyomi: ['とど-まる']
 	},
 	略: {
 		ds: [],
@@ -11469,7 +11469,7 @@ export const grade5Knaji = {
 		ds: [],
 		grade: 5,
 		meaning: 'benefit',
-		onyomi: ['エキ', 'ヤク'],
+		onyomi: ['エキ'],
 		kunyomi: []
 	},
 	眼: {
@@ -11477,27 +11477,27 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'eyeball',
 		onyomi: ['ガン'],
-		kunyomi: ['まなこ']
+		kunyomi: ['め']
 	},
 	破: {
 		ds: [],
 		grade: 5,
 		meaning: 'rend',
 		onyomi: ['ハ'],
-		kunyomi: ['やぶ-る', 'やぶ-れる']
+		kunyomi: ['やぶ-る']
 	},
 	確: {
 		ds: [],
 		grade: 5,
 		meaning: 'certain',
 		onyomi: ['カク'],
-		kunyomi: ['たし-か', 'たし-かめる']
+		kunyomi: ['たし-か']
 	},
 	示: {
 		ds: [],
 		grade: 5,
 		meaning: 'indicate',
-		onyomi: ['ジ'],
+		onyomi: ['シ'],
 		kunyomi: ['しめ-す']
 	},
 	祖: {
@@ -11519,7 +11519,7 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'shift',
 		onyomi: ['イ'],
-		kunyomi: ['うつ-る', 'うつ-す']
+		kunyomi: ['うつ-る']
 	},
 	程: {
 		ds: [],
@@ -11546,7 +11546,7 @@ export const grade5Knaji = {
 		ds: [],
 		grade: 5,
 		meaning: 'refined',
-		onyomi: ['セイ', 'ショウ'],
+		onyomi: ['セイ'],
 		kunyomi: []
 	},
 	素: {
@@ -11554,19 +11554,19 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'elementary',
 		onyomi: ['ソ', 'ス'],
-		kunyomi: []
+		kunyomi: ['もと']
 	},
 	経: {
 		ds: [],
 		grade: 5,
 		meaning: 'manage',
-		onyomi: ['ケイ'],
+		onyomi: ['ケイ', 'キョウ'],
 		kunyomi: ['へ-る']
 	},
 	統: {
 		ds: [],
 		grade: 5,
-		meaning: 'unite',
+		meaning: 'relationship',
 		onyomi: ['トウ'],
 		kunyomi: ['す-べる']
 	},
@@ -11575,7 +11575,7 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'discontinue',
 		onyomi: ['ゼツ'],
-		kunyomi: ['た-える', 'た-やす', 'た-つ']
+		kunyomi: ['た-つ']
 	},
 	綿: {
 		ds: [],
@@ -11594,7 +11594,7 @@ export const grade5Knaji = {
 	編: {
 		ds: [],
 		grade: 5,
-		meaning: 'compilation',
+		meaning: 'compile',
 		onyomi: ['ヘン'],
 		kunyomi: ['あ-む']
 	},
@@ -11624,7 +11624,7 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'flock',
 		onyomi: ['グン'],
-		kunyomi: ['む-れる', 'む-れ', '（むら）']
+		kunyomi: ['む-れる']
 	},
 	義: {
 		ds: [],
@@ -11652,7 +11652,7 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'fertilizer',
 		onyomi: ['ヒ'],
-		kunyomi: ['こ-える', 'こえ', 'こ-やす', 'こ-やし']
+		kunyomi: ['こ-やす']
 	},
 	能: {
 		ds: [],
@@ -11666,7 +11666,7 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'entertain',
 		onyomi: ['コウ'],
-		kunyomi: ['おこ-る', 'おこ-す']
+		kunyomi: ['おこ-す']
 	},
 	舌: {
 		ds: [],
@@ -11680,14 +11680,14 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'cottage',
 		onyomi: ['シャ'],
-		kunyomi: ['やど']
+		kunyomi: []
 	},
 	術: {
 		ds: [],
 		grade: 5,
 		meaning: 'art',
 		onyomi: ['ジュツ'],
-		kunyomi: []
+		kunyomi: ['すべ']
 	},
 	衛: {
 		ds: [],
@@ -11722,7 +11722,7 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'untie',
 		onyomi: ['カイ', 'ゲ'],
-		kunyomi: ['と-く', 'と-かす', 'と-ける']
+		kunyomi: ['と-く']
 	},
 	設: {
 		ds: [],
@@ -11743,7 +11743,7 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'evidence',
 		onyomi: ['ショウ'],
-		kunyomi: []
+		kunyomi: ['あかし']
 	},
 	評: {
 		ds: [],
@@ -11778,27 +11778,27 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'safeguard',
 		onyomi: ['ゴ'],
-		kunyomi: []
+		kunyomi: ['まも-る']
 	},
 	豊: {
 		ds: [],
 		grade: 5,
 		meaning: 'bountiful',
-		onyomi: ['ホウ', 'ブ'],
+		onyomi: ['ホウ'],
 		kunyomi: ['ゆた-か']
 	},
 	財: {
 		ds: [],
 		grade: 5,
-		meaning: 'property',
-		onyomi: ['ザイ', 'サイ'],
+		meaning: 'wealth',
+		onyomi: ['ザイ'],
 		kunyomi: []
 	},
 	貧: {
 		ds: [],
 		grade: 5,
-		meaning: 'poverty',
-		onyomi: ['ヒン', 'ビン'],
+		meaning: 'poor',
+		onyomi: ['ヒン'],
 		kunyomi: ['まず-しい']
 	},
 	責: {
@@ -11846,8 +11846,8 @@ export const grade5Knaji = {
 	質: {
 		ds: [],
 		grade: 5,
-		meaning: 'substance',
-		onyomi: ['シツ', 'シチ', 'チ'],
+		meaning: 'quality',
+		onyomi: ['シツ'],
 		kunyomi: []
 	},
 	輸: {
@@ -11876,14 +11876,14 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'retreat',
 		onyomi: ['タイ'],
-		kunyomi: ['しりぞ-く', 'しりぞ-ける']
+		kunyomi: ['しりぞ-く']
 	},
 	逆: {
 		ds: [],
 		grade: 5,
 		meaning: 'inverted',
 		onyomi: ['ギャク'],
-		kunyomi: ['さか', 'さか-らう']
+		kunyomi: ['さか-らう']
 	},
 	造: {
 		ds: [],
@@ -11895,9 +11895,9 @@ export const grade5Knaji = {
 	過: {
 		ds: [],
 		grade: 5,
-		meaning: 'overdo',
+		meaning: 'pass, exceed',
 		onyomi: ['カ'],
-		kunyomi: ['す-ぎる', 'す-ごす', 'あやま-つ', 'あやま-ち']
+		kunyomi: ['す-ぎる']
 	},
 	適: {
 		ds: [],
@@ -11937,7 +11937,7 @@ export const grade5Knaji = {
 	防: {
 		ds: [],
 		grade: 5,
-		meaning: 'prevent',
+		meaning: 'resist',
 		onyomi: ['ボウ'],
 		kunyomi: ['ふせ-ぐ']
 	},
@@ -11967,26 +11967,26 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'miscellaneous',
 		onyomi: ['ザツ'],
-		kunyomi: ['まじ-える', 'まじ-る']
+		kunyomi: []
 	},
 	非: {
 		ds: [],
 		grade: 5,
-		meaning: 'un-',
+		meaning: 'negative',
 		onyomi: ['ヒ'],
-		kunyomi: []
+		kunyomi: ['あら-ず']
 	},
 	預: {
 		ds: [],
 		grade: 5,
 		meaning: 'deposit',
 		onyomi: ['ヨ'],
-		kunyomi: ['あず-ける', 'あず-かる']
+		kunyomi: ['あず-ける']
 	},
 	領: {
 		ds: [],
 		grade: 5,
-		meaning: 'jurisdiction',
+		meaning: 'territory',
 		onyomi: ['リョウ'],
 		kunyomi: []
 	},
@@ -11995,7 +11995,7 @@ export const grade5Knaji = {
 		grade: 5,
 		meaning: 'amount',
 		onyomi: ['ガク'],
-		kunyomi: []
+		kunyomi: ['ひたい']
 	},
 	飼: {
 		ds: [],
