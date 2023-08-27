@@ -21,12 +21,20 @@ export const flashcardSchema = z.object({
 	name: z.string(),
 	meaning: z.string().optional(),
 	type: z.string(),
+	notes: z.string().optional(),
 	flashcards_id: z.string().optional()
 });
 
 export const flashcardsSchema = z.object({
-	name: z.string(),
+	name: z.string().max(25),
 	description: z.string().max(100).optional(),
 	id: z.string().optional(),
 	user_id: z.string()
+});
+
+export const feedbacksSchema = z.object({
+	name: z.string(),
+	message: z.string().max(1000),
+	url: z.string().max(100).optional(),
+	device: z.string()
 });

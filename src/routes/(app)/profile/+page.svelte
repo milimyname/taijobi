@@ -2,17 +2,33 @@
 	import { superForm } from 'sveltekit-superforms/client';
 	import { slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
+	import Cropper from 'svelte-easy-crop';
+	import { uploadingProfilePic } from '$lib/utils/stores.js';
+	import { uploadCroppedImage } from '$lib/utils/actions.js';
+	import type { CropperDetails } from '$lib/utils/ambient.d.ts';
 
 	export let data;
+
 	const { form, errors, constraints, enhance } = superForm(data.form, {
 		taintedMessage: null
 	});
+
+	const formData = new FormData();
+	let imageSrc: string;
+	let inputFile: HTMLInputElement;
+	let crop = { x: 0, y: 0 };
+	let zoom = 1;
+	let cropperDetails: CropperDetails;
 
 	$: {
 		$form.email = data.user.email;
 		$form.username = data.user.username;
 	}
 </script>
+
+{#if $uploadingProfilePic}
+	<div class="fixed top-0 z-[100] h-screen w-full bg-black opacity-50 transition-all" />
+{/if}
 
 <section class="mb-auto w-full rounded-t-4xl border border-[#EEEEEE] px-10 py-10 sm:w-1/2 sm:px-16">
 	<form action="?/changeProfileData" class="flex flex-col gap-8" method="POST" use:enhance>
@@ -72,8 +88,17 @@
 				file:bg-[#e9f5ff] file:px-4
 				file:py-2 file:text-sm
 				file:font-semibold file:text-[#40a8f0]
-				hover:file:bg-[#bae1ff]
-				"
+				hover:file:bg-[#bae1ff]"
+				on:change={async (e) => {
+					const file = e.target.files[0];
+
+					formData.append('image', file);
+
+					imageSrc = URL.createObjectURL(file);
+
+					$uploadingProfilePic = true;
+				}}
+				bind:this={inputFile}
 				accept="image/*"
 			/>
 		</div>
@@ -95,3 +120,34 @@
 		</div>
 	</form>
 </section>
+
+{#if $uploadingProfilePic}
+	<div class="absolute left-1/2 top-1/2 z-[110] h-80 w-80 -translate-x-1/2 -translate-y-1/2">
+		<Cropper
+			aspect={1}
+			image={imageSrc}
+			bind:crop
+			bind:zoom
+			on:cropcomplete={(e) => (cropperDetails = e.detail)}
+		/>
+
+		<div class="absolute left-1/2 top-[90%] flex -translate-x-1/2 -translate-y-1/2 gap-20">
+			<button
+				on:click={() => {
+					$uploadingProfilePic = false;
+					imageSrc = '';
+					// Clear file input
+					inputFile.value = '';
+				}}
+				class="rounded-full bg-white px-4 py-2">Cancel</button
+			>
+			<button
+				on:click={async () =>
+					await uploadCroppedImage(imageSrc, cropperDetails, formData, inputFile, data.user.id)}
+				class="rounded-full bg-black px-4 py-2 text-white"
+			>
+				Upload
+			</button>
+		</div>
+	</div>
+{/if}

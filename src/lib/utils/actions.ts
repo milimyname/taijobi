@@ -1,5 +1,13 @@
-import { showAppNav, showNav, isLongPress, lastPoint } from '$lib/utils/stores';
+import {
+	showAppNav,
+	showNav,
+	isLongPress,
+	lastPoint,
+	uploadingProfilePic
+} from '$lib/utils/stores';
 import { maxWidthCard, minWidthCard } from '$lib/utils/constants';
+import { pocketbase } from './pocketbase';
+import type { CropperDetails } from '$lib/utils/ambient.d.ts';
 
 export function handleUserIconClick() {
 	let longPress;
@@ -83,4 +91,66 @@ export const handleScroll = (scroll: number, mountedCards: NodeListOf<HTMLButton
 		// Assign z-index based on the sorted order
 		card.style.zIndex = `${j}`;
 	});
+};
+
+// Upload a resized profile image to a square
+
+export const uploadCroppedImage = async (
+	imageSrc: string,
+	cropperDetails: CropperDetails,
+	formData: FormData,
+	inputFile: HTMLInputElement,
+	user_id: string
+) => {
+	// Create a new image element to load the selected image
+	const selectedImage = new Image();
+	selectedImage.src = imageSrc;
+
+	// Set up an event handler to load the selected image
+	selectedImage.onload = () => {
+		// Create a canvas element to draw the cropped image
+		const canvas = document.createElement('canvas');
+		const ctx = canvas.getContext('2d');
+
+		if (!ctx) return;
+
+		// Set the canvas dimensions to match the cropped area
+		canvas.width = cropperDetails.pixels.width;
+		canvas.height = cropperDetails.pixels.height;
+
+		// Draw the cropped image onto the canvas using cropperDetails
+		ctx.drawImage(
+			selectedImage, // Original image element
+			cropperDetails.pixels.x, // x-coordinate of the top-left corner of the cropped area
+			cropperDetails.pixels.y, // y-coordinate of the top-left corner of the cropped area
+			cropperDetails.pixels.width, // width of the cropped area
+			cropperDetails.pixels.height, // height of the cropped area
+			0, // x-coordinate of the top-left corner of the destination rectangle
+			0, // y-coordinate of the top-left corner of the destination rectangle
+			cropperDetails.pixels.width, // width of the destination rectangle
+			cropperDetails.pixels.height // height of the destination rectangle
+		);
+
+		// Convert the canvas content to a Blob
+		canvas.toBlob(async (blob) => {
+			// Make sure the blob is not null
+			if (!blob) return;
+			// Append the cropped image Blob to the formData
+			formData.append('avatar', blob);
+
+			// Delete the previous profile image
+			await pocketbase.collection('users').update(user_id, {
+				avatar: null,
+				oauth2ImageUrl: null
+			});
+
+			// Upload the cropped image
+			await pocketbase.collection('users').update(user_id, formData);
+
+			// Reset variables and UI state
+			uploadingProfilePic.set(false);
+			imageSrc = '';
+			inputFile.value = '';
+		}, 'image/jpeg'); // Specify the desired image format here
+	};
 };

@@ -194,7 +194,7 @@
 				aria-invalid={$errors.description ? 'true' : undefined}
 				bind:value={$form.description}
 				{...$constraints.description}
-				rows="5"
+				rows="3"
 			/>
 			{#if $errors.description}
 				<span

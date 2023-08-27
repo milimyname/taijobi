@@ -47,6 +47,7 @@
 		"kuroshiro": "^1.2.0",
 		"kuroshiro-analyzer-kuromoji": "^1.1.0",
 		"pocketbase": "^0.15.3",
+		"svelte-easy-crop": "^2.0.1",
 		"wanakana": "^5.1.0",
 		"youtube-dl-exec": "^2.4.7"
 	}

@@ -5,9 +5,10 @@
 	import MobileNav from './MobileNav.svelte';
 	import { showAppNav, showNav, innerWidthStore } from '$lib/utils/stores';
 	import { onMount } from 'svelte';
-
 	import image from '$lib/static/mili.jpeg';
 	import { icons } from '$lib/utils/icons';
+	import { pocketbase } from '$lib/utils/pocketbase';
+
 	let innerWidth: number;
 	let longPressTimer: NodeJS.Timeout;
 	let isLongPress = false;
@@ -43,7 +44,9 @@
 	let imageSrc = image;
 
 	onMount(() => {
-		imageSrc = data.user ? data.user.oauth2ImageUrl : image;
+		if (data.user.oauth2ImageUrl) imageSrc = data.user.oauth2ImageUrl;
+		else if (data.user.avatar) imageSrc = pocketbase.files.getUrl(data.user, data.user.avatar);
+		else imageSrc = image;
 	});
 
 	$: {

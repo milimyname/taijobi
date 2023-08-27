@@ -764,6 +764,7 @@ export const kanjiWidthMulitplier = writable(100 / getKanjiLength);
 export const currentLetter = writable('');
 export const progressSlider = writable(1);
 export const currentAlphabet = writable('');
+export const uploadingProfilePic = writable(false);
 
 /*
 
