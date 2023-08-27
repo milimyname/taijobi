@@ -19,6 +19,7 @@
 	import { kanji } from '$lib/static/kanji';
 
 	export let rotationY: number;
+	export let saved: any;
 
 	// Set the correct viewBox for the SVG
 	let viewBox: string;
@@ -39,7 +40,30 @@
 			// Then we filter the array of objects based on the grade
 			// Finally, return  the array of objects back to an object of objects
 
-			if (+$selectedKanjiGrade !== 0) {
+			if ($selectedKanjiGrade === 'saved') {
+				const savedKanji = {};
+
+				// Find all kanji that are saved in the saved array by its name
+				for (const kanjiChar in kanji) {
+					if (saved.find((k) => k.name === kanjiChar)) savedKanji[kanjiChar] = kanji[kanjiChar];
+				}
+
+				$kanjiLength = Object.values(savedKanji).length;
+				$kanjiWidthMulitplier = 100 / $kanjiLength;
+
+				// Check if progressSlider is within valid range
+				const sliderIndex = Math.min($progressSlider - 1, $kanjiLength - 1);
+				const kanjiKeys = Object.keys(savedKanji);
+
+				// Set the current letter based on sliderIndex
+				$currentLetter = kanjiKeys[sliderIndex];
+
+				currentObject = savedKanji;
+
+				// Set the current letter to the first kanji if the searchKanji is not empty
+				if ($searchKanji && kanjiKeys.find((k) => $searchKanji === k))
+					$currentLetter = $searchKanji;
+			} else if (+$selectedKanjiGrade !== 0) {
 				// Filter the kanji objects based on the selected grade
 				const filteredKanji = {};
 
@@ -84,7 +108,6 @@
 			viewBox = '0 0 80 87';
 			currentObject = hiragana;
 	}
-
 </script>
 
 <svg

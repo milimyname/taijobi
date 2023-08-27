@@ -137,7 +137,9 @@
 		{/if}
 	</div>
 
-	<Letter rotationY={$rotateYCard} />
+	<!-- SVG  -->
+	<Letter rotationY={$rotateYCard} saved={data.flashcard} />
+
 	<div style="perspective: 3000px; position: relative;">
 		<Canvas rotationY={$rotateYCard} {canvas} {ctx} />
 
@@ -243,6 +245,7 @@
 				<option value="2">Grade 2</option>
 				<option value="3">Grade 3</option>
 				<option value="4">Grade 4</option>
+				<option value="saved">My Saved</option>
 			</select>
 		{/if}
 
