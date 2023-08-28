@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { KanjiObject } from '$lib/utils/ambient.d.ts';
 	import {
 		progressSlider,
 		currentLetter,
@@ -14,6 +15,9 @@
 	import { superForm } from 'sveltekit-superforms/client';
 	import { slide } from 'svelte/transition';
 	import { clickOutside } from '$lib/utils/clickOutside';
+	import { getRandomNumber } from '$lib/utils/actions';
+
+	export let data;
 
 	const rotateYCard = tweened(0, {
 		duration: 2000,
@@ -21,9 +25,10 @@
 	});
 
 	// Get the alphabet store length
-	let alphabetLengh: number;
-
-	export let data;
+	let currentFlashcard: string;
+	let currentFlashcardType: string;
+	let currentKanjiObject: KanjiObject;
+	let currentIndex: number = getRandomNumber(0, data.flashcards.length - 1);
 
 	// Client API:
 	const { form, errors, constraints, enhance } = superForm(data.form, {
@@ -31,9 +36,15 @@
 			if (!$errors.name) $clickedAddFlashcard = false;
 		}
 	});
+
+	$: {
+		currentFlashcard = data.flashcards.at(currentIndex).name;
+		currentFlashcardType = data.flashcards.at(currentIndex).type;
+		currentKanjiObject = kanji[currentFlashcard];
+	}
 </script>
 
-<Vault {enhance}>
+<Vault {enhance} notes={true}>
 	<h4 class="text-2xl">Create a new flashcard</h4>
 	<div class="mb-auto flex flex-col gap-5">
 		<fieldset class=" flex w-full flex-col md:w-2/3">
@@ -108,6 +119,30 @@
 				>
 			{/if}
 		</fieldset>
+		<fieldset class=" flex w-full flex-col md:w-2/3">
+			<label for="notes" class="hidden">Notes</label>
+			<textarea
+				name="notes"
+				placeholder="Notes"
+				class="
+                    block
+                    rounded-md
+                    border-gray-300
+                    shadow-sm
+                    focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
+                  "
+				aria-invalid={$errors.notes ? 'true' : undefined}
+				bind:value={$form.notes}
+				{...$constraints.notes}
+				rows="3"
+			/>
+			{#if $errors.notes}
+				<span
+					transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
+					class="mt-1 select-none text-sm text-red-400">{$errors.notes}</span
+				>
+			{/if}
+		</fieldset>
 	</div>
 
 	<button
@@ -121,15 +156,17 @@
 	use:clickOutside
 	on:outsideclick={() => ($clickedAddFlashcard = false)}
 >
-	<!-- <Letter rotationY={$rotateYCard} /> -->
 	<div style="perspective: 3000px; position: relative;" class="mb-10">
 		<div
 			style={`transform: rotateY(${-$rotateYCard}deg); transform-style: preserve-3d; backface-visibility: hidden;`}
 			class="relative z-10 mx-auto cursor-pointer
 				{$rotateYCard > 90 ? 'hidden' : 'block'} 
-			 flex h-[504px] w-[354px] items-center justify-center rounded-xl border text-9xl shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200 sm:h-[600px] sm:w-[600px]"
+			 flex h-[504px] w-[354px] items-center justify-center rounded-xl border {currentFlashcardType ===
+			'kanji'
+				? 'text-[14rem]'
+				: 'text-9xl'}  shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200 sm:h-[600px] sm:w-[600px]"
 		>
-			{data.flashcards.at(0).name}
+			{currentFlashcard}
 		</div>
 
 		<div
@@ -140,33 +177,30 @@
 				 {$currentAlphabet === 'kanji' ? 'gap-1' : 'gap-5'}  
 				 justify-center rounded-xl border p-10 shadow-sm sm:h-[600px] sm:w-[600px]"
 		>
-			{#if $currentAlphabet === 'kanji'}
+			{#if currentFlashcardType === 'kanji'}
 				<div class="grid-rows-[max-content 1fr] grid h-full">
-					<h2 class="text-center text-9xl">{$currentLetter}</h2>
+					<h2 class="text-center text-9xl">{currentFlashcard}</h2>
 					<div>
-						<h2 class="text-4xl font-medium">{kanji[$currentLetter].meaning}</h2>
+						<h2 class="text-4xl font-medium">{currentKanjiObject.meaning}</h2>
 						<p class=" text-sm text-gray-300">Meaning</p>
 					</div>
 					<div>
-						<h4 class="text-lg tracking-widest">{kanji[$currentLetter].onyomi}</h4>
+						<h4 class="text-lg tracking-widest">{currentKanjiObject.onyomi}</h4>
 						<p class=" text-sm text-gray-300">Onyomi</p>
 					</div>
-					{#if kanji[$currentLetter].kunyomi.length > 0}
+					{#if currentKanjiObject.kunyomi.length > 0}
 						<div>
-							<h4 class="text-lg tracking-widest">{kanji[$currentLetter].kunyomi}</h4>
+							<h4 class="text-lg tracking-widest">{currentKanjiObject.kunyomi}</h4>
 							<p class=" text-sm text-gray-300">Kunyomi</p>
 						</div>
 					{/if}
 				</div>
-			{:else}
-				<h2 class="text-center text-9xl font-medium">{toRomaji($currentLetter).toUpperCase()}</h2>
-				<p class="text-center text-lg">Romanji</p>
 			{/if}
 		</div>
 
 		<button
 			on:click|preventDefault={() => {
-				$progressSlider > 1 ? $progressSlider-- : $progressSlider;
+				currentIndex > 0 ? currentIndex-- : currentIndex;
 			}}
 			class="previousLetter fixed -bottom-10 z-30 rounded-full border bg-white p-2 shadow-sm transition-all lg:left-[22rem]"
 		>
@@ -175,7 +209,7 @@
 
 		<button
 			on:click|preventDefault={() => {
-				$progressSlider < alphabetLengh ? $progressSlider++ : $progressSlider;
+				currentIndex < data.flashcards.length - 1 ? currentIndex++ : currentIndex;
 			}}
 			class="previousLetter fixed -bottom-10 right-0 z-30 rounded-full border bg-white p-2 shadow-sm transition-all lg:right-[22rem]"
 		>

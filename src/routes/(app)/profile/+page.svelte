@@ -128,7 +128,7 @@
 			on:cropcomplete={(e) => (cropperDetails = e.detail)}
 		/>
 
-		<div class="absolute left-1/2 top-[90%] flex -translate-x-1/2 -translate-y-1/2 gap-20">
+		<div class="absolute left-1/2 top-[95%] flex -translate-x-1/2 -translate-y-1/2 gap-20">
 			<button
 				on:click={() => {
 					$uploadingProfilePic = false;

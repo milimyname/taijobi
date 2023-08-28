@@ -6,3 +6,11 @@ export type CropperDetails = {
 		y: number;
 	};
 };
+
+export type KanjiObject = {
+	ds: string[];
+	grade: number;
+	kunyomi: string[];
+	meaning: string;
+	onyomi: string[];
+};
