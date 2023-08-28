@@ -237,7 +237,7 @@
 			<select
 				name="kanji-grade"
 				id="kanji-grade"
-				class="border-hidden bg-none pr-3 outline-none focus:border-transparent focus:ring-0"
+				class="border-hidden bg-none pr-3 text-center outline-none focus:border-transparent focus:ring-0"
 				bind:value={$selectedKanjiGrade}
 			>
 				<option value="0">All Grades</option>
@@ -245,6 +245,7 @@
 				<option value="2">Grade 2</option>
 				<option value="3">Grade 3</option>
 				<option value="4">Grade 4</option>
+				<option value="5">Grade 5</option>
 				<option value="saved">My Saved</option>
 			</select>
 		{/if}
