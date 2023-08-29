@@ -8,7 +8,8 @@
 		currentAlphabet,
 		kanjiLength,
 		kanjiWidthMulitplier,
-		searchKanji
+		searchKanji,
+		selectedKanjiGrade
 	} from '$lib/utils/stores';
 	import { clickOutside } from '$lib/utils/clickOutside';
 	import { spring } from 'svelte/motion';
@@ -48,7 +49,7 @@
 		currentX = e.type === 'touchmove' ? e.touches[0].clientX : (currentX = e.clientX);
 
 		const deltaX = currentX - initialX; // difference from initial position
-		const sensitivity = 0.5; // adjust as needed for smoother or sharper response
+		const sensitivity = +$selectedKanjiGrade === 0 ? 2 : 0.5; // adjust as needed for smoother or sharper response
 		let change = Math.round(deltaX * sensitivity);
 
 		let newProgress = initialValue + change;

@@ -17,6 +17,7 @@
 	import { hiragana } from '$lib/static/hiragana';
 	import { katakana } from '$lib/static/katakana';
 	import { kanji } from '$lib/static/kanji';
+	import { getRandomNumber } from '$lib/utils/actions';
 
 	export let rotationY: number;
 	export let saved: any;
@@ -83,6 +84,8 @@
 				$currentLetter = kanjiKeys[sliderIndex];
 
 				currentObject = filteredKanji;
+
+				$progressSlider = Math.min($progressSlider, $kanjiLength);
 
 				// Set the current letter to the first kanji if the searchKanji is not empty
 				if ($searchKanji && kanjiKeys.find((k) => $searchKanji === k))
