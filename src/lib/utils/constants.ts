@@ -14,7 +14,7 @@ export const navItems = [
 		mb: '-mb-52'
 	},
 	{
-		url: '/pricing',
+		url: '/',
 		icon: 'pricing',
 		label: 'Pricing',
 		borderColor: 'border-[#82c5f7]',
@@ -38,7 +38,7 @@ export const navItems = [
 		mb: '-mb-52'
 	},
 	{
-		url: '/reading',
+		url: '/',
 		icon: 'reading',
 		label: 'Reading',
 		borderColor: 'border-[#8294C4]',
@@ -46,9 +46,9 @@ export const navItems = [
 		mb: '-mb-36'
 	},
 	{
-		url: '/listening',
-		icon: 'listening',
-		label: 'Listening',
+		url: '/logout',
+		icon: 'logout',
+		label: 'Logout',
 		borderColor: 'border-[#47A992]',
 		height: 'h-36',
 		mb: '-mb-20'
