@@ -12,6 +12,7 @@
 	let innerWidth: number;
 	let longPressTimer: NodeJS.Timeout;
 	let isLongPress = false;
+	let imageSrc = image;
 
 	export let data;
 
@@ -40,8 +41,6 @@
 			// alert('cancelled long press');
 		}
 	}
-
-	let imageSrc = image;
 
 	onMount(() => {
 		if (data.user.oauth2ImageUrl) imageSrc = data.user.oauth2ImageUrl;

@@ -34,7 +34,7 @@ export const flashcardsSchema = z.object({
 
 export const feedbacksSchema = z.object({
 	name: z.string(),
-	message: z.string().max(1000),
-	url: z.string().max(100).optional(),
-	device: z.string()
+	description: z.string().max(1000),
+	device: z.string(),
+	user_id: z.string()
 });

@@ -122,13 +122,6 @@
 		}
 	});
 
-	$: if (!$clickedFlashCard) {
-		// Clear the form data
-		$form.name = '';
-		$form.description = '';
-		$form.id = '';
-	}
-
 	$: {
 		// Update the cards array when the data changes
 		cards = [];
@@ -142,6 +135,13 @@
 			mountedCards.forEach((card) => {
 				card.style.transform = 'translate(-50%, -50%) skew(0deg, 0deg)';
 			});
+
+		if (!$clickedFlashCard) {
+			// Clear the form data
+			$form.name = '';
+			$form.description = '';
+			$form.id = '';
+		}
 	}
 </script>
 

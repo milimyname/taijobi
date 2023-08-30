@@ -46,7 +46,7 @@ export const navItems = [
 		mb: '-mb-36'
 	},
 	{
-		url: '/logout',
+		url: '/exit',
 		icon: 'logout',
 		label: 'Logout',
 		borderColor: 'border-[#47A992]',

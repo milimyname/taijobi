@@ -12,7 +12,8 @@ export function clickOutside(node) {
 			e.target.closest('.flashcard') ||
 			e.target.closest('.add-collection-btn') ||
 			e.target.closest('.kanji-search') ||
-			e.target.closest('.leave-feedback')
+			e.target.closest('.leave-feedback') ||
+			e.target.closest('.edit-feedback')
 		)
 			return;
 		if (!node.contains(e.target)) node.dispatchEvent(new CustomEvent('outsideclick'));
@@ -26,7 +27,8 @@ export function clickOutside(node) {
 			e.target.closest('.flashcard') ||
 			e.target.closest('.add-collection-btn') ||
 			e.target.closest('.kanji-search') ||
-			e.target.closest('.leave-feedback')
+			e.target.closest('.leave-feedback') ||
+			e.target.closest('.edit-feedback')
 		)
 			return;
 		if (!node.contains(e.target)) node.dispatchEvent(new CustomEvent('outsideclick'));

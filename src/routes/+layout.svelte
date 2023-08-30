@@ -80,7 +80,9 @@
 			<h4 class="text-2xl">Leave a feedback or report a bug!</h4>
 			<p class="text-sm">
 				You can see them here
-				<a href="/feedbacks" class="underline">My Feedbacks</a>
+				<a href="/feedbacks" on:click={() => ($clickedFeedback = false)} class="underline"
+					>My Feedbacks</a
+				>
 			</p>
 		</div>
 		<div class="mb-auto flex flex-col gap-5">
@@ -106,6 +108,7 @@
 					name="description"
 					placeholder="Description"
 					bind:value={formData.description}
+					maxlength="1000"
 					class="
                     block
                     rounded-md
@@ -152,10 +155,7 @@
 {/if}
 
 <button
-	on:click={() => {
-		console.log('clicked');
-		$clickedFeedback = !$clickedFeedback;
-	}}
+	on:click={() => ($clickedFeedback = !$clickedFeedback)}
 	class="leave-feedback absolute left-[45%] top-14 z-[888] -translate-y-1/2 translate-x-1/2"
 >
 	<svg
