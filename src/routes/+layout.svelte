@@ -4,6 +4,7 @@
 	import '../app.css';
 	import { fly } from 'svelte/transition';
 	import { clickOutside } from '$lib/utils/clickOutside';
+	// import { onNavigate } from '$app/navigation';
 
 	// let audioUrl = '';
 
@@ -23,6 +24,16 @@
 	// 	// const output = await response.json();
 	// 	// console.log(output.formats.filter(({ ext }) => ext === 'mp4'));
 	// 	// audioUrl = output.formats[34].url;
+	// });
+
+	// onNavigate(async (navigation) => {
+	// 	if (!document.startViewTransition) return;
+	// 	return new Promise((oldStateCaptureResolve) => {
+	// 		document.startViewTransition(async () => {
+	// 			oldStateCaptureResolve();
+	// 			await navigation.complete;
+	// 		});
+	// 	});
 	// });
 
 	let formData = {

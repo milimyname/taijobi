@@ -14173,6 +14173,1276 @@ export const grade5Kanji = {
 	}
 };
 
+export const grade6Kanji = {
+	並: {
+		ds: [],
+		grade: 6,
+		meaning: 'row',
+		onyomi: ['ヘイ'],
+		kunyomi: ['なみ', 'なら-ぶ']
+	},
+	乱: {
+		ds: [],
+		grade: 6,
+		meaning: 'riot',
+		onyomi: ['ラン'],
+		kunyomi: ['みだ-れる', 'みだ-す']
+	},
+	乳: {
+		ds: [],
+		grade: 6,
+		meaning: 'milk',
+		onyomi: ['ニュウ'],
+		kunyomi: ['ちち', 'ち']
+	},
+	亡: {
+		ds: [],
+		grade: 6,
+		meaning: 'deceased',
+		onyomi: ['ボウ', 'モウ'],
+		kunyomi: ['な-い']
+	},
+	仁: {
+		ds: [],
+		grade: 6,
+		meaning: 'humanity',
+		onyomi: ['ジン', 'ニ'],
+		kunyomi: ['じん']
+	},
+	供: {
+		ds: [],
+		grade: 6,
+		meaning: 'offer',
+		onyomi: ['キョウ', 'ク'],
+		kunyomi: ['そな-える', 'とも', '-ども']
+	},
+	俳: {
+		ds: [],
+		grade: 6,
+		meaning: 'haiku',
+		onyomi: ['ハイ'],
+		kunyomi: []
+	},
+	値: {
+		ds: [],
+		grade: 6,
+		meaning: 'price',
+		onyomi: ['チ'],
+		kunyomi: ['ね', 'あたい']
+	},
+	傷: {
+		ds: [],
+		grade: 6,
+		meaning: 'wound',
+		onyomi: ['ショウ'],
+		kunyomi: ['きず', 'いた-む', 'いた-める']
+	},
+	優: {
+		ds: [],
+		grade: 6,
+		meaning: 'tenderness',
+		onyomi: ['ユウ'],
+		kunyomi: ['やさ-しい', 'すぐ-れる']
+	},
+	党: {
+		ds: [],
+		grade: 6,
+		meaning: 'party',
+		onyomi: ['トウ'],
+		kunyomi: []
+	},
+	冊: {
+		ds: [],
+		grade: 6,
+		meaning: 'booklet',
+		onyomi: ['サツ', 'サク'],
+		kunyomi: []
+	},
+	処: {
+		ds: [],
+		grade: 6,
+		meaning: 'dispose',
+		onyomi: ['ショ'],
+		kunyomi: ['ところ', 'お-る']
+	},
+	刻: {
+		ds: [],
+		grade: 6,
+		meaning: 'engrave',
+		onyomi: ['コク'],
+		kunyomi: ['きざ-む']
+	},
+	割: {
+		ds: [],
+		grade: 6,
+		meaning: 'divide',
+		onyomi: ['カツ'],
+		kunyomi: ['わ-る', 'わり', 'わ-れる', 'さ-く']
+	},
+	創: {
+		ds: [],
+		grade: 6,
+		meaning: 'genesis',
+		onyomi: ['ソウ'],
+		kunyomi: ['つく-る']
+	},
+	劇: {
+		ds: [],
+		grade: 6,
+		meaning: 'drama',
+		onyomi: ['ゲキ'],
+		kunyomi: []
+	},
+	勤: {
+		ds: [],
+		grade: 6,
+		meaning: 'diligence',
+		onyomi: ['キン', 'ゴン'],
+		kunyomi: ['つと-める', 'つと-まる']
+	},
+	危: {
+		ds: [],
+		grade: 6,
+		meaning: 'dangerous',
+		onyomi: ['キ'],
+		kunyomi: ['あぶ-ない', 'あや-うい', 'あや-ぶむ']
+	},
+	卵: {
+		ds: [],
+		grade: 6,
+		meaning: 'egg',
+		onyomi: ['ラン'],
+		kunyomi: ['たまご']
+	},
+	厳: {
+		ds: [],
+		grade: 6,
+		meaning: 'strict',
+		onyomi: ['ゲン', 'ゴン'],
+		kunyomi: ['おごそ-か', 'きび-しい']
+	},
+	収: {
+		ds: [],
+		grade: 6,
+		meaning: 'income',
+		onyomi: ['シュウ'],
+		kunyomi: ['おさ-める', 'おさ-まる']
+	},
+	后: {
+		ds: [],
+		grade: 6,
+		meaning: 'empress',
+		onyomi: ['コウ'],
+		kunyomi: []
+	},
+	否: {
+		ds: [],
+		grade: 6,
+		meaning: 'negate',
+		onyomi: ['ヒ'],
+		kunyomi: ['いな']
+	},
+	吸: {
+		ds: [],
+		grade: 6,
+		meaning: 'suck',
+		onyomi: ['キュウ'],
+		kunyomi: ['す-う']
+	},
+	呼: {
+		ds: [],
+		grade: 6,
+		meaning: 'call',
+		onyomi: ['コ'],
+		kunyomi: ['よ-ぶ']
+	},
+	善: {
+		ds: [],
+		grade: 6,
+		meaning: 'virtuous',
+		onyomi: ['ゼン'],
+		kunyomi: ['よ-い']
+	},
+	困: {
+		ds: [],
+		grade: 6,
+		meaning: 'quandary',
+		onyomi: ['コン'],
+		kunyomi: ['こま-る']
+	},
+	垂: {
+		ds: [],
+		grade: 6,
+		meaning: 'droop',
+		onyomi: ['スイ'],
+		kunyomi: ['た-れる', 'た-らす']
+	},
+	城: {
+		ds: [],
+		grade: 6,
+		meaning: 'castle',
+		onyomi: ['ジョウ', 'セイ'],
+		kunyomi: ['しろ']
+	},
+	域: {
+		ds: [],
+		grade: 6,
+		meaning: 'range',
+		onyomi: ['イキ'],
+		kunyomi: []
+	},
+	奏: {
+		ds: [],
+		grade: 6,
+		meaning: 'play music',
+		onyomi: ['ソウ'],
+		kunyomi: ['かな-でる']
+	},
+	奮: {
+		ds: [],
+		grade: 6,
+		meaning: 'stirred up',
+		onyomi: ['フン'],
+		kunyomi: ['ふる-う']
+	},
+	姿: {
+		ds: [],
+		grade: 6,
+		meaning: 'figure',
+		onyomi: ['シ'],
+		kunyomi: ['すがた']
+	},
+	存: {
+		ds: [],
+		grade: 6,
+		meaning: 'suppose',
+		onyomi: ['ソン', 'ゾン'],
+		kunyomi: ['ざい']
+	},
+	孝: {
+		ds: [],
+		grade: 6,
+		meaning: 'filial piety',
+		onyomi: ['コウ'],
+		kunyomi: []
+	},
+	宅: {
+		ds: [],
+		grade: 6,
+		meaning: 'home',
+		onyomi: ['タク'],
+		kunyomi: []
+	},
+	宇: {
+		ds: [],
+		grade: 6,
+		meaning: 'eaves',
+		onyomi: ['ウ'],
+		kunyomi: []
+	},
+	宗: {
+		ds: [],
+		grade: 6,
+		meaning: 'religion',
+		onyomi: ['シュウ'],
+		kunyomi: []
+	},
+	宙: {
+		ds: [],
+		grade: 6,
+		meaning: 'mid-air',
+		onyomi: ['チュウ'],
+		kunyomi: []
+	},
+	宝: {
+		ds: [],
+		grade: 6,
+		meaning: 'treasure',
+		onyomi: ['ホウ'],
+		kunyomi: ['たから']
+	},
+	宣: {
+		ds: [],
+		grade: 6,
+		meaning: 'proclaim',
+		onyomi: ['セン'],
+		kunyomi: []
+	},
+	密: {
+		ds: [],
+		grade: 6,
+		meaning: 'secrecy',
+		onyomi: ['ミツ'],
+		kunyomi: []
+	},
+	寸: {
+		ds: [],
+		grade: 6,
+		meaning: 'measurement',
+		onyomi: ['スン'],
+		kunyomi: []
+	},
+	専: {
+		ds: [],
+		grade: 6,
+		meaning: 'specialty',
+		onyomi: ['セン'],
+		kunyomi: ['もっぱ-ら']
+	},
+	射: {
+		ds: [],
+		grade: 6,
+		meaning: 'shoot',
+		onyomi: ['シャ'],
+		kunyomi: ['い-る']
+	},
+	将: {
+		ds: [],
+		grade: 6,
+		meaning: 'leader',
+		onyomi: ['ショウ'],
+		kunyomi: ['まさ-に', 'はた', 'まさ-る']
+	},
+	尊: {
+		ds: [],
+		grade: 6,
+		meaning: 'revered',
+		onyomi: ['ソン'],
+		kunyomi: ['たっと-い', 'とうと-い', 'たっと-ぶ', 'とうと-ぶ']
+	},
+	就: {
+		ds: [],
+		grade: 6,
+		meaning: 'concerning',
+		onyomi: ['シュウ'],
+		kunyomi: ['つ-く', 'つ-ける']
+	},
+	尺: {
+		ds: [],
+		grade: 6,
+		meaning: 'shaku',
+		onyomi: ['シャク'],
+		kunyomi: []
+	},
+	届: {
+		ds: [],
+		grade: 6,
+		meaning: 'deliver',
+		onyomi: ['カイ'],
+		kunyomi: ['とど-ける', 'とど-く']
+	},
+	展: {
+		ds: [],
+		grade: 6,
+		meaning: 'expand',
+		onyomi: ['テン'],
+		kunyomi: []
+	},
+	層: {
+		ds: [],
+		grade: 6,
+		meaning: 'stratum',
+		onyomi: ['ソウ'],
+		kunyomi: []
+	},
+	己: {
+		ds: [],
+		grade: 6,
+		meaning: 'self',
+		onyomi: ['コ', 'キ'],
+		kunyomi: ['おのれ']
+	},
+	巻: {
+		ds: [],
+		grade: 6,
+		meaning: 'scroll',
+		onyomi: ['カン'],
+		kunyomi: ['ま-く', 'まき']
+	},
+	幕: {
+		ds: [],
+		grade: 6,
+		meaning: 'curtain',
+		onyomi: ['マク', 'バク'],
+		kunyomi: []
+	},
+	干: {
+		ds: [],
+		grade: 6,
+		meaning: 'dry',
+		onyomi: ['カン'],
+		kunyomi: ['ほ-す', 'ひ-る']
+	},
+	幼: {
+		ds: [],
+		grade: 6,
+		meaning: 'infancy',
+		onyomi: ['ヨウ'],
+		kunyomi: ['おさな-い']
+	},
+	庁: {
+		ds: [],
+		grade: 6,
+		meaning: 'government office',
+		onyomi: ['チョウ'],
+		kunyomi: []
+	},
+	座: {
+		ds: [],
+		grade: 6,
+		meaning: 'sit',
+		onyomi: ['ザ'],
+		kunyomi: ['すわ-る']
+	},
+	延: {
+		ds: [],
+		grade: 6,
+		meaning: 'prolong',
+		onyomi: ['エン'],
+		kunyomi: ['の-びる', 'の-べる', 'の-ばす']
+	},
+	律: {
+		ds: [],
+		grade: 6,
+		meaning: 'rhythm',
+		onyomi: ['リツ', 'リチ'],
+		kunyomi: []
+	},
+	従: {
+		ds: [],
+		grade: 6,
+		meaning: 'obey',
+		onyomi: ['ジュウ', 'ショウ'],
+		kunyomi: ['したが-う', 'したが-える']
+	},
+	忘: {
+		ds: [],
+		grade: 6,
+		meaning: 'forget',
+		onyomi: ['ボウ'],
+		kunyomi: ['わす-れる']
+	},
+	忠: {
+		ds: [],
+		grade: 6,
+		meaning: 'loyalty',
+		onyomi: ['チュウ'],
+		kunyomi: []
+	},
+	憲: {
+		ds: [],
+		grade: 6,
+		meaning: 'constitution',
+		onyomi: ['ケン'],
+		kunyomi: []
+	},
+	我: {
+		ds: [],
+		grade: 6,
+		meaning: 'ego',
+		onyomi: ['ガ'],
+		kunyomi: ['われ', 'わ']
+	},
+	批: {
+		ds: [],
+		grade: 6,
+		meaning: 'criticism',
+		onyomi: ['ヒ'],
+		kunyomi: []
+	},
+	担: {
+		ds: [],
+		grade: 6,
+		meaning: 'shouldering',
+		onyomi: ['タン'],
+		kunyomi: ['かつ-ぐ', 'にな-う']
+	},
+	拝: {
+		ds: [],
+		grade: 6,
+		meaning: 'worship',
+		onyomi: ['ハイ'],
+		kunyomi: ['おが-む']
+	},
+	拡: {
+		ds: [],
+		grade: 6,
+		meaning: 'broaden',
+		onyomi: ['カク'],
+		kunyomi: ['ひろ-がる', 'ひろ-げる']
+	},
+	捨: {
+		ds: [],
+		grade: 6,
+		meaning: 'discard',
+		onyomi: ['シャ'],
+		kunyomi: ['す-てる']
+	},
+	探: {
+		ds: [],
+		grade: 6,
+		meaning: 'grope',
+		onyomi: ['タン'],
+		kunyomi: ['さぐ-る', 'さが-す']
+	},
+	推: {
+		ds: [],
+		grade: 6,
+		meaning: 'infer',
+		onyomi: ['スイ'],
+		kunyomi: ['お-す']
+	},
+	揮: {
+		ds: [],
+		grade: 6,
+		meaning: 'brandish',
+		onyomi: ['キ'],
+		kunyomi: []
+	},
+	操: {
+		ds: [],
+		grade: 6,
+		meaning: 'maneuver',
+		onyomi: ['ソウ'],
+		kunyomi: ['みさお', 'あやつ-る']
+	},
+	敬: {
+		ds: [],
+		grade: 6,
+		meaning: 'respect',
+		onyomi: ['ケイ'],
+		kunyomi: ['うやま-う']
+	},
+	映: {
+		ds: [],
+		grade: 6,
+		meaning: 'reflect',
+		onyomi: ['エイ'],
+		kunyomi: ['うつ-る', 'うつ-す', 'は-える']
+	},
+	晩: {
+		ds: [],
+		grade: 6,
+		meaning: 'nightfall',
+		onyomi: ['バン'],
+		kunyomi: ['おそ-い']
+	},
+	暖: {
+		ds: [],
+		grade: 6,
+		meaning: 'warmth',
+		onyomi: ['ダン', 'ノン'],
+		kunyomi: ['あたた-か', 'あたた-かい', 'あたた-まる', 'あたた-める']
+	},
+	暮: {
+		ds: [],
+		grade: 6,
+		meaning: 'livelihood',
+		onyomi: ['ボ'],
+		kunyomi: ['く-れる', 'く-らす']
+	},
+	朗: {
+		ds: [],
+		grade: 6,
+		meaning: 'melodious',
+		onyomi: ['ロウ'],
+		kunyomi: ['ほが-らか']
+	},
+	机: {
+		ds: [],
+		grade: 6,
+		meaning: 'desk',
+		onyomi: ['キ'],
+		kunyomi: ['つくえ']
+	},
+	枚: {
+		ds: [],
+		grade: 6,
+		meaning: 'sheet of',
+		onyomi: ['マイ'],
+		kunyomi: []
+	},
+	染: {
+		ds: [],
+		grade: 6,
+		meaning: 'dye',
+		onyomi: ['セン'],
+		kunyomi: ['そ-める', 'そ-まる', 'し-みる', 'し-み']
+	},
+	株: {
+		ds: [],
+		grade: 6,
+		meaning: 'stocks',
+		onyomi: ['シュ'],
+		kunyomi: []
+	},
+	棒: {
+		ds: [],
+		grade: 6,
+		meaning: 'rod',
+		onyomi: ['ボウ'],
+		kunyomi: []
+	},
+	模: {
+		ds: [],
+		grade: 6,
+		meaning: 'imitation',
+		onyomi: ['モ', 'ボ'],
+		kunyomi: []
+	},
+	権: {
+		ds: [],
+		grade: 6,
+		meaning: 'authority',
+		onyomi: ['ケン', 'ゴン'],
+		kunyomi: []
+	},
+	樹: {
+		ds: [],
+		grade: 6,
+		meaning: 'timber',
+		onyomi: ['ジュ'],
+		kunyomi: []
+	},
+	欲: {
+		ds: [],
+		grade: 6,
+		meaning: 'longing',
+		onyomi: ['ヨク'],
+		kunyomi: ['ほっ-する', 'ほ-しい']
+	},
+	段: {
+		ds: [],
+		grade: 6,
+		meaning: 'steps',
+		onyomi: ['ダン'],
+		kunyomi: []
+	},
+	沿: {
+		ds: [],
+		grade: 6,
+		meaning: 'run alongside',
+		onyomi: ['エン'],
+		kunyomi: ['そ-う']
+	},
+	泉: {
+		ds: [],
+		grade: 6,
+		meaning: 'spring',
+		onyomi: ['セン'],
+		kunyomi: ['いずみ']
+	},
+	洗: {
+		ds: [],
+		grade: 6,
+		meaning: 'wash',
+		onyomi: ['セン'],
+		kunyomi: ['あら-う']
+	},
+	派: {
+		ds: [],
+		grade: 6,
+		meaning: 'faction',
+		onyomi: ['ハ'],
+		kunyomi: []
+	},
+	済: {
+		ds: [],
+		grade: 6,
+		meaning: 'settle',
+		onyomi: ['サイ', 'セイ'],
+		kunyomi: ['す-む', 'す-ます']
+	},
+	源: {
+		ds: [],
+		grade: 6,
+		meaning: 'source',
+		onyomi: ['ゲン'],
+		kunyomi: ['みなもと']
+	},
+	潮: {
+		ds: [],
+		grade: 6,
+		meaning: 'tide',
+		onyomi: ['チョウ'],
+		kunyomi: ['しお']
+	},
+	激: {
+		ds: [],
+		grade: 6,
+		meaning: 'violent',
+		onyomi: ['ゲキ'],
+		kunyomi: []
+	},
+	灰: {
+		ds: [],
+		grade: 6,
+		meaning: 'ashes',
+		onyomi: ['カイ'],
+		kunyomi: ['はい']
+	},
+	熟: {
+		ds: [],
+		grade: 6,
+		meaning: 'mellow',
+		onyomi: ['ジュク'],
+		kunyomi: ['う-れる']
+	},
+	片: {
+		ds: [],
+		grade: 6,
+		meaning: 'one-sided',
+		onyomi: ['ヘン'],
+		kunyomi: ['かた']
+	},
+	班: {
+		ds: [],
+		grade: 6,
+		meaning: 'squad',
+		onyomi: ['ハン'],
+		kunyomi: []
+	},
+	異: {
+		ds: [],
+		grade: 6,
+		meaning: 'uncommon',
+		onyomi: ['イ'],
+		kunyomi: ['こと']
+	},
+	疑: {
+		ds: [],
+		grade: 6,
+		meaning: 'doubt',
+		onyomi: ['ギ'],
+		kunyomi: ['うたが-う']
+	},
+	痛: {
+		ds: [],
+		grade: 6,
+		meaning: 'pain',
+		onyomi: ['ツウ'],
+		kunyomi: ['いた-い', 'いた-む', 'いた-める']
+	},
+	皇: {
+		ds: [],
+		grade: 6,
+		meaning: 'emperor',
+		onyomi: ['コウ', 'オウ'],
+		kunyomi: []
+	},
+	盛: {
+		ds: [],
+		grade: 6,
+		meaning: 'boom',
+		onyomi: ['セイ', 'ジョウ'],
+		kunyomi: ['も-る', 'さか-る', 'さか-ん']
+	},
+	盟: {
+		ds: [],
+		grade: 6,
+		meaning: 'alliance',
+		onyomi: ['メイ'],
+		kunyomi: []
+	},
+	看: {
+		ds: [],
+		grade: 6,
+		meaning: 'watch over',
+		onyomi: ['カン'],
+		kunyomi: []
+	},
+	砂: {
+		ds: [],
+		grade: 6,
+		meaning: 'sand',
+		onyomi: ['サ', 'シャ'],
+		kunyomi: ['すな']
+	},
+	磁: {
+		ds: [],
+		grade: 6,
+		meaning: 'magnet',
+		onyomi: ['ジ'],
+		kunyomi: []
+	},
+	私: {
+		ds: [],
+		grade: 6,
+		meaning: 'private',
+		onyomi: ['シ'],
+		kunyomi: ['わたくし', 'わたし']
+	},
+	秘: {
+		ds: [],
+		grade: 6,
+		meaning: 'secret',
+		onyomi: ['ヒ'],
+		kunyomi: ['ひ-める']
+	},
+	穀: {
+		ds: [],
+		grade: 6,
+		meaning: 'cereals',
+		onyomi: ['コク'],
+		kunyomi: []
+	},
+	穴: {
+		ds: [],
+		grade: 6,
+		meaning: 'hole',
+		onyomi: ['ケツ'],
+		kunyomi: ['あな']
+	},
+	窓: {
+		ds: [],
+		grade: 6,
+		meaning: 'window',
+		onyomi: ['ソウ'],
+		kunyomi: ['まど']
+	},
+	筋: {
+		ds: [],
+		grade: 6,
+		meaning: 'muscle',
+		onyomi: ['キン'],
+		kunyomi: ['すじ']
+	},
+	策: {
+		ds: [],
+		grade: 6,
+		meaning: 'scheme',
+		onyomi: ['サク'],
+		kunyomi: []
+	},
+	簡: {
+		ds: [],
+		grade: 6,
+		meaning: 'simplicity',
+		onyomi: ['カン'],
+		kunyomi: []
+	},
+	糖: {
+		ds: [],
+		grade: 6,
+		meaning: 'sugar',
+		onyomi: ['トウ'],
+		kunyomi: []
+	},
+	系: {
+		ds: [],
+		grade: 6,
+		meaning: 'lineage',
+		onyomi: ['ケイ'],
+		kunyomi: []
+	},
+	紅: {
+		ds: [],
+		grade: 6,
+		meaning: 'crimson',
+		onyomi: ['コウ'],
+		kunyomi: ['べに', 'くれない']
+	},
+	納: {
+		ds: [],
+		grade: 6,
+		meaning: 'settlement',
+		onyomi: ['ノウ'],
+		kunyomi: ['おさ-める', 'おさ-まる']
+	},
+	純: {
+		ds: [],
+		grade: 6,
+		meaning: 'genuine',
+		onyomi: ['ジュン'],
+		kunyomi: []
+	},
+	絹: {
+		ds: [],
+		grade: 6,
+		meaning: 'silk',
+		onyomi: ['ケン'],
+		kunyomi: ['きぬ']
+	},
+	縦: {
+		ds: [],
+		grade: 6,
+		meaning: 'vertical',
+		onyomi: ['ジュウ'],
+		kunyomi: ['たて']
+	},
+	縮: {
+		ds: [],
+		grade: 6,
+		meaning: 'shrink',
+		onyomi: ['シュク'],
+		kunyomi: ['ちぢ-む', 'ちぢ-まる', 'ちぢ-める', 'ちぢ-れる', 'ちぢ-らす']
+	},
+	署: {
+		ds: [],
+		grade: 6,
+		meaning: 'signature',
+		onyomi: ['ショ'],
+		kunyomi: []
+	},
+	翌: {
+		ds: [],
+		grade: 6,
+		meaning: 'the following',
+		onyomi: ['ヨク'],
+		kunyomi: []
+	},
+	聖: {
+		ds: [],
+		grade: 6,
+		meaning: 'holy',
+		onyomi: ['セイ'],
+		kunyomi: []
+	},
+	肺: {
+		ds: [],
+		grade: 6,
+		meaning: 'lungs',
+		onyomi: ['ハイ'],
+		kunyomi: []
+	},
+	背: {
+		ds: [],
+		grade: 6,
+		meaning: 'back',
+		onyomi: ['ハイ'],
+		kunyomi: ['せ', 'せい', 'そむ-く', 'そむ-ける']
+	},
+	胸: {
+		ds: [],
+		grade: 6,
+		meaning: 'bosom',
+		onyomi: ['キョウ'],
+		kunyomi: ['むね', '（むな）']
+	},
+	脳: {
+		ds: [],
+		grade: 6,
+		meaning: 'brain',
+		onyomi: ['ノウ'],
+		kunyomi: []
+	},
+	腹: {
+		ds: [],
+		grade: 6,
+		meaning: 'abdomen',
+		onyomi: ['フク'],
+		kunyomi: ['はら']
+	},
+	臓: {
+		ds: [],
+		grade: 6,
+		meaning: 'entrails',
+		onyomi: ['ゾウ'],
+		kunyomi: []
+	},
+	臨: {
+		ds: [],
+		grade: 6,
+		meaning: 'look to',
+		onyomi: ['リン'],
+		kunyomi: ['のぞ-む']
+	},
+	至: {
+		ds: [],
+		grade: 6,
+		meaning: 'climax',
+		onyomi: ['シ'],
+		kunyomi: ['いた-る']
+	},
+	若: {
+		ds: [],
+		grade: 6,
+		meaning: 'young',
+		onyomi: ['ジャク', 'ニャク', 'ニャ'],
+		kunyomi: ['わか-い', 'も-しくは']
+	},
+	著: {
+		ds: [],
+		grade: 6,
+		meaning: 'renowned',
+		onyomi: ['チョ'],
+		kunyomi: ['あらわ-す', 'いちじる-しい']
+	},
+	蒸: {
+		ds: [],
+		grade: 6,
+		meaning: 'steam',
+		onyomi: ['ジョウ'],
+		kunyomi: ['む-す', 'む-れる', 'む-らす']
+	},
+	蔵: {
+		ds: [],
+		grade: 6,
+		meaning: 'warehouse',
+		onyomi: ['ゾウ', 'ソウ'],
+		kunyomi: ['くら', 'おさ-める', 'かく-れる']
+	},
+	蚕: {
+		ds: [],
+		grade: 6,
+		meaning: 'silkworm',
+		onyomi: ['サン'],
+		kunyomi: ['かいこ']
+	},
+	衆: {
+		ds: [],
+		grade: 6,
+		meaning: 'masses',
+		onyomi: ['シュウ', 'シュ'],
+		kunyomi: []
+	},
+	裁: {
+		ds: [],
+		grade: 6,
+		meaning: 'judge',
+		onyomi: ['サイ'],
+		kunyomi: ['た-つ', 'さば-く']
+	},
+	装: {
+		ds: [],
+		grade: 6,
+		meaning: 'attire',
+		onyomi: ['ソウ', 'ショウ'],
+		kunyomi: ['よそお-う']
+	},
+	裏: {
+		ds: [],
+		grade: 6,
+		meaning: 'back',
+		onyomi: ['リ'],
+		kunyomi: ['うら']
+	},
+	補: {
+		ds: [],
+		grade: 6,
+		meaning: 'supplement',
+		onyomi: ['ホ'],
+		kunyomi: ['おぎな-う']
+	},
+	視: {
+		ds: [],
+		grade: 6,
+		meaning: 'inspection',
+		onyomi: ['シ'],
+		kunyomi: []
+	},
+	覧: {
+		ds: [],
+		grade: 6,
+		meaning: 'perusal',
+		onyomi: ['ラン'],
+		kunyomi: []
+	},
+	討: {
+		ds: [],
+		grade: 6,
+		meaning: 'chastise',
+		onyomi: ['トウ'],
+		kunyomi: ['う-つ']
+	},
+	訪: {
+		ds: [],
+		grade: 6,
+		meaning: 'call on',
+		onyomi: ['ホウ'],
+		kunyomi: ['おとず-れる', 'たず-ねる']
+	},
+	訳: {
+		ds: [],
+		grade: 6,
+		meaning: 'translate',
+		onyomi: ['ヤク'],
+		kunyomi: ['わけ']
+	},
+	詞: {
+		ds: [],
+		grade: 6,
+		meaning: 'part of speech',
+		onyomi: ['シ'],
+		kunyomi: []
+	},
+	誌: {
+		ds: [],
+		grade: 6,
+		meaning: 'document',
+		onyomi: ['シ'],
+		kunyomi: []
+	},
+	認: {
+		ds: [],
+		grade: 6,
+		meaning: 'acknowledge',
+		onyomi: ['ニン'],
+		kunyomi: ['みと-める']
+	},
+	誕: {
+		ds: [],
+		grade: 6,
+		meaning: 'nativity',
+		onyomi: ['タン'],
+		kunyomi: []
+	},
+	誠: {
+		ds: [],
+		grade: 6,
+		meaning: 'sincerity',
+		onyomi: ['セイ'],
+		kunyomi: ['まこと']
+	},
+	誤: {
+		ds: [],
+		grade: 6,
+		meaning: 'mistake',
+		onyomi: ['ゴ'],
+		kunyomi: ['あやま-る']
+	},
+	論: {
+		ds: [],
+		grade: 6,
+		meaning: 'theory',
+		onyomi: ['ロン'],
+		kunyomi: []
+	},
+	諸: {
+		ds: [],
+		grade: 6,
+		meaning: 'various',
+		onyomi: ['ショ'],
+		kunyomi: ['もろ']
+	},
+	警: {
+		ds: [],
+		grade: 6,
+		meaning: 'admonish',
+		onyomi: ['ケイ'],
+		kunyomi: []
+	},
+	貴: {
+		ds: [],
+		grade: 6,
+		meaning: 'precious',
+		onyomi: ['キ'],
+		kunyomi: ['たっと-い', 'とうと-い', 'たっと-ぶ', 'とうと-ぶ']
+	},
+	賃: {
+		ds: [],
+		grade: 6,
+		meaning: 'fare',
+		onyomi: ['チン'],
+		kunyomi: []
+	},
+	遺: {
+		ds: [],
+		grade: 6,
+		meaning: 'bequeath',
+		onyomi: ['イ', 'ユイ'],
+		kunyomi: ['のこ-す']
+	},
+	郵: {
+		ds: [],
+		grade: 6,
+		meaning: 'mail',
+		onyomi: ['ユウ'],
+		kunyomi: []
+	},
+	郷: {
+		ds: [],
+		grade: 6,
+		meaning: 'home town',
+		onyomi: ['キョウ', 'ゴウ'],
+		kunyomi: ['さと']
+	},
+	針: {
+		ds: [],
+		grade: 6,
+		meaning: 'needle',
+		onyomi: ['シン'],
+		kunyomi: ['はり']
+	},
+	鋼: {
+		ds: [],
+		grade: 6,
+		meaning: 'steel',
+		onyomi: ['コウ'],
+		kunyomi: []
+	},
+	閉: {
+		ds: [],
+		grade: 6,
+		meaning: 'closed',
+		onyomi: ['ヘイ'],
+		kunyomi: ['と-じる', 'と-ざす', 'し-める', 'し-まる']
+	},
+	閣: {
+		ds: [],
+		grade: 6,
+		meaning: 'tower',
+		onyomi: ['カク'],
+		kunyomi: []
+	},
+	降: {
+		ds: [],
+		grade: 6,
+		meaning: 'descend',
+		onyomi: ['コウ', 'ゴ'],
+		kunyomi: ['お-りる', 'お-ろす', 'ふ-る']
+	},
+	陛: {
+		ds: [],
+		grade: 6,
+		meaning: 'highness',
+		onyomi: ['ヘイ'],
+		kunyomi: []
+	},
+	除: {
+		ds: [],
+		grade: 6,
+		meaning: 'exclude',
+		onyomi: ['ジョ'],
+		kunyomi: ['のぞ-く']
+	},
+	障: {
+		ds: [],
+		grade: 6,
+		meaning: 'hurt',
+		onyomi: ['ショウ'],
+		kunyomi: ['さわ-る']
+	},
+	難: {
+		ds: [],
+		grade: 6,
+		meaning: 'difficult',
+		onyomi: ['ナン'],
+		kunyomi: ['かた-い', 'むずか-しい']
+	},
+	革: {
+		ds: [],
+		grade: 6,
+		meaning: 'leather',
+		onyomi: ['カク'],
+		kunyomi: ['かわ']
+	},
+	頂: {
+		ds: [],
+		grade: 6,
+		meaning: 'place on the head',
+		onyomi: ['チョウ'],
+		kunyomi: ['いただ-く', 'いただき']
+	},
+	骨: {
+		ds: [],
+		grade: 6,
+		meaning: 'skeleton',
+		onyomi: ['コツ'],
+		kunyomi: ['ほね']
+	}
+};
+
 export const kanji = {
 	...grade1Kanji,
 	...grade2Kanji,
