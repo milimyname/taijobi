@@ -15,6 +15,7 @@
 	} from '$lib/utils/stores.js';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { handleScroll, sortCards } from '$lib/utils/actions.js';
+	import SuperDebug from 'sveltekit-superforms/client/SuperDebug.svelte';
 
 	export let data;
 
@@ -29,6 +30,7 @@
 	let touchCurrentY = 0;
 	const scrollIncrement = 8; // Adjust this value to control scroll speed
 	let currentCardZindex: string;
+	let allowButtonClicks = false;
 
 	let mountedCards: NodeListOf<HTMLButtonElement>;
 
@@ -73,10 +75,6 @@
 	const handleClickFlashCardOutside = (e: {
 		currentTarget: { style: { transform: string; zIndex: string } };
 	}) => {
-		$clickedFlashCard = false;
-		$clickedEditFlashcard = false;
-		$clickedAddFlashcard = false;
-		$clickedDeleteFlashcard = false;
 		e.currentTarget.style.transform = 'translate(-50%, -50%) skew(0deg, 0deg)';
 		e.currentTarget.style.zIndex = currentCardZindex;
 
@@ -91,10 +89,16 @@
 			}, 500);
 		});
 
-		// Clear the form data
 		$form.name = '';
 		$form.description = '';
 		$form.id = '';
+
+		$clickedFlashCard = false;
+		$clickedEditFlashcard = false;
+		$clickedAddFlashcard = false;
+		$clickedDeleteFlashcard = false;
+
+		allowButtonClicks = false;
 	};
 
 	const handleCardClick = (e: { currentTarget: any }) => {
@@ -111,14 +115,18 @@
 		currentCardZindex = card.style.zIndex;
 		card.classList.add('pointer-events-auto');
 		card.style.zIndex = '110';
+
+		allowButtonClicks = true;
 	};
 
 	// Client API:
 	const { form, errors, constraints, enhance } = superForm(data.form, {
 		taintedMessage: null,
+		onSubmit: () => {
+			$clickedAddFlashcard = false;
+		},
 		onUpdated: () => {
 			if (!$errors.name || !$errors.description) $clickedAddFlashcard = false;
-			$clickedFlashCard = false;
 		}
 	});
 
@@ -129,21 +137,12 @@
 		data.flashcards.forEach((card: Card) => {
 			cards.push(card);
 		});
-
-		// Set other cards to be normal
-		if (mountedCards)
-			mountedCards.forEach((card) => {
-				card.style.transform = 'translate(-50%, -50%) skew(0deg, 0deg)';
-			});
-
-		if (!$clickedFlashCard) {
-			// Clear the form data
-			$form.name = '';
-			$form.description = '';
-			$form.id = '';
-		}
 	}
 </script>
+
+<!-- <div>
+	<SuperDebug data={$form} />
+</div> -->
 
 <Vault {enhance}>
 	{#if $clickedEditFlashcard}
@@ -260,6 +259,9 @@
 				{#if card.name !== 'kanji'}
 					<button
 						on:click|stopPropagation={() => {
+							if (!allowButtonClicks) return;
+
+							$clickedFlashCard = false;
 							$clickedAddFlashcard = true;
 							$clickedDeleteFlashcard = true;
 							// Fill out the form with the current card data
@@ -273,6 +275,8 @@
 				{/if}
 				<button
 					on:click|stopPropagation={() => {
+						if (!allowButtonClicks) return;
+
 						$clickedAddFlashcard = true;
 						$clickedEditFlashcard = true;
 						// Fill out the form with the current card data
@@ -285,25 +289,16 @@
 				</button>
 				<button
 					on:click|stopPropagation={() => {
+						if (!allowButtonClicks) return;
+
 						$clickedFlashCard = false;
+						$clickedEditFlashcard = false;
+						$clickedAddFlashcard = false;
 						goto(`flashcards/${card.id}`);
 					}}
 					class="open-flashcard"
 				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke-width="1.5"
-						stroke="currentColor"
-						class="h-5 w-5"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"
-						/>
-					</svg>
+					{@html icons.forward}
 				</button>
 			</div>
 		</button>

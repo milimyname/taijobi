@@ -15,7 +15,7 @@
 	<form
 		use:enhance
 		method="POST"
-		class="add-collection-btn fixed -bottom-5 z-[1000] flex {notes
+		class="add-form-btn fixed -bottom-5 z-[1000] flex {notes
 			? 'h-2/3'
 			: 'h-1/2'} w-full flex-col gap-5 overflow-hidden rounded-t-2xl bg-white px-5 py-10 sm:bottom-0"
 		transition:fly={{

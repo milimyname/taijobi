@@ -11,6 +11,7 @@ export function clickOutside(node) {
 			e.target.closest('.nextLetter') ||
 			e.target.closest('.flashcard') ||
 			e.target.closest('.add-collection-btn') ||
+			e.target.closest('.add-form-btn') ||
 			e.target.closest('.kanji-search') ||
 			e.target.closest('.leave-feedback') ||
 			e.target.closest('.edit-feedback')
@@ -26,6 +27,7 @@ export function clickOutside(node) {
 			e.target.closest('.nextLetter') ||
 			e.target.closest('.flashcard') ||
 			e.target.closest('.add-collection-btn') ||
+			e.target.closest('.add-form-btn') ||
 			e.target.closest('.kanji-search') ||
 			e.target.closest('.leave-feedback') ||
 			e.target.closest('.edit-feedback')

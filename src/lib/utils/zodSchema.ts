@@ -22,14 +22,14 @@ export const flashcardSchema = z.object({
 	meaning: z.string().optional(),
 	type: z.string(),
 	notes: z.string().optional(),
-	flashcards_id: z.string().optional()
+	flashcards_id: z.string().optional(),
+	id: z.string().optional()
 });
 
 export const flashcardsSchema = z.object({
 	name: z.string().max(25),
 	description: z.string().max(100).optional(),
-	id: z.string().optional(),
-	user_id: z.string()
+	id: z.string().optional()
 });
 
 export const feedbacksSchema = z.object({
