@@ -15,7 +15,6 @@
 	} from '$lib/utils/stores.js';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { handleScroll, sortCards } from '$lib/utils/actions.js';
-	import SuperDebug from 'sveltekit-superforms/client/SuperDebug.svelte';
 
 	export let data;
 
@@ -139,10 +138,6 @@
 		});
 	}
 </script>
-
-<!-- <div>
-	<SuperDebug data={$form} />
-</div> -->
 
 <Vault {enhance}>
 	{#if $clickedEditFlashcard}
