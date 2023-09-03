@@ -4,6 +4,9 @@
 	import '../app.css';
 	import { fly } from 'svelte/transition';
 	import { clickOutside } from '$lib/utils/clickOutside';
+	import { onMount } from 'svelte';
+	import { page } from '$app/stores';
+
 	// import { onNavigate } from '$app/navigation';
 
 	// let audioUrl = '';
@@ -59,6 +62,11 @@
 		if (!response.ok) console.error('Error sending data', await response.text());
 
 		$clickedFeedback = false;
+
+		// reload page after 2 seconds
+		setTimeout(() => {
+			location.reload();
+		}, 1000);
 	}
 
 	let animationText = '';
@@ -83,8 +91,29 @@
 	}
 
 	performAnimation();
+
+	let leaveFeedback;
+
+	onMount(() => {
+		leaveFeedback = document.querySelector('.leave-feedback');
+	});
+
+	$: {
+		if ($page.url.pathname.slice(1) === 'login' || $page.url.pathname.slice(1) === 'signup') {
+			leaveFeedback?.classList.add('hidden');
+		} else {
+			leaveFeedback?.classList.remove('hidden');
+		}
+	}
 </script>
 
+<svelte:head>
+	<script
+		async
+		src="https://analytics.taijobi.com/script.js"
+		data-website-id="51bced60-cf6d-46e0-b27c-0b7dfd457aba"
+	></script>
+</svelte:head>
 <!-- {#if audioUrl}
 	<audio controls>
 		<source src={audioUrl} type="audio/webm" />
@@ -190,7 +219,7 @@
 
 <button
 	on:click={() => ($clickedFeedback = !$clickedFeedback)}
-	class="leave-feedback absolute left-[25%] top-10 z-[888] w-28 -translate-y-1/2 translate-x-1/2 rounded-full border px-4 py-2"
+	class="leave-feedback absolute left-[25%] top-11 z-[888] w-28 -translate-y-1/2 translate-x-1/2 rounded-full border px-4 py-2 sm:left-[40%]"
 >
 	{animationText}
 </button>

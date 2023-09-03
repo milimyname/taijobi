@@ -31,7 +31,7 @@
 	<nav class="z-[99] flex w-full justify-between p-5">
 		<button
 			on:click|preventDefault={() => {
-				$page.route.id && goto($page.route.id.length < 12 ? '/studying' : '/flashcards');
+				$page.route.id && goto($page.route.id.length < 12 ? '/' : '/flashcards');
 			}}
 			class="flex items-center gap-2"
 		>

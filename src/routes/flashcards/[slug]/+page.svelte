@@ -2,7 +2,7 @@
 	import type { KanjiObject } from '$lib/utils/ambient.d.ts';
 	import { clickedEditFlashcard, currentAlphabet, clickedAddFlashcard } from '$lib/utils/stores';
 	import { cubicOut, quintOut } from 'svelte/easing';
-	import { tweened } from 'svelte/motion';
+	import { spring, tweened } from 'svelte/motion';
 	import { icons } from '$lib/utils/icons';
 	import { kanji } from '$lib/static/kanji';
 	import Vault from '../Vault.svelte';
@@ -18,12 +18,21 @@
 		easing: cubicOut
 	});
 
+	type Flashcard = {
+		name: string;
+		meaning: string;
+		notes: string;
+		type: string;
+		id: string;
+	};
+
 	// Get the alphabet store length
 	let currentFlashcard: string;
 	let currentFlashcardType: string;
 	let currentKanjiObject: KanjiObject;
 	let currentIndex: number = getRandomNumber(0, data.flashcards.length - 1);
 	let showNotes: boolean = false;
+	let words: string[] = [];
 
 	// Client API:
 	const { form, errors, constraints, enhance } = superForm(data.form, {
@@ -42,8 +51,61 @@
 			currentFlashcard = data.flashcards.at(currentIndex).name;
 			currentFlashcardType = data.flashcards.at(currentIndex).type;
 			currentKanjiObject = kanji[currentFlashcard];
+
+			// Put all the words in an array
+			data.flashcards.forEach((flashcard: Flashcard) => {
+				words.push(flashcard.name);
+			});
 		}
 	}
+
+	const swipeConfig = {
+		autoplay: false,
+		delay: 2000,
+		showIndicators: true,
+		transitionDuration: 1000,
+		defaultIndex: 0
+	};
+
+	let initialX = 0; // track the initial X position on drag start
+	let initialValue = 0; // track the initial slider value on drag start
+	let mousedown = false;
+	let selectedFlashcard;
+	let sliderWords;
+
+	let progress = spring(0, {
+		stiffness: 0.1,
+		damping: 0.4
+	});
+
+	const start = (e: any) => {
+		mousedown = true;
+
+		initialValue = $progress; // store the initial slider value
+
+		if (e.type === 'touchstart') initialX = e.touches[0].clientX;
+		else initialX = e.clientX;
+	};
+
+	const end = () => (mousedown = false);
+
+	const move = (e: any) => {
+		if (!mousedown) return;
+
+		let currentX;
+
+		currentX = e.type === 'touchmove' ? e.touches[0].clientX : (currentX = e.clientX);
+
+		const deltaX = currentX - initialX; // difference from initial position
+		const sensitivity = 2; // adjust as needed for smoother or sharper response
+		let change = Math.round(deltaX * sensitivity);
+
+		$progress = initialValue + change;
+
+		// show wordsSlider translation but if it goes out of bounds, return
+
+		sliderWords.style.transform = `translateX(${$progress}px)`;
+	};
 </script>
 
 <Vault {enhance} notes={true}>
@@ -103,11 +165,9 @@
 			{/if}
 		</fieldset>
 		<fieldset class=" flex w-full flex-col md:w-2/3">
-			<label for="type" class="hidden">Type</label>
-			<input
-				type="text"
+			<select
 				name="type"
-				placeholder="Type"
+				id="type"
 				class="
                     block
                     rounded-md
@@ -118,7 +178,11 @@
 				aria-invalid={$errors.type ? 'true' : undefined}
 				bind:value={$form.type}
 				{...$constraints.type}
-			/>
+			>
+				<option value="kanji">Kanji</option>
+				<option value="word">Word</option>
+			</select>
+
 			{#if $errors.type}
 				<span
 					transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
@@ -176,7 +240,7 @@
 </Vault>
 
 <section
-	class="flex flex-1 flex-col justify-center gap-5 sm:gap-10"
+	class="flex flex-1 flex-col justify-center gap-5 overflow-hidden sm:gap-10"
 	use:clickOutside
 	on:outsideclick={() => {
 		$clickedAddFlashcard = false;
@@ -194,7 +258,7 @@
 				style={`transform: rotateY(${-$rotateYCard}deg); transform-style: preserve-3d; backface-visibility: hidden;`}
 				class="relative z-10 mx-auto cursor-pointer
 				{$rotateYCard > 90 ? 'hidden' : 'block'} 
-			 flex h-[504px] w-[354px] items-center justify-center rounded-xl border {currentFlashcardType ===
+			 flex h-[474px] w-[354px] items-center justify-center rounded-xl border {currentFlashcardType ===
 				'kanji'
 					? 'text-[14rem]'
 					: 'text-9xl'}  shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200 sm:h-[600px] sm:w-[600px]"
@@ -213,7 +277,7 @@
 				style={`transform: rotateY(${180 - $rotateYCard}deg); backface-visibility: hidden;`}
 				class="relative z-10 mx-auto
 				{$rotateYCard > 90 ? 'block' : 'hidden'} 
-				 flex h-[504px] w-[354px] flex-col
+				 flex h-[474px] w-[354px] flex-col
 				 {$currentAlphabet === 'kanji' ? 'gap-1' : 'gap-5'}  
 				 justify-center overflow-hidden rounded-xl border p-10 shadow-sm sm:h-[600px] sm:w-[600px]"
 			>
@@ -244,12 +308,44 @@
 								{@html icons.notes}
 							</button>
 
-							<button
-								class="{showNotes && 'hidden'}
+							{#if showNotes}
+								<p
+									transition:fly={{
+										delay: 0,
+										duration: 1000,
+										opacity: 0,
+										y: 400,
+										easing: quintOut
+									}}
+									class="z-4 absolute bottom-0 left-0 h-5/6 w-full rounded-xl bg-primary p-4 text-sm text-white"
+								>
+									{data.flashcards.at(currentIndex).notes}
+								</p>
+							{/if}
+						{/if}
+						<button
+							class="{showNotes && 'hidden'}
 								fixed bottom-5 right-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all"
-								on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
+							on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
+						>
+							{@html icons.backside}
+						</button>
+					</div>
+				{:else}
+					<div class="grid-rows-[max-content 1fr] grid h-full">
+						<h2 class="text-center text-9xl">{currentFlashcard}</h2>
+						<div>
+							<h2 class="text-4xl font-medium">{data.flashcards.at(currentIndex).meaning}</h2>
+							<p class=" text-sm text-gray-300">Meaning</p>
+						</div>
+						{#if data.flashcards.at(currentIndex).notes.length > 0}
+							<button
+								class="fixed bottom-0 left-0 z-10 rounded-tr-xl {showNotes
+									? 'bg-white text-black'
+									: 'bg-blue-200'} p-5"
+								on:click|preventDefault={() => (showNotes = !showNotes)}
 							>
-								{@html icons.backside}
+								{@html icons.notes}
 							</button>
 
 							{#if showNotes}
@@ -267,11 +363,18 @@
 								</p>
 							{/if}
 						{/if}
+						<button
+							class="{showNotes && 'hidden'}
+								fixed bottom-5 right-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all"
+							on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
+						>
+							{@html icons.backside}
+						</button>
 					</div>
 				{/if}
 			</div>
 		</div>
-		<div class="flex items-center justify-between sm:mx-auto sm:w-[600px]">
+		<div class="mb-auto flex items-center justify-between sm:mx-auto sm:w-[600px]">
 			<button
 				on:click|preventDefault={() => (currentIndex > 0 ? currentIndex-- : currentIndex)}
 				class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
@@ -305,5 +408,26 @@
 				{@html icons.next}
 			</button>
 		</div>
+		<!-- <button
+			bind:this={sliderWords}
+			class="absolute bottom-10 left-0 flex w-full cursor-ew-resize justify-between gap-5"
+			on:mousedown={start}
+			on:mouseup={end}
+			on:mousemove|preventDefault={move}
+			on:touchstart={start}
+			on:touchend={end}
+			on:touchmove|preventDefault={move}
+		>
+			{#each words as word, i}
+				<div
+					class="relative text-2xl {currentFlashcard === word
+						? "text-black before:absolute before:-top-4 before:left-2  before:text-black before:content-['*']"
+						: 'text-gray-200 '}"
+					bind:this={selectedFlashcard}
+				>
+					{word}
+				</div>
+			{/each}
+		</button> -->
 	{/if}
 </section>

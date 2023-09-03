@@ -5,7 +5,7 @@
 	import MobileNav from './MobileNav.svelte';
 	import { showAppNav, showNav, innerWidthStore } from '$lib/utils/stores';
 	import { onMount } from 'svelte';
-	import image from '$lib/static/mili.jpeg';
+	import image from '$lib/static/taijobi.png';
 	import { icons } from '$lib/utils/icons';
 	import { pocketbase } from '$lib/utils/pocketbase';
 
@@ -66,20 +66,24 @@
 	>
 		{#if innerWidth > twSmallScreen}
 			<a href="/" class="mb-auto">
-				<img src="/taijobi.png" class="h-10 w-10 sm:h-12 sm:w-12" alt="Logo" />
+				<img
+					src="/taijobi.png"
+					class="h-10 w-10 rounded-full shadow-logo sm:h-12 sm:w-12"
+					alt="Logo"
+				/>
 			</a>
 			<div class="flex gap-10 sm:flex-col">
 				<a href="/signup">{@html icons.signup} </a>
 				<a href="/studying">{@html icons.school} </a>
-				<a href="/news">{@html icons.news} </a>
+				<a href="/profile">{@html icons.news} </a>
 				<form action="/logout" method="POST">
 					<button type="submit">
 						{@html icons.logout}
 					</button>
 				</form>
 			</div>
-			<a href="/" class="mt-auto">
-				<img src="/taijobi.png" alt="Logo" />
+			<a href="/profile" class="mt-auto">
+				<img src={imageSrc} alt="Logo" class="h-10 w-10 rounded-full shadow-logo sm:h-12 sm:w-12" />
 			</a>
 		{:else}
 			<button
@@ -92,7 +96,7 @@
 			>
 				<img
 					src={imageSrc}
-					class="pointer-events-none h-12 w-12 select-none rounded-full hover:h-12 hover:w-12"
+					class="pointer-events-none h-12 w-12 select-none rounded-full shadow-logo hover:h-12 hover:w-12"
 					alt="Profile Pic"
 				/>
 			</button>

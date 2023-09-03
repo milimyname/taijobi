@@ -57,7 +57,7 @@
 	/>
 	<button
 		on:click={() => (showImage = false)}
-		class="absolute left-1/2 top-[80%] z-[2010] -translate-x-1/2 -translate-y-1/2 bg-black px-4 py-2 text-white"
+		class="absolute left-1/2 top-[80%] z-[2010] -translate-x-1/2 -translate-y-1/2 bg-black px-4 py-2 font-bold text-white"
 	>
 		Close</button
 	>
@@ -152,6 +152,11 @@
 					} catch (error) {
 						console.log(error);
 					}
+
+					// reload page after 2 seconds
+					setTimeout(() => {
+						location.reload();
+					}, 250);
 				}}
 				class="rounded-md bg-red-400 px-4 py-2 text-lg font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-red-500 active:translate-y-1 active:shadow-sm lg:w-2/3"
 				>Delete

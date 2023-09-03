@@ -31,8 +31,9 @@ export const actions = {
 				flashcards_id: params.slug,
 				notes: form.data.notes
 			});
-		} catch (_) {
+		} catch (e) {
 			form.errors.name = ['Flashcard name is already taken.'];
+			console.log(e);
 		}
 
 		return { form };

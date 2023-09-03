@@ -107,12 +107,7 @@
 
 <section class="flex flex-1 flex-col justify-center gap-2 sm:gap-10">
 	<div class="relative flex justify-between">
-		<button
-			on:click={() => {
-				goto('/studying');
-			}}
-			class="flex items-center gap-2 sm:hidden"
-		>
+		<button on:click={() => goto('/')} class="flex items-center gap-2 sm:hidden">
 			{@html icons.previous}
 			<span>Back</span>
 		</button>

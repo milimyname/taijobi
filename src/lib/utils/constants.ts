@@ -30,7 +30,7 @@ export const navItems = [
 		mb: '-mb-20'
 	},
 	{
-		url: '/studying',
+		url: '/',
 		icon: 'studying',
 		label: 'Studying',
 		borderColor: 'border-[#F86F03]',
