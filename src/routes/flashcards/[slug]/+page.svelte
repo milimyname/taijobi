@@ -254,8 +254,11 @@
 				bind:value={$form.type}
 				{...$constraints.type}
 			>
-				<option value="kanji">Kanji</option>
-				<option value="word">Word</option>
+				{#if currentFlashcardType === 'kanji'}
+					<option value="kanji" selected>Kanji</option>
+				{:else}
+					<option value="word" selected>Word</option>
+				{/if}
 			</select>
 
 			{#if $errors.type}

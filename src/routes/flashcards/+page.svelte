@@ -121,6 +121,8 @@
 	// Client API:
 	const { form, errors, constraints, enhance } = superForm(data.form, {
 		taintedMessage: null,
+		resetForm: true,
+		applyAction: true,
 		onSubmit: () => {
 			$clickedAddFlashcard = false;
 		},
