@@ -2,6 +2,7 @@ import { superValidate } from 'sveltekit-superforms/server';
 import { fail } from '@sveltejs/kit';
 import { flashcardSchema } from '$lib/utils/zodSchema';
 import type { PageServerLoad } from '../$types';
+export const ssr = false;
 
 export const load = (async ({ locals, params }) => {
 	// Get all the flashcards
@@ -40,8 +41,6 @@ export const actions = {
 	},
 	delete: async ({ request, locals }) => {
 		const form = await superValidate(request, flashcardSchema);
-
-		console.log(form.data);
 
 		// Convenient validation check:
 		if (!form.valid) return fail(400, { form });

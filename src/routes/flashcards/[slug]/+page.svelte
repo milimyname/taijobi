@@ -32,46 +32,27 @@
 	let currentKanjiObject: KanjiObject;
 	let currentIndex: number = getRandomNumber(0, data.flashcards.length - 1);
 	let showNotes: boolean = false;
-	let words: string[] = [];
 
 	// Client API:
 	const { form, errors, constraints, enhance } = superForm(data.form, {
 		taintedMessage: null,
+		resetForm: true,
+		applyAction: true,
 		onSubmit: async (form) => {
 			$clickedEditFlashcard = false;
 			$clickedAddFlashcard = false;
+
+			if (form.action.search.endsWith('delete')) currentIndex = 0;
 		},
 		onUpdated: () => {
 			if (!$errors.name) $clickedAddFlashcard = false;
 		}
 	});
 
-	$: {
-		if (data.flashcards.length > 0) {
-			currentFlashcard = data.flashcards.at(currentIndex).name;
-			currentFlashcardType = data.flashcards.at(currentIndex).type;
-			currentKanjiObject = kanji[currentFlashcard];
-
-			// Put all the words in an array
-			data.flashcards.forEach((flashcard: Flashcard) => {
-				words.push(flashcard.name);
-			});
-		}
-	}
-
-	const swipeConfig = {
-		autoplay: false,
-		delay: 2000,
-		showIndicators: true,
-		transitionDuration: 1000,
-		defaultIndex: 0
-	};
-
 	let initialX = 0; // track the initial X position on drag start
 	let initialValue = 0; // track the initial slider value on drag start
 	let mousedown = false;
-	let selectedFlashcard;
-	let sliderWords;
+	let sliderWords: HTMLButtonElement;
 
 	let progress = spring(0, {
 		stiffness: 0.1,
@@ -89,6 +70,8 @@
 
 	const end = () => (mousedown = false);
 
+	let currentlyCenteredWord: HTMLButtonElement;
+
 	const move = (e: any) => {
 		if (!mousedown) return;
 
@@ -100,12 +83,104 @@
 		const sensitivity = 2; // adjust as needed for smoother or sharper response
 		let change = Math.round(deltaX * sensitivity);
 
-		$progress = initialValue + change;
+		// Calculate the new progress value
+		const newProgress = initialValue + change;
 
-		// show wordsSlider translation but if it goes out of bounds, return
+		// Calculate the minimum and maximum values for progress
+		const minProgress = -sliderWords.getBoundingClientRect().width / 2;
+		const maxProgress = sliderWords.getBoundingClientRect().width / 2;
 
-		sliderWords.style.transform = `translateX(${$progress}px)`;
+		// Check if the new progress is within the allowed range
+		if (newProgress >= minProgress && newProgress <= maxProgress) {
+			$progress = newProgress;
+		} else if (newProgress < minProgress) {
+			// If newProgress goes below the minimum, set it to the minimum
+			$progress = -maxProgress;
+		} else if (newProgress > maxProgress) {
+			// If newProgress goes above the maximum, set it to the maximum
+			$progress = maxProgress;
+		}
+
+		const words = sliderWords.querySelectorAll('button');
+
+		words.forEach((word: HTMLButtonElement) => {
+			const wordLeft = word.getBoundingClientRect().left;
+			const width = word.getBoundingClientRect().width;
+
+			// Check if the word is in the middle of the screen
+			if (wordLeft > window.innerWidth / 2 - width && wordLeft < window.innerWidth / 2 + width) {
+				// Set the current flashcard to the word in the middle of the screen
+				if (word !== currentlyCenteredWord) {
+					// Remove special styling from the previously centered word
+					if (currentlyCenteredWord) {
+						currentlyCenteredWord.classList.add('text-gray-200', 'text-2xl');
+						currentlyCenteredWord.classList.remove(
+							'text-black',
+							'before:absolute',
+							'before:-top-2',
+							'before:left-1/2',
+							'before:-translate-x-1/2',
+							'before:bg-black',
+							'before:content-[""]',
+							'before:h-1',
+							'before:w-1',
+							'before:rounded-full',
+							'text-3xl'
+						);
+					}
+					// Apply special styling to the new centered word
+					word.classList.remove('text-gray-200', 'text-2xl');
+					word.classList.add(
+						'text-black',
+						'before:absolute',
+						'before:-top-2',
+						'before:left-1/2',
+						'before:-translate-x-1/2',
+						'before:bg-black',
+						'before:content-[""]',
+						'before:h-1',
+						'before:w-1',
+						'before:rounded-full',
+						'text-3xl'
+					);
+
+					// Update the currently centered word
+					currentlyCenteredWord = word;
+
+					currentFlashcard = data.flashcards.at(
+						Array.from(words).indexOf(currentlyCenteredWord)
+					).name;
+
+					currentFlashcardType = data.flashcards.at(
+						Array.from(words).indexOf(currentlyCenteredWord)
+					).type;
+				}
+			} else {
+				// Remove special styling from words that are no longer centered
+				word.classList.add('text-gray-200', 'text-2xl');
+				word.classList.remove(
+					'text-black',
+					'before:absolute',
+					'before:-top-2',
+					'before:left-1/2',
+					'before:-translate-x-1/2',
+					'before:bg-black',
+					'before:content-[""]',
+					'before:h-1',
+					'before:w-1',
+					'before:rounded-full',
+					'text-3xl'
+				);
+			}
+
+			word.style.transform = `translateX(${$progress}px)`;
+		});
 	};
+
+	$: if (data.flashcards.length > 0) {
+		currentFlashcard = data.flashcards.at(currentIndex).name;
+		currentFlashcardType = data.flashcards.at(currentIndex).type;
+	}
 </script>
 
 <Vault {enhance} notes={true}>
@@ -240,7 +315,7 @@
 </Vault>
 
 <section
-	class="flex flex-1 flex-col justify-center gap-5 overflow-hidden sm:gap-10"
+	class="flex flex-1 flex-col justify-center gap-5 sm:gap-10"
 	use:clickOutside
 	on:outsideclick={() => {
 		$clickedAddFlashcard = false;
@@ -253,17 +328,21 @@
 	}}
 >
 	{#if data.flashcards.length > 0}
+		{@const longWord = currentFlashcard.length > 10}
 		<div style="perspective: 3000px; position: relative;">
 			<div
 				style={`transform: rotateY(${-$rotateYCard}deg); transform-style: preserve-3d; backface-visibility: hidden;`}
 				class="relative z-10 mx-auto cursor-pointer
 				{$rotateYCard > 90 ? 'hidden' : 'block'} 
-			 flex h-[474px] w-[354px] items-center justify-center rounded-xl border {currentFlashcardType ===
-				'kanji'
-					? 'text-[14rem]'
-					: 'text-9xl'}  shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200 sm:h-[600px] sm:w-[600px]"
+			 flex h-[474px] w-[354px] items-center justify-center text-center {longWord
+					? 'grid grid-cols-3 content-center justify-center justify-items-center gap-2'
+					: 'flex-col gap-2'} overflow-hidden rounded-xl border shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200 sm:h-[600px] sm:w-[600px]"
 			>
-				{currentFlashcard}
+				{#each currentFlashcard as letter}
+					<span class={currentFlashcardType === 'kanji' ? 'text-[14rem]' : 'text-4xl'}>
+						{letter}
+					</span>
+				{/each}
 				<button
 					class="{showNotes && 'hidden'} 
 						fixed bottom-5 right-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all"
@@ -285,16 +364,16 @@
 					<div class="grid-rows-[max-content 1fr] grid h-full">
 						<h2 class="text-center text-9xl">{currentFlashcard}</h2>
 						<div>
-							<h2 class="text-4xl font-medium">{currentKanjiObject.meaning}</h2>
+							<h2 class="text-4xl font-medium">{kanji[currentFlashcard].meaning}</h2>
 							<p class=" text-sm text-gray-300">Meaning</p>
 						</div>
 						<div>
-							<h4 class="text-lg tracking-widest">{currentKanjiObject.onyomi}</h4>
+							<h4 class="text-lg tracking-widest">{kanji[currentFlashcard].onyomi}</h4>
 							<p class=" text-sm text-gray-300">Onyomi</p>
 						</div>
-						{#if currentKanjiObject.kunyomi.length > 0}
+						{#if kanji[currentFlashcard].kunyomi.length > 0}
 							<div>
-								<h4 class="text-lg tracking-widest">{currentKanjiObject.kunyomi}</h4>
+								<h4 class="text-lg tracking-widest">{kanji[currentFlashcard].kunyomi}</h4>
 								<p class=" text-sm text-gray-300">Kunyomi</p>
 							</div>
 						{/if}
@@ -333,9 +412,9 @@
 					</div>
 				{:else}
 					<div class="grid-rows-[max-content 1fr] grid h-full">
-						<h2 class="text-center text-9xl">{currentFlashcard}</h2>
+						<h2 class="text-center text-lg">{currentFlashcard}</h2>
 						<div>
-							<h2 class="text-4xl font-medium">{data.flashcards.at(currentIndex).meaning}</h2>
+							<h2 class="text-2xl font-medium">{data.flashcards.at(currentIndex).meaning}</h2>
 							<p class=" text-sm text-gray-300">Meaning</p>
 						</div>
 						{#if data.flashcards.at(currentIndex).notes.length > 0}
@@ -394,7 +473,7 @@
 						$form.meaning = data.flashcards.at(currentIndex).meaning;
 						$form.id = data.flashcards.at(currentIndex).id;
 						$form.notes = data.flashcards.at(currentIndex).notes;
-						$form.type = 'kanji';
+						$form.type = data.flashcards.at(currentIndex).type;
 					}}
 				>
 					{@html icons.edit}
@@ -408,26 +487,28 @@
 				{@html icons.next}
 			</button>
 		</div>
-		<!-- <button
+
+		<button
 			bind:this={sliderWords}
-			class="absolute bottom-10 left-0 flex w-full cursor-ew-resize justify-between gap-5"
-			on:mousedown={start}
-			on:mouseup={end}
+			class="absolute bottom-5 left-0 flex cursor-ew-resize justify-between gap-5 overflow-x-hidden sm:bottom-10"
+			on:mousedown|preventDefault={start}
+			on:mouseup|preventDefault={end}
 			on:mousemove|preventDefault={move}
-			on:touchstart={start}
-			on:touchend={end}
+			on:touchstart|preventDefault={start}
+			on:touchend|preventDefault={end}
 			on:touchmove|preventDefault={move}
 		>
-			{#each words as word, i}
-				<div
-					class="relative text-2xl {currentFlashcard === word
-						? "text-black before:absolute before:-top-4 before:left-2  before:text-black before:content-['*']"
+			{#each data.flashcards as { name }}
+				<button
+					class="relative break-keep {name.length > 5
+						? 'h-6  text-sm sm:text-xl'
+						: 'h-12  text-2xl'} {currentFlashcard === name
+						? " text-3xl text-black before:absolute before:-top-2 before:left-1/2 before:h-1  before:w-1 before:-translate-x-1/2 before:rounded-full before:bg-black before:content-['']"
 						: 'text-gray-200 '}"
-					bind:this={selectedFlashcard}
 				>
-					{word}
-				</div>
+					{name}
+				</button>
 			{/each}
-		</button> -->
+		</button>
 	{/if}
 </section>

@@ -61,8 +61,8 @@
 <main class="relative flex h-full select-none flex-col-reverse items-center p-5 sm:flex-row">
 	<nav
 		class="{!isLongPress
-			? 'w-full p-4'
-			: 'ml-auto p-2'} z-40 flex items-center justify-between rounded-full bg-primary text-white transition-all sm:h-full sm:w-auto sm:flex-col sm:justify-center sm:gap-10 sm:p-5"
+			? 'w-[90%] p-4'
+			: 'ml-auto p-2'} absolute z-40 flex items-center justify-between rounded-full bg-primary text-white transition-all sm:relative sm:h-full sm:w-auto sm:flex-col sm:justify-center sm:gap-10 sm:p-5"
 	>
 		{#if innerWidth > twSmallScreen}
 			<a href="/" class="mb-auto">
@@ -87,7 +87,7 @@
 			</a>
 		{:else}
 			<button
-				on:click={handleUserIconClick}
+				on:click|preventDefault={handleUserIconClick}
 				on:mousedown={handleLongPress}
 				on:touchstart={handleLongPress}
 				on:mouseup={handleCancelPress}
@@ -110,7 +110,7 @@
 						x: 100,
 						easing: sineIn
 					}}
-					on:click={handleMenuIconClick}
+					on:click|preventDefault={handleMenuIconClick}
 				>
 					{@html icons.menu}
 				</button>
