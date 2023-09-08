@@ -27,7 +27,6 @@
 	let touchCurrentY = 0;
 	const scrollIncrement = 8; // Adjust this value to control scroll speed
 	let currentCardZindex: string;
-	let allowButtonClicks = false;
 
 	let mountedCards: NodeListOf<HTMLButtonElement>;
 
@@ -94,8 +93,6 @@
 		$clickedEditFlashcard = false;
 		$clickedAddFlashcard = false;
 		$clickedDeleteFlashcard = false;
-
-		allowButtonClicks = false;
 	};
 
 	const handleCardClick = (e: { currentTarget: any }) => {
@@ -112,8 +109,6 @@
 		currentCardZindex = card.style.zIndex;
 		card.classList.add('pointer-events-auto');
 		card.style.zIndex = '110';
-
-		allowButtonClicks = true;
 	};
 
 	// Client API:
@@ -172,8 +167,6 @@
 				{#if card.name !== 'kanji'}
 					<button
 						on:click|stopPropagation={() => {
-							if (!allowButtonClicks) return;
-
 							$clickedFlashCard = false;
 							$clickedAddFlashcard = true;
 							$clickedDeleteFlashcard = true;
@@ -188,8 +181,6 @@
 				{/if}
 				<button
 					on:click|stopPropagation={() => {
-						if (!allowButtonClicks) return;
-
 						$clickedAddFlashcard = true;
 						$clickedEditFlashcard = true;
 						// Fill out the form with the current card data
@@ -202,8 +193,6 @@
 				</button>
 				<button
 					on:click|stopPropagation={() => {
-						if (!allowButtonClicks) return;
-
 						$clickedFlashCard = false;
 						$clickedEditFlashcard = false;
 						$clickedAddFlashcard = false;

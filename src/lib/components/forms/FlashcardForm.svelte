@@ -4,7 +4,6 @@
 	import { slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 
-	export let data;
 	export let currentFlashcardType: string;
 	export let enhance: boolean;
 	export let errors;

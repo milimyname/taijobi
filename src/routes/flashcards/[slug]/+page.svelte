@@ -177,7 +177,7 @@
 	}
 </script>
 
-<FlashcardForm {data} {currentFlashcardType} {constraints} {form} {errors} {enhance} />
+<FlashcardForm {currentFlashcardType} {constraints} {form} {errors} {enhance} />
 
 <section
 	class="flex flex-1 flex-col justify-center gap-5"
