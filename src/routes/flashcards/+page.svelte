@@ -121,9 +121,6 @@
 		taintedMessage: null,
 		resetForm: true,
 		applyAction: true,
-		onSubmit: () => {
-			$clickedAddFlashcard = false;
-		},
 		onUpdated: () => {
 			if (!$errors.name || !$errors.description) $clickedAddFlashcard = false;
 		}
