@@ -148,6 +148,8 @@
 					currentFlashcardType = data.flashcards.at(
 						Array.from(words).indexOf(currentlyCenteredWord)
 					).type;
+
+					currentIndex = Array.from(words).indexOf(currentlyCenteredWord);
 				}
 			} else {
 				// Remove special styling from words that are no longer centered
@@ -332,6 +334,8 @@
 						$form.id = data.flashcards.at(currentIndex).id;
 						$form.notes = data.flashcards.at(currentIndex).notes;
 						$form.type = data.flashcards.at(currentIndex).type;
+
+						console.log(currentIndex);
 					}}
 				>
 					{@html icons.edit}
