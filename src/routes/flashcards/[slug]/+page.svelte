@@ -1,15 +1,13 @@
 <script lang="ts">
-	import type { KanjiObject } from '$lib/utils/ambient.d.ts';
 	import { clickedEditFlashcard, currentAlphabet, clickedAddFlashcard } from '$lib/utils/stores';
 	import { cubicOut, quintOut } from 'svelte/easing';
 	import { spring, tweened } from 'svelte/motion';
 	import { icons } from '$lib/utils/icons';
 	import { kanji } from '$lib/static/kanji';
-	import Vault from '../Vault.svelte';
 	import { superForm } from 'sveltekit-superforms/client';
-	import { fly, slide } from 'svelte/transition';
+	import { fly } from 'svelte/transition';
 	import { clickOutside } from '$lib/utils/clickOutside';
-	import { getRandomNumber } from '$lib/utils/actions';
+	import FlashcardForm from '$lib/components/forms/FlashcardForm.svelte';
 
 	export let data;
 
@@ -18,19 +16,10 @@
 		easing: cubicOut
 	});
 
-	type Flashcard = {
-		name: string;
-		meaning: string;
-		notes: string;
-		type: string;
-		id: string;
-	};
-
 	// Get the alphabet store length
 	let currentFlashcard: string;
 	let currentFlashcardType: string;
-	let currentKanjiObject: KanjiObject;
-	let currentIndex: number = getRandomNumber(0, data.flashcards.length - 1);
+	let currentIndex: number = Math.floor(data.flashcards.length / 2);
 	let showNotes: boolean = false;
 
 	// Client API:
@@ -53,6 +42,7 @@
 	let initialValue = 0; // track the initial slider value on drag start
 	let mousedown = false;
 	let sliderWords: HTMLButtonElement;
+	let currentlyCenteredWord: HTMLButtonElement;
 
 	let progress = spring(0, {
 		stiffness: 0.1,
@@ -69,8 +59,6 @@
 	};
 
 	const end = () => (mousedown = false);
-
-	let currentlyCenteredWord: HTMLButtonElement;
 
 	const move = (e: any) => {
 		if (!mousedown) return;
@@ -105,10 +93,16 @@
 
 		words.forEach((word: HTMLButtonElement) => {
 			const wordLeft = word.getBoundingClientRect().left;
-			const width = word.getBoundingClientRect().width;
+			const width =
+				currentFlashcardType === 'kanji'
+					? word.getBoundingClientRect().width
+					: word.getBoundingClientRect().width / 2;
 
 			// Check if the word is in the middle of the screen
-			if (wordLeft > window.innerWidth / 2 - width && wordLeft < window.innerWidth / 2 + width) {
+			if (
+				wordLeft > window.innerWidth / 2 - width * 2 &&
+				wordLeft < window.innerWidth / 2 + width * 2
+			) {
 				// Set the current flashcard to the word in the middle of the screen
 				if (word !== currentlyCenteredWord) {
 					// Remove special styling from the previously centered word
@@ -183,142 +177,10 @@
 	}
 </script>
 
-<Vault {enhance} notes={true}>
-	{#if $clickedEditFlashcard}
-		<h4 class="text-2xl">Edit flashcard</h4>
-	{:else}
-		<h4 class="text-2xl">Create a new flashcard</h4>
-	{/if}
-
-	<div class="mb-auto flex flex-col gap-5">
-		<fieldset class=" flex w-full flex-col md:w-2/3">
-			<label for="name" class="hidden">Flashcard Name</label>
-			<input
-				type="text"
-				name="name"
-				placeholder="Flashcard Name"
-				class="
-                    block
-                    rounded-md
-                    border-gray-300
-                    shadow-sm
-                    focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
-                  "
-				aria-invalid={$errors.name ? 'true' : undefined}
-				bind:value={$form.name}
-				{...$constraints.name}
-			/>
-			{#if $errors.name}
-				<span
-					transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
-					class="mt-1 select-none text-sm text-red-400">{$errors.name}</span
-				>
-			{/if}
-		</fieldset>
-		<fieldset class=" flex w-full flex-col md:w-2/3">
-			<label for="meaning" class="hidden">Meaning</label>
-			<input
-				type="text"
-				name="meaning"
-				placeholder="Meaning"
-				class="
-                    block
-                    rounded-md
-                    border-gray-300
-                    shadow-sm
-                    focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
-                  "
-				aria-invalid={$errors.meaning ? 'true' : undefined}
-				bind:value={$form.meaning}
-				{...$constraints.meaning}
-			/>
-			{#if $errors.meaning}
-				<span
-					transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
-					class="mt-1 select-none text-sm text-red-400">{$errors.meaning}</span
-				>
-			{/if}
-		</fieldset>
-		<fieldset class=" flex w-full flex-col md:w-2/3">
-			<select
-				name="type"
-				id="type"
-				class="
-                    block
-                    rounded-md
-                    border-gray-300
-                    shadow-sm
-                    focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
-                  "
-				aria-invalid={$errors.type ? 'true' : undefined}
-				bind:value={$form.type}
-				{...$constraints.type}
-			>
-				{#if currentFlashcardType === 'kanji'}
-					<option value="kanji" selected>Kanji</option>
-				{:else}
-					<option value="word" selected>Word</option>
-				{/if}
-			</select>
-
-			{#if $errors.type}
-				<span
-					transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
-					class="mt-1 select-none text-sm text-red-400">{$errors.type}</span
-				>
-			{/if}
-		</fieldset>
-		<fieldset class=" flex w-full flex-col md:w-2/3">
-			<label for="notes" class="hidden">Notes</label>
-			<textarea
-				name="notes"
-				placeholder="Notes"
-				class="
-                    block
-                    rounded-md
-                    border-gray-300
-                    shadow-sm
-                    focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
-                  "
-				aria-invalid={$errors.notes ? 'true' : undefined}
-				bind:value={$form.notes}
-				{...$constraints.notes}
-				rows="3"
-			/>
-			{#if $errors.notes}
-				<span
-					transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
-					class="mt-1 select-none text-sm text-red-400">{$errors.notes}</span
-				>
-			{/if}
-		</fieldset>
-		<input type="hidden" name="id" bind:value={$form.id} />
-	</div>
-
-	{#if $clickedEditFlashcard}
-		<div class="flex w-full justify-between">
-			<button
-				formaction="?/delete"
-				class="text-md rounded-md bg-red-500 px-4 py-2 font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-red-400 active:translate-y-1 active:shadow-sm lg:w-2/3"
-				>Delete
-			</button>
-			<button
-				formaction="?/edit"
-				class="text-md rounded-md bg-black px-4 py-2 font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm lg:w-2/3"
-				>Edit Flashcard</button
-			>
-		</div>
-	{:else}
-		<button
-			formaction="?/add"
-			class="text-md w-full rounded-md bg-black py-2 font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm lg:w-2/3"
-			>Add Flashcard</button
-		>
-	{/if}
-</Vault>
+<FlashcardForm {data} {currentFlashcardType} {constraints} {form} {errors} {enhance} />
 
 <section
-	class="flex flex-1 flex-col justify-center gap-5 sm:gap-10"
+	class="flex flex-1 flex-col justify-center gap-5"
 	use:clickOutside
 	on:outsideclick={() => {
 		$clickedAddFlashcard = false;
@@ -380,7 +242,7 @@
 								<p class=" text-sm text-gray-300">Kunyomi</p>
 							</div>
 						{/if}
-						{#if data.flashcards.at(currentIndex).notes.length > 0}
+						{#if data.flashcards.at(currentIndex).notes && data.flashcards.at(currentIndex).notes.length > 0}
 							<button
 								class="fixed bottom-0 left-0 z-10 rounded-tr-xl {showNotes
 									? 'bg-white text-black'
@@ -456,14 +318,7 @@
 				{/if}
 			</div>
 		</div>
-		<div class="mb-auto flex items-center justify-between sm:mx-auto sm:w-[600px]">
-			<button
-				on:click|preventDefault={() => (currentIndex > 0 ? currentIndex-- : currentIndex)}
-				class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
-			>
-				{@html icons.previous}
-			</button>
-
+		<div class="mb-auto flex items-center justify-center sm:mx-auto sm:w-[600px]">
 			<div
 				class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
 			>
@@ -482,18 +337,11 @@
 					{@html icons.edit}
 				</button>
 			</div>
-			<button
-				on:click|preventDefault={() =>
-					currentIndex < data.flashcards.length - 1 ? currentIndex++ : currentIndex}
-				class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
-			>
-				{@html icons.next}
-			</button>
 		</div>
 
 		<button
 			bind:this={sliderWords}
-			class="absolute bottom-5 left-0 flex cursor-ew-resize justify-between gap-5 overflow-x-hidden sm:bottom-10"
+			class="absolute bottom-5 left-1/2 flex -translate-x-1/2 cursor-ew-resize justify-between gap-5 overflow-x-hidden sm:bottom-10"
 			on:mousedown|preventDefault={start}
 			on:mouseup|preventDefault={end}
 			on:mousemove|preventDefault={move}
@@ -504,9 +352,9 @@
 			{#each data.flashcards as { name }}
 				<button
 					class="relative break-keep {name.length > 5
-						? 'h-6  text-sm sm:text-xl'
-						: 'h-12  text-2xl'} {currentFlashcard === name
-						? " text-3xl text-black before:absolute before:-top-2 before:left-1/2 before:h-1  before:w-1 before:-translate-x-1/2 before:rounded-full before:bg-black before:content-['']"
+						? 'h-12  text-sm sm:text-xl'
+						: 'h-14  text-2xl'} {currentFlashcard === name
+						? " text-3xl text-black before:absolute before:left-1/2 before:top-0 before:h-1.5  before:w-1.5 before:-translate-x-1/2 before:rounded-full before:bg-black before:content-['']"
 						: 'text-gray-200 '}"
 				>
 					{name}
