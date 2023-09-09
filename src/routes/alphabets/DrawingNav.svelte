@@ -7,9 +7,7 @@
 		innerWidthStore,
 		isLongPress,
 		strokeColor,
-		showProgressSlider,
-		currentAlphabet,
-		currentLetter
+		showProgressSlider
 	} from '$lib/utils/stores';
 	import { icons } from '$lib/utils/icons';
 	import {
@@ -19,8 +17,6 @@
 		clearCanvas
 	} from '$lib/utils/actions';
 	import { onMount } from 'svelte';
-	import { hiragana } from '$lib/static/hiragana';
-	import { katakana } from '$lib/static/katakana';
 
 	let longPressTimer: NodeJS.Timeout;
 	let canvas: HTMLCanvasElement | null,

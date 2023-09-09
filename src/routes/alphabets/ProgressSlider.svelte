@@ -15,11 +15,25 @@
 	import { spring } from 'svelte/motion';
 	import { hiraganaWidthMulitplier, twSmallScreen } from '$lib/utils/constants';
 	import { getRandomNumber } from '$lib/utils/actions';
+	import { onMount } from 'svelte';
 
 	let mousedown = false;
-	let progress = spring(getRandomNumber(1, $kanjiLength), {
-		stiffness: 0.1,
-		damping: 0.4
+	let progress = spring(0, { stiffness: 0.1, damping: 0.5 });
+
+	onMount(() => {
+		// Get the progress slider
+		$progressSlider = Math.floor($progress);
+
+		if ($currentAlphabet !== 'kanji')
+			progress = spring(getRandomNumber(1, 46), {
+				stiffness: 0.1,
+				damping: 0.4
+			});
+		else
+			progress = spring(getRandomNumber(1, $kanjiLength), {
+				stiffness: 0.1,
+				damping: 0.4
+			});
 	});
 
 	// Get the width multiplier for the progress slider
