@@ -2,6 +2,8 @@
 	import { twSmallScreen } from '$lib/utils/constants';
 	import { fly } from 'svelte/transition';
 	import { sineIn } from 'svelte/easing';
+	import type { Ctx } from '$lib/utils/ambient.d.ts';
+
 	import {
 		animateSVG,
 		innerWidthStore,
@@ -19,20 +21,12 @@
 	import { onMount } from 'svelte';
 
 	let longPressTimer: NodeJS.Timeout;
-	let canvas: HTMLCanvasElement | null,
-		ctx: {
-			strokeStyle: string;
-			beginPath: () => void;
-			moveTo: (arg0: number, arg1: number) => void;
-			lineTo: (arg0: number, arg1: number) => void;
-			stroke: () => void;
-			lineWidth: number;
-		};
+	let canvas: HTMLCanvasElement | null, ctx: Ctx;
 
 	// Get canvas and context
 	onMount(() => {
 		canvas = document.querySelector('canvas');
-		ctx = canvas.getContext('2d');
+		ctx = canvas.getContext('2d') as Ctx;
 	});
 
 	// When the progress changes, clear the canvas

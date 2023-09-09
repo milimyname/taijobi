@@ -1,20 +1,12 @@
 <script lang="ts">
+	import type { Ctx } from '$lib/utils/ambient.d.ts';
 	import { twSmallScreen } from '$lib/utils/constants';
 	import { innerWidthStore, lastPoint, strokeColor } from '$lib/utils/stores';
 	import { onMount } from 'svelte';
 
 	export let rotationY: number;
 	export let canvas: HTMLCanvasElement;
-	export let ctx: {
-		strokeStyle: string;
-		beginPath: () => void;
-		moveTo: (arg0: number, arg1: number) => void;
-		lineTo: (arg0: number, arg1: number) => void;
-		stroke: () => void;
-		lineWidth: number;
-		lineJoin: string;
-		lineCap: string;
-	};
+	export let ctx: Ctx;
 
 	let isDrawing = false;
 
@@ -57,7 +49,7 @@
 		}
 	}
 	onMount(() => {
-		ctx = canvas.getContext('2d') as any;
+		ctx = canvas.getContext('2d') as Ctx;
 		ctx.lineWidth = $innerWidthStore > twSmallScreen ? 15 : 10;
 		ctx.lineJoin = 'round'; // Set the line join property
 		ctx.lineCap = 'round'; // Set the line cap property

@@ -14,3 +14,14 @@ export type KanjiObject = {
 	meaning: string;
 	onyomi: string[];
 };
+
+export type Ctx = {
+	strokeStyle: string;
+	beginPath: () => void;
+	moveTo: (arg0: number, arg1: number) => void;
+	lineTo: (arg0: number, arg1: number) => void;
+	stroke: () => void;
+	lineWidth: number;
+	lineJoin: string;
+	lineCap: string;
+};

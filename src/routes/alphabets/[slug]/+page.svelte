@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { Ctx } from '$lib/utils/ambient.d.ts';
 	import { kanjiStore } from '$lib/utils/stores';
 	import { onMount } from 'svelte';
 	import {
@@ -100,8 +101,8 @@
 
 	// Get canvas and context
 	onMount(() => {
-		canvas = document.querySelector('canvas');
-		ctx = canvas.getContext('2d');
+		canvas = document.querySelector('canvas') as HTMLCanvasElement;
+		ctx = canvas.getContext('2d') as Ctx;
 
 		// Get the last segment of the URL path (assuming it contains the identifier you need)
 		$currentAlphabet = $page.url.pathname.split('/').pop() as 'hiragana' | 'katakana' | 'kanji';
