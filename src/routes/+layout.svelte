@@ -99,7 +99,11 @@
 	});
 
 	$: {
-		if ($page.url.pathname.slice(1) === 'login' || $page.url.pathname.slice(1) === 'signup') {
+		if (
+			$page.url.pathname.slice(1) === 'login' ||
+			$page.url.pathname.slice(1) === 'signup' ||
+			$page.url.pathname.slice(1) === 'admin'
+		) {
 			leaveFeedback?.classList.add('hidden');
 		} else {
 			leaveFeedback?.classList.remove('hidden');

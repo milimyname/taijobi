@@ -26,6 +26,7 @@ export const load = async ({ locals, url }) => {
 	return { form, authProviderRedirect, authProviderState: state, codeVerifier };
 };
 
+/** @type {import('./$types').Actions} */
 export const actions = {
 	login: async ({ request, locals }) => {
 		const form = await superValidate(request, loginSchema);

@@ -1,8 +1,8 @@
 import PocketBase from 'pocketbase';
-import { sequence } from '@sveltejs/kit/hooks';
 
 // PocketBase auth store middleware
-async function auth({ event, resolve }) {
+/** @type {import('@sveltejs/kit').Handle} */
+export async function handle({ event, resolve }) {
 	const prod = process.env.NODE_ENV === 'production' ? true : false;
 
 	event.locals.pb = new PocketBase(import.meta.env.VITE_POCKETBASE_URL);
@@ -11,11 +11,17 @@ async function auth({ event, resolve }) {
 	event.locals.pb.authStore.loadFromCookie(event.request.headers.get('cookie') || '');
 
 	try {
+		// Attempt admin refresh
+		event.locals.pb.authStore.isAdmin && (await event.locals.pb.admins.authRefresh());
+	} catch (_) {
 		// get an up-to-date auth store state by verifying and refreshing the loaded auth model (if any)
 		event.locals.pb.authStore.isValid && (await event.locals.pb.collection('users').authRefresh());
-	} catch (_) {
-		// clear the auth store on failed refresh
-		event.locals.pb.authStore.clear();
+		try {
+			event.locals.pb.authStore.isAdmin && (await event.locals.pb.admins.authRefresh());
+		} catch (_) {
+			// Clear the auth store on failed refresh
+			event.locals.pb.authStore.clear();
+		}
 	}
 
 	const response = await resolve(event);
@@ -28,5 +34,3 @@ async function auth({ event, resolve }) {
 
 	return response;
 }
-
-export const handle = sequence(auth);

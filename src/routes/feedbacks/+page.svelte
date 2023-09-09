@@ -52,7 +52,7 @@
 	<div class="fixed top-0 z-[1010] h-screen w-full bg-black opacity-50 transition-all" />
 	<img
 		src={formData.image}
-		alt="Feedback Image"
+		alt="Feedback Preview"
 		class="absolute left-1/2 top-1/2 z-[2000] -translate-x-1/2 -translate-y-1/2"
 	/>
 	<button

@@ -18,7 +18,11 @@
 	<div class="tex flex items-center justify-between">
 		<a href="/login">Log in</a>
 		<a href="/" class=" self-end">
-			<img src="/taijobi.png" class="h-10 w-10 sm:h-12 sm:w-12" alt="Logo" />
+			<img
+				src="/taijobi.png"
+				class="h-10 w-10 rounded-full shadow-logo sm:h-12 sm:w-12"
+				alt="Logo"
+			/>
 		</a>
 	</div>
 	<div class="flex flex-col items-center justify-center gap-5 md:flex-1">

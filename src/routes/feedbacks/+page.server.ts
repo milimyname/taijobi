@@ -1,17 +1,14 @@
-/** @type {import('./$types').PageLoad} */
+/** @type {import('./$types').PageServerLoad} */
 export const load = async ({ locals }) => {
-	// Get user_id from authStore
-	const { id, username } = await locals.pb.authStore.model;
-
 	let feedbacks;
-	if (username === 'users56993')
+	if (locals.pb.authStore.isAdmin)
 		// Get all the flashcards
 		feedbacks = await locals.pb.collection('feedbacks').getFullList();
 	// Get all the flashcards
 	else
 		feedbacks = await locals.pb
 			.collection('feedbacks')
-			.getFullList(100, { filter: `user_id = "${id}"` });
+			.getFullList(100, { filter: `user_id = "${locals.pb.authStore.model.id}"` });
 
 	return { feedbacks: structuredClone(feedbacks) };
 };
