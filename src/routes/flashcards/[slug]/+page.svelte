@@ -95,13 +95,13 @@
 			const wordLeft = word.getBoundingClientRect().left;
 			const width =
 				currentFlashcardType === 'kanji'
-					? word.getBoundingClientRect().width
-					: word.getBoundingClientRect().width / 2;
+					? word.getBoundingClientRect().width * 2
+					: word.getBoundingClientRect().width;
 
 			// Check if the word is in the middle of the screen
 			if (
-				wordLeft > window.innerWidth / 2 - width * 2 &&
-				wordLeft < window.innerWidth / 2 + width * 2
+				wordLeft > window.innerWidth / 2 - width - 60 &&
+				wordLeft < window.innerWidth / 2 + width
 			) {
 				// Set the current flashcard to the word in the middle of the screen
 				if (word !== currentlyCenteredWord) {
@@ -195,7 +195,7 @@
 	}}
 >
 	{#if data.flashcards.length > 0}
-		{@const longWord = currentFlashcard.length > 10}
+		{@const longWord = currentFlashcard.length > 8}
 		<div style="perspective: 3000px; position: relative;">
 			<div
 				style={`transform: rotateY(${-$rotateYCard}deg); transform-style: preserve-3d; backface-visibility: hidden;`}
@@ -206,7 +206,10 @@
 					: 'flex-col gap-2'} overflow-hidden rounded-xl border shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200 sm:h-[600px] sm:w-[600px]"
 			>
 				{#each currentFlashcard as letter}
-					<span class={currentFlashcardType === 'kanji' ? 'text-[14rem]' : 'text-4xl'}>
+					<span
+						class="{longWord ? 'text-4xl' : 'text-5xl'} {currentFlashcardType === 'kanji' &&
+							'text-[14rem]'} "
+					>
 						{letter}
 					</span>
 				{/each}

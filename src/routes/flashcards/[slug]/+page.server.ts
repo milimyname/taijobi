@@ -2,6 +2,8 @@ import { superValidate } from 'sveltekit-superforms/server';
 import { fail } from '@sveltejs/kit';
 import { flashcardSchema } from '$lib/utils/zodSchema';
 import type { PageServerLoad } from '../$types';
+
+// Disable server-side rendering:
 export const ssr = false;
 
 export const load = (async ({ locals, params }) => {
