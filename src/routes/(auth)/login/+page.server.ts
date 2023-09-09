@@ -2,6 +2,7 @@ import { superValidate } from 'sveltekit-superforms/server';
 import { fail, redirect } from '@sveltejs/kit';
 import { loginSchema } from '$lib/utils/zodSchema';
 
+/** @type {import('./$types').PageServerLoad} */
 export const load = async ({ locals, url }) => {
 	// Redirect if already logged in
 	if (locals.pb.authStore.isValid) throw redirect(303, '/');

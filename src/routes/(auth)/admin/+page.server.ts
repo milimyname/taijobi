@@ -2,6 +2,7 @@ import { superValidate } from 'sveltekit-superforms/server';
 import { fail, redirect } from '@sveltejs/kit';
 import { loginSchema } from '$lib/utils/zodSchema';
 
+/** @type {import('./$types').PageServerLoad} */
 export const load = async ({ locals }) => {
 	// Redirect if already logged in
 	if (locals.pb.authStore.isAdmin) throw redirect(303, '/');
@@ -12,6 +13,7 @@ export const load = async ({ locals }) => {
 	return { form };
 };
 
+/** @type {import('./$types').Actions} */
 export const actions = {
 	default: async ({ request, locals }) => {
 		const form = await superValidate(request, loginSchema);

@@ -6,6 +6,7 @@ import type { PageServerLoad } from '../$types';
 // Disable server-side rendering:
 export const ssr = false;
 
+/** @type {import('./$types').PageServerLoad} */
 export const load = (async ({ locals, params }) => {
 	// Get all the flashcards
 	const flashcards = await locals.pb
@@ -18,6 +19,7 @@ export const load = (async ({ locals, params }) => {
 	return { form, flashcards: structuredClone(flashcards) };
 }) satisfies PageServerLoad;
 
+/** @type {import('./$types').Actions} */
 export const actions = {
 	add: async ({ request, locals, params }) => {
 		const form = await superValidate(request, flashcardSchema);

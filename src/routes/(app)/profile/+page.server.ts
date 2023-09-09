@@ -3,12 +3,14 @@ import { superValidate } from 'sveltekit-superforms/server';
 import { fail } from '@sveltejs/kit';
 import { profileData } from '$lib/utils/zodSchema';
 
+/** @type {import('./$types').PageServerLoad} */
 export const load = (async () => {
 	const form = await superValidate(profileData);
 
 	return { form };
 }) satisfies PageServerLoad;
 
+/** @type {import('./$types').Actions} */
 export const actions = {
 	changeProfileData: async ({ request, locals }) => {
 		const form = await superValidate(request, profileData);

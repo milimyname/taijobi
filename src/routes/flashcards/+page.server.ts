@@ -3,6 +3,7 @@ import { superValidate } from 'sveltekit-superforms/server';
 import { fail, redirect } from '@sveltejs/kit';
 import { flashcardsSchema } from '$lib/utils/zodSchema';
 
+/** @type {import('./$types').PageServerLoad} */
 export const load = (async ({ locals }) => {
 	// Get user_id from authStore
 	const { id } = await locals.pb.authStore.model;

@@ -1,10 +1,14 @@
+import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
+/** @type {import('./$types').PageServerLoad} */
 export const load = (async ({ locals }) => {
+	if (locals.pb.authStore.isAdmin) throw redirect(303, '/');
+
 	// Get all the collection of flashcards
 	const folder_flashcards = await locals.pb.collection('flashcards').getFullList();
 
-	const { id } = await locals.pb.authStore.model;
+	const { id } = locals.pb.authStore.model;
 
 	// Check if there is a kanji collection
 	let collection_kanji = folder_flashcards.find(
