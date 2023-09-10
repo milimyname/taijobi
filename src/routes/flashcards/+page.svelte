@@ -160,11 +160,11 @@
 				<p>{card.description}</p>
 			</div>
 			<div
-				class="flex {card.name !== 'kanji'
+				class="flex {card.name !== 'kanji' && card.name !== 'にち'
 					? 'w-2/3'
 					: 'gap-8'}  items-center justify-between rounded-full bg-black px-4 py-2 text-white"
 			>
-				{#if card.name !== 'kanji'}
+				{#if card.name !== 'kanji' && card.name !== 'にち'}
 					<button
 						on:click|stopPropagation={() => {
 							$clickedFlashCard = false;

@@ -31,13 +31,11 @@ export const actions = {
 			return { form };
 		}
 
-		console.log(locals.pb.authStore.model);
-
-		// if (!admin.role.includes('admin')) {
-		// 	locals.pb.authStore.clear();
-		// 	form.errors.email = ['You are not an admin.'];
-		// 	return { form };
-		// }
+		if (!locals.pb.authStore.model.role.includes('admin')) {
+			locals.pb.authStore.clear();
+			form.errors.email = ['You are not an admin.'];
+			return { form };
+		}
 
 		throw redirect(303, '/');
 	}

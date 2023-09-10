@@ -18,6 +18,7 @@
 
 	// Get the alphabet store length
 	let currentFlashcard: string;
+	let currentFlashcardFurigana: string;
 	let currentFlashcardType: string;
 	let currentIndex: number = Math.floor(data.flashcards.length / 2);
 	let showNotes: boolean = false;
@@ -175,11 +176,16 @@
 
 	$: if (data.flashcards.length > 0) {
 		currentFlashcard = data.flashcards.at(currentIndex).name;
+		currentFlashcardFurigana = data.flashcards.at(currentIndex).furigana;
 		currentFlashcardType = data.flashcards.at(currentIndex).type;
 	}
 </script>
 
-<FlashcardForm {currentFlashcardType} {constraints} {form} {errors} {enhance} />
+{#if data.isAdmin && data.constantFlashcard}
+	<FlashcardForm {currentFlashcardType} {constraints} {form} {errors} {enhance} />
+{:else if !data.isAdmin && !data.constantFlashcard}
+	<FlashcardForm {currentFlashcardType} {constraints} {form} {errors} {enhance} />
+{/if}
 
 <section
 	class="flex flex-1 flex-col justify-center gap-5"
@@ -205,14 +211,22 @@
 					? 'grid grid-cols-3 content-center justify-center justify-items-center gap-2'
 					: 'flex-col gap-2'} overflow-hidden rounded-xl border shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200 sm:h-[600px] sm:w-[600px]"
 			>
-				{#each currentFlashcard as letter}
-					<span
-						class="{longWord ? 'text-4xl' : 'text-5xl'} {currentFlashcardType === 'kanji' &&
-							'text-[14rem]'} "
-					>
-						{letter}
+				{#if currentFlashcardType === 'kanji'}
+					<span class="text-[14rem]">
+						{currentFlashcard}
 					</span>
-				{/each}
+				{:else if data.constantFlashcard}
+					{#each currentFlashcard as letter}
+						<span class={longWord ? 'text-4xl' : 'text-5xl'}>
+							{letter}
+						</span>
+					{/each}
+				{:else}
+					<span class={longWord ? 'text-4xl' : 'text-5xl'}>
+						{@html currentFlashcardFurigana}
+					</span>
+				{/if}
+
 				<button
 					class="{showNotes && 'hidden'} 
 						fixed bottom-5 right-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all"
@@ -282,10 +296,14 @@
 					</div>
 				{:else}
 					<div class="grid-rows-[max-content 1fr] grid h-full">
-						<h2 class="text-center text-lg">{currentFlashcard}</h2>
+						<h2 class="text-center text-5xl">{currentFlashcard}</h2>
 						<div>
 							<h2 class="text-2xl font-medium">{data.flashcards.at(currentIndex).meaning}</h2>
 							<p class=" text-sm text-gray-300">Meaning</p>
+						</div>
+						<div>
+							<h2 class="text-2xl font-medium">{data.flashcards.at(currentIndex).romanji}</h2>
+							<p class=" text-sm text-gray-300">Romanji</p>
 						</div>
 						{#if data.flashcards.at(currentIndex).notes.length > 0}
 							<button
@@ -323,27 +341,49 @@
 				{/if}
 			</div>
 		</div>
-		<div class="mb-auto flex items-center justify-center sm:mx-auto sm:w-[600px]">
-			<div
-				class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
-			>
-				<button
-					on:click|stopPropagation={() => {
-						$clickedAddFlashcard = true;
-						$clickedEditFlashcard = true;
-						// Fill out the form with the current card data
-						$form.name = data.flashcards.at(currentIndex).name;
-						$form.meaning = data.flashcards.at(currentIndex).meaning;
-						$form.id = data.flashcards.at(currentIndex).id;
-						$form.notes = data.flashcards.at(currentIndex).notes;
-						$form.type = data.flashcards.at(currentIndex).type;
 
-						console.log(currentIndex);
-					}}
+		<div class="mb-auto flex items-center justify-center sm:mx-auto sm:w-[600px]">
+			{#if data.isAdmin && data.constantFlashcard}
+				<div
+					class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
 				>
-					{@html icons.edit}
-				</button>
-			</div>
+					<button
+						on:click|stopPropagation={() => {
+							$clickedAddFlashcard = true;
+							$clickedEditFlashcard = true;
+							// Fill out the form with the current card data
+							$form.name = data.flashcards.at(currentIndex).name;
+							$form.meaning = data.flashcards.at(currentIndex).meaning;
+							$form.id = data.flashcards.at(currentIndex).id;
+							$form.notes = data.flashcards.at(currentIndex).notes;
+							$form.type = data.flashcards.at(currentIndex).type;
+						}}
+					>
+						{@html icons.edit}
+					</button>
+				</div>
+			{:else if !data.isAdmin && !data.constantFlashcard}
+				<div
+					class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
+				>
+					<button
+						on:click|stopPropagation={() => {
+							$clickedAddFlashcard = true;
+							$clickedEditFlashcard = true;
+							// Fill out the form with the current card data
+							$form.name = data.flashcards.at(currentIndex).name;
+							$form.meaning = data.flashcards.at(currentIndex).meaning;
+							$form.id = data.flashcards.at(currentIndex).id;
+							$form.notes = data.flashcards.at(currentIndex).notes;
+							$form.type = data.flashcards.at(currentIndex).type;
+
+							console.log(currentIndex);
+						}}
+					>
+						{@html icons.edit}
+					</button>
+				</div>
+			{/if}
 		</div>
 
 		<button

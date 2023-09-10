@@ -4,20 +4,20 @@ import { fail, redirect } from '@sveltejs/kit';
 import { flashcardsSchema } from '$lib/utils/zodSchema';
 
 /** @type {import('./$types').PageServerLoad} */
-export const load = (async ({ locals }) => {
+export const load = async ({ locals }) => {
 	// Get user_id from authStore
 	const { id } = await locals.pb.authStore.model;
 
 	// Get all the flashcards
 	const flashcards = await locals.pb
 		.collection('flashcards')
-		.getFullList(100, { filter: `user_id = "${id}"` });
+		.getFullList(100, { filter: `user_id = "${id}" || name = "にち"` });
 
 	// Server API:
 	const form = await superValidate(flashcardsSchema);
 
 	return { form, flashcards: structuredClone(flashcards) };
-}) satisfies PageServerLoad;
+};
 
 export const actions = {
 	add: async ({ request, locals }) => {

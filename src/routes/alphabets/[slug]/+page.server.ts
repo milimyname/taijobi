@@ -1,8 +1,7 @@
 import { redirect } from '@sveltejs/kit';
-import type { PageServerLoad } from './$types';
 
 /** @type {import('./$types').PageServerLoad} */
-export const load = (async ({ locals }) => {
+export const load = async ({ locals }) => {
 	if (locals.pb.authStore.isAdmin) throw redirect(303, '/');
 
 	// Get all the collection of flashcards
@@ -26,4 +25,4 @@ export const load = (async ({ locals }) => {
 	const flashcard = await locals.pb.collection('flashcard').getFullList();
 
 	return { flashcard: structuredClone(flashcard), kanji_id: collection_kanji.id };
-}) satisfies PageServerLoad;
+};

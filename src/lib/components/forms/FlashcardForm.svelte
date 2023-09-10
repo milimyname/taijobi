@@ -67,6 +67,32 @@
 				>
 			{/if}
 		</fieldset>
+		{#if currentFlashcardType !== 'kanji'}
+			<fieldset class=" flex w-full flex-col md:w-2/3">
+				<label for="romanji" class="hidden">Romanji</label>
+				<input
+					type="text"
+					name="romanji"
+					placeholder="Romanji"
+					class="
+                    block
+                    rounded-md
+                    border-gray-300
+                    shadow-sm
+                    focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
+                  "
+					aria-invalid={$errors.romanji ? 'true' : undefined}
+					bind:value={$form.romanji}
+					{...$constraints.romanji}
+				/>
+				{#if $errors.romanji}
+					<span
+						transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
+						class="mt-1 select-none text-sm text-red-400">{$errors.meaning}</span
+					>
+				{/if}
+			</fieldset>
+		{/if}
 		<fieldset class=" flex w-full flex-col md:w-2/3">
 			<select
 				name="type"

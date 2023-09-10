@@ -4,6 +4,8 @@ export const kanjiWidthMulitplier = 0.227;
 export const minWidthCard = 250;
 export const maxWidthCard = 350;
 
+export const constantFlashcards = ['iy2qbr339k9mbvk'];
+
 export const navItems = [
 	{
 		url: '/',

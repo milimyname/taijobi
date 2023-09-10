@@ -22,6 +22,7 @@ export const flashcardSchema = z.object({
 	meaning: z.string().optional(),
 	type: z.string(),
 	notes: z.string().optional(),
+	romanji: z.string().optional(),
 	flashcards_id: z.string().optional(),
 	id: z.string().optional()
 });
