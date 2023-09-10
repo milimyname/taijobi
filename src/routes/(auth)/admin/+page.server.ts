@@ -5,7 +5,7 @@ import { loginSchema } from '$lib/utils/zodSchema';
 /** @type {import('./$types').PageServerLoad} */
 export const load = async ({ locals }) => {
 	// Redirect if already logged in
-	if (locals.pb.authStore.isAdmin) throw redirect(303, '/');
+	if (locals.pb.authStore.isValid) throw redirect(303, '/');
 	// Server API:
 	const form = await superValidate(loginSchema);
 
@@ -25,13 +25,19 @@ export const actions = {
 
 		// Auth with pb
 		try {
-			const admin = await locals.pb.admins.authWithPassword(form.data.email, form.data.password);
-
-			console.log(admin);
+			await locals.pb.collection('users').authWithPassword(form.data.email, form.data.password);
 		} catch (_) {
 			form.errors.email = ['Invalid email or password.'];
 			return { form };
 		}
+
+		console.log(locals.pb.authStore.model);
+
+		// if (!admin.role.includes('admin')) {
+		// 	locals.pb.authStore.clear();
+		// 	form.errors.email = ['You are not an admin.'];
+		// 	return { form };
+		// }
 
 		throw redirect(303, '/');
 	}

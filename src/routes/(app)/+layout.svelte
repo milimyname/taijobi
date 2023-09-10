@@ -62,7 +62,7 @@
 	<nav
 		class="{!isLongPress
 			? 'w-[90%] p-4'
-			: 'ml-auto p-2'} absolute z-40 flex items-center justify-between rounded-full bg-primary text-white transition-all sm:relative sm:h-full sm:w-auto sm:flex-col sm:justify-center sm:gap-10 sm:p-5"
+			: 'right-5 p-2'} absolute z-40 flex items-center justify-between rounded-full bg-primary text-white transition-all sm:relative sm:h-full sm:w-auto sm:flex-col sm:justify-center sm:gap-10 sm:p-5"
 	>
 		{#if innerWidth > twSmallScreen}
 			<a href="/" class="mb-auto">

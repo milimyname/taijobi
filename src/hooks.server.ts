@@ -11,17 +11,11 @@ export async function handle({ event, resolve }) {
 	event.locals.pb.authStore.loadFromCookie(event.request.headers.get('cookie') || '');
 
 	try {
-		// Attempt admin refresh
-		event.locals.pb.authStore.isAdmin && (await event.locals.pb.admins.authRefresh());
-	} catch (_) {
 		// get an up-to-date auth store state by verifying and refreshing the loaded auth model (if any)
 		event.locals.pb.authStore.isValid && (await event.locals.pb.collection('users').authRefresh());
-		try {
-			event.locals.pb.authStore.isAdmin && (await event.locals.pb.admins.authRefresh());
-		} catch (_) {
-			// Clear the auth store on failed refresh
-			event.locals.pb.authStore.clear();
-		}
+	} catch (_) {
+		// Clear the auth store on failed refresh
+		event.locals.pb.authStore.clear();
 	}
 
 	const response = await resolve(event);
