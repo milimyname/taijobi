@@ -22,6 +22,7 @@ ENV NODE_ENV production
 
 # Set the environment variable with the path to Python 3
 ENV YOUTUBE_DL_PYTHON_PATH=/usr/bin/python3
+ENV VITE_POCKETBASE_URL="https://mili-lifets-pocketbase.fly.dev/"
 
 RUN pnpm run build
 
