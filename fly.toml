@@ -1,10 +1,12 @@
-# fly.toml app configuration file generated for still-meadow-5602 on 2023-07-30T09:28:33+02:00
+# fly.toml app configuration file generated for mili-taijobi on 2023-09-11T20:42:43+02:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = "still-meadow-5602"
+app = "mili-taijobi"
 primary_region = "ams"
+
+[build]
 
 [http_service]
   internal_port = 3000
