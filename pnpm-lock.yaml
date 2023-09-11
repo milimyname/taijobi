@@ -8,6 +8,9 @@ dependencies:
   '@melt-ui/svelte':
     specifier: ^0.31.3
     version: 0.31.3(svelte@4.1.1)
+  '@sglkc/kuroshiro':
+    specifier: github:sglkc/kuroshiro-ts
+    version: github.com/sglkc/kuroshiro-ts/3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a
   kuroshiro:
     specifier: ~1.1.2
     version: 1.1.2
@@ -131,6 +134,13 @@ packages:
     dependencies:
       '@jridgewell/gen-mapping': 0.3.3
       '@jridgewell/trace-mapping': 0.3.19
+
+  /@babel/runtime@7.22.15:
+    resolution: {integrity: sha512-T0O+aa+4w0u06iNmapipJXMV4HoUir03hpx3/YqXXhu9xim3w+dVphjFWl1OH8NbZHw5Lbm9k45drDkgq2VNNA==}
+    engines: {node: '>=6.9.0'}
+    dependencies:
+      regenerator-runtime: 0.14.0
+    dev: false
 
   /@csstools/selector-specificity@3.0.0(postcss-selector-parser@6.0.13):
     resolution: {integrity: sha512-hBI9tfBtuPIi885ZsZ32IMEU/5nlZH/KOVYJCOh7gyMxaVLGmLedYqFN6Ui1LXkI8JlC8IsuC0rF0btcRZKd5g==}
@@ -2479,6 +2489,10 @@ packages:
     resolution: {integrity: sha512-MguG95oij0fC3QV3URf4V2SDYGJhJnJGqvIIgdECeODCT98wSWDAJ94SSuVpYQUoTcGUIL6L4yNB7j1DFFHSBg==}
     dev: false
 
+  /regenerator-runtime@0.14.0:
+    resolution: {integrity: sha512-srw17NI0TUWHuGa5CFGGmhfNIeja30WMBfbslPNhf6JrqQlLN5gcrvig1oqPxiVaXb0oW0XRKtH6Nngs5lKCIA==}
+    dev: false
+
   /resolve-from@4.0.0:
     resolution: {integrity: sha512-pb/MYmXstAkysRFx8piNI1tGFNQIFA3vkE3Gq4EuA1dF6gHp/+vgZqsCGJapvy8N3Q+4o7FwvquPJcnZ7RYy4g==}
     engines: {node: '>=4'}
@@ -3126,3 +3140,12 @@ packages:
   /zod@3.22.2:
     resolution: {integrity: sha512-wvWkphh5WQsJbVk1tbx1l1Ly4yg+XecD+Mq280uBGt9wa5BKSWf4Mhp6GmrkPixhMxmabYY7RbzlwVP32pbGCg==}
     dev: true
+
+  github.com/sglkc/kuroshiro-ts/3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a:
+    resolution: {tarball: https://codeload.github.com/sglkc/kuroshiro-ts/tar.gz/3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a}
+    name: '@sglkc/kuroshiro'
+    version: 1.0.1
+    engines: {node: '>=6.5.0'}
+    dependencies:
+      '@babel/runtime': 7.22.15
+    dev: false

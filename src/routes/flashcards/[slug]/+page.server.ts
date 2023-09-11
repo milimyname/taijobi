@@ -1,7 +1,7 @@
 import { superValidate } from 'sveltekit-superforms/server';
 import { fail } from '@sveltejs/kit';
 import { flashcardSchema } from '$lib/utils/zodSchema';
-import Kuroshiro from 'kuroshiro';
+import Kuroshiro from '@sglkc/kuroshiro';
 import KuromojiAnalyzer from 'kuroshiro-analyzer-kuromoji';
 import { constantFlashcards } from '$lib/utils/constants.js';
 
