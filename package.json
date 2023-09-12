@@ -46,6 +46,7 @@
 		"@melt-ui/svelte": "^0.31.3",
 		"@sglkc/kuroshiro": "github:sglkc/kuroshiro-ts",
 		"@sglkc/kuroshiro-analyzer-kuromoji": "github:sglkc/kuroshiro-analyzer-kuromoji-ts",
+		"@tailwindcss/container-queries": "^0.1.1",
 		"kuroshiro": "~1.1.2",
 		"kuroshiro-analyzer-kuromoji": "^1.1.0",
 		"pocketbase": "^0.18.0",

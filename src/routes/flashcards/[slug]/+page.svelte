@@ -8,6 +8,8 @@
 	import { fly } from 'svelte/transition';
 	import { clickOutside } from '$lib/utils/clickOutside';
 	import FlashcardForm from '$lib/components/forms/FlashcardForm.svelte';
+	import { wordClasses } from '$lib/utils/constants.js';
+	import { splitTextWithFurigana } from '$lib/utils/actions.js';
 
 	export let data;
 
@@ -109,35 +111,11 @@
 					// Remove special styling from the previously centered word
 					if (currentlyCenteredWord) {
 						currentlyCenteredWord.classList.add('text-gray-200', 'text-2xl');
-						currentlyCenteredWord.classList.remove(
-							'text-black',
-							'before:absolute',
-							'before:-top-2',
-							'before:left-1/2',
-							'before:-translate-x-1/2',
-							'before:bg-black',
-							'before:content-[""]',
-							'before:h-1',
-							'before:w-1',
-							'before:rounded-full',
-							'text-3xl'
-						);
+						currentlyCenteredWord.classList.remove(...wordClasses);
 					}
 					// Apply special styling to the new centered word
 					word.classList.remove('text-gray-200', 'text-2xl');
-					word.classList.add(
-						'text-black',
-						'before:absolute',
-						'before:-top-2',
-						'before:left-1/2',
-						'before:-translate-x-1/2',
-						'before:bg-black',
-						'before:content-[""]',
-						'before:h-1',
-						'before:w-1',
-						'before:rounded-full',
-						'text-3xl'
-					);
+					word.classList.add(...wordClasses);
 
 					// Update the currently centered word
 					currentlyCenteredWord = word;
@@ -155,19 +133,7 @@
 			} else {
 				// Remove special styling from words that are no longer centered
 				word.classList.add('text-gray-200', 'text-2xl');
-				word.classList.remove(
-					'text-black',
-					'before:absolute',
-					'before:-top-2',
-					'before:left-1/2',
-					'before:-translate-x-1/2',
-					'before:bg-black',
-					'before:content-[""]',
-					'before:h-1',
-					'before:w-1',
-					'before:rounded-full',
-					'text-3xl'
-				);
+				word.classList.remove(...wordClasses);
 			}
 
 			word.style.transform = `translateX(${$progress}px)`;
@@ -198,6 +164,7 @@
 		$form.id = '';
 		$form.notes = '';
 		$form.type = '';
+		$form.romanji = '';
 	}}
 >
 	{#if data.flashcards.length > 0}
@@ -208,7 +175,7 @@
 				class="relative z-10 mx-auto cursor-pointer
 				{$rotateYCard > 90 ? 'hidden' : 'block'} 
 			 flex h-[474px] w-[354px] items-center justify-center text-center {longWord
-					? 'grid grid-cols-3 content-center justify-center justify-items-center gap-2'
+					? 'grid grid-cols-[repeat(3,5rem)] content-center justify-center justify-items-center gap-1'
 					: 'flex-col gap-2'} overflow-hidden rounded-xl border shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200 sm:h-[600px] sm:w-[600px]"
 			>
 				{#if currentFlashcardType === 'kanji'}
@@ -217,14 +184,30 @@
 					</span>
 				{:else if data.constantFlashcard}
 					{#each currentFlashcard as letter}
-						<span class={longWord ? 'text-4xl' : 'text-5xl'}>
+						<span class={longWord ? 'text-4xl' : 'text-7xl'}>
 							{letter}
 						</span>
 					{/each}
 				{:else}
-					<span class={longWord ? 'text-4xl' : 'text-5xl'}>
-						{@html currentFlashcardFurigana}
-					</span>
+					<!-- {#each currentFlashcardFurigana as letter}
+						<span class={longWord ? 'text-4xl' : 'text-5xl'}>
+							{letter}
+						</span>
+					{/each} -->
+
+					{#each splitTextWithFurigana(currentFlashcardFurigana) as segment}
+						{#if segment.startsWith('<ruby>')}
+							<span class={longWord ? 'text-4xl' : 'text-5xl'}>
+								{@html segment}
+							</span>
+						{:else}
+							{#each Array.from(segment) as letter}
+								<span class={longWord ? 'text-4xl' : 'text-5xl'}>
+									{letter}
+								</span>
+							{/each}
+						{/if}
+					{/each}
 				{/if}
 
 				<button
@@ -296,13 +279,13 @@
 					</div>
 				{:else}
 					<div class="grid-rows-[max-content 1fr] grid h-full">
-						<h2 class="text-center text-5xl">{currentFlashcard}</h2>
+						<h2 class="text-center text-4xl">{currentFlashcard}</h2>
 						<div>
-							<h2 class="text-2xl font-medium">{data.flashcards.at(currentIndex).meaning}</h2>
+							<h2 class="text-xl font-medium">{data.flashcards.at(currentIndex).meaning}</h2>
 							<p class=" text-sm text-gray-300">Meaning</p>
 						</div>
 						<div>
-							<h2 class="text-2xl font-medium">{data.flashcards.at(currentIndex).romanji}</h2>
+							<h2 class="text-xl font-medium">{data.flashcards.at(currentIndex).romanji}</h2>
 							<p class=" text-sm text-gray-300">Romanji</p>
 						</div>
 						{#if data.flashcards.at(currentIndex).notes.length > 0}
@@ -357,6 +340,7 @@
 							$form.id = data.flashcards.at(currentIndex).id;
 							$form.notes = data.flashcards.at(currentIndex).notes;
 							$form.type = data.flashcards.at(currentIndex).type;
+							$form.romanji = data.flashcards.at(currentIndex).romanji;
 						}}
 					>
 						{@html icons.edit}
@@ -376,8 +360,7 @@
 							$form.id = data.flashcards.at(currentIndex).id;
 							$form.notes = data.flashcards.at(currentIndex).notes;
 							$form.type = data.flashcards.at(currentIndex).type;
-
-							console.log(currentIndex);
+							$form.romanji = data.flashcards.at(currentIndex).romanji;
 						}}
 					>
 						{@html icons.edit}

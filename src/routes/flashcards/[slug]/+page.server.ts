@@ -9,9 +9,6 @@ const kuroshiro = new Kuroshiro();
 
 let kuroshiroInitialized = false; // Add this flag to track initialization
 
-// Disable server-side rendering:
-export const ssr = true;
-
 /** @type {import('./$types').PageServerLoad} */
 export const load = async ({ locals, params }) => {
 	if (!kuroshiroInitialized) {

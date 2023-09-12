@@ -4,6 +4,20 @@ export const kanjiWidthMulitplier = 0.227;
 export const minWidthCard = 250;
 export const maxWidthCard = 350;
 
+export const wordClasses = [
+	'text-black',
+	'before:absolute',
+	'before:-top-2',
+	'before:left-1/2',
+	'before:-translate-x-1/2',
+	'before:bg-black',
+	'before:content-[""]',
+	'before:h-1',
+	'before:w-1',
+	'before:rounded-full',
+	'text-3xl'
+];
+
 export const constantFlashcards = ['iy2qbr339k9mbvk'];
 
 export const navItems = [

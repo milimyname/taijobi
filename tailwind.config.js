@@ -4,10 +4,11 @@ export default {
 	theme: {
 		extend: {
 			colors: {
-				primary: '#0A6EBD',
+				primary: '#0A6EBD'
 			},
 			backgroundImage: {
-				alphabetGreen: 'linear-gradient(131deg, #C4DFDF 6.22%, rgba(210, 233, 233, 0.68) 55.03%, #47A992 96.27%);'
+				alphabetGreen:
+					'linear-gradient(131deg, #C4DFDF 6.22%, rgba(210, 233, 233, 0.68) 55.03%, #47A992 96.27%);'
 			},
 			screens: {
 				xm: '400px'
@@ -25,5 +26,9 @@ export default {
 			}
 		}
 	},
-	plugins: [require('@tailwindcss/forms'), require('tailwindcss-dotted-background')]
+	plugins: [
+		require('@tailwindcss/forms'),
+		require('tailwindcss-dotted-background'),
+		require('@tailwindcss/container-queries')
+	]
 };
