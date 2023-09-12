@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Vault from '$lib/components/forms/Vault.svelte';
-	import { clickedEditFlashcard, clickedDeleteFlashcard } from '$lib/utils/stores';
+	import { clickedEditFlashcard } from '$lib/utils/stores';
 	import { slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 
@@ -13,8 +13,6 @@
 <Vault {enhance}>
 	{#if $clickedEditFlashcard}
 		<h4 class="text-2xl">Edit collection</h4>
-	{:else if $clickedDeleteFlashcard}
-		<h4 class="text-2xl">Delete collection</h4>
 	{:else}
 		<h4 class="text-2xl">Add a new collection</h4>
 	{/if}
@@ -71,17 +69,18 @@
 		<input type="hidden" name="id" bind:value={$form.id} />
 	</div>
 	{#if $clickedEditFlashcard}
-		<button
-			formaction="?/edit"
-			class="w-full rounded-md bg-gray-400 py-2 text-lg font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm lg:w-2/3"
-			>Edit
-		</button>
-	{:else if $clickedDeleteFlashcard}
-		<button
-			formaction="?/delete"
-			class="w-full rounded-md bg-red-400 py-2 text-lg font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-red-500 active:translate-y-1 active:shadow-sm lg:w-2/3"
-			>Delete
-		</button>
+		<div class="flex w-full justify-between">
+			<button
+				formaction="?/delete"
+				class="text-md rounded-md bg-red-500 px-4 py-2 font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-red-400 active:translate-y-1 active:shadow-sm lg:w-2/3"
+				>Delete
+			</button>
+			<button
+				formaction="?/edit"
+				class="text-md rounded-md bg-black px-4 py-2 font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm lg:w-2/3"
+				>Edit Flashcard</button
+			>
+		</div>
 	{:else}
 		<button
 			formaction="?/add"

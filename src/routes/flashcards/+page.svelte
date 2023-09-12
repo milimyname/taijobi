@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { Card } from '$lib/utils/ambient.d.ts';
 	import FlashcardsSectionForm from '$lib/components/forms/FlashcardsSectionForm.svelte';
 	import { icons } from '$lib/utils/icons';
 	import { goto } from '$app/navigation';
@@ -8,19 +9,12 @@
 	import {
 		clickedAddFlashcard,
 		clickedFlashCard,
-		clickedEditFlashcard,
-		clickedDeleteFlashcard
+		clickedEditFlashcard
 	} from '$lib/utils/stores.js';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { handleScroll, sortCards } from '$lib/utils/actions.js';
 
 	export let data;
-
-	type Card = {
-		id: string;
-		name: string;
-		description: string;
-	};
 
 	let cards: Card[] = []; // Array of cards
 	let touchStartY = 0;
@@ -92,7 +86,6 @@
 		$clickedFlashCard = false;
 		$clickedEditFlashcard = false;
 		$clickedAddFlashcard = false;
-		$clickedDeleteFlashcard = false;
 	};
 
 	const handleCardClick = (e: { currentTarget: any }) => {
@@ -116,11 +109,29 @@
 		taintedMessage: null,
 		resetForm: true,
 		applyAction: true,
+		onSubmit: () => {
+			$clickedEditFlashcard = false;
+			$clickedAddFlashcard = false;
+			$clickedFlashCard = false;
+
+			// Set other cards to be normal
+			mountedCards.forEach((card) => {
+				card.style.transform = 'translate(-50%, -50%) skew(0deg, 0deg)';
+				card.classList.remove('pointer-events-none');
+			});
+
+			// Sort the cards based on their current top position
+			const sortedCards = sortCards(mountedCards);
+
+			// Update the z-index values based on the sorted order
+			sortedCards.forEach((card, i) => {
+				card.style.zIndex = `${i + 1}`;
+			});
+		},
 		onUpdated: () => {
-			if (!$errors.name || !$errors.description) $clickedAddFlashcard = false;
+			if ($errors.name || $errors.description) $clickedAddFlashcard = true;
 		}
 	});
-
 	$: {
 		// Update the cards array when the data changes
 		cards = [];
@@ -160,25 +171,8 @@
 				<p>{card.description}</p>
 			</div>
 			<div
-				class="flex {card.name !== 'kanji' && card.name !== 'にち'
-					? 'w-2/3'
-					: 'gap-8'}  items-center justify-between rounded-full bg-black px-4 py-2 text-white"
+				class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
 			>
-				{#if card.name !== 'kanji' && card.name !== 'にち'}
-					<button
-						on:click|stopPropagation={() => {
-							$clickedFlashCard = false;
-							$clickedAddFlashcard = true;
-							$clickedDeleteFlashcard = true;
-							// Fill out the form with the current card data
-							$form.name = card.name;
-							$form.description = card.description;
-							$form.id = card.id;
-						}}
-					>
-						{@html icons.delete}
-					</button>
-				{/if}
 				<button
 					on:click|stopPropagation={() => {
 						$clickedAddFlashcard = true;

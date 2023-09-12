@@ -1,4 +1,3 @@
-import type { PageServerLoad } from './$types';
 import { superValidate } from 'sveltekit-superforms/server';
 import { fail, redirect } from '@sveltejs/kit';
 import { flashcardsSchema } from '$lib/utils/zodSchema';
@@ -19,6 +18,7 @@ export const load = async ({ locals }) => {
 	return { form, flashcards: structuredClone(flashcards) };
 };
 
+/** @type {import('./$types').Actions} */
 export const actions = {
 	add: async ({ request, locals }) => {
 		const form = await superValidate(request, flashcardsSchema);

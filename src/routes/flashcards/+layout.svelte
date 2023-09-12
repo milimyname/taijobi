@@ -1,10 +1,6 @@
 <script lang="ts">
 	import { onMount, afterUpdate } from 'svelte';
-	import {
-		clickedAddFlashcard,
-		clickedEditFlashcard,
-		clickedDeleteFlashcard
-	} from '$lib/utils/stores';
+	import { clickedAddFlashcard, clickedEditFlashcard } from '$lib/utils/stores';
 	import { goto } from '$app/navigation';
 	import { icons } from '$lib/utils/icons';
 	import { page } from '$app/stores';
@@ -42,7 +38,6 @@
 			on:click|preventDefault={() => {
 				$clickedAddFlashcard = !$clickedAddFlashcard;
 				$clickedEditFlashcard = false;
-				$clickedDeleteFlashcard = false;
 			}}
 			class="transition-all hover:scale-110 active:scale-110"
 		>

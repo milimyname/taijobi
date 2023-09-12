@@ -25,3 +25,9 @@ export type Ctx = {
 	lineJoin: string;
 	lineCap: string;
 };
+
+export type Card = {
+	id: string;
+	name: string;
+	description: string;
+};
