@@ -3,7 +3,6 @@ import { fail } from '@sveltejs/kit';
 import { flashcardSchema } from '$lib/utils/zodSchema';
 import Kuroshiro from '@sglkc/kuroshiro';
 import KuromojiAnalyzer from '@sglkc/kuroshiro-analyzer-kuromoji';
-import { constantFlashcards } from '$lib/utils/constants.js';
 
 const kuroshiro = new Kuroshiro();
 
@@ -17,8 +16,6 @@ export const load = async ({ locals, params }) => {
 	}
 
 	// Check if slugs are constant
-	const constantSlugs = constantFlashcards.includes(params.slug);
-
 	// Get all the flashcards
 	const flashcards = await locals.pb
 		.collection('flashcard')
@@ -27,15 +24,13 @@ export const load = async ({ locals, params }) => {
 	// Check if they are kanji type
 	const kanjiFlashcards = flashcards.filter((card) => card.type === 'kanji');
 
-	if (kanjiFlashcards.length > 0 || constantSlugs) {
+	if (kanjiFlashcards.length > 0) {
 		// Server API:
 		const form = await superValidate(flashcardSchema);
 
 		return {
 			form,
-			flashcards: structuredClone(flashcards),
-			isAdmin: locals.pb.authStore.model.role.includes('admin'),
-			constantFlashcard: constantSlugs
+			flashcards: structuredClone(flashcards)
 		};
 	}
 
@@ -55,9 +50,7 @@ export const load = async ({ locals, params }) => {
 
 	return {
 		form,
-		flashcards: furiganas,
-		isAdmin: locals.pb.authStore.model.role.includes('admin'),
-		constantFlashcard: constantSlugs
+		flashcards: furiganas
 	};
 };
 

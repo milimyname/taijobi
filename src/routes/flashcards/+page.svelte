@@ -9,7 +9,9 @@
 	import {
 		clickedAddFlashcard,
 		clickedFlashCard,
-		clickedEditFlashcard
+		clickedEditFlashcard,
+		isConstantFlashcard,
+		isAdmin
 	} from '$lib/utils/stores.js';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { handleScroll, sortCards } from '$lib/utils/actions.js';
@@ -166,30 +168,35 @@
 		>
 			<div>
 				<h4 class="break-all {card.name.length > 5 ? 'text-xl font-bold' : 'text-4xl'}">
-					{card.name === 'kanji' ? '漢字' : card.name}
+					{card.name}
 				</h4>
 				<p>{card.description}</p>
 			</div>
 			<div
 				class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
 			>
-				<button
-					on:click|stopPropagation={() => {
-						$clickedAddFlashcard = true;
-						$clickedEditFlashcard = true;
-						// Fill out the form with the current card data
-						$form.name = card.name;
-						$form.description = card.description;
-						$form.id = card.id;
-					}}
-				>
-					{@html icons.edit}
-				</button>
+				{#if ($isAdmin && card.name !== '慣用句' && card.name !== 'にち') || (!$isAdmin && card.name !== '慣用句' && card.name !== 'にち')}
+					<button
+						on:click|stopPropagation={() => {
+							$clickedAddFlashcard = true;
+							$clickedEditFlashcard = true;
+							// Fill out the form with the current card data
+							$form.name = card.name;
+							$form.description = card.description;
+							$form.id = card.id;
+						}}
+					>
+						{@html icons.edit}
+					</button>
+				{/if}
 				<button
 					on:click|stopPropagation={() => {
 						$clickedFlashCard = false;
 						$clickedEditFlashcard = false;
 						$clickedAddFlashcard = false;
+
+						$isConstantFlashcard = card.name === '慣用句' || card.name === 'にち' ? true : false;
+
 						goto(`flashcards/${card.id}`);
 					}}
 					class="open-flashcard"

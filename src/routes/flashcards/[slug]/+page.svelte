@@ -1,5 +1,11 @@
 <script lang="ts">
-	import { clickedEditFlashcard, currentAlphabet, clickedAddFlashcard } from '$lib/utils/stores';
+	import {
+		clickedEditFlashcard,
+		currentAlphabet,
+		clickedAddFlashcard,
+		isAdmin,
+		isConstantFlashcard
+	} from '$lib/utils/stores';
 	import { cubicOut, quintOut } from 'svelte/easing';
 	import { spring, tweened } from 'svelte/motion';
 	import { icons } from '$lib/utils/icons';
@@ -99,7 +105,9 @@
 			const width =
 				currentFlashcardType === 'kanji'
 					? word.getBoundingClientRect().width * 2
-					: word.getBoundingClientRect().width;
+					: currentFlashcard.length > 8
+					? word.getBoundingClientRect().width
+					: word.getBoundingClientRect().width / 2;
 
 			// Check if the word is in the middle of the screen
 			if (
@@ -147,9 +155,7 @@
 	}
 </script>
 
-{#if data.isAdmin && data.constantFlashcard}
-	<FlashcardForm {currentFlashcardType} {constraints} {form} {errors} {enhance} />
-{:else if !data.isAdmin && !data.constantFlashcard}
+{#if ($isAdmin && $isConstantFlashcard) || (!$isAdmin && !$isConstantFlashcard)}
 	<FlashcardForm {currentFlashcardType} {constraints} {form} {errors} {enhance} />
 {/if}
 
@@ -182,19 +188,13 @@
 					<span class="text-[14rem]">
 						{currentFlashcard}
 					</span>
-				{:else if data.constantFlashcard}
+					<!-- {:else if $isConstantFlashcard}
 					{#each currentFlashcard as letter}
 						<span class={longWord ? 'text-4xl' : 'text-7xl'}>
 							{letter}
 						</span>
-					{/each}
-				{:else}
-					<!-- {#each currentFlashcardFurigana as letter}
-						<span class={longWord ? 'text-4xl' : 'text-5xl'}>
-							{letter}
-						</span>
 					{/each} -->
-
+				{:else}
 					{#each splitTextWithFurigana(currentFlashcardFurigana) as segment}
 						{#if segment.startsWith('<ruby>')}
 							<span class={longWord ? 'text-4xl' : 'text-5xl'}>
@@ -326,7 +326,7 @@
 		</div>
 
 		<div class="mb-auto flex items-center justify-center sm:mx-auto sm:w-[600px]">
-			{#if data.isAdmin && data.constantFlashcard}
+			{#if $isAdmin && $isConstantFlashcard}
 				<div
 					class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
 				>
@@ -346,7 +346,7 @@
 						{@html icons.edit}
 					</button>
 				</div>
-			{:else if !data.isAdmin && !data.constantFlashcard}
+			{:else if !$isAdmin && !$isConstantFlashcard}
 				<div
 					class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
 				>

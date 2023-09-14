@@ -1,6 +1,11 @@
 <script lang="ts">
 	import { onMount, afterUpdate } from 'svelte';
-	import { clickedAddFlashcard, clickedEditFlashcard } from '$lib/utils/stores';
+	import {
+		clickedAddFlashcard,
+		clickedEditFlashcard,
+		isAdmin,
+		isConstantFlashcard
+	} from '$lib/utils/stores';
 	import { goto } from '$app/navigation';
 	import { icons } from '$lib/utils/icons';
 	import { page } from '$app/stores';
@@ -34,15 +39,17 @@
 			{@html icons.previous}
 			<span>Back</span>
 		</button>
-		<button
-			on:click|preventDefault={() => {
-				$clickedAddFlashcard = !$clickedAddFlashcard;
-				$clickedEditFlashcard = false;
-			}}
-			class="transition-all hover:scale-110 active:scale-110"
-		>
-			{@html icons.collection}
-		</button>
+		{#if ($isAdmin && $isConstantFlashcard) || (!$isAdmin && !$isConstantFlashcard)}
+			<button
+				on:click|preventDefault={() => {
+					$clickedAddFlashcard = !$clickedAddFlashcard;
+					$clickedEditFlashcard = false;
+				}}
+				class="transition-all hover:scale-110 active:scale-110"
+			>
+				{@html icons.collection}
+			</button>
+		{/if}
 	</nav>
 
 	<slot />

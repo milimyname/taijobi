@@ -11,12 +11,12 @@ export const load = async ({ locals }) => {
 
 	// Check if there is a kanji collection
 	let collection_kanji = folder_flashcards.find(
-		(card: { name: string; user_id: string }) => card.name === 'kanji' && card.user_id === id
+		(card: { name: string; user_id: string }) => card.name === '漢字' && card.user_id === id
 	);
 	// If there is no kanji collection, create one
 	if (!collection_kanji)
 		collection_kanji = await locals.pb.collection('flashcards').create({
-			name: 'kanji',
+			name: '漢字',
 			user_id: locals.pb.authStore.model.id,
 			description: 'It is a list of saved kanji.'
 		});
