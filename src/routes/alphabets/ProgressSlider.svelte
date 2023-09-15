@@ -111,9 +111,6 @@
 
 		// Update the progress slider value
 		$progressSlider = Math.floor($progress);
-
-		// Update the progress slider visibility
-		$innerWidthStore > twSmallScreen && ($showProgressSlider = false);
 	}
 </script>
 
@@ -121,7 +118,7 @@
 	<button
 		use:clickOutside
 		on:outsideclick={() => ($showProgressSlider = false)}
-		class="z-40 mx-auto w-full cursor-ew-resize overflow-hidden rounded-full bg-slate-400 shadow-2xl"
+		class="z-40 mx-auto w-full cursor-ew-resize overflow-hidden rounded-full bg-slate-400 shadow-2xl sm:w-[600px]"
 		on:mousedown={start}
 		on:mouseup={end}
 		on:mousemove|preventDefault={move}

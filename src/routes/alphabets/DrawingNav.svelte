@@ -37,7 +37,7 @@
 	<nav
 		class=" {!$isLongPress
 			? 'w-full px-10 py-4'
-			: 'ml-auto p-2'} z-40 flex items-center justify-between rounded-full bg-black text-white transition-all sm:w-auto sm:justify-center sm:gap-20 sm:px-10 sm:py-5"
+			: 'ml-auto p-2'} z-40 flex items-center justify-between rounded-full bg-black text-white transition-all sm:w-auto sm:justify-center sm:gap-20 sm:px-10"
 	>
 		<button
 			on:click={handleUserIconClick}
