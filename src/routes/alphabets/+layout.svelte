@@ -14,7 +14,7 @@
 
 <svelte:window bind:innerWidth />
 
-<main class="relative flex h-full select-none flex-col-reverse items-center p-5 sm:flex-row">
+<main class="relative flex h-full select-none flex-col-reverse items-center p-5">
 	<DrawingNav />
 	<ProgressSlider />
 	<slot />

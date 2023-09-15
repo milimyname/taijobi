@@ -109,9 +109,9 @@
 	});
 </script>
 
-<section class="flex flex-1 flex-col justify-center gap-2 sm:gap-10">
+<section class="flex flex-1 flex-col justify-center gap-2 sm:gap-5">
 	<div class="relative flex justify-between">
-		<button on:click={() => goto('/')} class="flex items-center gap-2 sm:hidden">
+		<button on:click={() => goto('/')} class="flex items-center gap-2">
 			{@html icons.previous}
 			<span>Back</span>
 		</button>
@@ -136,11 +136,58 @@
 		{/if}
 	</div>
 
-	<!-- SVG  -->
-	<Letter rotationY={$rotateYCard} saved={data.flashcard} />
-
 	<div style="perspective: 3000px; position: relative;">
-		<Canvas rotationY={$rotateYCard} {canvas} {ctx} />
+		<div>
+			<Canvas rotationY={$rotateYCard} {canvas} {ctx} />
+
+			<!-- SVG  -->
+			<Letter rotationY={$rotateYCard} saved={data.flashcard} />
+
+			{#if $currentAlphabet === 'kanji'}
+				<button
+					on:click={() => {
+						handleSavedKanji();
+						savedKanji = !savedKanji;
+					}}
+					class="{$rotateYCard > 5 ? 'hidden' : 'text-black'} 
+				fixed left-5 top-5 z-30 text-lg font-medium"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke-width="1.5"
+						stroke="currentColor"
+						class="h-6 w-6 transition-all {savedKanji &&
+							'fill-black'} hover:scale-110 active:scale-110"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+						/>
+					</svg>
+				</button>
+			{/if}
+
+			<span
+				class="{$rotateYCard > 5
+					? 'hidden'
+					: 'text-black'} fixed right-5 top-5 z-30 text-lg font-medium"
+			>
+				{$currentLetter}
+			</span>
+
+			<button
+				class="{$rotateYCard > 5 && $rotateYCard < 175 ? 'hidden' : 'block'}
+				fixed bottom-5 right-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all"
+				on:click={() => {
+					$rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0);
+				}}
+			>
+				{@html icons.backside}
+			</button>
+		</div>
 
 		<div
 			style={`transform: rotateY(${180 - $rotateYCard}deg); backface-visibility: hidden;`}
@@ -173,51 +220,6 @@
 				<p class="text-center text-lg">Romanji</p>
 			{/if}
 		</div>
-
-		{#if $currentAlphabet === 'kanji'}
-			<button
-				on:click={() => {
-					handleSavedKanji();
-					savedKanji = !savedKanji;
-				}}
-				class="{$rotateYCard > 5 ? 'hidden' : 'text-black'} 
-				fixed left-5 top-5 z-30 text-lg font-medium md:left-40 lg:left-96"
-			>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke-width="1.5"
-					stroke="currentColor"
-					class="h-6 w-6 transition-all {savedKanji &&
-						'fill-black'} hover:scale-110 active:scale-110"
-				>
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-					/>
-				</svg>
-			</button>
-		{/if}
-
-		<span
-			class="{$rotateYCard > 5
-				? 'hidden'
-				: 'text-black'} fixed right-5 top-5 z-30 text-lg font-medium md:right-40 lg:right-96"
-		>
-			{$currentLetter}
-		</span>
-
-		<button
-			class="{$rotateYCard > 5 && $rotateYCard < 175 ? 'hidden' : 'block'}
-				fixed bottom-5 right-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all md:right-40 lg:right-96"
-			on:click={() => {
-				$rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0);
-			}}
-		>
-			{@html icons.backside}
-		</button>
 	</div>
 
 	<div class=" flex items-center justify-between sm:mx-auto sm:w-[600px]">
