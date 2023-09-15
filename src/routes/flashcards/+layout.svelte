@@ -33,6 +33,7 @@
 		<button
 			on:click|preventDefault={() => {
 				$page.route.id && goto($page.route.id.length < 12 ? '/' : '/flashcards');
+				$isConstantFlashcard = false;
 			}}
 			class="flex items-center gap-2"
 		>

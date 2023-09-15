@@ -188,12 +188,6 @@
 					<span class="text-[14rem]">
 						{currentFlashcard}
 					</span>
-					<!-- {:else if $isConstantFlashcard}
-					{#each currentFlashcard as letter}
-						<span class={longWord ? 'text-4xl' : 'text-7xl'}>
-							{letter}
-						</span>
-					{/each} -->
 				{:else}
 					{#each splitTextWithFurigana(currentFlashcardFurigana) as segment}
 						{#if segment.startsWith('<ruby>')}
