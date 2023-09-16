@@ -10,11 +10,11 @@
 		clickedAddFlashcard,
 		clickedFlashCard,
 		clickedEditFlashcard,
-		isConstantFlashcard,
-		isAdmin
+		isConstantFlashcard
 	} from '$lib/utils/stores.js';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { handleScroll, sortCards } from '$lib/utils/actions.js';
+	import { page } from '$app/stores';
 
 	export let data;
 
@@ -134,6 +134,7 @@
 			if ($errors.name || $errors.description) $clickedAddFlashcard = true;
 		}
 	});
+
 	$: {
 		// Update the cards array when the data changes
 		cards = [];
@@ -175,7 +176,7 @@
 			<div
 				class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
 			>
-				{#if ($isAdmin && card.name !== '慣用句' && card.name !== 'にち') || (!$isAdmin && card.name !== '慣用句' && card.name !== 'にち')}
+				{#if ($page.data.isAdmin && card.name !== '慣用句' && card.name !== 'にち') || (!$page.data.isAdmin && card.name !== '慣用句' && card.name !== 'にち')}
 					<button
 						on:click|stopPropagation={() => {
 							$clickedAddFlashcard = true;
@@ -195,7 +196,10 @@
 						$clickedEditFlashcard = false;
 						$clickedAddFlashcard = false;
 
-						$isConstantFlashcard = card.name === '慣用句' || card.name === 'にち' ? true : false;
+						localStorage.setItem(
+							'isConstantFlashcard',
+							card.name === '慣用句' || card.name === 'にち' ? 'true' : 'false'
+						);
 
 						goto(`flashcards/${card.id}`);
 					}}

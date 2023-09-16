@@ -14,8 +14,6 @@ export const clickedFlashCard = writable(false);
 export const clickedFeedback = writable(false);
 export const clickedReport = writable(false);
 export const selectedKanjiGrade = writable('0');
-export const isAdmin = writable(false);
-export const isConstantFlashcard = writable(false);
 
 export const hiraganaStore = writable([
 	'あ',

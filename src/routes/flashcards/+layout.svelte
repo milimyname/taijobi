@@ -1,17 +1,16 @@
 <script lang="ts">
 	import { onMount, afterUpdate } from 'svelte';
-	import {
-		clickedAddFlashcard,
-		clickedEditFlashcard,
-		isAdmin,
-		isConstantFlashcard
-	} from '$lib/utils/stores';
+	import { clickedAddFlashcard, clickedEditFlashcard } from '$lib/utils/stores';
 	import { goto } from '$app/navigation';
 	import { icons } from '$lib/utils/icons';
 	import { page } from '$app/stores';
 
+	let isConstantFlashcard: string;
+
 	onMount(() => {
 		document.body.style.backgroundColor = $clickedAddFlashcard ? 'rgb(0,0,0)' : 'rgb(255,255,255)';
+
+		isConstantFlashcard = localStorage.getItem('isConstantFlashcard') as string;
 	});
 
 	afterUpdate(() => {
@@ -33,14 +32,14 @@
 		<button
 			on:click|preventDefault={() => {
 				$page.route.id && goto($page.route.id.length < 12 ? '/' : '/flashcards');
-				$isConstantFlashcard = false;
+				localStorage.setItem('isConstantFlashcard', 'false');
 			}}
 			class="flex items-center gap-2"
 		>
 			{@html icons.previous}
 			<span>Back</span>
 		</button>
-		{#if ($isAdmin && $isConstantFlashcard) || (!$isAdmin && !$isConstantFlashcard)}
+		{#if $page.data.isAdmin || (!$page.data.isAdmin && isConstantFlashcard === 'false')}
 			<button
 				on:click|preventDefault={() => {
 					$clickedAddFlashcard = !$clickedAddFlashcard;

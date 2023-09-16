@@ -1,11 +1,5 @@
 <script lang="ts">
-	import {
-		clickedEditFlashcard,
-		currentAlphabet,
-		clickedAddFlashcard,
-		isAdmin,
-		isConstantFlashcard
-	} from '$lib/utils/stores';
+	import { clickedEditFlashcard, currentAlphabet, clickedAddFlashcard } from '$lib/utils/stores';
 	import { cubicOut, quintOut } from 'svelte/easing';
 	import { spring, tweened } from 'svelte/motion';
 	import { icons } from '$lib/utils/icons';
@@ -16,6 +10,8 @@
 	import FlashcardForm from '$lib/components/forms/FlashcardForm.svelte';
 	import { wordClasses } from '$lib/utils/constants.js';
 	import { splitTextWithFurigana } from '$lib/utils/actions.js';
+	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
 
 	export let data;
 
@@ -52,6 +48,7 @@
 	let mousedown = false;
 	let sliderWords: HTMLButtonElement;
 	let currentlyCenteredWord: HTMLButtonElement;
+	let isConstantFlashcard: string;
 
 	let progress = spring(0, {
 		stiffness: 0.1,
@@ -153,9 +150,13 @@
 		currentFlashcardFurigana = data.flashcards.at(currentIndex).furigana;
 		currentFlashcardType = data.flashcards.at(currentIndex).type;
 	}
+
+	onMount(() => {
+		isConstantFlashcard = localStorage.getItem('isConstantFlashcard') as string;
+	});
 </script>
 
-{#if ($isAdmin && $isConstantFlashcard) || (!$isAdmin && !$isConstantFlashcard)}
+{#if ($page.data.isAdmin && isConstantFlashcard === 'true') || (!$page.data.isAdmin && isConstantFlashcard === 'false')}
 	<FlashcardForm {currentFlashcardType} {constraints} {form} {errors} {enhance} />
 {/if}
 
@@ -320,7 +321,7 @@
 		</div>
 
 		<div class="mb-auto flex items-center justify-center sm:mx-auto sm:w-[600px]">
-			{#if $isAdmin && $isConstantFlashcard}
+			{#if $page.data.isAdmin && isConstantFlashcard === 'true'}
 				<div
 					class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
 				>
@@ -340,7 +341,7 @@
 						{@html icons.edit}
 					</button>
 				</div>
-			{:else if !$isAdmin && !$isConstantFlashcard}
+			{:else if !$page.data.isAdmin && isConstantFlashcard === 'false'}
 				<div
 					class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
 				>
