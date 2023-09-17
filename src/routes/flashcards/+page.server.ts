@@ -4,13 +4,13 @@ import { flashcardsSchema } from '$lib/utils/zodSchema';
 
 /** @type {import('./$types').PageServerLoad} */
 export const load = async ({ locals }) => {
-	// Get user_id from authStore
+	// Get user id from authStore
 	const { id } = await locals.pb.authStore.model;
 
 	// Get all the flashcards
 	const flashcards = await locals.pb
 		.collection('flashcards')
-		.getFullList(100, { filter: `user_id = "${id}" || name = "にち" || name = "慣用句"` });
+		.getFullList(100, { filter: `userId = "${id}" || name = "にち" || name = "慣用句"` });
 
 	// Server API:
 	const form = await superValidate(flashcardsSchema);
@@ -26,7 +26,7 @@ export const actions = {
 		// Convenient validation check:
 		if (!form.valid) return fail(400, { form });
 
-		// Get user_id from authStore
+		// Get user id from authStore
 		const { id } = await locals.pb.authStore.model;
 
 		let folder_flashcards;
@@ -35,7 +35,7 @@ export const actions = {
 			// Create a new collection of flashcards
 			folder_flashcards = await locals.pb
 				.collection('flashcards')
-				.create({ name: form.data.name, description: form.data.description, user_id: id });
+				.create({ name: form.data.name, description: form.data.description, userId: id });
 		} catch (_) {
 			form.errors.name = ['Name already exists'];
 			return { form };

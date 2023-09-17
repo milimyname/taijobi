@@ -99,7 +99,7 @@ export const uploadCroppedImage = async (
 	imageSrc: string,
 	cropperDetails: CropperDetails,
 	inputFile: HTMLInputElement,
-	user_id: string
+	userId: string
 ) => {
 	// Create a new image element to load the selected image
 	const selectedImage = new Image();
@@ -136,13 +136,13 @@ export const uploadCroppedImage = async (
 			if (!blob) return;
 
 			// Delete the previous profile image
-			await pocketbase.collection('users').update(user_id, {
+			await pocketbase.collection('users').update(userId, {
 				avatar: null,
 				oauth2ImageUrl: null
 			});
 
 			// Upload the cropped image
-			await pocketbase.collection('users').update(user_id, {
+			await pocketbase.collection('users').update(userId, {
 				avatar: blob
 			});
 

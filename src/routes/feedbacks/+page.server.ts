@@ -11,7 +11,7 @@ export const load = async ({ locals }) => {
 	else
 		feedbacks = await locals.pb
 			.collection('feedbacks')
-			.getFullList(100, { filter: `user_id = "${id}"` });
+			.getFullList(100, { filter: `userId = "${id}"` });
 
 	return { feedbacks: structuredClone(feedbacks) };
 };

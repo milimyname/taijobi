@@ -23,7 +23,7 @@ export const flashcardSchema = z.object({
 	type: z.string(),
 	notes: z.string().optional(),
 	romanji: z.string().optional(),
-	flashcards_id: z.string().optional(),
+	flashcardsId: z.string().optional(),
 	id: z.string().optional()
 });
 
@@ -37,5 +37,5 @@ export const feedbacksSchema = z.object({
 	name: z.string(),
 	description: z.string().max(1000),
 	device: z.string(),
-	user_id: z.string()
+	userId: z.string()
 });

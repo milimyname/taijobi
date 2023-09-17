@@ -13,14 +13,14 @@
 		description: string;
 		device: string;
 		image: string;
-		user_id: string;
+		userId: string;
 		id: string;
 	} = {
 		name: '',
 		description: '',
 		device: '',
 		image: '',
-		user_id: '',
+		userId: '',
 		id: ''
 	};
 	let showImage = false;
@@ -205,7 +205,7 @@
 					formData.description = feedback.description;
 					formData.device = feedback.device;
 					formData.id = feedback.id;
-					formData.user_id = feedback.user_id;
+					formData.userId = feedback.userId;
 
 					formData.image = pocketbase.files.getUrl(feedback, feedback.image);
 				}}

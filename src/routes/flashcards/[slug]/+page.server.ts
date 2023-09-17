@@ -19,7 +19,7 @@ export const load = async ({ locals, params }) => {
 	// Get all the flashcards
 	const flashcards = await locals.pb
 		.collection('flashcard')
-		.getFullList(100, { filter: `flashcards_id = "${params.slug}"` });
+		.getFullList(100, { filter: `flashcardsId = "${params.slug}"` });
 
 	// Check if they are kanji type
 	const kanjiFlashcards = flashcards.filter((card) => card.type === 'kanji');
@@ -69,7 +69,7 @@ export const actions = {
 				meaning: form.data.meaning,
 				romanji: form.data.romanji,
 				type: form.data.type,
-				flashcards_id: params.slug,
+				flashcardsId: params.slug,
 				notes: form.data.notes
 			});
 		} catch (e) {

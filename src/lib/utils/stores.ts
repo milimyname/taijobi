@@ -12,6 +12,7 @@ export const clickedAddFlashcard = writable(false);
 export const clickedEditFlashcard = writable(false);
 export const clickedFlashCard = writable(false);
 export const clickedFeedback = writable(false);
+export const clickedQuizForm = writable(false);
 export const clickedReport = writable(false);
 export const selectedKanjiGrade = writable('0');
 
