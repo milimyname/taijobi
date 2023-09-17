@@ -9,8 +9,7 @@
 	import {
 		clickedAddFlashcard,
 		clickedFlashCard,
-		clickedEditFlashcard,
-		isConstantFlashcard
+		clickedEditFlashcard
 	} from '$lib/utils/stores.js';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { handleScroll, sortCards } from '$lib/utils/actions.js';

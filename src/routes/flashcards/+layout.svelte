@@ -16,6 +16,13 @@
 	afterUpdate(() => {
 		document.body.style.backgroundColor = $clickedAddFlashcard ? 'rgb(0,0,0)' : 'rgb(255,255,255)';
 	});
+
+	$: {
+		// Update isConstantFlashcard value
+		if (isConstantFlashcard || $page.data.isAdmin) {
+			isConstantFlashcard = localStorage.getItem('isConstantFlashcard') as string;
+		}
+	}
 </script>
 
 <svelte:head>
@@ -39,7 +46,7 @@
 			{@html icons.previous}
 			<span>Back</span>
 		</button>
-		{#if $page.data.isAdmin || (!$page.data.isAdmin && isConstantFlashcard === 'false')}
+		{#if ($page.data.isAdmin && isConstantFlashcard === 'true') || (!$page.data.isAdmin && isConstantFlashcard === 'false')}
 			<button
 				on:click|preventDefault={() => {
 					$clickedAddFlashcard = !$clickedAddFlashcard;
