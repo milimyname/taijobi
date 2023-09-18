@@ -146,11 +146,8 @@
 	}
 </script>
 
-{#if clickedQuizForm}
-	<FlashcardQuizForm {enhance} {errors} {form} {constraints} />
-{:else}
-	<FlashcardsSectionForm {enhance} {errors} {form} {constraints} />
-{/if}
+<FlashcardQuizForm {enhance} {errors} {form} {constraints} />
+<FlashcardsSectionForm {enhance} {errors} {form} {constraints} />
 
 <section
 	class="relative mt-10 flex h-screen w-full flex-col p-5"
