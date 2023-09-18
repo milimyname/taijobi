@@ -1,56 +1,21 @@
 import { superValidate } from 'sveltekit-superforms/server';
 import { fail } from '@sveltejs/kit';
 import { flashcardSchema } from '$lib/utils/zodSchema';
-import Kuroshiro from '@sglkc/kuroshiro';
-import KuromojiAnalyzer from '@sglkc/kuroshiro-analyzer-kuromoji';
-
-const kuroshiro = new Kuroshiro();
-
-let kuroshiroInitialized = false; // Add this flag to track initialization
 
 /** @type {import('./$types').PageServerLoad} */
 export const load = async ({ locals, params }) => {
-	if (!kuroshiroInitialized) {
-		await kuroshiro.init(new KuromojiAnalyzer());
-		kuroshiroInitialized = true;
-	}
-
 	// Check if slugs are constant
 	// Get all the flashcards
 	const flashcards = await locals.pb
 		.collection('flashcard')
 		.getFullList(100, { filter: `flashcardsId = "${params.slug}"` });
 
-	// Check if they are kanji type
-	const kanjiFlashcards = flashcards.filter((card) => card.type === 'kanji');
-
-	if (kanjiFlashcards.length > 0) {
-		// Server API:
-		const form = await superValidate(flashcardSchema);
-
-		return {
-			form,
-			flashcards: structuredClone(flashcards)
-		};
-	}
-
-	// Add furigana to the flashcards
-	const furiganaPromises = structuredClone(flashcards);
-
-	furiganaPromises.map(
-		async (card) =>
-			(card.furigana = await kuroshiro.convert(card.name, { to: 'hiragana', mode: 'furigana' }))
-	);
-
-	// Wait for all the Promises to resolve
-	const furiganas = await Promise.all(furiganaPromises);
-
 	// Server API:
 	const form = await superValidate(flashcardSchema);
 
 	return {
 		form,
-		flashcards: furiganas
+		flashcards: structuredClone(flashcards)
 	};
 };
 

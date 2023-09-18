@@ -9,7 +9,6 @@
 	import { clickOutside } from '$lib/utils/clickOutside';
 	import FlashcardForm from '$lib/components/forms/FlashcardForm.svelte';
 	import { wordClasses } from '$lib/utils/constants.js';
-	import { splitTextWithFurigana } from '$lib/utils/actions.js';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 
@@ -22,7 +21,6 @@
 
 	// Get the alphabet store length
 	let currentFlashcard: string;
-	let currentFlashcardFurigana: string;
 	let currentFlashcardType: string;
 	let currentIndex: number = Math.floor(data.flashcards.length / 2);
 	let showNotes: boolean = false;
@@ -147,7 +145,6 @@
 
 	$: if (data.flashcards.length > 0) {
 		currentFlashcard = data.flashcards.at(currentIndex).name;
-		currentFlashcardFurigana = data.flashcards.at(currentIndex).furigana;
 		currentFlashcardType = data.flashcards.at(currentIndex).type;
 	}
 
@@ -190,18 +187,10 @@
 						{currentFlashcard}
 					</span>
 				{:else}
-					{#each splitTextWithFurigana(currentFlashcardFurigana) as segment}
-						{#if segment.startsWith('<ruby>')}
-							<span class={longWord ? 'text-4xl' : 'text-5xl'}>
-								{@html segment}
-							</span>
-						{:else}
-							{#each Array.from(segment) as letter}
-								<span class={longWord ? 'text-4xl' : 'text-5xl'}>
-									{letter}
-								</span>
-							{/each}
-						{/if}
+					{#each currentFlashcard as letter}
+						<span class={longWord ? 'text-4xl' : 'text-5xl'}>
+							{letter}
+						</span>
 					{/each}
 				{/if}
 
