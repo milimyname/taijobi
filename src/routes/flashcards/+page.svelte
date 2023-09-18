@@ -146,10 +146,10 @@
 	}
 </script>
 
-<FlashcardsSectionForm {enhance} {errors} {form} {constraints} />
-
 {#if clickedQuizForm}
 	<FlashcardQuizForm {enhance} {errors} {form} {constraints} />
+{:else}
+	<FlashcardsSectionForm {enhance} {errors} {form} {constraints} />
 {/if}
 
 <section

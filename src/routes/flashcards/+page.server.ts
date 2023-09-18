@@ -7,15 +7,29 @@ export const load = async ({ locals }) => {
 	// Get user id from authStore
 	const { id } = await locals.pb.authStore.model;
 
-	// Get all the flashcards
-	const flashcards = await locals.pb
-		.collection('flashcards')
-		.getFullList(100, { filter: `userId = "${id}" || name = "にち" || name = "慣用句"` });
+	// Get all the flashcards collection
+	const flashcardsCollection = await locals.pb.collection('flashcards').getFullList(100, {
+		filter: `userId = "${id}" || name = "にち" || name = "慣用句"`,
+		expand: 'flashcard'
+	});
+
+	// Get all the flashcard from the server
+	const flashcards = await locals.pb.collection('flashcard').getFullList();
+
+	const flashcardsCount = flashcardsCollection.map(async (collection) => {
+		// Get the amount of flashcards in each collection
+		const count = flashcards.filter((flashcard) => flashcard.flashcardsId === collection.id).length;
+
+		return {
+			name: collection.name,
+			count
+		};
+	});
 
 	// Server API:
 	const form = await superValidate(flashcardsSchema);
 
-	return { form, flashcards: structuredClone(flashcards) };
+	return { form, flashcards: structuredClone(flashcardsCollection), flashcardsCount };
 };
 
 /** @type {import('./$types').Actions} */
