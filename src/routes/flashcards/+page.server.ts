@@ -1,6 +1,6 @@
 import { superValidate } from 'sveltekit-superforms/server';
 import { fail, redirect } from '@sveltejs/kit';
-import { flashcardsSchema } from '$lib/utils/zodSchema';
+import { flashcardsSchema, quizSchema } from '$lib/utils/zodSchema';
 
 /** @type {import('./$types').PageServerLoad} */
 export const load = async ({ locals }) => {
@@ -28,8 +28,14 @@ export const load = async ({ locals }) => {
 
 	// Server API:
 	const form = await superValidate(flashcardsSchema);
+	const quizForm = await superValidate(quizSchema);
 
-	return { form, flashcards: structuredClone(flashcardsCollection), flashcardsCount };
+	return {
+		form,
+		quizForm: quizForm,
+		flashcards: structuredClone(flashcardsCollection),
+		flashcardsCount
+	};
 };
 
 /** @type {import('./$types').Actions} */
