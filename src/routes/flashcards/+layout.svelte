@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount, afterUpdate } from 'svelte';
-	import { clickedAddFlashcard, clickedEditFlashcard } from '$lib/utils/stores';
+	import { clickedAddFlashcard, clickedEditFlashcard, clickedQuizForm } from '$lib/utils/stores';
 	import { goto } from '$app/navigation';
 	import { icons } from '$lib/utils/icons';
 	import { page } from '$app/stores';
@@ -8,13 +8,17 @@
 	let isConstantFlashcard: string;
 
 	onMount(() => {
-		document.body.style.backgroundColor = $clickedAddFlashcard ? 'rgb(0,0,0)' : 'rgb(255,255,255)';
+		if ($clickedAddFlashcard) document.body.style.backgroundColor = 'rgb(0,0,0)';
+		else if ($clickedQuizForm) document.body.style.backgroundColor = 'rgb(0,0,0)';
+		else document.body.style.backgroundColor = 'rgb(255,255,255)';
 
 		isConstantFlashcard = localStorage.getItem('isConstantFlashcard') as string;
 	});
 
 	afterUpdate(() => {
-		document.body.style.backgroundColor = $clickedAddFlashcard ? 'rgb(0,0,0)' : 'rgb(255,255,255)';
+		if ($clickedAddFlashcard) document.body.style.backgroundColor = 'rgb(0,0,0)';
+		else if ($clickedQuizForm) document.body.style.backgroundColor = 'rgb(0,0,0)';
+		else document.body.style.backgroundColor = 'rgb(255,255,255)';
 	});
 
 	$: {
@@ -33,7 +37,7 @@
 
 <main
 	class="flex h-full select-none flex-col items-center overflow-hidden bg-white px-3 py-5 transition-all {$clickedAddFlashcard &&
-		'mt-5 rounded-t-2xl py-14'}"
+		'mt-5 rounded-t-2xl py-14'} {$clickedQuizForm && 'mt-5 rounded-t-2xl py-14'}"
 >
 	<nav class="z-[99] flex w-full justify-between p-5">
 		<button

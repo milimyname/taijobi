@@ -14,7 +14,8 @@ export function clickOutside(node) {
 			e.target.closest('.add-form-btn') ||
 			e.target.closest('.kanji-search') ||
 			e.target.closest('.leave-feedback') ||
-			e.target.closest('.edit-feedback')
+			e.target.closest('.edit-feedback') ||
+			e.target.closest('.quiz-form')
 		)
 			return;
 		if (!node.contains(e.target)) node.dispatchEvent(new CustomEvent('outsideclick'));
@@ -30,7 +31,8 @@ export function clickOutside(node) {
 			e.target.closest('.add-form-btn') ||
 			e.target.closest('.kanji-search') ||
 			e.target.closest('.leave-feedback') ||
-			e.target.closest('.edit-feedback')
+			e.target.closest('.edit-feedback') ||
+			e.target.closest('.quiz-form')
 		)
 			return;
 		if (!node.contains(e.target)) node.dispatchEvent(new CustomEvent('outsideclick'));

@@ -39,3 +39,9 @@ export const feedbacksSchema = z.object({
 	device: z.string(),
 	userId: z.string()
 });
+
+export const quizSchema = z.object({
+	name: z.string(),
+	description: z.string().optional(),
+	flashcardsId: z.string().optional()
+});

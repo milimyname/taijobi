@@ -89,6 +89,7 @@
 		$clickedFlashCard = false;
 		$clickedEditFlashcard = false;
 		$clickedAddFlashcard = false;
+		$clickedQuizForm = false;
 	};
 
 	const handleCardClick = (e: { currentTarget: any }) => {
@@ -136,6 +137,40 @@
 		}
 	});
 
+	// Client API:
+	const {
+		form: quizForm,
+		errors: quizErrors,
+		constraints: quizConstraints,
+		enhance: quizEnhance
+	} = superForm(data.quizForm, {
+		taintedMessage: null,
+		resetForm: true,
+		applyAction: true,
+		onSubmit: () => {
+			$clickedEditFlashcard = false;
+			$clickedAddFlashcard = false;
+			$clickedFlashCard = false;
+
+			// Set other cards to be normal
+			mountedCards.forEach((card) => {
+				card.style.transform = 'translate(-50%, -50%) skew(0deg, 0deg)';
+				card.classList.remove('pointer-events-none');
+			});
+
+			// Sort the cards based on their current top position
+			const sortedCards = sortCards(mountedCards);
+
+			// Update the z-index values based on the sorted order
+			sortedCards.forEach((card, i) => {
+				card.style.zIndex = `${i + 1}`;
+			});
+		},
+		onUpdated: () => {
+			if ($errors.name || $errors.description) $clickedAddFlashcard = true;
+		}
+	});
+
 	$: {
 		// Update the cards array when the data changes
 		cards = [];
@@ -146,7 +181,12 @@
 	}
 </script>
 
-<FlashcardQuizForm {enhance} {errors} {form} {constraints} />
+<FlashcardQuizForm
+	errors={quizErrors}
+	enhance={quizEnhance}
+	form={quizForm}
+	constraints={quizConstraints}
+/>
 <FlashcardsSectionForm {enhance} {errors} {form} {constraints} />
 
 <section
@@ -180,15 +220,10 @@
 			>
 				<button
 					on:click|stopPropagation={() => {
-						$clickedAddFlashcard = true;
 						$clickedQuizForm = true;
 
-						$form.name = card.name;
-						$form.description = card.description;
-						$form.id = card.id;
-
-						// Quiz the user on the current card
-						// goto(`flashcards/quiz?cardId=${card.id}`);
+						$quizForm.name = card.name;
+						$quizForm.flashcardsId = card.id;
 					}}
 				>
 					<svg
