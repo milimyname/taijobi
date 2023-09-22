@@ -1,5 +1,5 @@
 <script lang="ts">
-	import FlashcardQuizForm from '$lib/components/forms/FlashcardQuizForm.svelte';
+	import TextQuizForm from '$lib/components/forms/TextQuizForm.svelte';
 	import type { Card } from '$lib/utils/ambient.d.ts';
 	import FlashcardsSectionForm from '$lib/components/forms/FlashcardsSectionForm.svelte';
 	import { icons } from '$lib/utils/icons';
@@ -148,9 +148,7 @@
 		resetForm: true,
 		applyAction: true,
 		onSubmit: () => {
-			$clickedEditFlashcard = false;
-			$clickedAddFlashcard = false;
-			$clickedFlashCard = false;
+			$clickedQuizForm = false;
 
 			// Set other cards to be normal
 			mountedCards.forEach((card) => {
@@ -167,7 +165,7 @@
 			});
 		},
 		onUpdated: () => {
-			if ($errors.name || $errors.description) $clickedAddFlashcard = true;
+			if ($errors.name || $errors.description) $clickedQuizForm = true;
 		}
 	});
 
@@ -181,7 +179,7 @@
 	}
 </script>
 
-<FlashcardQuizForm
+<TextQuizForm
 	errors={quizErrors}
 	enhance={quizEnhance}
 	form={quizForm}

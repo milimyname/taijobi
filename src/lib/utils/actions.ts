@@ -153,38 +153,3 @@ export const uploadCroppedImage = async (
 		}, 'image/jpeg'); // Specify the desired image format here
 	};
 };
-
-// Create a function to split the text and keep furigana
-export const splitTextWithFurigana = (inputString: string) => {
-	const segments = [];
-	let currentSegment = '';
-
-	// Iterate through each character in the input string
-	for (let i = 0; i < inputString.length; i++) {
-		const char = inputString[i];
-
-		// If it's an opening <ruby> tag, find the closing </ruby> tag
-		if (char === '<' && inputString.slice(i, i + 6) === '<ruby>') {
-			const closingTagIndex = inputString.indexOf('</ruby>', i);
-
-			// If a closing </ruby> tag is found, add the entire <ruby>...</ruby> segment to segments
-			if (closingTagIndex !== -1) {
-				segments.push(currentSegment); // Push the previous non-furigana segment
-				segments.push(inputString.slice(i, closingTagIndex + 7)); // Push the furigana segment
-				currentSegment = ''; // Reset the current segment
-				i = closingTagIndex + 6; // Skip to the end of the </ruby> tag
-				continue;
-			}
-		} // If it's not an <ruby> tag, check for individual characters
-		if (!currentSegment.startsWith('<ruby>')) {
-			currentSegment += char;
-		}
-	}
-
-	// Push the last segment (non-furigana)
-	if (currentSegment !== '') {
-		segments.push(currentSegment);
-	}
-
-	return segments;
-};

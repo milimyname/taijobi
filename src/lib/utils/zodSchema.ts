@@ -40,8 +40,11 @@ export const feedbacksSchema = z.object({
 	userId: z.string()
 });
 
-export const quizSchema = z.object({
+export const textQuizSchema = z.object({
 	name: z.string(),
-	description: z.string().optional(),
-	flashcardsId: z.string().optional()
+	type: z.string().default('2'),
+	maxCount: z.number().default(10),
+	score: z.number().default(0),
+	flashcardsId: z.string(),
+	userId: z.string()
 });

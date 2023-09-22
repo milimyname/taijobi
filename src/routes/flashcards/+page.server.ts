@@ -1,6 +1,6 @@
 import { superValidate } from 'sveltekit-superforms/server';
 import { fail, redirect } from '@sveltejs/kit';
-import { flashcardsSchema, quizSchema } from '$lib/utils/zodSchema';
+import { flashcardsSchema, textQuizSchema } from '$lib/utils/zodSchema';
 
 /** @type {import('./$types').PageServerLoad} */
 export const load = async ({ locals }) => {
@@ -28,7 +28,7 @@ export const load = async ({ locals }) => {
 
 	// Server API:
 	const form = await superValidate(flashcardsSchema);
-	const quizForm = await superValidate(quizSchema);
+	const quizForm = await superValidate(textQuizSchema);
 
 	return {
 		form,
@@ -97,5 +97,30 @@ export const actions = {
 		}
 
 		return { form };
+	},
+	addTextQuiz: async ({ request, locals }) => {
+		const form = await superValidate(request, textQuizSchema);
+
+		// Convenient validation check:
+		if (!form.valid) return fail(400, { form });
+
+		return { form };
+
+		// Get user id from authStore
+		// const { id } = await locals.pb.authStore.model;
+
+		// let folder_flashcards;
+
+		// try {
+		// 	// Create a new collection of flashcards
+		// 	folder_flashcards = await locals.pb
+		// 		.collection('flashcards')
+		// 		.create({ name: form.data.name, description: form.data.description, userId: id });
+		// } catch (_) {
+		// 	form.errors.name = ['Name already exists'];
+		// 	return { form };
+		// }
+
+		// throw redirect(303, `/flashcards/${folder_flashcards.id}`);
 	}
 };

@@ -9,7 +9,6 @@
 	import { clickOutside } from '$lib/utils/clickOutside';
 	import FlashcardForm from '$lib/components/forms/FlashcardForm.svelte';
 	import { wordClasses } from '$lib/utils/constants.js';
-	import { splitTextWithFurigana } from '$lib/utils/actions.js';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 
@@ -178,31 +177,21 @@
 		{@const longWord = currentFlashcard.length > 8}
 		<div style="perspective: 3000px; position: relative;">
 			<div
-				style={`transform: rotateY(${-$rotateYCard}deg); transform-style: preserve-3d; backface-visibility: hidden;`}
-				class="relative z-10 mx-auto cursor-pointer
+				style={`transform: rotateY(${-$rotateYCard}deg); transform-style: preserve-3d; backface-visibility: hidden; `}
+				class="relative z-10 cursor-pointer
 				{$rotateYCard > 90 ? 'hidden' : 'block'} 
-			 flex h-[474px] w-[354px] items-center justify-center text-center {longWord
-					? 'grid grid-cols-[repeat(3,5rem)] content-center justify-center justify-items-center gap-1'
-					: 'flex-col gap-2'} overflow-hidden rounded-xl border shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200 sm:h-[600px] sm:w-[600px]"
+			    h-[474px] w-[354px] rounded-xl {longWord
+					? ' text-4xl'
+					: 'text-5xl'} flex items-center justify-center border py-32 shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200 sm:h-[600px] sm:w-[600px]"
 			>
 				{#if currentFlashcardType === 'kanji'}
 					<span class="text-[14rem]">
 						{currentFlashcard}
 					</span>
 				{:else}
-					{#each splitTextWithFurigana(currentFlashcardFurigana) as segment}
-						{#if segment.startsWith('<ruby>')}
-							<span class={longWord ? 'text-4xl' : 'text-5xl'}>
-								{@html segment}
-							</span>
-						{:else}
-							{#each Array.from(segment) as letter}
-								<span class={longWord ? 'text-4xl' : 'text-5xl'}>
-									{letter}
-								</span>
-							{/each}
-						{/if}
-					{/each}
+					<p class="vertical leading-loose tracking-widest">
+						{@html currentFlashcardFurigana}
+					</p>
 				{/if}
 
 				<button
@@ -388,3 +377,12 @@
 		</button>
 	{/if}
 </section>
+
+<style>
+	.vertical {
+		-webkit-writing-mode: vertical-rl;
+		-moz-writing-mode: vertical-rl;
+		-ms-writing-mode: vertical-rl;
+		writing-mode: vertical-rl;
+	}
+</style>
