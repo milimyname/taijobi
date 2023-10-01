@@ -84,15 +84,13 @@
 		const maxProgress = sliderWords.getBoundingClientRect().width / 2;
 
 		// Check if the new progress is within the allowed range
-		if (newProgress >= minProgress && newProgress <= maxProgress) {
-			$progress = newProgress;
-		} else if (newProgress < minProgress) {
+		if (newProgress >= minProgress && newProgress <= maxProgress) $progress = newProgress;
+		else if (newProgress < minProgress)
 			// If newProgress goes below the minimum, set it to the minimum
 			$progress = -maxProgress;
-		} else if (newProgress > maxProgress) {
+		else if (newProgress > maxProgress)
 			// If newProgress goes above the maximum, set it to the maximum
 			$progress = maxProgress;
-		}
 
 		const words = sliderWords.querySelectorAll('button');
 
@@ -160,7 +158,7 @@
 {/if}
 
 <section
-	class="flex flex-1 flex-col justify-center gap-5"
+	class="flex flex-1 flex-col items-center justify-center gap-5"
 	use:clickOutside
 	on:outsideclick={() => {
 		$clickedAddFlashcard = false;
@@ -179,10 +177,9 @@
 			<div
 				style={`transform: rotateY(${-$rotateYCard}deg); transform-style: preserve-3d; backface-visibility: hidden; `}
 				class="relative z-10 cursor-pointer
-				{$rotateYCard > 90 ? 'hidden' : 'block'} 
-			    h-[474px] w-[354px] rounded-xl {longWord
-					? ' text-4xl'
-					: 'text-5xl'} flex items-center justify-center border py-32 shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200 sm:h-[600px] sm:w-[600px]"
+				{$rotateYCard > 90 ? 'hidden' : 'block'} h-[474px] w-[354px] rounded-xl
+				{longWord ? 'text-4xl' : 'text-5xl'} flex items-center justify-center border
+				py-32 shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200 sm:h-[32rem] sm:w-[32rem]"
 			>
 				{#if currentFlashcardType === 'kanji'}
 					<span class="text-[14rem]">
@@ -209,7 +206,7 @@
 				{$rotateYCard > 90 ? 'block' : 'hidden'} 
 				 flex h-[474px] w-[354px] flex-col
 				 {$currentAlphabet === 'kanji' ? 'gap-1' : 'gap-5'}  
-				 justify-center overflow-hidden rounded-xl border p-10 shadow-sm sm:h-[600px] sm:w-[600px]"
+				 justify-center overflow-hidden rounded-xl border p-10 shadow-sm sm:h-[32rem] sm:w-[32rem]"
 			>
 				{#if currentFlashcardType === 'kanji'}
 					<div class="grid-rows-[max-content 1fr] grid h-full">
@@ -352,30 +349,30 @@
 				</div>
 			{/if}
 		</div>
-
-		<button
-			bind:this={sliderWords}
-			class="absolute bottom-5 left-1/2 flex -translate-x-1/2 cursor-ew-resize justify-between gap-5 overflow-x-hidden sm:bottom-10"
-			on:mousedown|preventDefault={start}
-			on:mouseup|preventDefault={end}
-			on:mousemove|preventDefault={move}
-			on:touchstart|preventDefault={start}
-			on:touchend|preventDefault={end}
-			on:touchmove|preventDefault={move}
-		>
-			{#each data.flashcards as { name }}
-				<button
-					class="relative break-keep {name.length > 5
-						? 'h-12  text-sm sm:text-xl'
-						: 'h-14  text-2xl'} {currentFlashcard === name
-						? " text-3xl text-black before:absolute before:left-1/2 before:top-0 before:h-1.5  before:w-1.5 before:-translate-x-1/2 before:rounded-full before:bg-black before:content-['']"
-						: 'text-gray-200 '}"
-				>
-					{name}
-				</button>
-			{/each}
-		</button>
 	{/if}
+
+	<button
+		bind:this={sliderWords}
+		class=" flex cursor-ew-resize items-center justify-between gap-5 overflow-x-hidden sm:bottom-10"
+		on:mousedown|preventDefault={start}
+		on:mouseup|preventDefault={end}
+		on:mousemove|preventDefault={move}
+		on:touchstart|preventDefault={start}
+		on:touchend|preventDefault={end}
+		on:touchmove|preventDefault={move}
+	>
+		{#each data.flashcards as { name }}
+			<button
+				class="relative break-keep {name.length > 5
+					? 'h-12  text-sm sm:text-xl'
+					: 'h-14  text-2xl'} {currentFlashcard === name
+					? " text-3xl text-black before:absolute before:left-1/2 before:top-0 before:h-1.5  before:w-1.5 before:-translate-x-1/2 before:rounded-full before:bg-black before:content-['']"
+					: 'text-gray-200 '}"
+			>
+				{name}
+			</button>
+		{/each}
+	</button>
 </section>
 
 <style>
