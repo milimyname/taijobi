@@ -1,10 +1,14 @@
+const plugin = require('tailwindcss/plugin');
+
 /** @type {import('tailwindcss').Config} */
 export default {
 	content: ['./src/**/*.{html,js,svelte,ts}'],
 	theme: {
 		extend: {
 			colors: {
-				primary: '#0A6EBD'
+				primary: '#0A6EBD',
+				success: '#47A992',
+				error: '#D80032'
 			},
 			backgroundImage: {
 				alphabetGreen:
@@ -29,6 +33,9 @@ export default {
 	plugins: [
 		require('@tailwindcss/forms'),
 		require('tailwindcss-dotted-background'),
-		require('@tailwindcss/container-queries')
+		require('@tailwindcss/container-queries'),
+		plugin(function ({ addVariant }) {
+			addVariant('not-last', '&>*:not(:last-child)');
+		})
 	]
 };

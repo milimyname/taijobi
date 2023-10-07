@@ -1,6 +1,6 @@
 import { superValidate } from 'sveltekit-superforms/server';
 import { fail, redirect } from '@sveltejs/kit';
-import { flashcardsSchema, textQuizSchema } from '$lib/utils/zodSchema';
+import { flashcardsSchema, quizSchema } from '$lib/utils/zodSchema';
 
 /** @type {import('./$types').PageServerLoad} */
 export const load = async ({ locals }) => {
@@ -9,32 +9,38 @@ export const load = async ({ locals }) => {
 
 	// Get all the flashcards collection
 	const flashcardsCollection = await locals.pb.collection('flashcards').getFullList(100, {
-		filter: `userId = "${id}" || name = "にち" || name = "慣用句"`,
-		expand: 'flashcard'
+		filter: `userId = "${id}" || name = "にち" || name = "慣用句"`
 	});
 
 	// Get all the flashcard from the server
 	const flashcards = await locals.pb.collection('flashcard').getFullList();
 
-	const flashcardsCount = flashcardsCollection.map(async (collection) => {
-		// Get the amount of flashcards in each collection
-		const count = flashcards.filter((flashcard) => flashcard.flashcardsId === collection.id).length;
+	const counts = await Promise.all(
+		flashcardsCollection.map(async (collection) => {
+			// Get the amount of flashcards in each collection
+			const count = flashcards.filter(
+				(flashcard) => flashcard.flashcardsId === collection.id
+			).length;
 
-		return {
-			name: collection.name,
-			count
-		};
+			return {
+				count
+			};
+		})
+	);
+
+	// Add the "count" field to each collection object
+	flashcardsCollection.forEach((collection, index) => {
+		collection.count = counts[index].count;
 	});
 
 	// Server API:
 	const form = await superValidate(flashcardsSchema);
-	const quizForm = await superValidate(textQuizSchema);
+	const quizForm = await superValidate(quizSchema);
 
 	return {
 		form,
 		quizForm: quizForm,
-		flashcards: structuredClone(flashcardsCollection),
-		flashcardsCount
+		flashcards: structuredClone(flashcardsCollection)
 	};
 };
 
@@ -98,29 +104,31 @@ export const actions = {
 
 		return { form };
 	},
-	addTextQuiz: async ({ request, locals }) => {
-		const form = await superValidate(request, textQuizSchema);
+	addQuiz: async ({ request, locals }) => {
+		const form = await superValidate(request, quizSchema);
 
 		// Convenient validation check:
 		if (!form.valid) return fail(400, { form });
 
-		return { form };
+		// Set the form userId to the current user
+		const userId = locals.pb.authStore.model?.id;
 
-		// Get user id from authStore
-		// const { id } = await locals.pb.authStore.model;
+		let quiz;
 
-		// let folder_flashcards;
+		try {
+			quiz = await locals.pb.collection('quizzes').create({
+				name: form.data.name,
+				type: form.data.type,
+				userId,
+				maxCount: form.data.maxCount,
+				flashcardsId: form.data.flashcardsId,
+				timeLimit: form.data.timeLimit
+			});
+		} catch (_) {
+			form.errors.name = ['No idea what happened'];
+			return { form };
+		}
 
-		// try {
-		// 	// Create a new collection of flashcards
-		// 	folder_flashcards = await locals.pb
-		// 		.collection('flashcards')
-		// 		.create({ name: form.data.name, description: form.data.description, userId: id });
-		// } catch (_) {
-		// 	form.errors.name = ['Name already exists'];
-		// 	return { form };
-		// }
-
-		// throw redirect(303, `/flashcards/${folder_flashcards.id}`);
+		throw redirect(303, `/quizzes/${quiz.id}`);
 	}
 };

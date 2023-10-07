@@ -15,6 +15,7 @@ export const clickedFeedback = writable(false);
 export const clickedQuizForm = writable(false);
 export const clickedReport = writable(false);
 export const selectedKanjiGrade = writable('0');
+export const maxFlashcards = writable('');
 
 export const hiraganaStore = writable([
 	'あ',

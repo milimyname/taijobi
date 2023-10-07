@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Vault from '$lib/components/forms/Vault.svelte';
-	import { clickedEditFlashcard, clickedAddFlashcard } from '$lib/utils/stores';
+	import { clickedEditFlashcard } from '$lib/utils/stores';
 	import { slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 
