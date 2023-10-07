@@ -1,5 +1,3 @@
-import { redirect } from '@sveltejs/kit';
-
 /** @type {import('./$types').PageServerLoad} */
 export const load = async ({ locals }) => {
 	// Get all the collection of flashcards

@@ -42,6 +42,17 @@ export const feedbacksSchema = z.object({
 
 export const quizSchema = z.object({
 	name: z.string(),
-	description: z.string().optional(),
-	flashcardsId: z.string().optional()
+	type: z.string().default('2'),
+	maxCount: z.number().default(20),
+	score: z.number().default(0),
+	flashcardsId: z.string(),
+	userId: z.string(),
+	timeLimit: z.boolean().default(false),
+	id: z.string().optional()
+});
+
+export const quizProgressSchema = z.object({
+	progressData: z.string(),
+	quizId: z.string(),
+	userId: z.string()
 });

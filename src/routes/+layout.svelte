@@ -6,6 +6,7 @@
 	import { clickOutside } from '$lib/utils/clickOutside';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
+	import { dev } from '$app/environment';
 
 	// import { onNavigate } from '$app/navigation';
 
@@ -112,11 +113,13 @@
 </script>
 
 <svelte:head>
-	<script
-		async
-		src="https://analytics.taijobi.com/script.js"
-		data-website-id="51bced60-cf6d-46e0-b27c-0b7dfd457aba"
-	></script>
+	{#if !dev}
+		<script
+			async
+			src="https://analytics.taijobi.com/script.js"
+			data-website-id="51bced60-cf6d-46e0-b27c-0b7dfd457aba"
+		></script>
+	{/if}
 </svelte:head>
 <!-- {#if audioUrl}
 	<audio controls>
