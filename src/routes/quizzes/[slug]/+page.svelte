@@ -1,22 +1,43 @@
 <script lang="ts">
 	import Quiz from './Quiz.svelte';
 	import { page } from '$app/stores';
-	import { getRandomNumber, shuffleArray } from '$lib/utils/actions.js';
+	import { shuffleArray } from '$lib/utils/actions.js';
 	import { pocketbase } from '$lib/utils/pocketbase.js';
 	import { onMount } from 'svelte';
 
 	export let data;
 
+	let currentQuestion: number;
+	let currentFlashcard: {
+		name: string;
+	};
 	let progressData: {
 		name: string;
 		score: number;
 	}[];
-
-	let currentQuestion: number;
-	let currentFlashcard: any;
-	let shuffledOptions: any[];
+	let shuffledOptions: string[] = [];
 	let correctAnswers = 0;
 	let flashcards: any[];
+
+	const generateShuffledOptions = (options: any[]): string[] => {
+		const otherOptions = options.filter((opt) => opt.name !== currentFlashcard.name);
+
+		shuffleArray(otherOptions);
+
+		switch (data.quiz.type) {
+			case '2':
+				return [currentFlashcard.name, otherOptions[0].name];
+			case '4':
+				return [
+					currentFlashcard.name,
+					otherOptions[0].name,
+					otherOptions[1].name,
+					otherOptions[2].name
+				];
+			default:
+				return [];
+		}
+	};
 
 	onMount(() => {
 		flashcards = JSON.parse(localStorage.getItem(`flashcards_${data.quiz.id}`) || '[]');
@@ -26,44 +47,14 @@
 			currentFlashcard = flashcards[currentQuestion];
 
 			// Get a random number between 0 and the length of the flashcards array
-			switch (data.quiz.type) {
-				case '2':
-					shuffledOptions = [
-						currentFlashcard.name,
-						flashcards[getRandomNumber(0, flashcards.length)].name
-					];
-					break;
-				case '4':
-					shuffledOptions = [
-						currentFlashcard.name,
-						flashcards[getRandomNumber(0, flashcards.length)].name,
-						flashcards[getRandomNumber(0, flashcards.length)].name,
-						flashcards[getRandomNumber(0, flashcards.length)].name
-					];
-					break;
-			}
+			shuffledOptions = generateShuffledOptions(flashcards);
 		} else {
 			progressData = [];
 			currentQuestion = 0;
 			currentFlashcard = data.flashcards[currentQuestion];
 
 			// Get a random number between 0 and the length of the flashcards array
-			switch (data.quiz.type) {
-				case '2':
-					shuffledOptions = [
-						currentFlashcard.name,
-						data.flashcards[getRandomNumber(0, data.flashcards.length)].name
-					];
-					break;
-				case '4':
-					shuffledOptions = [
-						currentFlashcard.name,
-						data.flashcards[getRandomNumber(0, data.flashcards.length)].name,
-						data.flashcards[getRandomNumber(0, data.flashcards.length)].name,
-						data.flashcards[getRandomNumber(0, data.flashcards.length)].name
-					];
-					break;
-			}
+			shuffledOptions = generateShuffledOptions(data.flashcards);
 
 			localStorage.setItem(`flashcards_${data.quiz.id}`, JSON.stringify(data.flashcards));
 		}
@@ -109,6 +100,12 @@
 
 			// Reset the quiz
 			alert('Quiz completed!');
+
+			// Update the quiz's total
+			await pocketbase.collection('quizzes').update($page.params.slug, {
+				total: data.quiz + 1
+			});
+
 			setTimeout(() => {
 				currentQuestion = 0;
 				progressData = [
@@ -145,89 +142,27 @@
 	}
 
 	$: if (currentFlashcard) {
-		if (flashcards.length > 0) {
-			currentFlashcard = flashcards[currentQuestion];
-
-			// Get a random number between 0 and the length of the flashcards array
-			switch (data.quiz.type) {
-				case '2':
-					shuffledOptions = [
-						currentFlashcard.name,
-						flashcards[getRandomNumber(0, flashcards.length)].name
-					];
-					break;
-				case '4':
-					shuffledOptions = [
-						currentFlashcard.name,
-						flashcards[getRandomNumber(0, flashcards.length)].name,
-						flashcards[getRandomNumber(0, flashcards.length)].name,
-						flashcards[getRandomNumber(0, flashcards.length)].name
-					];
-					break;
-			}
-
-			shuffleArray(shuffledOptions);
-		} else {
-			currentFlashcard = data.flashcards[currentQuestion];
-			// Get a random number between 0 and the length of the flashcards array
-			const randomNumber = getRandomNumber(0, data.flashcards.length);
-
-			// Get a random number between 0 and the current question if the random number is equal to the current question
-			switch (data.quiz.type) {
-				case '2':
-					shuffledOptions = [
-						currentFlashcard.name,
-						data.flashcards[
-							getRandomNumber(
-								0,
-								randomNumber === currentQuestion
-									? getRandomNumber(0, currentQuestion)
-									: randomNumber
-							)
-						].name
-					];
-					break;
-				case '4':
-					shuffledOptions = [
-						currentFlashcard.name,
-						data.flashcards[
-							getRandomNumber(
-								0,
-								randomNumber === currentQuestion
-									? getRandomNumber(0, currentQuestion)
-									: randomNumber
-							)
-						].name,
-						data.flashcards[
-							getRandomNumber(
-								0,
-								randomNumber === currentQuestion
-									? getRandomNumber(0, currentQuestion)
-									: randomNumber
-							)
-						].name,
-						data.flashcards[
-							getRandomNumber(
-								0,
-								randomNumber === currentQuestion
-									? getRandomNumber(0, currentQuestion)
-									: randomNumber
-							)
-						].name
-					];
-
-					break;
-			}
-
-			shuffleArray(shuffledOptions);
-		}
+		const sourceFlashcards = flashcards.length > 0 ? flashcards : data.flashcards;
+		currentFlashcard = sourceFlashcards[currentQuestion];
+		shuffledOptions = generateShuffledOptions(sourceFlashcards);
+		shuffleArray(shuffledOptions);
 	}
 </script>
 
 {#if currentFlashcard}
 	{#if flashcards.length > 0}
-		<Quiz flashcard={flashcards[currentQuestion]} {shuffledOptions} {selectAnswer} />
+		<Quiz
+			flashcard={flashcards[currentQuestion]}
+			ratio={currentQuestion / flashcards.length}
+			{shuffledOptions}
+			{selectAnswer}
+		/>
 	{:else}
-		<Quiz flashcard={data.flashcards[currentQuestion]} {shuffledOptions} {selectAnswer} />
+		<Quiz
+			flashcard={data.flashcards[currentQuestion]}
+			ratio={currentQuestion / data.flashcards.length}
+			{shuffledOptions}
+			{selectAnswer}
+		/>
 	{/if}
 {/if}

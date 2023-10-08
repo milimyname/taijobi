@@ -1,4 +1,4 @@
-import { shuffleArray } from '$lib/utils/actions.js';
+import { shuffleArray } from '$lib/utils/actions';
 
 /** @type {import('./$types').PageServerLoad} */
 export const load = async ({ params, locals }) => {

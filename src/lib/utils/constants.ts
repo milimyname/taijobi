@@ -54,9 +54,9 @@ export const navItems = [
 		mb: '-mb-52'
 	},
 	{
-		url: '/',
-		icon: 'reading',
-		label: 'Reading',
+		url: '/quizzes',
+		icon: 'quiz',
+		label: 'Quizzes',
 		borderColor: 'border-[#8294C4]',
 		height: 'h-52',
 		mb: '-mb-36'
