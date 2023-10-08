@@ -16,7 +16,7 @@
 
 <section class="flex h-full w-full flex-col items-center justify-between">
 	<div
-		class="relative flex h-[504px] w-[354px] items-center justify-center rounded-xl border p-10 shadow-sm sm:h-2/3 sm:w-96"
+		class="relative flex h-[404px] w-[354px] items-center justify-center rounded-xl border p-10 shadow-sm sm:h-2/3 sm:w-96"
 	>
 		<h2 class="text-4xl font-bold">{flashcard.meaning}</h2>
 		<div
