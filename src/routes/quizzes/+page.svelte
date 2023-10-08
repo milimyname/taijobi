@@ -5,7 +5,7 @@
 	export let data;
 </script>
 
-<section class="flex w-full flex-col gap-2 not-last:border-b">
+<section class="flex w-full flex-col gap-2 overflow-y-scroll not-last:border-b">
 	{#each data.quizzes as quiz}
 		{@const anyProgress = browser && localStorage.getItem(`quizProgress_${quiz.id}`)}
 		<div class="flex w-full flex-col justify-center gap-4 p-4">
@@ -31,10 +31,7 @@
 				{#if anyProgress}
 					<button
 						class="self-center rounded-full font-bold"
-						on:click={() => {
-							// localStorage.removeItem(`flashcards_${quiz.id}`);
-							goto(`/quizzes/${quiz.id}`);
-						}}
+						on:click={() => goto(`/quizzes/${quiz.id}`)}
 					>
 						Continue from {JSON.parse(anyProgress).length}
 					</button>
