@@ -85,26 +85,28 @@
 
 		// Check if the user has completed the entire quiz
 		if (currentQuestion === data.flashcards.length - 1) {
-			// Save the user's answer when the quiz is completed
-			try {
-				await pocketbase.collection('quizProgress').create({
-					quizId: $page.params.slug,
-					userId: data.userId,
-					progressData,
-					correctAnswers,
-					total: data.flashcards.length
+			if (data.quiz.id !== 'hiragana' && data.quiz.id !== 'katakana') {
+				// Save the user's answer when the quiz is completed
+				try {
+					await pocketbase.collection('quizProgress').create({
+						quizId: $page.params.slug,
+						userId: data.userId,
+						progressData,
+						correctAnswers,
+						total: data.flashcards.length
+					});
+				} catch (error) {
+					console.log(error);
+				}
+
+				// Update the quiz's total
+				await pocketbase.collection('quizzes').update($page.params.slug, {
+					total: data.quiz + 1
 				});
-			} catch (error) {
-				console.log(error);
 			}
 
 			// Reset the quiz
 			alert('Quiz completed!');
-
-			// Update the quiz's total
-			await pocketbase.collection('quizzes').update($page.params.slug, {
-				total: data.quiz + 1
-			});
 
 			setTimeout(() => {
 				currentQuestion = 0;

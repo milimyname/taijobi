@@ -50,10 +50,16 @@
 	}
 	onMount(() => {
 		ctx = canvas.getContext('2d') as Ctx;
-		ctx.lineWidth = $innerWidthStore > twSmallScreen ? 15 : 10;
+		ctx.lineWidth = $innerWidthStore > twSmallScreen ? 12 : 10;
 		ctx.lineJoin = 'round'; // Set the line join property
 		ctx.lineCap = 'round'; // Set the line cap property
 	});
+
+	$: if (ctx) {
+		ctx.lineWidth = $innerWidthStore > twSmallScreen ? 12 : 10;
+		ctx.lineJoin = 'round';
+		ctx.lineCap = 'round';
+	}
 </script>
 
 <canvas

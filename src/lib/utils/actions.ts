@@ -8,6 +8,7 @@ import {
 import { maxWidthCard, minWidthCard } from '$lib/utils/constants';
 import { pocketbase } from './pocketbase';
 import type { CropperDetails } from '$lib/utils/ambient.d.ts';
+import type { Ctx } from '$lib/utils/ambient.d.ts';
 
 export function handleUserIconClick() {
 	let longPress;
@@ -33,7 +34,7 @@ export const handleCancelPress = (longPressTimer: any) => {
 	clearTimeout(longPressTimer);
 };
 
-export function clearCanvas(ctx: any, canvas: any) {
+export function clearCanvas(ctx: Ctx, canvas: HTMLCanvasElement) {
 	// Clear the entire canvas
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 

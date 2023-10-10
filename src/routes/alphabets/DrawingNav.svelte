@@ -68,8 +68,8 @@
 			</button>
 			<button
 				on:click={() => {
-					$animateSVG = false;
-					setTimeout(() => ($animateSVG = true), 250);
+					$animateSVG = !$animateSVG;
+					// setTimeout(() => ($animateSVG = true), 250);
 				}}
 				class="transition-transform active:rotate-180"
 			>
