@@ -24,6 +24,7 @@ export type Ctx = {
 	lineWidth: number;
 	lineJoin: string;
 	lineCap: string;
+	clearRect: (arg0: number, arg1: number, arg2: number, arg3: number) => void;
 };
 
 export type Card = {

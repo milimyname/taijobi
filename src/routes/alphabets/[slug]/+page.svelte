@@ -31,17 +31,8 @@
 	});
 	// Get the alphabet store length
 	let alphabetLengh: number;
-	let canvas: HTMLCanvasElement,
-		ctx: {
-			strokeStyle: string;
-			beginPath: () => void;
-			moveTo: (arg0: number, arg1: number) => void;
-			lineTo: (arg0: number, arg1: number) => void;
-			stroke: () => void;
-			lineWidth: number;
-			lineJoin: string;
-			lineCap: string;
-		};
+	let canvas: HTMLCanvasElement;
+	let ctx: Ctx;
 
 	let savedKanji: boolean = false;
 
