@@ -18,7 +18,9 @@
 	<div
 		class="relative flex h-[404px] w-[354px] items-center justify-center rounded-xl border p-10 shadow-sm sm:h-2/3 sm:w-96"
 	>
-		<h2 class="text-4xl font-bold">{flashcard.meaning}</h2>
+		<h2 class="text-4xl font-bold {flashcard.meaning.length > 2 ? 'text-4xl' : 'text-8xl'}">
+			{flashcard.meaning}
+		</h2>
 		<div
 			class="absolute bottom-0 left-0 h-2 rounded-b-xl bg-black"
 			style={`width: ${$tweenedRatio * 100}%`}
