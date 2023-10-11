@@ -4,6 +4,9 @@ export const kanjiWidthMulitplier = 0.227;
 export const minWidthCard = 250;
 export const maxWidthCard = 350;
 
+export const canvasLgWidth = 500;
+export const canvasLgHeight = 500;
+
 export const wordClasses = [
 	'text-black',
 	'before:absolute',

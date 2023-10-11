@@ -27,7 +27,7 @@
 		/>
 	</div>
 	<!-- <h2 class=" text-4xl">{flashcard.name}</h2> -->
-	<div class="grid grid-flow-row grid-cols-2 justify-center gap-5 text-4xl">
+	<div class="grid w-[354px] grid-flow-row grid-cols-2 justify-center gap-5 text-4xl sm:w-96">
 		{#each shuffledOptions as option}
 			<button
 				class="w-full rounded-xl border-2 border-black px-10 py-4 sm:w-40"
