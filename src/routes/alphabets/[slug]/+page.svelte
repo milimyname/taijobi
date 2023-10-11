@@ -22,6 +22,7 @@
 	import Canvas from '../Canvas.svelte';
 	import { kanji } from '$lib/static/kanji';
 	import { pocketbase } from '$lib/utils/pocketbase';
+	import { canvasLgHeight, canvasLgWidth } from '$lib/utils/constants';
 
 	export let data;
 
@@ -186,7 +187,7 @@
 				{$rotateYCard > 90 ? 'block' : 'hidden'} 
 				 flex h-[504px] w-[354px] flex-col
 				 {$currentAlphabet === 'kanji' ? 'gap-1' : 'gap-5'}  
-				 justify-center rounded-xl border p-10 shadow-sm sm:h-[600px] sm:w-[600px]"
+				 justify-center rounded-xl border p-10 shadow-sm sm:h-[{canvasLgHeight}px] sm:w-[{canvasLgWidth}px]"
 		>
 			{#if $currentAlphabet === 'kanji'}
 				<div class="grid-rows-[max-content 1fr] grid h-full">
@@ -213,7 +214,7 @@
 		</div>
 	</div>
 
-	<div class=" flex items-center justify-between sm:mx-auto sm:w-[600px]">
+	<div class="flex items-center justify-between sm:mx-auto sm:w-[{canvasLgWidth}px]">
 		<button
 			on:click|preventDefault={() => {
 				clearCanvas(ctx, canvas);

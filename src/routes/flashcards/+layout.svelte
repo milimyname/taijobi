@@ -4,6 +4,7 @@
 	import { goto } from '$app/navigation';
 	import { icons } from '$lib/utils/icons';
 	import { page } from '$app/stores';
+	import { browser } from '$app/environment';
 
 	let isConstantFlashcard: string;
 
@@ -21,7 +22,7 @@
 		else document.body.style.backgroundColor = 'rgb(255,255,255)';
 	});
 
-	$: {
+	$: if (browser) {
 		// Update isConstantFlashcard value
 		if (isConstantFlashcard || $page.data.isAdmin) {
 			isConstantFlashcard = localStorage.getItem('isConstantFlashcard') as string;
@@ -50,7 +51,7 @@
 			{@html icons.previous}
 			<span>Back</span>
 		</button>
-		{#if ($page.data.isAdmin && isConstantFlashcard === 'true') || (!$page.data.isAdmin && isConstantFlashcard === 'false')}
+		{#if $page.data.isAdmin || (!$page.data.isAdmin && isConstantFlashcard === 'false')}
 			<button
 				on:click|preventDefault={() => {
 					$clickedAddFlashcard = !$clickedAddFlashcard;

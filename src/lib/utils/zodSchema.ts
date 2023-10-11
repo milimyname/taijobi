@@ -42,7 +42,8 @@ export const feedbacksSchema = z.object({
 
 export const quizSchema = z.object({
 	name: z.string(),
-	type: z.string().default('2'),
+	choice: z.string().default('2'),
+	type: z.string().default('name'),
 	maxCount: z.number().default(20),
 	score: z.number().default(0),
 	flashcardsId: z.string(),

@@ -17,7 +17,8 @@ export const load = async ({ locals }) => {
 		maxCount: 46,
 		score: 0,
 		timeLimit: false,
-		type: '4',
+		choice: '4',
+		type: 'name',
 		updated: '2',
 		userId: '-'
 	};

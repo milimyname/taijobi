@@ -10,10 +10,12 @@
 	let currentQuestion: number;
 	let currentFlashcard: {
 		name: string;
+		meaning: string;
 	};
 	let progressData: {
 		name: string;
 		score: number;
+		meaning: string;
 	}[];
 	let shuffledOptions: string[] = [];
 	let correctAnswers = 0;
@@ -24,16 +26,25 @@
 
 		shuffleArray(otherOptions);
 
-		switch (data.quiz.type) {
+		switch (data.quiz.choice) {
 			case '2':
-				return [currentFlashcard.name, otherOptions[0].name];
+				return data.quiz.type === 'name'
+					? [currentFlashcard.name, otherOptions[0].name]
+					: [currentFlashcard.meaning, otherOptions[0].meaning];
 			case '4':
-				return [
-					currentFlashcard.name,
-					otherOptions[0].name,
-					otherOptions[1].name,
-					otherOptions[2].name
-				];
+				return data.quiz.type === 'name'
+					? [
+							currentFlashcard.name,
+							otherOptions[0].name,
+							otherOptions[1].name,
+							otherOptions[2].name
+					  ]
+					: [
+							currentFlashcard.meaning,
+							otherOptions[0].meaning,
+							otherOptions[1].meaning,
+							otherOptions[2].meaning
+					  ];
 			default:
 				return [];
 		}
@@ -60,14 +71,15 @@
 		}
 	});
 
-	async function selectAnswer(e: any, name: string) {
+	async function selectAnswer(e: any, answer: string) {
 		// Check if the user's answer is correct
-		if (currentFlashcard.name === name) {
+		if (currentFlashcard.name === answer || currentFlashcard.meaning === answer) {
 			e.currentTarget?.classList.add('bg-success', 'text-white');
 			progressData = [
 				...progressData,
 				{
 					name: currentFlashcard.name,
+					meaning: currentFlashcard.meaning,
 					score: 1
 				}
 			];
@@ -78,6 +90,7 @@
 				...progressData,
 				{
 					name: currentFlashcard.name,
+					meaning: currentFlashcard.meaning,
 					score: 0
 				}
 			];
@@ -99,9 +112,9 @@
 					console.log(error);
 				}
 
-				// Update the quiz's total
+				// Update the quiz's score
 				await pocketbase.collection('quizzes').update($page.params.slug, {
-					total: data.quiz + 1
+					score: data.quiz.score + 1
 				});
 			}
 
@@ -113,10 +126,11 @@
 				progressData = [
 					{
 						name: currentFlashcard.name,
+						meaning: currentFlashcard.meaning,
 						score: 0
 					}
 				];
-			}, 250);
+			}, 200);
 			// Clear local storage
 			localStorage.removeItem(`quizProgress_${data.quiz.id}`);
 			localStorage.removeItem(`flashcards_${data.quiz.id}`);
@@ -156,6 +170,7 @@
 		<Quiz
 			flashcard={flashcards[currentQuestion]}
 			ratio={currentQuestion / flashcards.length}
+			type={data.quiz.type}
 			{shuffledOptions}
 			{selectAnswer}
 		/>
@@ -163,6 +178,7 @@
 		<Quiz
 			flashcard={data.flashcards[currentQuestion]}
 			ratio={currentQuestion / data.flashcards.length}
+			type={data.quiz.type}
 			{shuffledOptions}
 			{selectAnswer}
 		/>

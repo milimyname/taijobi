@@ -151,7 +151,7 @@
 	});
 </script>
 
-{#if ($page.data.isAdmin && isConstantFlashcard === 'true') || (!$page.data.isAdmin && isConstantFlashcard === 'false')}
+{#if $page.data.isAdmin || (!$page.data.isAdmin && isConstantFlashcard === 'false')}
 	<FlashcardForm {currentFlashcardType} {constraints} {form} {errors} {enhance} />
 {/if}
 
