@@ -24,7 +24,8 @@ export const load = async ({ params, locals }) => {
 				maxCount: 46,
 				score: 0,
 				timeLimit: false,
-				type: '4',
+				choice: '4',
+				type: 'name',
 				userId: locals.pb.authStore.model?.id
 			},
 			flashcards,

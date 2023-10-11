@@ -118,6 +118,7 @@ export const actions = {
 		try {
 			quiz = await locals.pb.collection('quizzes').create({
 				name: form.data.name,
+				choice: form.data.choice,
 				type: form.data.type,
 				userId,
 				maxCount: form.data.maxCount,

@@ -27,7 +27,7 @@
 		use:clickOutside
 		on:outsideclick={() => ($clickedQuizForm = false)}
 		method="POST"
-		class="quiz-form fixed -bottom-5 z-[1000] flex h-2/3 w-full flex-col gap-5 overflow-hidden rounded-t-2xl bg-white px-5 py-10 sm:bottom-0"
+		class="quiz-form fixed -bottom-5 z-[1000] flex h-3/4 w-full flex-col gap-5 overflow-hidden rounded-t-2xl bg-white px-5 py-10 sm:bottom-0"
 		transition:fly={{
 			delay: 0,
 			duration: 1000,
@@ -39,7 +39,36 @@
 		<h4 class="text-2xl">Create a {$form.name} quiz</h4>
 		<div class="mb-auto flex flex-col gap-5">
 			<fieldset class=" flex w-full flex-col gap-2 md:w-2/3">
-				<label for="type">Multi Choice Type</label>
+				<label for="choice">Multi Choice Number</label>
+				<select
+					name="choice"
+					id="choice"
+					class="
+                    block
+                    rounded-md
+                    border-gray-300
+                    shadow-sm
+                    focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
+                  "
+					aria-invalid={$errors.choice ? 'true' : undefined}
+					bind:value={$form.choice}
+					{...$constraints.choice}
+				>
+					<option value="2" selected>2</option>
+					{#if $maxFlashcards > '20'}
+						<option value="4">4</option>
+					{/if}
+				</select>
+
+				{#if $errors.choice}
+					<span
+						transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
+						class="mt-1 select-none text-sm text-red-400">{$errors.type}</span
+					>
+				{/if}
+			</fieldset>
+			<fieldset class=" flex w-full flex-col gap-2 md:w-2/3">
+				<label for="type">Type</label>
 				<select
 					name="type"
 					id="type"
@@ -54,10 +83,8 @@
 					bind:value={$form.type}
 					{...$constraints.type}
 				>
-					<option value="2" selected>2</option>
-					{#if $maxFlashcards > '20'}
-						<option value="4">4</option>
-					{/if}
+					<option value="name" selected>name</option>
+					<option value="meaning">meaning</option>
 				</select>
 
 				{#if $errors.type}
