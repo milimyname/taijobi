@@ -307,7 +307,7 @@
 		</div>
 
 		<div class="mb-auto flex items-center justify-center sm:mx-auto sm:w-[600px]">
-			{#if $page.data.isAdmin && isConstantFlashcard === 'true'}
+			{#if $page.data.isAdmin}
 				<div
 					class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
 				>
