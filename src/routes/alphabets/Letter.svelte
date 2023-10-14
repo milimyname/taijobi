@@ -116,9 +116,9 @@
 	xmlns="http://www.w3.org/2000/svg"
 	{viewBox}
 	fill="none"
-	class="absolute left-1/2 top-[45%] sm:left-[55%] sm:top-1/2 {rotationY > 5
+	class="absolute left-1/2 top-[45%] sm:left-[50%] sm:top-1/2 {rotationY > 5
 		? 'hidden'
-		: 'block'}  max-w-80 max-h-80 -translate-x-1/2 -translate-y-1/2 opacity-20 sm:-translate-y-1/2"
+		: 'block'} w-80 -translate-x-1/2 -translate-y-1/2 opacity-20 sm:w-96 sm:-translate-y-1/2"
 >
 	{#each currentObject[$currentLetter].ds as path, index}
 		{#if $animateSVG}

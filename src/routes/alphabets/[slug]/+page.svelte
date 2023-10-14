@@ -9,7 +9,8 @@
 		katakanaStore,
 		currentAlphabet,
 		selectedKanjiGrade,
-		searchKanji
+		searchKanji,
+		innerWidthStore
 	} from '$lib/utils/stores';
 	import { cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
@@ -22,7 +23,12 @@
 	import Canvas from '../Canvas.svelte';
 	import { kanji } from '$lib/static/kanji';
 	import { pocketbase } from '$lib/utils/pocketbase';
-	import { canvasLgHeight, canvasLgWidth } from '$lib/utils/constants';
+	import {
+		canvasLgHeight,
+		canvasLgWidth,
+		twSmallScreen,
+		canvasSmWidth
+	} from '$lib/utils/constants';
 
 	export let data;
 
@@ -182,12 +188,15 @@
 		</div>
 
 		<div
-			style={`transform: rotateY(${180 - $rotateYCard}deg); backface-visibility: hidden;`}
+			style={`transform: rotateY(${180 - $rotateYCard}deg); backface-visibility: hidden; width: ${
+				$innerWidthStore > twSmallScreen ? canvasLgWidth : canvasSmWidth
+			}px; height: ${canvasLgHeight}px
+			`}
 			class="relative z-10 mx-auto
 				{$rotateYCard > 90 ? 'block' : 'hidden'} 
-				 flex h-[504px] w-[354px] flex-col
-				 {$currentAlphabet === 'kanji' ? 'gap-1' : 'gap-5'}  
-				 justify-center rounded-xl border p-10 shadow-sm sm:h-[{canvasLgHeight}px] sm:w-[{canvasLgWidth}px]"
+				 flex flex-col
+				 {$currentAlphabet === 'kanji' ? 'gap-1' : 'gap-5'}
+				 justify-center rounded-xl border p-10 shadow-sm"
 		>
 			{#if $currentAlphabet === 'kanji'}
 				<div class="grid-rows-[max-content 1fr] grid h-full">
@@ -214,7 +223,10 @@
 		</div>
 	</div>
 
-	<div class="flex items-center justify-between sm:mx-auto sm:w-[{canvasLgWidth}px]">
+	<div
+		class="flex items-center justify-between sm:mx-auto"
+		style={`width: ${$innerWidthStore > twSmallScreen ? canvasLgWidth : canvasSmWidth}px;`}
+	>
 		<button
 			on:click|preventDefault={() => {
 				clearCanvas(ctx, canvas);
