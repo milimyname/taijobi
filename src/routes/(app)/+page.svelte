@@ -39,4 +39,12 @@
 			Flashcards
 		</a>
 	</div>
+	<div class="flex flex-col gap-2">
+		<a
+			href="/quizzes"
+			class="w-full rounded-lg border-2 border-black bg-alphabetGreen p-4 text-center text-4xl sm:p-10"
+		>
+			Quizzes
+		</a>
+	</div>
 </section>

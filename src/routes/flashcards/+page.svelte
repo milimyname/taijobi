@@ -4,7 +4,7 @@
 	import FlashcardsSectionForm from '$lib/components/forms/FlashcardsSectionForm.svelte';
 	import { icons } from '$lib/utils/icons';
 	import { goto } from '$app/navigation';
-	import { clickOutside } from '$lib/utils/clickOutside';
+	import { clickOutside } from '$lib/utils/clickOutside.js';
 	import { maxWidthCard, minWidthCard } from '$lib/utils/constants';
 	import { onMount } from 'svelte';
 	import {

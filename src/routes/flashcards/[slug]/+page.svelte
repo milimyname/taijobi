@@ -6,7 +6,7 @@
 	import { kanji } from '$lib/static/kanji';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { fly } from 'svelte/transition';
-	import { clickOutside } from '$lib/utils/clickOutside';
+	import { clickOutside } from '$lib/utils/clickOutside.js';
 	import FlashcardForm from '$lib/components/forms/FlashcardForm.svelte';
 	import { wordClasses } from '$lib/utils/constants.js';
 	import { page } from '$app/stores';

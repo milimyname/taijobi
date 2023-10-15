@@ -27,7 +27,7 @@
 		use:clickOutside
 		on:outsideclick={() => ($clickedQuizForm = false)}
 		method="POST"
-		class="quiz-form fixed -bottom-5 z-[1000] flex h-3/4 w-full flex-col gap-5 overflow-hidden rounded-t-2xl bg-white px-5 py-10 sm:bottom-0"
+		class="quiz-form fixed -bottom-5 z-[1000] flex h-3/4 w-full flex-col gap-5 overflow-hidden rounded-t-2xl bg-white px-5 py-10 sm:bottom-0 md:max-w-4xl"
 		transition:fly={{
 			delay: 0,
 			duration: 1000,
@@ -38,7 +38,7 @@
 	>
 		<h4 class="text-2xl">Create a {$form.name} quiz</h4>
 		<div class="mb-auto flex flex-col gap-5">
-			<fieldset class=" flex w-full flex-col gap-2 md:w-2/3">
+			<fieldset class=" flex w-full flex-col gap-2">
 				<label for="choice">Multi Choice Number</label>
 				<select
 					name="choice"
@@ -67,7 +67,7 @@
 					>
 				{/if}
 			</fieldset>
-			<fieldset class=" flex w-full flex-col gap-2 md:w-2/3">
+			<fieldset class=" flex w-full flex-col gap-2">
 				<label for="type">Type</label>
 				<select
 					name="type"
@@ -94,7 +94,7 @@
 					>
 				{/if}
 			</fieldset>
-			<fieldset class=" flex w-full flex-col gap-2 md:w-2/3">
+			<fieldset class=" flex w-full flex-col gap-2">
 				<label for="maxCount">Amount of Flashcards</label>
 				<input
 					name="maxCount"
@@ -142,12 +142,12 @@
 			<button
 				type="button"
 				on:click={() => ($clickedQuizForm = false)}
-				class="text-md rounded-md border-2 border-black px-4 py-2 font-medium shadow-lg transition duration-200 visited:-translate-x-4 active:translate-y-1 active:shadow-sm lg:w-2/3"
+				class="text-md rounded-md border-2 border-black px-4 py-2 font-medium shadow-lg transition duration-200 visited:-translate-x-4 active:translate-y-1 active:shadow-sm"
 				>Cancel
 			</button>
 			<button
 				formaction="?/addQuiz"
-				class="text-md rounded-md bg-black px-4 py-2 font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm lg:w-2/3"
+				class="text-md rounded-md bg-black px-4 py-2 font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm"
 				>Add</button
 			>
 		</div>
