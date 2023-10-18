@@ -58,11 +58,13 @@
 
 <svelte:window bind:innerWidth />
 
-<main class="relative flex h-full select-none flex-col-reverse items-center p-5 sm:flex-row">
+<main
+	class="relative flex h-full select-none flex-col-reverse items-center overflow-auto p-5 sm:flex-row"
+>
 	<nav
 		class="{!isLongPress
 			? 'w-[90%] p-4'
-			: 'right-5 p-2'} absolute z-40 flex items-center justify-between rounded-full bg-primary text-white transition-all sm:relative sm:h-full sm:w-24 sm:flex-col sm:justify-center sm:gap-10 sm:p-5"
+			: 'right-5 p-2'}  fixed bottom-5 z-40 flex items-center justify-between rounded-full bg-primary text-white transition-all sm:relative sm:h-full sm:w-24 sm:flex-col sm:justify-center sm:gap-10 sm:p-5"
 	>
 		{#if innerWidth > twSmallScreen}
 			<a href="/" class="mb-auto">

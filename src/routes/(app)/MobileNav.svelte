@@ -5,8 +5,6 @@
 	import { clickOutside } from '$lib/utils/clickOutside';
 	import { icons } from '$lib/utils/icons';
 	import { navItems } from '$lib/utils/constants';
-
-	
 </script>
 
 {#if $showNav}
@@ -16,7 +14,7 @@
 			$showNav = false;
 			$showAppNav = false;
 		}}
-		class="absolute bottom-20 z-30 w-full p-5"
+		class="fixed bottom-20 z-30 w-full p-5"
 		transition:fly={{
 			delay: 0,
 			duration: 500,
@@ -50,7 +48,7 @@
 			$showNav = false;
 			$showAppNav = false;
 		}}
-		class="absolute bottom-20 z-30 w-full p-5"
+		class="fixed bottom-20 z-30 w-full p-5"
 		transition:fly={{
 			delay: 0,
 			duration: 500,
