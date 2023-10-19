@@ -118,7 +118,7 @@
 	<button
 		use:clickOutside
 		on:outsideclick={() => ($showProgressSlider = false)}
-		class="z-40 mx-auto w-full cursor-ew-resize overflow-hidden rounded-full bg-slate-400 shadow-2xl sm:w-[600px]"
+		class="fixed bottom-5 z-40 mx-auto w-[90%] cursor-ew-resize overflow-hidden rounded-full bg-slate-400 shadow-2xl sm:w-[600px]"
 		on:mousedown={start}
 		on:mouseup={end}
 		on:mousemove|preventDefault={move}

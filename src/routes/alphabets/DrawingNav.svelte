@@ -36,11 +36,11 @@
 {#if !$showProgressSlider}
 	<nav
 		class=" {!$isLongPress
-			? 'w-full px-10 py-4'
-			: 'ml-auto p-2'} z-40 flex items-center justify-between rounded-full bg-black text-white transition-all sm:w-auto sm:justify-center sm:gap-20 sm:px-10"
+			? 'w-[90%] px-10 py-4'
+			: 'ml-auto p-2'} fixed bottom-5 z-40 flex items-center justify-between rounded-full bg-black text-white transition-all sm:w-auto sm:justify-center sm:gap-20 sm:px-10"
 	>
 		<button
-			on:click={handleUserIconClick}
+			on:click|preventDefault={handleUserIconClick}
 			on:mousedown={() => (longPressTimer = handleLongPress())}
 			on:mouseup={() => handleCancelPress(longPressTimer)}
 			on:touchstart={() => (longPressTimer = handleLongPress())}
@@ -62,12 +62,12 @@
 					x: 100,
 					easing: sineIn
 				}}
-				on:click={() => clearCanvas(ctx, canvas)}
+				on:click|preventDefault={() => clearCanvas(ctx, canvas)}
 			>
 				{@html icons.erase}
 			</button>
 			<button
-				on:click={() => {
+				on:click|preventDefault={() => {
 					$animateSVG = !$animateSVG;
 					// setTimeout(() => ($animateSVG = true), 250);
 				}}
@@ -83,7 +83,7 @@
 					x: 100,
 					easing: sineIn
 				}}
-				on:click={() => ($showProgressSlider = !$showProgressSlider)}
+				on:click|preventDefault={() => ($showProgressSlider = !$showProgressSlider)}
 			>
 				{@html icons.rotate}
 			</button>

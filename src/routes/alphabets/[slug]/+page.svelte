@@ -133,7 +133,7 @@
 	constraints={quizConstraints}
 />
 
-<section class="flex flex-1 flex-col justify-center gap-2 sm:gap-5">
+<section class="flex flex-1 flex-col gap-2 sm:justify-center sm:gap-5">
 	<div class="relative flex justify-between">
 		<button on:click={() => goto('/')} class="flex items-center gap-2">
 			{@html icons.previous}
