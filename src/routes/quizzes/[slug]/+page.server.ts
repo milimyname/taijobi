@@ -49,7 +49,5 @@ export const load = async ({ params, locals }) => {
 	// Remove the first `removedCount` elements from the shuffled array
 	items.splice(0, removedCount);
 
-	console.log(items);
-
 	return { quiz, flashcards: items, userId: locals.pb.authStore.model?.id };
 };

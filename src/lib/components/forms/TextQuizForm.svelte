@@ -20,7 +20,10 @@
 	export let form;
 	export let constraints;
 
-	$: $form.timeLimit = $input.checked;
+	$: {
+		$form.timeLimit = $input.checked;
+		$form.startCount = $progressSlider === $kanjiLength ? 1 : $progressSlider;
+	}
 </script>
 
 {#if $clickedQuizForm}
@@ -110,7 +113,7 @@
 						type="number"
 						id="startCount"
 						placeholder="Start"
-						min={0}
+						min={1}
 						max={$kanjiLength - 20}
 						class="
                     block
@@ -120,7 +123,7 @@
                     focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
                   "
 						aria-invalid={$errors.startCount ? 'true' : undefined}
-						bind:value={$progressSlider}
+						bind:value={$form.startCount}
 						{...$constraints.startCount}
 					/>
 					{#if $errors.startCount}

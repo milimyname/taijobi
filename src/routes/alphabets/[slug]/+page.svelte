@@ -119,7 +119,9 @@
 		taintedMessage: null,
 		resetForm: true,
 		applyAction: true,
-		onSubmit: () => ($clickedQuizForm = false),
+		onSubmit: () => {
+			$clickedQuizForm = false;
+		},
 		onUpdated: () => {
 			if ($quizErrors.maxCount) $clickedQuizForm = true;
 		}
@@ -201,6 +203,14 @@
 			>
 				{$currentLetter}
 			</span>
+
+			<button
+				class="{$rotateYCard > 5 ? 'hidden' : 'block'}
+				fixed bottom-6 left-5 z-30 transition-all"
+				on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
+			>
+				{$progressSlider}
+			</button>
 
 			<button
 				class="{$rotateYCard > 5 && $rotateYCard < 175 ? 'hidden' : 'block'}
