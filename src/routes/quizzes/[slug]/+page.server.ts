@@ -36,14 +36,12 @@ export const load = async ({ params, locals }) => {
 	// Get a quiz
 	const [quiz] = await locals.pb
 		.collection('quizzes')
-		.getFullList(100, { filter: `id = "${params.slug}"` });
+		.getFullList({ filter: `id = "${params.slug}"` });
 
 	// Remove unnecessary flashcards from the quiz
 	const removedCount = quiz.maxCount % +quiz.type;
 
-	const { items } = await locals.pb
-		.collection('flashcard')
-		.getList(1, quiz.maxCount, { filter: `flashcardsId = "${quiz.flashcardsId}"` });
+	const items = JSON.parse(quiz.flashcards);
 
 	// Shuffle the flashcards array
 	shuffleArray(items);

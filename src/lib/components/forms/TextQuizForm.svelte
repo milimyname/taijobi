@@ -1,5 +1,11 @@
 <script lang="ts">
-	import { clickedQuizForm, maxFlashcards } from '$lib/utils/stores';
+	import {
+		clickedQuizForm,
+		maxFlashcards,
+		clickedKanjiForm,
+		kanjiLength,
+		progressSlider
+	} from '$lib/utils/stores';
 	import { fly, slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 	import { createSwitch, melt } from '@melt-ui/svelte';
@@ -27,7 +33,9 @@
 		use:clickOutside
 		on:outsideclick={() => ($clickedQuizForm = false)}
 		method="POST"
-		class="quiz-form fixed -bottom-5 z-[1000] flex h-3/4 w-full flex-col gap-5 overflow-hidden rounded-t-2xl bg-white px-5 py-10 sm:bottom-0 md:max-w-4xl"
+		class="quiz-form fixed -bottom-5 z-[1000] flex {$clickedKanjiForm
+			? ' h-5/6'
+			: ' h-3/4'} w-full flex-col gap-5 overflow-hidden rounded-t-2xl bg-white px-5 py-10 sm:bottom-0 md:max-w-4xl"
 		transition:fly={{
 			delay: 0,
 			duration: 1000,
@@ -94,7 +102,36 @@
 					>
 				{/if}
 			</fieldset>
-			<fieldset class=" flex w-full flex-col gap-2">
+			{#if $clickedKanjiForm}
+				<fieldset class=" flex w-full flex-col gap-2">
+					<label for="startCount">Start:</label>
+					<input
+						name="startCount"
+						type="number"
+						id="startCount"
+						placeholder="Start"
+						min={0}
+						max={$kanjiLength - 20}
+						class="
+                    block
+                    rounded-md
+                    border-gray-300
+                    shadow-sm
+                    focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
+                  "
+						aria-invalid={$errors.startCount ? 'true' : undefined}
+						bind:value={$progressSlider}
+						{...$constraints.startCount}
+					/>
+					{#if $errors.startCount}
+						<span
+							transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
+							class="mt-1 select-none text-sm text-red-400">{$errors.maxCount}</span
+						>
+					{/if}
+				</fieldset>
+			{/if}
+			<fieldset class="flex w-full flex-col gap-2">
 				<label for="maxCount">Amount of Flashcards</label>
 				<input
 					name="maxCount"
@@ -123,7 +160,7 @@
 			</fieldset>
 
 			<div class="flex items-center justify-between">
-				<label for="timeLimit" id="time-limit-label"> Time limit </label>
+				<label for="timeLimit" id="time-limit-label"> Time limit (WIP) </label>
 				<button
 					use:melt={$root}
 					class="switch relative h-6 w-full cursor-default rounded-full bg-slate-400 transition-colors data-[state=checked]:bg-primary"

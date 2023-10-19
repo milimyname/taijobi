@@ -45,11 +45,13 @@ export const quizSchema = z.object({
 	choice: z.string().default('2'),
 	type: z.string().default('name'),
 	maxCount: z.number().default(20),
+	startCount: z.number().default(0),
 	score: z.number().default(0),
 	flashcardsId: z.string(),
 	userId: z.string(),
 	timeLimit: z.boolean().default(false),
-	id: z.string().optional()
+	id: z.string().optional(),
+	flashcards: z.string().optional()
 });
 
 export const quizProgressSchema = z.object({

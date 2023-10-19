@@ -115,6 +115,15 @@ export const actions = {
 
 		let quiz;
 
+		// Get the current flashcards
+		const flashcards = (
+			await locals.pb.collection('flashcard').getFullList({
+				filter: `flashcardsId = "${form.data.flashcardsId}"`
+			})
+		).map((card) => {
+			return { name: card.name, meaning: card.meaning };
+		});
+
 		try {
 			quiz = await locals.pb.collection('quizzes').create({
 				name: form.data.name,
@@ -123,7 +132,8 @@ export const actions = {
 				userId,
 				maxCount: form.data.maxCount,
 				flashcardsId: form.data.flashcardsId,
-				timeLimit: form.data.timeLimit
+				timeLimit: form.data.timeLimit,
+				flashcards: JSON.stringify(flashcards)
 			});
 		} catch (_) {
 			form.errors.name = ['No idea what happened'];

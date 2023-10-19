@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Ctx } from '$lib/utils/ambient.d.ts';
-	import { kanjiStore } from '$lib/utils/stores';
+	import { clickedKanjiForm, kanjiStore } from '$lib/utils/stores';
 	import { onMount } from 'svelte';
 	import {
 		progressSlider,
@@ -10,7 +10,8 @@
 		currentAlphabet,
 		selectedKanjiGrade,
 		searchKanji,
-		innerWidthStore
+		innerWidthStore,
+		clickedQuizForm
 	} from '$lib/utils/stores';
 	import { cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
@@ -29,6 +30,8 @@
 		twSmallScreen,
 		canvasSmWidth
 	} from '$lib/utils/constants';
+	import TextQuizForm from '$lib/components/forms/TextQuizForm.svelte';
+	import { superForm } from 'sveltekit-superforms/client';
 
 	export let data;
 
@@ -105,7 +108,30 @@
 		// Get the last segment of the URL path (assuming it contains the identifier you need)
 		$currentAlphabet = $page.url.pathname.split('/').pop() as 'hiragana' | 'katakana' | 'kanji';
 	});
+
+	// Client API:
+	const {
+		form: quizForm,
+		errors: quizErrors,
+		constraints: quizConstraints,
+		enhance: quizEnhance
+	} = superForm(data.quizForm, {
+		taintedMessage: null,
+		resetForm: true,
+		applyAction: true,
+		onSubmit: () => ($clickedQuizForm = false),
+		onUpdated: () => {
+			if ($quizErrors.maxCount) $clickedQuizForm = true;
+		}
+	});
 </script>
+
+<TextQuizForm
+	errors={quizErrors}
+	enhance={quizEnhance}
+	form={quizForm}
+	constraints={quizConstraints}
+/>
 
 <section class="flex flex-1 flex-col justify-center gap-2 sm:gap-5">
 	<div class="relative flex justify-between">
@@ -192,11 +218,11 @@
 				$innerWidthStore > twSmallScreen ? canvasLgWidth : canvasSmWidth
 			}px; height: ${canvasLgHeight}px
 			`}
-			class="relative z-10 mx-auto
+			class="alphabet relative z-10 mx-auto
 				{$rotateYCard > 90 ? 'block' : 'hidden'} 
 				 flex flex-col
 				 {$currentAlphabet === 'kanji' ? 'gap-1' : 'gap-5'}
-				 justify-center rounded-xl border p-10 shadow-sm"
+				 justify-center overflow-hidden rounded-xl border p-10 shadow-sm"
 		>
 			{#if $currentAlphabet === 'kanji'}
 				<div class="grid-rows-[max-content 1fr] grid h-full">
@@ -215,6 +241,16 @@
 							<p class="text-sm text-gray-300">Kunyomi</p>
 						</div>
 					{/if}
+
+					<button
+						class="fixed bottom-5 left-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all"
+						on:click={() => {
+							$clickedQuizForm = true;
+							$clickedKanjiForm = true;
+						}}
+					>
+						{@html icons.quiz}
+					</button>
 				</div>
 			{:else}
 				<h2 class="text-center text-9xl font-medium">{toRomaji($currentLetter).toUpperCase()}</h2>
