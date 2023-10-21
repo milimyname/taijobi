@@ -233,7 +233,7 @@
 					</button>
 				{/if}
 
-				{#if ($page.data.isAdmin && card.name !== '慣用句' && card.name !== 'にち') || (!$page.data.isAdmin && card.name !== '慣用句' && card.name !== 'にち')}
+				{#if $page.data.isAdmin || (!$page.data.isAdmin && card.name !== '慣用句' && card.name !== '一日')}
 					<button
 						on:click|stopPropagation={() => {
 							$clickedAddFlashcard = true;
@@ -255,7 +255,7 @@
 
 						localStorage.setItem(
 							'isConstantFlashcard',
-							card.name === '慣用句' || card.name === 'にち' ? 'true' : 'false'
+							card.name === '慣用句' || card.name === '一日' ? 'true' : 'false'
 						);
 
 						goto(`flashcards/${card.id}`);

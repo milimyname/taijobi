@@ -37,7 +37,7 @@
 </svelte:head>
 
 <main
-	class="flex h-full select-none flex-col items-center overflow-hidden bg-white px-3 py-5 transition-all {$clickedAddFlashcard &&
+	class="flex h-screen select-none flex-col items-center overflow-hidden bg-white px-3 py-5 transition-all {$clickedAddFlashcard &&
 		'mt-5 rounded-t-2xl py-14'} {$clickedQuizForm && 'mt-5 rounded-t-2xl py-14'}"
 >
 	<nav class="z-[99] flex w-full justify-between p-5">

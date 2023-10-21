@@ -9,7 +9,7 @@ export const load = async ({ locals }) => {
 
 	// Get all the flashcards collection
 	const flashcardsCollection = await locals.pb.collection('flashcards').getFullList(100, {
-		filter: `userId = "${id}" || name = "にち" || name = "慣用句"`
+		filter: `userId = "${id}" || name = "一日" || name = "慣用句"`
 	});
 
 	// Get all the flashcard from the server

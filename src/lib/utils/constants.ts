@@ -22,8 +22,6 @@ export const wordClasses = [
 	'text-3xl'
 ];
 
-export const constantFlashcards = ['iy2qbr339k9mbvk'];
-
 export const navItems = [
 	{
 		url: '/',
