@@ -353,7 +353,7 @@
 
 	<button
 		bind:this={sliderWords}
-		class=" flex cursor-ew-resize items-center justify-between gap-5 overflow-x-hidden sm:bottom-10"
+		class="fixed bottom-5 flex cursor-ew-resize items-center justify-between gap-5 overflow-x-hidden"
 		on:mousedown|preventDefault={start}
 		on:mouseup|preventDefault={end}
 		on:mousemove|preventDefault={move}

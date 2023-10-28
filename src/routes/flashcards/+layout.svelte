@@ -24,9 +24,8 @@
 
 	$: if (browser) {
 		// Update isConstantFlashcard value
-		if (isConstantFlashcard || $page.data.isAdmin) {
+		if (isConstantFlashcard || $page.data.isAdmin)
 			isConstantFlashcard = localStorage.getItem('isConstantFlashcard') as string;
-		}
 	}
 </script>
 
