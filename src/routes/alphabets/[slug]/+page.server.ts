@@ -49,7 +49,12 @@ export const actions = {
 
 		// Get the kanji collection from
 		const arrKanji = Object.entries(kanji).map(([key, value]) => {
-			return { name: key, meaning: value.meaning };
+			return {
+				name: key,
+				meaning: value.meaning,
+				kunyomi: value.kunyomi.join(', '),
+				onyomi: value.onyomi.join(', ')
+			};
 		});
 
 		const flashcards = arrKanji.slice(

@@ -33,3 +33,18 @@ export type Card = {
 	description: string;
 	count: number;
 };
+
+export type FlashcardType = {
+	name: string;
+	onyomi: string;
+	kunyomi: string;
+	meaning: string;
+};
+
+export type ProgressDataItem = {
+	name: string;
+	score: number;
+	meaning: string;
+	onyomi: string;
+	kunyomi: string;
+};

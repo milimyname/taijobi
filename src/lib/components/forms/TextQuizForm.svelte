@@ -4,7 +4,8 @@
 		maxFlashcards,
 		clickedKanjiForm,
 		kanjiLength,
-		progressSlider
+		progressSlider,
+		currentAlphabet
 	} from '$lib/utils/stores';
 	import { fly, slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
@@ -96,6 +97,10 @@
 				>
 					<option value="name" selected>name</option>
 					<option value="meaning">meaning</option>
+					{#if $currentAlphabet === 'kanji'}
+						<option value="onyomi">onyomi</option>
+						<option value="kunyomi">kunyomi</option>
+					{/if}
 				</select>
 
 				{#if $errors.type}

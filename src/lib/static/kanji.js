@@ -118,7 +118,7 @@ export const grade1Kanji = {
 		grade: 1,
 		meaning: 'hundred',
 		onyomi: ['ヒャク'],
-		kunyomi: ['momo']
+		kunyomi: ['もも']
 	},
 	千: {
 		ds: [
@@ -3791,7 +3791,7 @@ export const grade3Kanji = {
 		grade: 3,
 		meaning: 'dwell',
 		onyomi: ['ジュウ'],
-		kunyome: ['す-む']
+		kunyomi: ['す-む']
 	},
 	使: {
 		ds: [
