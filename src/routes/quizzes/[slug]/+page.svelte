@@ -69,6 +69,8 @@
 	});
 
 	async function selectAnswer(e: any, answer: string) {
+		e.currentTarget?.classList.remove('bg-white');
+
 		// Check if the user's answer is correct
 		if (
 			currentFlashcard.name === answer ||
@@ -112,7 +114,8 @@
 						userId: data.userId,
 						progressData,
 						correctAnswers,
-						total: data.flashcards.length
+						total: data.flashcards.length,
+						completed: true
 					});
 				} catch (error) {
 					console.log(error);
@@ -133,6 +136,8 @@
 					{
 						name: currentFlashcard.name,
 						meaning: currentFlashcard.meaning,
+						kunyomi: currentFlashcard.kunyomi,
+						onyomi: currentFlashcard.onyomi,
 						score: 0
 					}
 				];
@@ -159,6 +164,7 @@
 			const buttons = document.querySelectorAll('button');
 			buttons.forEach((button) => {
 				button.classList.remove('bg-success', 'bg-error', 'text-white');
+				button.classList.add('bg-white');
 			});
 		}, 250);
 	}

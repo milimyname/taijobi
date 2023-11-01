@@ -22,6 +22,21 @@ export const wordClasses = [
 	'text-3xl'
 ];
 
+export const months = [
+	'Jan',
+	'Feb',
+	'Mar',
+	'Apr',
+	'May',
+	'June',
+	'July',
+	'Aug',
+	'Sep',
+	'Oct',
+	'Nov',
+	'Dec'
+];
+
 export const navItems = [
 	{
 		url: '/',

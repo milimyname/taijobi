@@ -47,4 +47,12 @@
 			Quizzes
 		</a>
 	</div>
+	<div class="flex flex-col gap-2">
+		<a
+			href="/stats"
+			class="w-full rounded-lg border-2 border-black bg-alphabetGreen p-4 text-center text-xl sm:p-10 sm:text-4xl"
+		>
+			Stats
+		</a>
+	</div>
 </section>
