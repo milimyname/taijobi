@@ -3,134 +3,73 @@
 		hiraganaStore,
 		showProgressSlider,
 		progressSlider,
-		innerWidthStore,
-		katakanaStore,
 		currentAlphabet,
 		kanjiLength,
-		kanjiWidthMulitplier,
 		searchKanji,
 		selectedKanjiGrade
 	} from '$lib/utils/stores';
 	import { clickOutside } from '$lib/utils/clickOutside';
 	import { spring } from 'svelte/motion';
-	import { hiraganaWidthMulitplier, twSmallScreen } from '$lib/utils/constants';
 	import { getRandomNumber } from '$lib/utils/actions';
 	import { onMount } from 'svelte';
+	import { createSlider, melt } from '@melt-ui/svelte';
+	import { afterNavigate } from '$app/navigation';
 
-	let mousedown = false;
-	let progress = spring(0, { stiffness: 0.1, damping: 0.5 });
+	let progress = spring(1, { stiffness: 0.1, damping: 0.5 });
 
-	onMount(() => {
-		// Get the progress slider
-		$progressSlider = Math.floor($progress);
+	const {
+		elements: { root, range, thumb },
+		states: { value },
+		options: { max }
+	} = createSlider({
+		min: 1,
+		max: $currentAlphabet === 'kanji' ? $kanjiLength : $hiraganaStore.length,
+		step: 1,
+		onValueChange: (value) => {
+			$progress = value.curr[0];
+			$progressSlider = value.curr[0];
 
-		if ($currentAlphabet !== 'kanji')
-			progress = spring(getRandomNumber(1, 46), {
-				stiffness: 0.1,
-				damping: 0.4
-			});
-		else
-			progress = spring(getRandomNumber(1, $kanjiLength), {
-				stiffness: 0.1,
-				damping: 0.4
-			});
+			$searchKanji = '';
+			return value.next;
+		}
 	});
 
-	// Get the width multiplier for the progress slider
-	let progressWidthMultiplier: number;
+	onMount(() => {
+		$progress =
+			$currentAlphabet !== 'kanji' ? getRandomNumber(1, 46) : getRandomNumber(1, $kanjiLength);
+		$value = [$progress];
+	});
 
-	let initialX = 0; // track the initial X position on drag start
-	let initialValue = 0; // track the initial slider value on drag start
+	afterNavigate(() => {
+		$showProgressSlider = false;
+		$progress =
+			$currentAlphabet !== 'kanji' ? getRandomNumber(1, 46) : getRandomNumber(1, $kanjiLength);
 
-	const start = (e: any) => {
-		mousedown = true;
+		$max = $currentAlphabet === 'kanji' ? $kanjiLength : $hiraganaStore.length;
 
-		initialValue = $progress; // store the initial slider value
+		$progressSlider = $progress;
 
-		if (e.type === 'touchstart') initialX = e.touches[0].clientX;
-		else initialX = e.clientX;
-	};
+		console.log('updated', { $progress, $progressSlider, $value: $value[0], $kanjiLength });
 
-	const end = () => {
-		mousedown = false;
-	};
+		$selectedKanjiGrade = '0';
+	});
 
-	const move = (e: any) => {
-		if (!mousedown) return;
-
-		let currentX;
-
-		currentX = e.type === 'touchmove' ? e.touches[0].clientX : (currentX = e.clientX);
-
-		const deltaX = currentX - initialX; // difference from initial position
-		const sensitivity = +$selectedKanjiGrade === 0 ? 2 : 0.5; // adjust as needed for smoother or sharper response
-		let change = Math.round(deltaX * sensitivity);
-
-		let newProgress = initialValue + change;
-
-		// Get the alphabet store length
-		let maxLength;
-		switch ($currentAlphabet) {
-			case 'katakana':
-				maxLength = $katakanaStore.length;
-				progressWidthMultiplier = hiraganaWidthMulitplier;
-				break;
-			case 'kanji':
-				maxLength = $kanjiLength;
-				progressWidthMultiplier = $kanjiWidthMulitplier;
-				break;
-			default:
-				maxLength = $hiraganaStore.length;
-				progressWidthMultiplier = hiraganaWidthMulitplier;
-		}
-
-		// Limit the newProgress to the length of alphabet array
-		newProgress = Math.min(Math.max(newProgress, 1), maxLength);
-
-		// Update the progress with the spring animation
-		$progress = Math.floor(newProgress);
-
-		$searchKanji = '';
-	};
-
-	$: {
-		// Update the progress value
-		switch ($currentAlphabet) {
-			case 'hiragana':
-				progressWidthMultiplier = hiraganaWidthMulitplier;
-				break;
-			case 'katakana':
-				progressWidthMultiplier = hiraganaWidthMulitplier;
-				break;
-			case 'kanji':
-				progressWidthMultiplier = $kanjiWidthMulitplier;
-				break;
-		}
-
-		if ($progress < 1) $progress = 1;
-
-		// Update the progress slider value
-		$progressSlider = Math.floor($progress);
-	}
+	$: $value[0] = $progressSlider;
 </script>
 
 {#if $showProgressSlider}
-	<button
+	<div
 		use:clickOutside
 		on:outsideclick={() => ($showProgressSlider = false)}
-		class="fixed bottom-5 z-40 mx-auto w-[90%] cursor-ew-resize overflow-hidden rounded-full bg-slate-400 shadow-2xl sm:w-[600px]"
-		on:mousedown={start}
-		on:mouseup={end}
-		on:mousemove|preventDefault={move}
-		on:touchstart={start}
-		on:touchend={end}
-		on:touchmove|preventDefault={move}
+		use:melt={$root}
+		class="fixed bottom-5 z-40 mx-auto flex w-[90%] items-center overflow-hidden rounded-full bg-black/40"
 	>
+		<div class=" block h-[67px] cursor-ew-resize">
+			<div use:melt={$range} class="h-[67px] rounded-l-full bg-[#0A6EBD] shadow-xl" />
+		</div>
 		<div
-			class="bar relative h-[67px] rounded-full bg-[#0A6EBD] shadow-xl"
-			style={`width: ${
-				Math.floor($progressSlider) > 0 ? Math.floor($progressSlider) * progressWidthMultiplier : 0
-			}%;`}
+			use:melt={$thumb()}
+			class=" block h-[67px] w-2 overflow-auto rounded-full bg-white focus:ring-4 focus:ring-black/40"
 		/>
-	</button>
+	</div>
 {/if}
