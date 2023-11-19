@@ -4,7 +4,8 @@ export const load = async ({ locals }) => {
 	const { id } = locals.pb.authStore.model as { id: string };
 	// Get a quiz
 	let quizzes = await locals.pb.collection('quizzes').getFullList({
-		filter: `userId = "${id}"`
+		filter: `userId = "${id}"`,
+		fields: 'name,type,maxCount,id'
 	});
 
 	// Add hiragana and katakana quizzes

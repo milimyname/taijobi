@@ -30,7 +30,8 @@ export const load = async ({ locals }) => {
 
 	// Get all flashcards
 	const flashcard = await locals.pb.collection('flashcard').getFullList({
-		filter: `flashcardsId = "${kanjiId}"`
+		filter: `flashcardsId = "${kanjiId}"`,
+		fields: 'name'
 	});
 
 	const quizForm = await superValidate(quizSchema);

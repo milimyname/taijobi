@@ -19,7 +19,9 @@
 	import { kanji } from '$lib/static/kanji';
 
 	export let rotationY: number;
-	export let saved: any;
+	export let saved: {
+		name: string;
+	};
 
 	// Set the correct viewBox for the SVG
 	let viewBox: string;

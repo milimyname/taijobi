@@ -4,7 +4,8 @@ export const load = async ({ locals }) => {
 	const { id } = locals.pb.authStore.model as { id: string };
 	// Get quizzes by user id
 	const quizzes = await locals.pb.collection('quizProgress').getFullList({
-		filter: `userId = "${id}"`
+		filter: `userId = "${id}"`,
+		fields: 'completed'
 	});
 
 	// Extract completions (assuming score represents completions)
