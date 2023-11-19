@@ -8,8 +8,8 @@ export const load = async ({ locals }) => {
 	const { id } = await locals.pb.authStore.model;
 
 	// Get all the flashcards collection
-	const flashcardsCollection = await locals.pb.collection('flashcards').getFullList(100, {
-		filter: `userId = "${id}" || name = "一日" || name = "慣用句"`
+	const flashcardsCollection = await locals.pb.collection('flashcards').getFullList({
+		filter: `userId = "${id}" || constant = true`
 	});
 
 	// Get all the flashcard from the server
@@ -32,8 +32,6 @@ export const load = async ({ locals }) => {
 	flashcardsCollection.forEach((collection, index) => {
 		collection.count = counts[index].count;
 	});
-
-	console.log(flashcardsCollection)
 
 	// Server API:
 	const form = await superValidate(flashcardsSchema);

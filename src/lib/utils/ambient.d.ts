@@ -32,6 +32,7 @@ export type Card = {
 	name: string;
 	description: string;
 	count: number;
+	constant: boolean;
 };
 
 export type FlashcardType = {

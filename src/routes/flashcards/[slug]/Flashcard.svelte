@@ -3,7 +3,6 @@
 	import { kanji } from '$lib/static/kanji';
 	import { fly } from 'svelte/transition';
 	import { currentAlphabet } from '$lib/utils/stores';
-
 	import { quintOut, cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
 
@@ -15,11 +14,11 @@
 	let showNotes: boolean = false;
 
 	export let currentFlashcard: string;
-	export let currentFlashcardFurigana: string;
+	export let currentFlashcardKuroshiroFurigana: string;
 	export let currentFlashcardType: string;
 	export let currentIndex: number;
 	export let longWord: boolean;
-	export let data;
+	export let data: Page;
 </script>
 
 <div style="perspective: 3000px; position: relative;">
@@ -36,7 +35,7 @@
 			</span>
 		{:else}
 			<p class="vertical leading-loose tracking-widest">
-				{@html currentFlashcardFurigana}
+				{@html currentFlashcardKuroshiroFurigana}
 			</p>
 		{/if}
 
@@ -114,10 +113,18 @@
 					<h2 class="text-xl font-medium">{data.flashcards.at(currentIndex).meaning}</h2>
 					<p class=" text-sm text-gray-300">Meaning</p>
 				</div>
-				<div>
-					<h2 class="text-xl font-medium">{data.flashcards.at(currentIndex).romanji}</h2>
-					<p class=" text-sm text-gray-300">Romanji</p>
-				</div>
+				{#if data.flashcards.at(currentIndex).furigana}
+					<div>
+						<h2 class="text-xl font-medium">{data.flashcards.at(currentIndex).furigana}</h2>
+						<p class=" text-sm text-gray-300">Furigana</p>
+					</div>
+				{/if}
+				{#if data.flashcards.at(currentIndex).romanji}
+					<div>
+						<h2 class="text-xl font-medium">{data.flashcards.at(currentIndex).romanji}</h2>
+						<p class=" text-sm text-gray-300">Romanji</p>
+					</div>
+				{/if}
 				{#if data.flashcards.at(currentIndex).notes.length > 0}
 					<button
 						class="fixed bottom-0 left-0 z-10 rounded-tr-xl {showNotes

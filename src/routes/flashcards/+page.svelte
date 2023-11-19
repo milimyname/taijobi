@@ -195,7 +195,7 @@
 	on:touchstart={handleTouchStart}
 	on:touchmove|preventDefault={handleTouchMove}
 >
-	{#each Array.from(cards) as card, i}
+	{#each cards as card, i}
 		{@const j = i + 1}
 		<button
 			on:click|preventDefault={handleCardClick}
@@ -233,7 +233,7 @@
 					</button>
 				{/if}
 
-				{#if $page.data.isAdmin || (!$page.data.isAdmin && card.name !== '慣用句' && card.name !== '一日')}
+				{#if $page.data.isAdmin || (!$page.data.isAdmin && !card.constant)}
 					<button
 						on:click|stopPropagation={() => {
 							$clickedAddFlashcard = true;
@@ -253,10 +253,7 @@
 						$clickedEditFlashcard = false;
 						$clickedAddFlashcard = false;
 
-						localStorage.setItem(
-							'isConstantFlashcard',
-							card.name === '慣用句' || card.name === '一日' ? 'true' : 'false'
-						);
+						localStorage.setItem('isConstantFlashcard', JSON.stringify(card.constant));
 
 						goto(`flashcards/${card.id}`);
 					}}

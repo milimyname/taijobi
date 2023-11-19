@@ -15,11 +15,10 @@ export const load = async ({ locals, params }) => {
 		kuroshiroInitialized = true;
 	}
 
-	// Check if slugs are constant
 	// Get all the flashcards
 	const flashcards = await locals.pb
 		.collection('flashcard')
-		.getFullList(100, { filter: `flashcardsId = "${params.slug}"` });
+		.getFullList({ filter: `flashcardsId = "${params.slug}"` });
 
 	// Check if they are kanji type
 	const kanjiFlashcards = flashcards.filter((card) => card.type === 'kanji');
@@ -39,7 +38,7 @@ export const load = async ({ locals, params }) => {
 
 	furiganaPromises.map(
 		async (card) =>
-			(card.furigana = await kuroshiro.convert(card.name, { to: 'hiragana', mode: 'furigana' }))
+			(card.kuroshiroFurigana = await kuroshiro.convert(card.name, { to: 'hiragana', mode: 'furigana' }))
 	);
 
 	// Wait for all the Promises to resolve

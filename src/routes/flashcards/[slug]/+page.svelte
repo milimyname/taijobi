@@ -14,7 +14,7 @@
 
 	// Get the alphabet store length
 	let currentFlashcard: string;
-	let currentFlashcardFurigana: string;
+	let currentFlashcardKuroshiroFurigana: string;
 	let currentFlashcardType: string;
 	let currentIndex: number = Math.floor(data.flashcards.length / 2);
 
@@ -136,7 +136,7 @@
 
 	$: if (data.flashcards.length > 0) {
 		currentFlashcard = data.flashcards.at(currentIndex).name;
-		currentFlashcardFurigana = data.flashcards.at(currentIndex).furigana;
+		currentFlashcardKuroshiroFurigana = data.flashcards.at(currentIndex).kuroshiroFurigana;
 		currentFlashcardType = data.flashcards.at(currentIndex).type;
 	}
 
@@ -170,7 +170,7 @@
 			longWord={currentFlashcard.length > 8}
 			{currentFlashcardType}
 			{currentFlashcard}
-			{currentFlashcardFurigana}
+			{currentFlashcardKuroshiroFurigana}
 		/>
 
 		<div class="mb-auto flex items-center justify-center sm:mx-auto sm:w-[600px]">
