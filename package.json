@@ -44,7 +44,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@melt-ui/svelte": "0.50.0",
+    "@melt-ui/svelte": "0.61.2",
     "@sglkc/kuroshiro": "github:sglkc/kuroshiro-ts",
     "@sglkc/kuroshiro-analyzer-kuromoji": "github:sglkc/kuroshiro-analyzer-kuromoji-ts",
     "@tailwindcss/container-queries": "^0.1.1",

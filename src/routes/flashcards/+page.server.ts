@@ -33,6 +33,8 @@ export const load = async ({ locals }) => {
 		collection.count = counts[index].count;
 	});
 
+	console.log(flashcardsCollection)
+
 	// Server API:
 	const form = await superValidate(flashcardsSchema);
 	const quizForm = await superValidate(quizSchema);

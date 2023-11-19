@@ -49,8 +49,6 @@
 
 		$progressSlider = $progress;
 
-		console.log('updated', { $progress, $progressSlider, $value: $value[0], $kanjiLength });
-
 		$selectedKanjiGrade = '0';
 	});
 
@@ -62,7 +60,7 @@
 		use:clickOutside
 		on:outsideclick={() => ($showProgressSlider = false)}
 		use:melt={$root}
-		class="fixed bottom-5 z-40 mx-auto flex w-[90%] items-center overflow-hidden rounded-full bg-black/40"
+		class="fixed bottom-5 z-40 mx-auto flex w-[90%] items-center overflow-hidden rounded-full bg-black/40 sm:w-[600px]"
 	>
 		<div class=" block h-[67px] cursor-ew-resize">
 			<div use:melt={$range} class="h-[67px] rounded-l-full bg-[#0A6EBD] shadow-xl" />
