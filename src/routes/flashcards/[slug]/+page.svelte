@@ -203,12 +203,12 @@
 	>
 		{#each data.flashcards as { name }}
 			<button
-				class="relative break-keep {name.length > 5
+				class="relative w-max {name.length > 5
 					? 'h-12  text-sm sm:text-xl'
 					: 'h-14  text-2xl'} {currentFlashcard === name
 					? " text-3xl text-black before:absolute before:left-1/2 before:top-0 before:h-1.5  before:w-1.5 before:-translate-x-1/2 before:rounded-full before:bg-black before:content-['']"
 					: 'text-gray-200 '}"
-				on:click={(e) => {
+				on:click={() => {
 					currentFlashcard = name;
 					currentIndex = data.flashcards.findIndex((flashcard) => flashcard.name === name);
 				}}

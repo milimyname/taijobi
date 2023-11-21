@@ -42,6 +42,7 @@ export const load = async ({ locals, params }) => {
 	furiganaPromises.map(async (card) => {
 		if (card.furigana.includes('/') && isHiragana(card.furigana[card.furigana.indexOf('/') + 1])) {
 			card.furigana = convertToRubyTag(card.furigana);
+			card.showFurigana = true;
 			return;
 		}
 

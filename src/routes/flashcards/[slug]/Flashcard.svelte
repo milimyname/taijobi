@@ -5,6 +5,7 @@
 	import { currentAlphabet } from '$lib/utils/stores';
 	import { quintOut, cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
+	import { reverseRubyTag } from '$lib/utils/actions';
 
 	const rotateYCard = tweened(0, {
 		duration: 2000,
@@ -26,8 +27,8 @@
 		style={`transform: rotateY(${-$rotateYCard}deg); transform-style: preserve-3d; backface-visibility: hidden; `}
 		class="relative z-10 cursor-pointer
 				{$rotateYCard > 90 ? 'hidden' : 'block'} h-[474px] w-[354px] rounded-xl
-				{longWord ? 'text-4xl' : 'text-5xl'} flex items-center justify-center border
-				py-32 shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200 sm:h-[32rem] sm:w-[32rem]"
+				{longWord ? 'py-32 text-4xl' : 'text-5xl'} flex items-center justify-center border
+				shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200 sm:h-[32rem] sm:w-[32rem]"
 	>
 		{#if currentFlashcardType === 'kanji'}
 			<span class="text-[14rem]">
@@ -113,14 +114,9 @@
 					<h2 class="text-xl font-medium">{data.flashcards.at(currentIndex).meaning}</h2>
 					<p class=" text-sm text-gray-300">Meaning</p>
 				</div>
-				{#if !currentFlashcardFurigana.includes('<')}
+				{#if data.flashcards.at(currentIndex).showFurigana}
 					<div>
-						<h2 class="text-xl font-medium">{data.flashcards.at(currentIndex).furigana}</h2>
-						<p class=" text-sm text-gray-300">Furigana</p>
-					</div>
-				{:else}
-					<div>
-						<h2 class="text-xl font-medium">{currentFlashcard}</h2>
+						<h2 class="text-xl font-medium">{reverseRubyTag(currentFlashcardFurigana)}</h2>
 						<p class=" text-sm text-gray-300">Furigana</p>
 					</div>
 				{/if}
