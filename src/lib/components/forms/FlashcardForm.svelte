@@ -1,17 +1,26 @@
 <script lang="ts">
 	import Vault from '$lib/components/forms/Vault.svelte';
 	import { clickedEditFlashcard } from '$lib/utils/stores';
-	import { slide } from 'svelte/transition';
+	import { slide, fly } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
+	import { icons } from '$lib/utils/icons';
+	import { isCustomFurigana, reverseRubyTag } from '$lib/utils/actions';
 
 	export let currentFlashcardType: string;
 	export let enhance: boolean;
 	export let errors;
 	export let form;
 	export let constraints;
+
+	let showInfo = false;
+	let furigana: string;
+
+	let type = currentFlashcardType === 'word' ? 'word' : 'kanji';
+
+	$: furigana = reverseRubyTag($form.furigana);
 </script>
 
-<Vault {enhance} notes={true}>
+<Vault {enhance} notes={true} customFurigana={isCustomFurigana($clickedEditFlashcard, furigana)}>
 	{#if $clickedEditFlashcard}
 		<h4 class="text-2xl">Edit flashcard</h4>
 	{:else}
@@ -19,12 +28,54 @@
 	{/if}
 
 	<div class="mb-auto flex flex-col gap-5">
-		<fieldset class=" flex w-full flex-col md:w-2/3">
-			<label for="name" class="hidden">Flashcard Name</label>
+		<fieldset
+			transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
+			class=" flex w-full flex-col md:w-2/3"
+		>
+			<label for="name" class="mb-2 flex items-center gap-2">
+				Flashcard
+
+				<button
+					type="button"
+					on:click={() => (showInfo = true)}
+					on:mouseenter={() => (showInfo = true)}
+					on:mouseleave={() => (showInfo = false)}
+					class="relative hover:fill-black/50"
+				>
+					{@html icons.question}
+				</button>
+
+				{#if showInfo}
+					<div
+						transition:fly={{
+							delay: 0,
+							duration: 1000,
+							opacity: 0,
+							y: 1000,
+							easing: quintOut
+						}}
+						class="z-2 absolute bottom-0 left-0 h-2/3 w-full rounded-md bg-blue-200 p-4 text-black"
+					>
+						<p>If you wanna use custom furigana, please use the following format:</p>
+						<ul class="my-2 text-xl">
+							<li>
+								<code class="text-black">漢字/かんじ/</code>
+							</li>
+							<li>
+								<code class="text-black">読/よ/み物/もの/</code>
+							</li>
+						</ul>
+						<p>
+							Mostly, u won't need to use it but sometimes, there is a typo in the auto furigana and
+							u can overwrite it with this. Just use slashes for hiragana after the last kanji one
+							and don't forget to close it with a slash
+						</p>
+					</div>
+				{/if}
+			</label>
 			<input
 				type="text"
 				name="name"
-				placeholder="Flashcard Name"
 				class="
                     block
                     rounded-md
@@ -43,12 +94,40 @@
 				>
 			{/if}
 		</fieldset>
+
+		{#if isCustomFurigana($clickedEditFlashcard, furigana)}
+			<fieldset class="flex w-full flex-col md:w-2/3">
+				<label for="furigana">Furigana</label>
+				<input
+					type="text"
+					name="furigana"
+					class="
+                    block
+                    rounded-md
+                    border-gray-300
+                    shadow-sm
+                    focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
+                  "
+					aria-invalid={$errors.furigana ? 'true' : undefined}
+					bind:value={furigana}
+					{...$constraints.furigana}
+				/>
+				{#if $errors.furigana}
+					<span
+						transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
+						class="mt-1 select-none text-sm text-red-400"
+					>
+						{$errors.meaning}
+					</span>
+				{/if}
+			</fieldset>
+		{/if}
+
 		<fieldset class=" flex w-full flex-col md:w-2/3">
-			<label for="meaning" class="hidden">Meaning</label>
+			<label for="meaning">Meaning</label>
 			<input
 				type="text"
 				name="meaning"
-				placeholder="Meaning"
 				class="
                     block
                     rounded-md
@@ -69,11 +148,10 @@
 		</fieldset>
 		{#if currentFlashcardType !== 'kanji'}
 			<fieldset class=" flex w-full flex-col md:w-2/3">
-				<label for="romanji" class="hidden">Romanji</label>
+				<label for="romanji">Romanji</label>
 				<input
 					type="text"
 					name="romanji"
-					placeholder="Romanji"
 					class="
                     block
                     rounded-md
@@ -105,14 +183,10 @@
                     focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
                   "
 				aria-invalid={$errors.type ? 'true' : undefined}
-				bind:value={$form.type}
+				bind:value={type}
 				{...$constraints.type}
 			>
-				{#if currentFlashcardType === 'kanji'}
-					<option value="kanji" selected>Kanji</option>
-				{:else}
-					<option value="word" selected>Word</option>
-				{/if}
+				<option value={type}>{type}</option>
 			</select>
 
 			{#if $errors.type}
@@ -123,10 +197,9 @@
 			{/if}
 		</fieldset>
 		<fieldset class=" flex w-full flex-col md:w-2/3">
-			<label for="notes" class="hidden">Notes</label>
+			<label for="notes">Notes</label>
 			<textarea
 				name="notes"
-				placeholder="Notes"
 				class="
                     block
                     rounded-md

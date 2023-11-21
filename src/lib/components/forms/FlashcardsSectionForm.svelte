@@ -18,11 +18,10 @@
 	{/if}
 	<div class="mb-auto flex flex-col gap-5">
 		<fieldset class=" flex w-full flex-col md:w-2/3">
-			<label for="name" class="hidden">Collection Name</label>
+			<label for="name">Collection Name</label>
 			<input
 				type="text"
 				name="name"
-				placeholder="Collection Name"
 				class="
                     block
                     rounded-md
@@ -43,10 +42,9 @@
 			{/if}
 		</fieldset>
 		<fieldset class=" flex w-full flex-col md:w-2/3">
-			<label for="description" class="hidden">Description</label>
+			<label for="description">Description</label>
 			<textarea
 				name="description"
-				placeholder="Description"
 				class="
                     block
                     rounded-md

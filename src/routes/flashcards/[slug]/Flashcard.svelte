@@ -14,11 +14,11 @@
 	let showNotes: boolean = false;
 
 	export let currentFlashcard: string;
-	export let currentFlashcardKuroshiroFurigana: string;
+	export let currentFlashcardFurigana: string;
 	export let currentFlashcardType: string;
 	export let currentIndex: number;
 	export let longWord: boolean;
-	export let data: Page;
+	export let data;
 </script>
 
 <div style="perspective: 3000px; position: relative;">
@@ -35,7 +35,7 @@
 			</span>
 		{:else}
 			<p class="vertical leading-loose tracking-widest">
-				{@html currentFlashcardKuroshiroFurigana}
+				{@html currentFlashcardFurigana}
 			</p>
 		{/if}
 
@@ -113,9 +113,14 @@
 					<h2 class="text-xl font-medium">{data.flashcards.at(currentIndex).meaning}</h2>
 					<p class=" text-sm text-gray-300">Meaning</p>
 				</div>
-				{#if data.flashcards.at(currentIndex).furigana}
+				{#if !currentFlashcardFurigana.includes('<')}
 					<div>
 						<h2 class="text-xl font-medium">{data.flashcards.at(currentIndex).furigana}</h2>
+						<p class=" text-sm text-gray-300">Furigana</p>
+					</div>
+				{:else}
+					<div>
+						<h2 class="text-xl font-medium">{currentFlashcard}</h2>
 						<p class=" text-sm text-gray-300">Furigana</p>
 					</div>
 				{/if}

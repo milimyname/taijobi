@@ -9,6 +9,7 @@ import { maxWidthCard, minWidthCard } from '$lib/utils/constants';
 import { pocketbase } from './pocketbase';
 import type { CropperDetails } from '$lib/utils/ambient.d.ts';
 import type { Ctx } from '$lib/utils/ambient.d.ts';
+import { isHiragana } from 'wanakana';
 
 export function handleUserIconClick() {
 	let longPress;
@@ -162,3 +163,59 @@ export function shuffleArray(array: any[]) {
 		[array[i], array[j]] = [array[j], array[i]];
 	}
 }
+
+// Function to convert a string to a ruby tag
+export function convertToRubyTag(input: string) {
+	// Split the input string by slashes
+	const parts = input.split('/');
+
+	// Create the ruby tag
+	let rubyTag = '<ruby>';
+
+	// The first part is the base text
+	rubyTag += parts[0];
+
+	// Subsequent parts are ruby text, wrapped in <rt> tags
+	for (let i = 1; i < parts.length; i++) {
+		if (parts[i]) {
+			rubyTag += '<rt>' + parts[i] + '</rt>';
+		}
+	}
+
+	// Close the ruby tag
+	rubyTag += '</ruby>';
+
+	return rubyTag;
+}
+
+// Function to reverse a ruby tag to a string
+export function reverseRubyTag(input: string) {
+	// Match the base text and ruby text
+	const rubyBaseRegex = /<ruby>(.*?)<rt>/g;
+	const rubyTextRegex = /<rt>(.*?)<\/rt>/g;
+
+	// Extract base text
+	const baseMatch = rubyBaseRegex.exec(input);
+	const baseText = baseMatch ? baseMatch[1] : '';
+
+	// Extract ruby texts and join them with slashes
+	const rubyTexts = [];
+	let match;
+	while ((match = rubyTextRegex.exec(input)) !== null) {
+		rubyTexts.push(match[1]);
+	}
+
+	// Combine base text with ruby texts
+	const result = baseText + '/' + rubyTexts.join('/') + '/';
+
+	return result;
+}
+
+// Custom furigana function
+export const isCustomFurigana = (clickedEditFlashcard: boolean, furigana: string) => {
+	return (
+		clickedEditFlashcard &&
+		furigana.includes('/') &&
+		isHiragana(furigana[furigana.indexOf('/') + 1])
+	);
+};

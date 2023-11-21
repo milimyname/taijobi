@@ -18,6 +18,7 @@
 		$form.notes = data.flashcards.at(currentIndex).notes;
 		$form.type = data.flashcards.at(currentIndex).type;
 		$form.romanji = data.flashcards.at(currentIndex).romanji;
+		$form.furigana = data.flashcards.at(currentIndex).furigana;
 	}}
 >
 	{@html icons.edit}

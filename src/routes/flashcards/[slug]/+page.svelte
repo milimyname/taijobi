@@ -14,7 +14,7 @@
 
 	// Get the alphabet store length
 	let currentFlashcard: string;
-	let currentFlashcardKuroshiroFurigana: string;
+	let currentFlashcardFurigana: string;
 	let currentFlashcardType: string;
 	let currentIndex: number = Math.floor(data.flashcards.length / 2);
 
@@ -136,7 +136,7 @@
 
 	$: if (data.flashcards.length > 0) {
 		currentFlashcard = data.flashcards.at(currentIndex).name;
-		currentFlashcardKuroshiroFurigana = data.flashcards.at(currentIndex).kuroshiroFurigana;
+		currentFlashcardFurigana = data.flashcards.at(currentIndex).furigana;
 		currentFlashcardType = data.flashcards.at(currentIndex).type;
 	}
 
@@ -161,6 +161,7 @@
 		$form.notes = '';
 		$form.type = '';
 		$form.romanji = '';
+		$form.furigana = '';
 	}}
 >
 	{#if data.flashcards.length > 0}
@@ -170,7 +171,7 @@
 			longWord={currentFlashcard.length > 8}
 			{currentFlashcardType}
 			{currentFlashcard}
-			{currentFlashcardKuroshiroFurigana}
+			{currentFlashcardFurigana}
 		/>
 
 		<div class="mb-auto flex items-center justify-center sm:mx-auto sm:w-[600px]">
@@ -207,14 +208,9 @@
 					: 'h-14  text-2xl'} {currentFlashcard === name
 					? " text-3xl text-black before:absolute before:left-1/2 before:top-0 before:h-1.5  before:w-1.5 before:-translate-x-1/2 before:rounded-full before:bg-black before:content-['']"
 					: 'text-gray-200 '}"
-				on:click={() => {
+				on:click={(e) => {
 					currentFlashcard = name;
-					currentFlashcardType = data.flashcards.at(
-						Array.from(sliderWords.querySelectorAll('button')).indexOf(currentlyCenteredWord)
-					).type;
-					currentIndex = Array.from(sliderWords.querySelectorAll('button')).indexOf(
-						currentlyCenteredWord
-					);
+					currentIndex = data.flashcards.findIndex((flashcard) => flashcard.name === name);
 				}}
 			>
 				{name}

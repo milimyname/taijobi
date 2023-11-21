@@ -3,6 +3,8 @@ import { fail } from '@sveltejs/kit';
 import { flashcardSchema } from '$lib/utils/zodSchema';
 import Kuroshiro from '@sglkc/kuroshiro';
 import KuromojiAnalyzer from '@sglkc/kuroshiro-analyzer-kuromoji';
+import { convertToRubyTag } from '$lib/utils/actions.js';
+import { isHiragana } from 'wanakana';
 
 const kuroshiro = new Kuroshiro();
 
@@ -16,9 +18,10 @@ export const load = async ({ locals, params }) => {
 	}
 
 	// Get all the flashcards
-	const flashcards = await locals.pb
-		.collection('flashcard')
-		.getFullList({ filter: `flashcardsId = "${params.slug}"` });
+	const flashcards = await locals.pb.collection('flashcard').getFullList({
+		filter: `flashcardsId = "${params.slug}"`,
+		fields: `id, name, meaning, romanji, furigana, type, notes`
+	});
 
 	// Check if they are kanji type
 	const kanjiFlashcards = flashcards.filter((card) => card.type === 'kanji');
@@ -36,10 +39,17 @@ export const load = async ({ locals, params }) => {
 	// Add furigana to the flashcards
 	const furiganaPromises = structuredClone(flashcards);
 
-	furiganaPromises.map(
-		async (card) =>
-			(card.kuroshiroFurigana = await kuroshiro.convert(card.name, { to: 'hiragana', mode: 'furigana' }))
-	);
+	furiganaPromises.map(async (card) => {
+		if (card.furigana.includes('/') && isHiragana(card.furigana[card.furigana.indexOf('/') + 1])) {
+			card.furigana = convertToRubyTag(card.furigana);
+			return;
+		}
+
+		card.furigana = await kuroshiro.convert(card.name, {
+			to: 'hiragana',
+			mode: 'furigana'
+		});
+	});
 
 	// Wait for all the Promises to resolve
 	const furiganas = await Promise.all(furiganaPromises);
@@ -64,9 +74,10 @@ export const actions = {
 		try {
 			// Create user
 			await locals.pb.collection('flashcard').create({
-				name: form.data.name,
+				name: form.data.name.replace(/\/.*\//, ''),
 				meaning: form.data.meaning,
 				romanji: form.data.romanji,
+				furigana: form.data.name,
 				type: form.data.type,
 				flashcardsId: params.slug,
 				notes: form.data.notes
@@ -102,9 +113,10 @@ export const actions = {
 		try {
 			// Create user
 			await locals.pb.collection('flashcard').update(form.data.id, {
-				name: form.data.name,
+				name: form.data.name.replace(/\/.*\//, ''),
 				meaning: form.data.meaning,
 				romanji: form.data.romanji,
+				furigana: form.data.name,
 				type: form.data.type,
 				notes: form.data.notes
 			});
