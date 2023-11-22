@@ -165,25 +165,18 @@ export function shuffleArray(array: any[]) {
 }
 
 // Function to convert a string to a ruby tag
-export function convertToRubyTag(input: string) {
-	// Split the input string by slashes
-	const parts = input.split('/');
+export function convertToRubyTag(input) {
+	// Split the input string by slashes first to get character-annotation pairs
+	const pairs = input.split('/').filter(Boolean);
 
-	// Create the ruby tag
-	let rubyTag = '<ruby>';
+	// Initialize the ruby tag
+	let rubyTag = '';
 
-	// The first part is the base text
-	rubyTag += parts[0];
-
-	// Subsequent parts are ruby text, wrapped in <rt> tags
-	for (let i = 1; i < parts.length; i++) {
-		if (parts[i]) {
-			rubyTag += '<rt>' + parts[i] + '</rt>';
-		}
+	// Process each pair in steps of 2 (character and its annotation)
+	for (let i = 0; i < pairs.length; i += 2) {
+		// Create a ruby annotation for each pair
+		rubyTag += '<ruby>' + pairs[i] + '<rt>' + pairs[i + 1] + '</rt></ruby>';
 	}
-
-	// Close the ruby tag
-	rubyTag += '</ruby>';
 
 	return rubyTag;
 }

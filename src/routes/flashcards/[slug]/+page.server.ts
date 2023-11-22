@@ -75,7 +75,7 @@ export const actions = {
 		try {
 			// Create user
 			await locals.pb.collection('flashcard').create({
-				name: form.data.name.replace(/\/.*\//, ''),
+				name: form.data.name.replace(/\/.*?\//g, '').replace(/'/g, ''),
 				meaning: form.data.meaning,
 				romanji: form.data.romanji,
 				furigana: form.data.name,
@@ -114,7 +114,7 @@ export const actions = {
 		try {
 			// Create user
 			await locals.pb.collection('flashcard').update(form.data.id, {
-				name: form.data.name.replace(/\/.*\//, ''),
+				name: form.data.name.replace(/ ?\/.*?\/ ?/g, ''),
 				meaning: form.data.meaning,
 				romanji: form.data.romanji,
 				furigana: form.data.name,
