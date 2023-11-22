@@ -187,35 +187,3 @@ export function convertToRubyTag(input: string) {
 
 	return rubyTag;
 }
-
-// Function to reverse a ruby tag to a string
-export function reverseRubyTag(input: string) {
-	// Match the base text and ruby text
-	const rubyBaseRegex = /<ruby>(.*?)<rt>/g;
-	const rubyTextRegex = /<rt>(.*?)<\/rt>/g;
-
-	// Extract base text
-	const baseMatch = rubyBaseRegex.exec(input);
-	const baseText = baseMatch ? baseMatch[1] : '';
-
-	// Extract ruby texts and join them with slashes
-	const rubyTexts = [];
-	let match;
-	while ((match = rubyTextRegex.exec(input)) !== null) {
-		rubyTexts.push(match[1]);
-	}
-
-	// Combine base text with ruby texts
-	const result = baseText + '/' + rubyTexts.join('/') + '/';
-
-	return result;
-}
-
-// Custom furigana function
-export const isCustomFurigana = (clickedEditFlashcard: boolean, furigana: string) => {
-	return (
-		clickedEditFlashcard &&
-		furigana.includes('/') &&
-		isHiragana(furigana[furigana.indexOf('/') + 1])
-	);
-};

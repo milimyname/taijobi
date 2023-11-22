@@ -140,6 +140,13 @@
 		currentFlashcardType = data.flashcards.at(currentIndex).type;
 	}
 
+	const handleClick = (name: string) => {
+		return function (e) {
+			currentFlashcard = name;
+			currentIndex = data.flashcards.findIndex((flashcard) => flashcard.name === name);
+		};
+	};
+
 	onMount(() => {
 		isConstantFlashcard = localStorage.getItem('isConstantFlashcard') as string;
 	});
@@ -208,10 +215,8 @@
 					: 'h-14  text-2xl'} {currentFlashcard === name
 					? " text-3xl text-black before:absolute before:left-1/2 before:top-0 before:h-1.5  before:w-1.5 before:-translate-x-1/2 before:rounded-full before:bg-black before:content-['']"
 					: 'text-gray-200 '}"
-				on:click={() => {
-					currentFlashcard = name;
-					currentIndex = data.flashcards.findIndex((flashcard) => flashcard.name === name);
-				}}
+				on:click={handleClick(name)}
+				on:touchstart={handleClick(name)}
 			>
 				{name}
 			</button>

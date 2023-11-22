@@ -4,7 +4,6 @@
 	import { slide, fly } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 	import { icons } from '$lib/utils/icons';
-	import { isCustomFurigana, reverseRubyTag } from '$lib/utils/actions';
 
 	export let currentFlashcardType: string;
 	export let enhance: boolean;
@@ -13,14 +12,11 @@
 	export let constraints;
 
 	let showInfo = false;
-	let furigana: string;
 
 	let type = currentFlashcardType === 'word' ? 'word' : 'kanji';
-
-	$: furigana = reverseRubyTag($form.furigana);
 </script>
 
-<Vault {enhance} notes={true} customFurigana={isCustomFurigana($clickedEditFlashcard, furigana)}>
+<Vault {enhance} notes={true}>
 	{#if $clickedEditFlashcard}
 		<h4 class="text-2xl">Edit flashcard</h4>
 	{:else}
@@ -87,41 +83,7 @@
 				bind:value={$form.name}
 				{...$constraints.name}
 			/>
-			{#if $errors.name}
-				<span
-					transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
-					class="mt-1 select-none text-sm text-red-400">{$errors.name}</span
-				>
-			{/if}
 		</fieldset>
-
-		{#if isCustomFurigana($clickedEditFlashcard, furigana)}
-			<fieldset class="flex w-full flex-col md:w-2/3">
-				<label for="furigana">Furigana</label>
-				<input
-					type="text"
-					name="furigana"
-					class="
-                    block
-                    rounded-md
-                    border-gray-300
-                    shadow-sm
-                    focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
-                  "
-					aria-invalid={$errors.furigana ? 'true' : undefined}
-					bind:value={furigana}
-					{...$constraints.furigana}
-				/>
-				{#if $errors.furigana}
-					<span
-						transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
-						class="mt-1 select-none text-sm text-red-400"
-					>
-						{$errors.meaning}
-					</span>
-				{/if}
-			</fieldset>
-		{/if}
 
 		<fieldset class=" flex w-full flex-col md:w-2/3">
 			<label for="meaning">Meaning</label>

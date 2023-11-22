@@ -12,13 +12,15 @@
 		$clickedAddFlashcard = true;
 		$clickedEditFlashcard = true;
 		// Fill out the form with the current card data
-		$form.name = data.flashcards.at(currentIndex).name;
+		if (data.flashcards.at(currentIndex).customFurigana)
+			$form.name = data.flashcards.at(currentIndex).customFurigana;
+		else $form.name = data.flashcards.at(currentIndex).name;
+
 		$form.meaning = data.flashcards.at(currentIndex).meaning;
 		$form.id = data.flashcards.at(currentIndex).id;
 		$form.notes = data.flashcards.at(currentIndex).notes;
 		$form.type = data.flashcards.at(currentIndex).type;
 		$form.romanji = data.flashcards.at(currentIndex).romanji;
-		$form.furigana = data.flashcards.at(currentIndex).furigana;
 	}}
 >
 	{@html icons.edit}

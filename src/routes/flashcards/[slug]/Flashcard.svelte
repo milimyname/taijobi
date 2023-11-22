@@ -5,7 +5,6 @@
 	import { currentAlphabet } from '$lib/utils/stores';
 	import { quintOut, cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
-	import { reverseRubyTag } from '$lib/utils/actions';
 
 	const rotateYCard = tweened(0, {
 		duration: 2000,
@@ -114,9 +113,9 @@
 					<h2 class="text-xl font-medium">{data.flashcards.at(currentIndex).meaning}</h2>
 					<p class=" text-sm text-gray-300">Meaning</p>
 				</div>
-				{#if data.flashcards.at(currentIndex).showFurigana}
+				{#if data.flashcards.at(currentIndex).customFurigana}
 					<div>
-						<h2 class="text-xl font-medium">{reverseRubyTag(currentFlashcardFurigana)}</h2>
+						<h2 class="text-xl font-medium">{data.flashcards.at(currentIndex).customFurigana}</h2>
 						<p class=" text-sm text-gray-300">Furigana</p>
 					</div>
 				{/if}
