@@ -111,15 +111,19 @@ export const actions = {
 		// Convenient validation check:
 		if (!form.valid) return fail(400, { form });
 
+		console.log({
+			data: form.data
+		});
+
 		try {
 			// Create user
 			await locals.pb.collection('flashcard').update(form.data.id, {
 				name: form.data.name.replace(/ ?\/.*?\/ ?/g, ''),
 				meaning: form.data.meaning,
-				romanji: form.data.romanji,
+				romanji: form.data.romanji || '',
 				furigana: form.data.name,
 				type: form.data.type,
-				notes: form.data.notes
+				notes: form.data.notes || ''
 			});
 		} catch (_) {
 			form.errors.name = ['Flashcard name is already taken.'];
