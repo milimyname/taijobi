@@ -1,8 +1,14 @@
 <script lang="ts">
+	import { twSmallScreen } from '$lib/utils/constants';
+	import { innerWidthStore } from '$lib/utils/stores';
 	import Card from './Card.svelte';
-	import { writable } from 'svelte/store';
+	import { quintOut } from 'svelte/easing';
+	import { fly } from 'svelte/transition';
+	import { clickOutside } from '$lib/utils/clickOutside';
 
-	let clickedCard = writable(false);
+	import { writable } from 'svelte/store';
+	const skippedFlashcard = writable(false);
+	const showCollections = writable(false);
 
 	let cards = [
 		{
@@ -36,25 +42,89 @@
 		}
 	}
 
-	$: if ($clickedCard) {
+	$: if ($skippedFlashcard) {
 		setTimeout(() => discardCard(), 200);
-		$clickedCard = false;
+		$skippedFlashcard = false;
 	}
 </script>
 
-<div class="card-container flex flex-1 cursor-pointer items-center justify-center">
-	<button class="mr-60 h-full border-b-2 pb-4 text-4xl font-bold text-gray-300"> Next Card </button>
-	<div class="flex cursor-pointer items-center justify-center">
+<svelte:window bind:innerWidth={$innerWidthStore} />
+
+{#if $innerWidthStore > twSmallScreen}
+	<div class="card-container t flex flex-1 cursor-pointer items-center justify-center">
+		<button class="mr-60 h-full border-b-2 pb-4 text-4xl font-bold text-gray-300">
+			Next Card
+		</button>
 		{#each cards as card, index}
-			<Card value={card.value} {index} {clickedCard} totalCount={cards.length} />
+			<Card
+				value={card.value}
+				{skippedFlashcard}
+				{showCollections}
+				{index}
+				totalCount={cards.length}
+			/>
+		{/each}
+		<button class="ml-60 h-full border-b-2 pb-4 text-4xl font-bold text-gray-300">Show Me </button>
+	</div>
+{:else}
+	<div class="card-container flex flex-1 cursor-pointer items-center justify-center">
+		<button class="mr-60 h-full border-b-2 pb-4 text-4xl font-bold text-gray-300">
+			Next Card
+		</button>
+		<div class="flex cursor-pointer items-center justify-center">
+			{#each cards as card, index}
+				<Card
+					value={card.value}
+					{skippedFlashcard}
+					{showCollections}
+					{index}
+					totalCount={cards.length}
+				/>
+			{/each}
+		</div>
+		<button class="ml-60 h-full border-b-2 pb-4 text-4xl font-bold text-gray-300">Show Me </button>
+	</div>
+{/if}
+
+{#if $showCollections}
+	<div class="fixed top-0 z-[100] h-screen w-screen bg-black/50 backdrop-blur-md" />
+{/if}
+
+{#if $showCollections}
+	<div
+		use:clickOutside
+		on:outsideclick={() => ($showCollections = false)}
+		on:scroll|preventDefault
+		class="
+			  add-form-btn scrollable fixed -bottom-5 left-1/2 z-[200] flex h-[75dvh] w-full -translate-x-1/2
+			 flex-col gap-2 rounded-t-2xl bg-white px-2 py-10 sm:bottom-0 md:max-w-4xl"
+		transition:fly={{
+			delay: 0,
+			duration: 1000,
+			opacity: 0,
+			y: 1000,
+			easing: quintOut
+		}}
+	>
+		{#each cards as d}
+			<a href="/daasd" class="] h-80 w-full rounded-xl bg-black p-4 text-center text-white">
+				<p class="text-xl font-bold">Flashcards</p>
+			</a>
+			<a href="/daasd" class="z h-80 w-full rounded-xl bg-black p-4 text-center text-white">
+				<p class="text-xl font-bold">Flashcards</p>
+			</a>
 		{/each}
 	</div>
-	<button class="ml-60 h-full border-b-2 pb-4 text-4xl font-bold text-gray-300">Show Me </button>
-</div>
+{/if}
 
 <style>
 	.card-container {
 		perspective: 1000px;
 		height: 100dvh;
+	}
+
+	.scrollable {
+		overflow-y: scroll; /* or 'auto' */
+		-webkit-overflow-scrolling: touch;
 	}
 </style>

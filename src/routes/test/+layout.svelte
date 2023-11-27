@@ -1,3 +1,3 @@
-<main class="overflow-hidden">
+<main class="overflow-x-hidden">
 	<slot />
 </main>

@@ -1,14 +1,17 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { onDestroy, onMount } from 'svelte';
-	import { spring } from 'svelte/motion';
+	import { innerWidthStore } from '$lib/utils/stores';
 	import type { Writable } from 'svelte/store';
+	import { twSmallScreen } from '$lib/utils/constants';
+
+	import { spring } from 'svelte/motion';
 
 	export let value: number;
 	export let index: number;
 	export let totalCount: number;
-	export let clickedCard: Writable<boolean>;
-	let showCollections = false;
+	export let skippedFlashcard: Writable<boolean>;
+	export let showCollections: Writable<boolean>;
 
 	// Calculate the spring values for x, y, rotation, and scale based on index
 	const x = spring(0, { stiffness: 0.1, damping: 0.8, precision: 0.1 });
@@ -25,14 +28,14 @@
 	let cardElement: HTMLButtonElement;
 
 	function onMouseMove(event: { clientX: number; clientY: number }) {
-		if (index !== totalCount - 1) return;
+		if (index !== totalCount - 1 || $showCollections) return;
 
 		// Don't move if the mouse is in the card area, return to the intial position
 		if (event.clientX > cardLeft && event.clientX < cardRight) {
 			$rotateY = 0;
 			$x = 0;
 			$scale = 1;
-			// $scaleShadow = 0.8;
+			$scaleShadow = 0.8;
 
 			return;
 		}
@@ -55,7 +58,7 @@
 	}
 
 	function onTouchStart(event: TouchEvent) {
-		event.preventDefault();
+		if (!$showCollections) event.preventDefault();
 
 		if (!isDragging && index !== totalCount - 1) return;
 
@@ -63,11 +66,8 @@
 	}
 
 	function onTouchMove(event: TouchEvent) {
-		event.preventDefault();
-		$x = 0;
-		$rotateY = 0;
-		$scale = 1 - (totalCount - index - 1) * 0.05;
-		if (!isDragging && index !== totalCount - 1) return;
+		if (!$showCollections) event.preventDefault();
+		if ((!isDragging && index !== totalCount - 1) || $showCollections) return;
 
 		const touch = event.touches[0];
 
@@ -76,7 +76,7 @@
 			$rotateY = 0;
 			$x = 0;
 			$scale = 1;
-			// $scaleShadow = 0.8;
+			$scaleShadow = 0.8;
 
 			return;
 		}
@@ -84,7 +84,7 @@
 		if (touch.clientX < cardLeft) {
 			$x = -150;
 			$rotateY = -35;
-			$rotate = -35;
+			$rotate = Math.max(-35, touch.clientX - cardLeft);
 			$scale = 1.05;
 			$skewX = 12;
 
@@ -94,7 +94,7 @@
 		if (touch.clientX > cardRight) {
 			$x = 150;
 			$rotateY = 35;
-			$rotate = 35;
+			$rotate = Math.min(35, touch.clientX - cardRight);
 			$scale = 1.05;
 
 			$skewX = -12;
@@ -103,7 +103,7 @@
 	}
 
 	function onTouchEnd(event: TouchEvent) {
-		event.preventDefault();
+		if (!$showCollections) event.preventDefault();
 
 		isDragging = false;
 
@@ -112,13 +112,13 @@
 		if ($rotateY > 10) {
 			$rotateY = 60;
 			$x = 1000;
-			showCollections = true;
+			$showCollections = true;
 		}
 
-		if ($rotateY < -10) {
+		if ($rotateY < -5) {
 			$rotateY = -60;
 			$x = -1000;
-			$clickedCard = true;
+			$skippedFlashcard = true;
 		}
 	}
 
@@ -128,13 +128,13 @@
 		if ($rotateY > 15) {
 			$rotateY = 60;
 			$x = 1000;
-			showCollections = true;
-		} else if ($rotateY < -25) {
+			$showCollections = true;
+		} else if ($rotateY < -15) {
 			$rotateY = -60;
 			$x = -1000;
-			$clickedCard = true;
+			$skippedFlashcard = true;
 		} else if (event.clientX > cardRight && event.clientX < cardLeft) {
-			showCollections = true;
+			$showCollections = true;
 		}
 	}
 
@@ -154,14 +154,23 @@
 	$: if (browser && cardElement) {
 		cardRight = cardElement.getBoundingClientRect().right;
 		cardLeft = cardElement.getBoundingClientRect().left;
+
 		if (index !== totalCount - 1) {
 			$rotate = 3 + 5 * index;
-			$scale = 1;
+			$scale = $innerWidthStore > twSmallScreen ? 1 - (totalCount - index - 1) * 0.1 : 1;
 			$x = 0;
+			$rotateY = 0;
 		}
+	}
 
-		// Set z index to all cards
-		// cardElement.style.zIndex = `-${index}`;
+	$: if (cardElement && !$showCollections && index === totalCount - 1) {
+		$showCollections = false;
+		$x = 0;
+		$rotateY = 0;
+		$rotate = 0;
+		$scale = 1;
+		$skewX = 0;
+		$scaleShadow = 0.8;
 	}
 </script>
 
@@ -171,27 +180,21 @@
 	bind:this={cardElement}
 	on:click={onClick}
 	style="transform: translateX({$x}px) 
-		 rotateY({$rotateY}deg) rotate({$rotate}deg)
+			rotateY({$rotateY}deg) rotate({$rotate}deg)
 			translateZ({(totalCount - index) * 60}px) scale({$scale}); 
 			z-index: {index};
+			transform-style: preserve-3d;
 			"
 	class="card absolute flex h-[50dvh] w-64 select-none flex-col items-center justify-between rounded-2xl bg-white p-2 shadow-md before:absolute before:bottom-1 before:left-1 before:right-1 before:top-1 before:z-[-1] before:rounded-2xl before:bg-slate-200 sm:h-[55dvh] sm:w-80"
 >
 	{#if index === totalCount - 1}
 		<div
-			style="transform: translateZ(-20rem) translateX(10px) skewX({$skewX}deg) scale({$scaleShadow})"
-			class="absolute z-[-1] h-full w-full rounded-xl bg-black/5 blur-xl"
+			style="
+			transform: translateZ(-20rem) translateX(10px) skewX({$skewX}deg) scale({$scaleShadow})"
+			class="absolute z-[-1] h-full w-full rounded-xl bg-black/5 blur-xl
+			{$innerWidthStore > twSmallScreen && 'opacity-50'}"
 		/>
 	{/if}
-
 	<h2>{value}</h2>
 	<div class="h-40 w-full rounded-xl bg-blue-400 p-4">Hello Wold</div>
 </button>
-
-<style>
-	.card {
-		backface-visibility: hidden;
-		transform-style: preserve-3d;
-		/* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); Subtle shadow for depth */
-	}
-</style>
