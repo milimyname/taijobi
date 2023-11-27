@@ -4,7 +4,7 @@
 	import FlashcardsSectionForm from '$lib/components/forms/FlashcardsSectionForm.svelte';
 	import { icons } from '$lib/utils/icons';
 	import { goto } from '$app/navigation';
-	import { clickOutside } from '$lib/utils/clickOutside';
+	import { clickOutside } from '$lib/utils/clickOutside.js';
 	import { maxWidthCard, minWidthCard } from '$lib/utils/constants';
 	import { onMount } from 'svelte';
 	import {
@@ -195,7 +195,7 @@
 	on:touchstart={handleTouchStart}
 	on:touchmove|preventDefault={handleTouchMove}
 >
-	{#each Array.from(cards) as card, i}
+	{#each cards as card, i}
 		{@const j = i + 1}
 		<button
 			on:click|preventDefault={handleCardClick}
@@ -233,7 +233,7 @@
 					</button>
 				{/if}
 
-				{#if ($page.data.isAdmin && card.name !== '慣用句' && card.name !== 'にち') || (!$page.data.isAdmin && card.name !== '慣用句' && card.name !== 'にち')}
+				{#if $page.data.isAdmin || (!$page.data.isAdmin && !card.constant)}
 					<button
 						on:click|stopPropagation={() => {
 							$clickedAddFlashcard = true;
@@ -253,10 +253,7 @@
 						$clickedEditFlashcard = false;
 						$clickedAddFlashcard = false;
 
-						localStorage.setItem(
-							'isConstantFlashcard',
-							card.name === '慣用句' || card.name === 'にち' ? 'true' : 'false'
-						);
+						localStorage.setItem('isConstantFlashcard', JSON.stringify(card.constant));
 
 						goto(`flashcards/${card.id}`);
 					}}

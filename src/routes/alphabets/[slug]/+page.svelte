@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Ctx } from '$lib/utils/ambient.d.ts';
-	import { kanjiStore } from '$lib/utils/stores';
+	import { clickedKanjiForm, kanjiStore } from '$lib/utils/stores';
 	import { onMount } from 'svelte';
 	import {
 		progressSlider,
@@ -9,7 +9,9 @@
 		katakanaStore,
 		currentAlphabet,
 		selectedKanjiGrade,
-		searchKanji
+		searchKanji,
+		innerWidthStore,
+		clickedQuizForm
 	} from '$lib/utils/stores';
 	import { cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
@@ -22,7 +24,14 @@
 	import Canvas from '../Canvas.svelte';
 	import { kanji } from '$lib/static/kanji';
 	import { pocketbase } from '$lib/utils/pocketbase';
-	import { canvasLgHeight, canvasLgWidth } from '$lib/utils/constants';
+	import {
+		canvasLgHeight,
+		canvasLgWidth,
+		twSmallScreen,
+		canvasSmWidth
+	} from '$lib/utils/constants';
+	import TextQuizForm from '$lib/components/forms/TextQuizForm.svelte';
+	import { superForm } from 'sveltekit-superforms/client';
 
 	export let data;
 
@@ -77,7 +86,7 @@
 			await pocketbase.collection('flashcard').create({
 				name: $currentLetter,
 				meaning: kanji[$currentLetter].meaning,
-				flashcardsId: data.kanji_id,
+				flashcardsId: data.kanjiId,
 				type: 'kanji'
 			});
 
@@ -99,9 +108,34 @@
 		// Get the last segment of the URL path (assuming it contains the identifier you need)
 		$currentAlphabet = $page.url.pathname.split('/').pop() as 'hiragana' | 'katakana' | 'kanji';
 	});
+
+	// Client API:
+	const {
+		form: quizForm,
+		errors: quizErrors,
+		constraints: quizConstraints,
+		enhance: quizEnhance
+	} = superForm(data.quizForm, {
+		taintedMessage: null,
+		resetForm: true,
+		applyAction: true,
+		onSubmit: () => {
+			$clickedQuizForm = false;
+		},
+		onUpdated: () => {
+			if ($quizErrors.maxCount) $clickedQuizForm = true;
+		}
+	});
 </script>
 
-<section class="flex flex-1 flex-col justify-center gap-2 sm:gap-5">
+<TextQuizForm
+	errors={quizErrors}
+	enhance={quizEnhance}
+	form={quizForm}
+	constraints={quizConstraints}
+/>
+
+<section class="flex flex-1 flex-col gap-2 sm:justify-center sm:gap-5">
 	<div class="relative flex justify-between">
 		<button on:click={() => goto('/')} class="flex items-center gap-2">
 			{@html icons.previous}
@@ -171,6 +205,14 @@
 			</span>
 
 			<button
+				class="{$rotateYCard > 5 ? 'hidden' : 'block'}
+				fixed bottom-6 left-5 z-30 transition-all"
+				on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
+			>
+				{$progressSlider}
+			</button>
+
+			<button
 				class="{$rotateYCard > 5 && $rotateYCard < 175 ? 'hidden' : 'block'}
 				fixed bottom-5 right-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all"
 				on:click={() => {
@@ -182,12 +224,15 @@
 		</div>
 
 		<div
-			style={`transform: rotateY(${180 - $rotateYCard}deg); backface-visibility: hidden;`}
-			class="relative z-10 mx-auto
+			style={`transform: rotateY(${180 - $rotateYCard}deg); backface-visibility: hidden; width: ${
+				$innerWidthStore > twSmallScreen ? canvasLgWidth : canvasSmWidth
+			}px; height: ${canvasLgHeight}px
+			`}
+			class="alphabet relative z-10 mx-auto
 				{$rotateYCard > 90 ? 'block' : 'hidden'} 
-				 flex h-[504px] w-[354px] flex-col
-				 {$currentAlphabet === 'kanji' ? 'gap-1' : 'gap-5'}  
-				 justify-center rounded-xl border p-10 shadow-sm sm:h-[{canvasLgHeight}px] sm:w-[{canvasLgWidth}px]"
+				 flex flex-col
+				 {$currentAlphabet === 'kanji' ? 'gap-1' : 'gap-5'}
+				 justify-center overflow-hidden rounded-xl border p-10 shadow-sm"
 		>
 			{#if $currentAlphabet === 'kanji'}
 				<div class="grid-rows-[max-content 1fr] grid h-full">
@@ -206,6 +251,16 @@
 							<p class="text-sm text-gray-300">Kunyomi</p>
 						</div>
 					{/if}
+
+					<button
+						class="fixed bottom-5 left-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all"
+						on:click={() => {
+							$clickedQuizForm = true;
+							$clickedKanjiForm = true;
+						}}
+					>
+						{@html icons.quiz}
+					</button>
 				</div>
 			{:else}
 				<h2 class="text-center text-9xl font-medium">{toRomaji($currentLetter).toUpperCase()}</h2>
@@ -214,7 +269,10 @@
 		</div>
 	</div>
 
-	<div class="flex items-center justify-between sm:mx-auto sm:w-[{canvasLgWidth}px]">
+	<div
+		class="flex items-center justify-between sm:mx-auto"
+		style={`width: ${$innerWidthStore > twSmallScreen ? canvasLgWidth : canvasSmWidth}px;`}
+	>
 		<button
 			on:click|preventDefault={() => {
 				clearCanvas(ctx, canvas);

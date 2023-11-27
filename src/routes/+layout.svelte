@@ -8,38 +8,6 @@
 	import { page } from '$app/stores';
 	import { dev } from '$app/environment';
 
-	// import { onNavigate } from '$app/navigation';
-
-	// let audioUrl = '';
-
-	// // Call api youtube-dl
-	// onMount(async () => {
-	// 	const response = await fetch('/api/youtube-dl', {
-	// 		method: 'GET',
-	// 		headers: {
-	// 			'Content-Type': 'application/json'
-	// 		}
-	// 	});
-
-	// 	if (!response.ok) throw new Error(response.statusText);
-
-	// 	const { webm } = await response.json();
-	// 	audioUrl = webm;
-	// 	// const output = await response.json();
-	// 	// console.log(output.formats.filter(({ ext }) => ext === 'mp4'));
-	// 	// audioUrl = output.formats[34].url;
-	// });
-
-	// onNavigate(async (navigation) => {
-	// 	if (!document.startViewTransition) return;
-	// 	return new Promise((oldStateCaptureResolve) => {
-	// 		document.startViewTransition(async () => {
-	// 			oldStateCaptureResolve();
-	// 			await navigation.complete;
-	// 		});
-	// 	});
-	// });
-
 	let formData = {
 		name: '',
 		description: '',
@@ -121,12 +89,6 @@
 		></script>
 	{/if}
 </svelte:head>
-<!-- {#if audioUrl}
-	<audio controls>
-		<source src={audioUrl} type="audio/webm" />
-		Your browser does not support the audio element.
-	</audio>
-{/if} -->
 
 {#if $clickedFeedback}
 	<div class="fixed top-0 z-[100] h-screen w-full bg-black opacity-50 transition-all" />

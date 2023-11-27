@@ -1,5 +1,12 @@
 <script lang="ts">
-	import { clickedQuizForm, maxFlashcards } from '$lib/utils/stores';
+	import {
+		clickedQuizForm,
+		maxFlashcards,
+		clickedKanjiForm,
+		kanjiLength,
+		progressSlider,
+		currentAlphabet
+	} from '$lib/utils/stores';
 	import { fly, slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 	import { createSwitch, melt } from '@melt-ui/svelte';
@@ -14,7 +21,10 @@
 	export let form;
 	export let constraints;
 
-	$: $form.timeLimit = $input.checked;
+	$: {
+		$form.timeLimit = $input.checked;
+		$form.startCount = $progressSlider === $kanjiLength ? 1 : $progressSlider;
+	}
 </script>
 
 {#if $clickedQuizForm}
@@ -27,7 +37,9 @@
 		use:clickOutside
 		on:outsideclick={() => ($clickedQuizForm = false)}
 		method="POST"
-		class="quiz-form fixed -bottom-5 z-[1000] flex h-3/4 w-full flex-col gap-5 overflow-hidden rounded-t-2xl bg-white px-5 py-10 sm:bottom-0"
+		class="quiz-form fixed -bottom-5 z-[1000] flex {$clickedKanjiForm
+			? ' h-5/6'
+			: ' h-3/4'} w-full flex-col gap-5 overflow-hidden rounded-t-2xl bg-white px-5 py-10 sm:bottom-0 md:max-w-4xl"
 		transition:fly={{
 			delay: 0,
 			duration: 1000,
@@ -38,7 +50,7 @@
 	>
 		<h4 class="text-2xl">Create a {$form.name} quiz</h4>
 		<div class="mb-auto flex flex-col gap-5">
-			<fieldset class=" flex w-full flex-col gap-2 md:w-2/3">
+			<fieldset class=" flex w-full flex-col gap-2">
 				<label for="choice">Multi Choice Number</label>
 				<select
 					name="choice"
@@ -67,7 +79,7 @@
 					>
 				{/if}
 			</fieldset>
-			<fieldset class=" flex w-full flex-col gap-2 md:w-2/3">
+			<fieldset class=" flex w-full flex-col gap-2">
 				<label for="type">Type</label>
 				<select
 					name="type"
@@ -85,6 +97,10 @@
 				>
 					<option value="name" selected>name</option>
 					<option value="meaning">meaning</option>
+					{#if $currentAlphabet === 'kanji'}
+						<option value="onyomi">onyomi</option>
+						<option value="kunyomi">kunyomi</option>
+					{/if}
 				</select>
 
 				{#if $errors.type}
@@ -94,7 +110,36 @@
 					>
 				{/if}
 			</fieldset>
-			<fieldset class=" flex w-full flex-col gap-2 md:w-2/3">
+			{#if $clickedKanjiForm}
+				<fieldset class=" flex w-full flex-col gap-2">
+					<label for="startCount">Start:</label>
+					<input
+						name="startCount"
+						type="number"
+						id="startCount"
+						placeholder="Start"
+						min={1}
+						max={$kanjiLength - 20}
+						class="
+                    block
+                    rounded-md
+                    border-gray-300
+                    shadow-sm
+                    focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
+                  "
+						aria-invalid={$errors.startCount ? 'true' : undefined}
+						bind:value={$form.startCount}
+						{...$constraints.startCount}
+					/>
+					{#if $errors.startCount}
+						<span
+							transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
+							class="mt-1 select-none text-sm text-red-400">{$errors.maxCount}</span
+						>
+					{/if}
+				</fieldset>
+			{/if}
+			<fieldset class="flex w-full flex-col gap-2">
 				<label for="maxCount">Amount of Flashcards</label>
 				<input
 					name="maxCount"
@@ -123,7 +168,7 @@
 			</fieldset>
 
 			<div class="flex items-center justify-between">
-				<label for="timeLimit" id="time-limit-label"> Time limit </label>
+				<label for="timeLimit" id="time-limit-label"> Time limit (WIP) </label>
 				<button
 					use:melt={$root}
 					class="switch relative h-6 w-full cursor-default rounded-full bg-slate-400 transition-colors data-[state=checked]:bg-primary"
@@ -142,12 +187,12 @@
 			<button
 				type="button"
 				on:click={() => ($clickedQuizForm = false)}
-				class="text-md rounded-md border-2 border-black px-4 py-2 font-medium shadow-lg transition duration-200 visited:-translate-x-4 active:translate-y-1 active:shadow-sm lg:w-2/3"
+				class="text-md rounded-md border-2 border-black px-4 py-2 font-medium shadow-lg transition duration-200 visited:-translate-x-4 active:translate-y-1 active:shadow-sm"
 				>Cancel
 			</button>
 			<button
 				formaction="?/addQuiz"
-				class="text-md rounded-md bg-black px-4 py-2 font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm lg:w-2/3"
+				class="text-md rounded-md bg-black px-4 py-2 font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm"
 				>Add</button
 			>
 		</div>

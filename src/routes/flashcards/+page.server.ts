@@ -8,29 +8,17 @@ export const load = async ({ locals }) => {
 	const { id } = await locals.pb.authStore.model;
 
 	// Get all the flashcards collection
-	const flashcardsCollection = await locals.pb.collection('flashcards').getFullList(100, {
-		filter: `userId = "${id}" || name = "にち" || name = "慣用句"`
+	const flashcardsCollection = await locals.pb.collection('flashcards').getFullList({
+		filter: `userId = "${id}" || constant = true`,
+		fields: 'id, name, description, constant'
 	});
 
 	// Get all the flashcard from the server
-	const flashcards = await locals.pb.collection('flashcard').getFullList();
-
-	const counts = await Promise.all(
-		flashcardsCollection.map(async (collection) => {
-			// Get the amount of flashcards in each collection
-			const count = flashcards.filter(
-				(flashcard) => flashcard.flashcardsId === collection.id
-			).length;
-
-			return {
-				count
-			};
-		})
-	);
+	const flashcards = await locals.pb.collection('flashcard_count').getFullList();
 
 	// Add the "count" field to each collection object
-	flashcardsCollection.forEach((collection, index) => {
-		collection.count = counts[index].count;
+	flashcardsCollection.forEach((collection) => {
+		collection.count = flashcards.filter((flashcard) => flashcard.id === collection.id)[0].count;
 	});
 
 	// Server API:
@@ -115,6 +103,15 @@ export const actions = {
 
 		let quiz;
 
+		// Get the current flashcards
+		const flashcards = (
+			await locals.pb.collection('flashcard').getFullList({
+				filter: `flashcardsId = "${form.data.flashcardsId}"`
+			})
+		).map((card) => {
+			return { name: card.name, meaning: card.meaning };
+		});
+
 		try {
 			quiz = await locals.pb.collection('quizzes').create({
 				name: form.data.name,
@@ -123,7 +120,8 @@ export const actions = {
 				userId,
 				maxCount: form.data.maxCount,
 				flashcardsId: form.data.flashcardsId,
-				timeLimit: form.data.timeLimit
+				timeLimit: form.data.timeLimit,
+				flashcards: JSON.stringify(flashcards)
 			});
 		} catch (_) {
 			form.errors.name = ['No idea what happened'];

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { canvasLgHeight, canvasLgWidth } from '$lib/utils/constants';
+	import { canvasLgHeight, canvasLgWidth, canvasSmWidth } from '$lib/utils/constants';
 	import type { Ctx } from '$lib/utils/ambient.d.ts';
 	import { twSmallScreen } from '$lib/utils/constants';
 	import { innerWidthStore, lastPoint, strokeColor } from '$lib/utils/stores';
@@ -73,7 +73,7 @@
 	on:touchend={stopDrawing}
 	on:touchmove|preventDefault={drawOnCanvas}
 	on:touchcancel={stopDrawing}
-	width={$innerWidthStore > twSmallScreen ? canvasLgWidth : 352}
+	width={$innerWidthStore > twSmallScreen ? canvasLgWidth : canvasSmWidth}
 	height={canvasLgHeight}
 	style={`transform: rotateY(${-rotationY}deg); transform-style: preserve-3d; backface-visibility: hidden;`}
 	class="relative z-10 mx-auto cursor-pointer

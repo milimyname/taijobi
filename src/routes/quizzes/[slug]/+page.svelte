@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { FlashcardType, ProgressDataItem } from '$lib/utils/ambient.d.ts';
 	import Quiz from './Quiz.svelte';
 	import { page } from '$app/stores';
 	import { shuffleArray } from '$lib/utils/actions.js';
@@ -8,43 +9,39 @@
 	export let data;
 
 	let currentQuestion: number;
-	let currentFlashcard: {
-		name: string;
-		meaning: string;
-	};
-	let progressData: {
-		name: string;
-		score: number;
-		meaning: string;
-	}[];
+
+	let currentFlashcard: FlashcardType;
+	let progressData: ProgressDataItem[];
 	let shuffledOptions: string[] = [];
 	let correctAnswers = 0;
 	let flashcards: any[];
 
-	const generateShuffledOptions = (options: any[]): string[] => {
+	const generateShuffledOptions = (options: FlashcardType[]): string[] => {
 		const otherOptions = options.filter((opt) => opt.name !== currentFlashcard.name);
-
 		shuffleArray(otherOptions);
+
+		// Define a map of types to properties
+		const typeToPropertyMap: { [key: string]: keyof FlashcardType } = {
+			name: 'name',
+			meaning: 'meaning',
+			onyomi: 'onyomi',
+			kunyomi: 'kunyomi'
+		};
+
+		const selectedProperty = typeToPropertyMap[data.quiz.type];
+
+		if (!selectedProperty) return []; // If type doesn't match any key, return empty array
 
 		switch (data.quiz.choice) {
 			case '2':
-				return data.quiz.type === 'name'
-					? [currentFlashcard.name, otherOptions[0].name]
-					: [currentFlashcard.meaning, otherOptions[0].meaning];
+				return [currentFlashcard[selectedProperty], otherOptions[0][selectedProperty]];
 			case '4':
-				return data.quiz.type === 'name'
-					? [
-							currentFlashcard.name,
-							otherOptions[0].name,
-							otherOptions[1].name,
-							otherOptions[2].name
-					  ]
-					: [
-							currentFlashcard.meaning,
-							otherOptions[0].meaning,
-							otherOptions[1].meaning,
-							otherOptions[2].meaning
-					  ];
+				return [
+					currentFlashcard[selectedProperty],
+					otherOptions[0][selectedProperty],
+					otherOptions[1][selectedProperty],
+					otherOptions[2][selectedProperty]
+				];
 			default:
 				return [];
 		}
@@ -72,14 +69,23 @@
 	});
 
 	async function selectAnswer(e: any, answer: string) {
+		e.currentTarget?.classList.remove('bg-white');
+
 		// Check if the user's answer is correct
-		if (currentFlashcard.name === answer || currentFlashcard.meaning === answer) {
+		if (
+			currentFlashcard.name === answer ||
+			currentFlashcard.meaning === answer ||
+			currentFlashcard.onyomi === answer ||
+			currentFlashcard.kunyomi === answer
+		) {
 			e.currentTarget?.classList.add('bg-success', 'text-white');
 			progressData = [
 				...progressData,
 				{
 					name: currentFlashcard.name,
 					meaning: currentFlashcard.meaning,
+					kunyomi: currentFlashcard.kunyomi,
+					onyomi: currentFlashcard.onyomi,
 					score: 1
 				}
 			];
@@ -91,6 +97,8 @@
 				{
 					name: currentFlashcard.name,
 					meaning: currentFlashcard.meaning,
+					kunyomi: currentFlashcard.kunyomi,
+					onyomi: currentFlashcard.onyomi,
 					score: 0
 				}
 			];
@@ -106,7 +114,8 @@
 						userId: data.userId,
 						progressData,
 						correctAnswers,
-						total: data.flashcards.length
+						total: data.flashcards.length,
+						completed: true
 					});
 				} catch (error) {
 					console.log(error);
@@ -127,6 +136,8 @@
 					{
 						name: currentFlashcard.name,
 						meaning: currentFlashcard.meaning,
+						kunyomi: currentFlashcard.kunyomi,
+						onyomi: currentFlashcard.onyomi,
 						score: 0
 					}
 				];
@@ -153,6 +164,7 @@
 			const buttons = document.querySelectorAll('button');
 			buttons.forEach((button) => {
 				button.classList.remove('bg-success', 'bg-error', 'text-white');
+				button.classList.add('bg-white');
 			});
 		}, 250);
 	}

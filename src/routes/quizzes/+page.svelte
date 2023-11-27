@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
+	import { pocketbase } from '$lib/utils/pocketbase.js';
 
 	export let data;
 </script>
 
-<section class="flex w-full flex-col gap-2 overflow-y-scroll not-last:border-b">
+<section class="flex w-full max-w-xl flex-col gap-2 overflow-y-scroll not-last:border-b">
 	{#each data.quizzes as quiz}
 		{@const anyProgress = browser && localStorage.getItem(`quizProgress_${quiz.id}`)}
 		<div class="flex w-full flex-col justify-center gap-4 p-4">
@@ -34,6 +35,23 @@
 						on:click={() => goto(`/quizzes/${quiz.id}`)}
 					>
 						Continue from {JSON.parse(anyProgress).length}
+					</button>
+				{/if}
+
+				{#if quiz.id !== 'hiragana' && quiz.id !== 'katakana'}
+					<button
+						class="self-center rounded-full font-bold text-red-600"
+						on:click|preventDefault={async () => {
+							localStorage.removeItem(`flashcards_${quiz.id}`);
+							localStorage.removeItem(`currentQuestion_${quiz.id}`);
+							localStorage.removeItem(`quizProgress_${quiz.id}`);
+
+							await pocketbase.collection('quizzes').delete(quiz.id);
+
+							invalidateAll();
+						}}
+					>
+						Delete
 					</button>
 				{/if}
 			</div>

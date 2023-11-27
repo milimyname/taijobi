@@ -18,11 +18,10 @@
 	{/if}
 	<div class="mb-auto flex flex-col gap-5">
 		<fieldset class=" flex w-full flex-col md:w-2/3">
-			<label for="name" class="hidden">Collection Name</label>
+			<label for="name">Collection Name</label>
 			<input
 				type="text"
 				name="name"
-				placeholder="Collection Name"
 				class="
                     block
                     rounded-md
@@ -43,10 +42,9 @@
 			{/if}
 		</fieldset>
 		<fieldset class=" flex w-full flex-col md:w-2/3">
-			<label for="description" class="hidden">Description</label>
+			<label for="description">Description</label>
 			<textarea
 				name="description"
-				placeholder="Description"
 				class="
                     block
                     rounded-md
@@ -72,19 +70,19 @@
 		<div class="flex w-full justify-between">
 			<button
 				formaction="?/delete"
-				class="text-md rounded-md bg-red-500 px-4 py-2 font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-red-400 active:translate-y-1 active:shadow-sm lg:w-2/3"
+				class="text-md rounded-md bg-red-500 px-4 py-2 font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-red-400 active:translate-y-1 active:shadow-sm"
 				>Delete
 			</button>
 			<button
 				formaction="?/edit"
-				class="text-md rounded-md bg-black px-4 py-2 font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm lg:w-2/3"
+				class="text-md rounded-md bg-black px-4 py-2 font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm"
 				>Edit Flashcard</button
 			>
 		</div>
 	{:else}
 		<button
 			formaction="?/add"
-			class="w-full rounded-md bg-black py-2 text-lg font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm lg:w-2/3"
+			class="w-full rounded-md bg-black py-2 text-lg font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm"
 			>Add
 		</button>
 	{/if}

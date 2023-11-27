@@ -5,6 +5,7 @@ export const minWidthCard = 250;
 export const maxWidthCard = 350;
 
 export const canvasLgWidth = 500;
+export const canvasSmWidth = 350;
 export const canvasLgHeight = 500;
 
 export const wordClasses = [
@@ -21,7 +22,20 @@ export const wordClasses = [
 	'text-3xl'
 ];
 
-export const constantFlashcards = ['iy2qbr339k9mbvk'];
+export const months = [
+	'Jan',
+	'Feb',
+	'Mar',
+	'Apr',
+	'May',
+	'June',
+	'July',
+	'Aug',
+	'Sep',
+	'Oct',
+	'Nov',
+	'Dec'
+];
 
 export const navItems = [
 	{

@@ -9,6 +9,7 @@ import { maxWidthCard, minWidthCard } from '$lib/utils/constants';
 import { pocketbase } from './pocketbase';
 import type { CropperDetails } from '$lib/utils/ambient.d.ts';
 import type { Ctx } from '$lib/utils/ambient.d.ts';
+import { isHiragana } from 'wanakana';
 
 export function handleUserIconClick() {
 	let longPress;
@@ -161,4 +162,21 @@ export function shuffleArray(array: any[]) {
 		const j = Math.floor(Math.random() * (i + 1));
 		[array[i], array[j]] = [array[j], array[i]];
 	}
+}
+
+// Function to convert a string to a ruby tag
+export function convertToRubyTag(input) {
+	// Split the input string by slashes first to get character-annotation pairs
+	const pairs = input.split('/').filter(Boolean);
+
+	// Initialize the ruby tag
+	let rubyTag = '';
+
+	// Process each pair in steps of 2 (character and its annotation)
+	for (let i = 0; i < pairs.length; i += 2) {
+		// Create a ruby annotation for each pair
+		rubyTag += '<ruby>' + pairs[i] + '<rt>' + pairs[i + 1] + '</rt></ruby>';
+	}
+
+	return rubyTag;
 }
