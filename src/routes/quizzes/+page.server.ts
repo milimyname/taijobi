@@ -13,7 +13,7 @@ export const load = async ({ locals }) => {
 		collectionId: '-',
 		collectionName: '-',
 		created: '-',
-		flashcardsId: '=',
+		flashcardBox: '=',
 
 		maxCount: 46,
 		score: 0,

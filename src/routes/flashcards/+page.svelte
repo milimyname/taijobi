@@ -1,114 +1,30 @@
 <script lang="ts">
 	import TextQuizForm from '$lib/components/forms/TextQuizForm.svelte';
-	import type { Card } from '$lib/utils/ambient.d.ts';
-	import FlashcardsSectionForm from '$lib/components/forms/FlashcardsSectionForm.svelte';
-	import { icons } from '$lib/utils/icons';
-	import { goto } from '$app/navigation';
-	import { clickOutside } from '$lib/utils/clickOutside.js';
-	import { maxWidthCard, minWidthCard } from '$lib/utils/constants';
-	import { onMount } from 'svelte';
+	import FlashcardCollectionForm from '$lib/components/forms/FlashcardCollectionForm.svelte';
 	import {
-		clickedAddFlashcard,
+		clickedAddFlashcardCollection,
 		maxFlashcards,
+		currentFlashcardCollectionId,
 		clickedFlashCard,
 		clickedEditFlashcard,
 		clickedQuizForm
 	} from '$lib/utils/stores.js';
 	import { superForm } from 'sveltekit-superforms/client';
-	import { handleScroll, sortCards } from '$lib/utils/actions.js';
-	import { page } from '$app/stores';
+	import { twSmallScreen } from '$lib/utils/constants';
+	import { innerWidthStore } from '$lib/utils/stores';
+	import FlashcardCollection from './FlashcardCollection.svelte';
+	import { quintOut } from 'svelte/easing';
+	import { fly } from 'svelte/transition';
+	import { clickOutside } from '$lib/utils/clickOutside';
+	import { Dices } from 'lucide-svelte';
+
+	import { writable } from 'svelte/store';
+	const skippedFlashcard = writable(false);
+	const showCollections = writable(false);
 
 	export let data;
 
-	let cards: Card[] = []; // Array of cards
-	let touchStartY = 0;
-	let touchCurrentY = 0;
-	const scrollIncrement = 8; // Adjust this value to control scroll speed
-	let currentCardZindex: string;
-
-	let mountedCards: NodeListOf<HTMLButtonElement>;
-
-	onMount(() => {
-		mountedCards = document.querySelectorAll('.flashcard');
-
-		mountedCards.forEach((card, i) => {
-			// Calculate the card width based on its distance from the top of the viewport
-			const normalizedWidth =
-				minWidthCard +
-				(maxWidthCard - minWidthCard) * (card.getBoundingClientRect().top / window.innerHeight);
-
-			// Apply the calculated width to the card
-			card.style.width = `${normalizedWidth}px`;
-
-			if (mountedCards.length === 1)
-				card.style.top = `${(i + 1) * (window.innerHeight / 3 / mountedCards.length)}px`;
-			else if (mountedCards.length < 6)
-				card.style.top = `${(i + 1) * (window.innerHeight / 4 / mountedCards.length)}px`;
-			// Apply the calculated top position to the card
-			else card.style.top = `${i * (window.innerHeight / mountedCards.length)}px`;
-		});
-	});
-
-	const handleMouseWheel = (e: { deltaY: any }) => {
-		const scroll = Math.sign(e.deltaY) * scrollIncrement;
-		handleScroll(scroll, mountedCards);
-	};
-
-	const handleTouchStart = (e: { touches: { clientY: number }[] }) => {
-		touchStartY = e.touches[0].clientY;
-	};
-
-	const handleTouchMove = (e: { touches: { clientY: number }[] }) => {
-		touchCurrentY = e.touches[0].clientY;
-		const scroll = Math.sign(touchCurrentY - touchStartY) * scrollIncrement;
-		handleScroll(scroll, mountedCards);
-		touchStartY = touchCurrentY;
-	};
-
-	// Sort the cards based on their current top position
-	const handleClickFlashCardOutside = (e: {
-		currentTarget: { style: { transform: string; zIndex: string } };
-	}) => {
-		e.currentTarget.style.transform = 'translate(-50%, -50%) skew(0deg, 0deg)';
-		e.currentTarget.style.zIndex = currentCardZindex;
-
-		// Sort the cards based on their current top position
-		const sortedCards = sortCards(mountedCards);
-
-		// Update the z-index values based on the sorted order
-		sortedCards.forEach((card, i) => {
-			card.style.zIndex = `${i + 1}`;
-			setTimeout(() => {
-				card.classList.remove('pointer-events-none');
-			}, 500);
-		});
-
-		$form.name = '';
-		$form.description = '';
-		$form.id = '';
-
-		$clickedFlashCard = false;
-		$clickedEditFlashcard = false;
-		$clickedAddFlashcard = false;
-		$clickedQuizForm = false;
-	};
-
-	const handleCardClick = (e: { currentTarget: any }) => {
-		$clickedFlashCard = true;
-
-		// Set other cards to be normal
-		mountedCards.forEach((card) => {
-			card.style.transform = 'translate(-50%, -50%) skew(0deg, 0deg)';
-			card.classList.add('pointer-events-none');
-		});
-
-		const card = e.currentTarget;
-		card.style.transform = 'translate(-50%, -100%) skew(2deg, 2deg)';
-		currentCardZindex = card.style.zIndex;
-		card.classList.add('pointer-events-auto');
-		card.style.zIndex = '110';
-	};
-
+	// console.log(data.flashcardCollections);
 	// Client API:
 	const { form, errors, constraints, enhance } = superForm(data.form, {
 		taintedMessage: null,
@@ -116,25 +32,11 @@
 		applyAction: true,
 		onSubmit: () => {
 			$clickedEditFlashcard = false;
-			$clickedAddFlashcard = false;
+			$clickedAddFlashcardCollection = false;
 			$clickedFlashCard = false;
-
-			// Set other cards to be normal
-			mountedCards.forEach((card) => {
-				card.style.transform = 'translate(-50%, -50%) skew(0deg, 0deg)';
-				card.classList.remove('pointer-events-none');
-			});
-
-			// Sort the cards based on their current top position
-			const sortedCards = sortCards(mountedCards);
-
-			// Update the z-index values based on the sorted order
-			sortedCards.forEach((card, i) => {
-				card.style.zIndex = `${i + 1}`;
-			});
 		},
 		onUpdated: () => {
-			if ($errors.name || $errors.description) $clickedAddFlashcard = true;
+			if ($errors.name || $errors.description) $clickedAddFlashcardCollection = true;
 		}
 	});
 
@@ -151,33 +53,30 @@
 		onSubmit: () => {
 			$clickedQuizForm = false;
 			$clickedFlashCard = false;
-
-			// Set other cards to be normal
-			mountedCards.forEach((card) => {
-				card.style.transform = 'translate(-50%, -50%) skew(0deg, 0deg)';
-				card.classList.remove('pointer-events-none');
-			});
-
-			// Sort the cards based on their current top position
-			const sortedCards = sortCards(mountedCards);
-
-			// Update the z-index values based on the sorted order
-			sortedCards.forEach((card, i) => {
-				card.style.zIndex = `${i + 1}`;
-			});
 		},
 		onUpdated: () => {
 			if ($errors.name || $errors.description) $clickedQuizForm = true;
 		}
 	});
 
-	$: {
-		// Update the cards array when the data changes
-		cards = [];
+	// Function to handle card removal/swipe
+	function discardCard() {
+		if (data.flashcardCollections.length > 0) {
+			const lastCard = data.flashcardCollections[data.flashcardCollections.length - 1];
+			data.flashcardCollections = data.flashcardCollections.slice(
+				0,
+				data.flashcardCollections.length - 1
+			);
 
-		data.flashcards.forEach((card: Card) => {
-			cards.push(card);
-		});
+			setTimeout(() => {
+				data.flashcardCollections = [lastCard, ...data.flashcardCollections];
+			}, 100);
+		}
+	}
+
+	$: if ($skippedFlashcard) {
+		setTimeout(() => discardCard(), 200);
+		$skippedFlashcard = false;
 	}
 </script>
 
@@ -187,81 +86,113 @@
 	form={quizForm}
 	constraints={quizConstraints}
 />
-<FlashcardsSectionForm {enhance} {errors} {form} {constraints} />
+
+<FlashcardCollectionForm {enhance} {errors} {form} {constraints} />
+
+<svelte:window bind:innerWidth={$innerWidthStore} />
 
 <section
-	class="relative mt-10 flex h-screen w-full flex-col p-5"
-	on:mousewheel|preventDefault={handleMouseWheel}
-	on:touchstart={handleTouchStart}
-	on:touchmove|preventDefault={handleTouchMove}
+	use:clickOutside
+	on:outsideclick={() => {
+		$clickedAddFlashcardCollection = false;
+	}}
+	class="collection-container flex flex-1 cursor-pointer items-center justify-center pb-20"
 >
-	{#each cards as card, i}
-		{@const j = i + 1}
-		<button
-			on:click|preventDefault={handleCardClick}
-			use:clickOutside
-			on:outsideclick={handleClickFlashCardOutside}
-			style={`
-				box-shadow: 0px -10px 20px 0px rgba(0, 0, 0, 0.05);
-				transition: transform 0.5s ease-in-out;
-				top: ${i * 60}px;
-				z-index: ${j};
-			`}
-			class="flashcard absolute left-1/2 right-1/2 mx-auto flex h-60 w-full -translate-x-1/2 -translate-y-1/2 cursor-pointer select-none flex-col items-center justify-between rounded-2xl bg-blue-200 p-4"
-		>
-			<div>
-				<h4 class="break-all {card.name.length > 5 ? 'text-xl font-bold' : 'text-4xl'}">
-					{card.name}
-				</h4>
-				<p>{card.description}</p>
-			</div>
-			<div
-				class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
-			>
-				{#if card.count >= 20}
-					<button
-						on:click|stopPropagation={() => {
-							$clickedQuizForm = true;
-
-							$quizForm.name = card.name;
-							$quizForm.flashcardsId = card.id;
-							$quizForm.maxCount = card.count;
-							$maxFlashcards = '' + card.count;
-						}}
-					>
-						{@html icons.quiz}
-					</button>
-				{/if}
-
-				{#if $page.data.isAdmin || (!$page.data.isAdmin && !card.constant)}
-					<button
-						on:click|stopPropagation={() => {
-							$clickedAddFlashcard = true;
-							$clickedEditFlashcard = true;
-							// Fill out the form with the current card data
-							$form.name = card.name;
-							$form.description = card.description;
-							$form.id = card.id;
-						}}
-					>
-						{@html icons.edit}
-					</button>
-				{/if}
-				<button
-					on:click|stopPropagation={() => {
-						$clickedFlashCard = false;
-						$clickedEditFlashcard = false;
-						$clickedAddFlashcard = false;
-
-						localStorage.setItem('isConstantFlashcard', JSON.stringify(card.constant));
-
-						goto(`flashcards/${card.id}`);
-					}}
-					class="open-flashcard"
-				>
-					{@html icons.forward}
-				</button>
-			</div>
-		</button>
-	{/each}
+	{#if $innerWidthStore > twSmallScreen}
+		<!-- <button class="mr-60 h-full border-b-2 pb-4 text-4xl font-bold text-gray-300">
+			Next Card
+		</button> -->
+		{#each data.flashcardCollections as card, index}
+			<FlashcardCollection
+				name={card.name}
+				id={card.id}
+				description={card.description}
+				expand={card.expand}
+				{skippedFlashcard}
+				{showCollections}
+				{index}
+				totalCount={data.flashcardCollections.length}
+			/>
+		{/each}
+		<!-- <button class="ml-60 h-full border-b-2 pb-4 text-4xl font-bold text-gray-300">Show Me </button> -->
+	{:else}
+		<!-- <button class="mr-60 h-full border-b-2 pb-4 text-4xl font-bold text-gray-300">
+			Next Card
+		</button> -->
+		<div class="flex cursor-pointer items-center justify-center">
+			{#each data.flashcardCollections as card, index}
+				<FlashcardCollection
+					name={card.name}
+					id={card.id}
+					description={card.description}
+					expand={card.expand}
+					{skippedFlashcard}
+					{showCollections}
+					{index}
+					totalCount={data.flashcardCollections.length}
+				/>
+			{/each}
+		</div>
+		<!-- <button class="ml-60 h-full border-b-2 pb-4 text-4xl font-bold text-gray-300">Show Me </button> -->
+	{/if}
 </section>
+
+{#if $showCollections}
+	<div class="fixed top-0 z-[100] h-[100dvh] w-screen bg-black/50 backdrop-blur-md" />
+{/if}
+
+{#if $showCollections}
+	<div
+		use:clickOutside
+		on:outsideclick={() => ($showCollections = false)}
+		class="
+			  add-form-btn scrollable fixed bottom-0 left-1/2 z-[200] flex h-[40dvh] w-full -translate-x-1/2
+			  items-center gap-2 overflow-auto rounded-t-2xl bg-white px-2 sm:bottom-0 sm:pb-0 md:max-w-4xl"
+		transition:fly={{
+			delay: 0,
+			duration: 500,
+			opacity: 0,
+			y: 1000,
+			easing: quintOut
+		}}
+	>
+		{#each data.flashcardCollections as collection}
+			{#if collection.id === $currentFlashcardCollectionId && collection.expand}
+				{#each collection.expand.flashcardBox as box}
+					<a
+						href={`/flashcards/${box.id}`}
+						class=" flex h-60 flex-none basis-1/2 flex-col items-center justify-between rounded-xl bg-blue-400 text-center text-xl font-bold text-white sm:h-80 sm:basis-1/3"
+					>
+						<span class="p-4">
+							{box.name}
+						</span>
+
+						<button
+							class=" flex w-full justify-center rounded-t-xl bg-blue-500 p-4"
+							on:click|preventDefault={() => {
+								$quizForm.flashcardBox = box.id;
+								$maxFlashcards = box.count;
+								$clickedQuizForm = true;
+								$showCollections = false;
+							}}
+						>
+							<Dices />
+						</button>
+					</a>
+				{/each}
+			{/if}
+		{/each}
+	</div>
+{/if}
+
+<style>
+	.collection-container {
+		perspective: 1000px;
+		height: 100dvh;
+	}
+
+	.scrollable {
+		overflow-y: scroll; /* or 'auto' */
+		-webkit-overflow-scrolling: touch;
+	}
+</style>

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { clickedAddFlashcard, clickedFlashCard } from '$lib/utils/stores';
+	import { clickedAddFlashcardCollection, clickedFlashCard } from '$lib/utils/stores';
 	import { quintOut } from 'svelte/easing';
 	import { fly } from 'svelte/transition';
 
@@ -7,11 +7,11 @@
 	export let notes = false;
 </script>
 
-{#if $clickedFlashCard || $clickedAddFlashcard}
+{#if $clickedFlashCard || $clickedAddFlashcardCollection}
 	<div class="fixed top-0 z-[100] h-screen w-full bg-black opacity-50 transition-all" />
 {/if}
 
-{#if $clickedAddFlashcard}
+{#if $clickedAddFlashcardCollection}
 	<form
 		use:enhance
 		method="POST"

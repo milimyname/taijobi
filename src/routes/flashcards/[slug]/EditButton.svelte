@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { icons } from '$lib/utils/icons';
-	import { clickedEditFlashcard, clickedAddFlashcard } from '$lib/utils/stores';
+	import { clickedEditFlashcard, clickedAddFlashcardCollection } from '$lib/utils/stores';
 
 	export let form;
 	export let data;
@@ -9,7 +9,7 @@
 
 <button
 	on:click|stopPropagation={() => {
-		$clickedAddFlashcard = true;
+		$clickedAddFlashcardCollection = true;
 		$clickedEditFlashcard = true;
 		// Fill out the form with the current card data
 		if (data.flashcards.at(currentIndex).customFurigana)

@@ -17,7 +17,7 @@
 		<h4 class="text-2xl">Add a new collection</h4>
 	{/if}
 	<div class="mb-auto flex flex-col gap-5">
-		<fieldset class=" flex w-full flex-col md:w-2/3">
+		<fieldset class=" flex w-full flex-col md:w-full">
 			<label for="name">Collection Name</label>
 			<input
 				type="text"
@@ -41,7 +41,7 @@
 				>
 			{/if}
 		</fieldset>
-		<fieldset class=" flex w-full flex-col md:w-2/3">
+		<fieldset class=" flex w-full flex-col md:w-full">
 			<label for="description">Description</label>
 			<textarea
 				name="description"

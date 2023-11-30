@@ -50,6 +50,7 @@
     "@tailwindcss/container-queries": "^0.1.1",
     "apexcharts": "3.43.2-0",
     "kuroshiro-analyzer-kuromoji": "^1.1.0",
+    "lucide-svelte": "^0.294.0",
     "pocketbase": "^0.19.0",
     "svelte-easy-crop": "^2.0.1",
     "wanakana": "^5.2.0"

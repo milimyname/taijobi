@@ -1,71 +1,69 @@
 import { superValidate } from 'sveltekit-superforms/server';
 import { fail, redirect } from '@sveltejs/kit';
-import { flashcardsSchema, quizSchema } from '$lib/utils/zodSchema';
+import { flashcardCollectionSchema, quizSchema } from '$lib/utils/zodSchema';
 
 /** @type {import('./$types').PageServerLoad} */
 export const load = async ({ locals }) => {
-	// Get user id from authStore
-	const { id } = await locals.pb.authStore.model;
-
 	// Get all the flashcards collection
-	const flashcardsCollection = await locals.pb.collection('flashcards').getFullList({
-		filter: `userId = "${id}" || constant = true`,
-		fields: 'id, name, description, constant'
+	const flashcardCollections = await locals.pb.collection('flashcardCollections').getFullList({
+		filter: `userId = "${locals.pb.authStore.model?.id}" || type = "original"`,
+		expand: 'flashcardBox'
 	});
 
 	// Get all the flashcard from the server
-	const flashcards = await locals.pb.collection('flashcard_count').getFullList();
+	const flashcards = await locals.pb.collection('flashcardCount').getFullList();
 
-	// Add the "count" field to each collection object
-	flashcardsCollection.forEach((collection) => {
-		collection.count = flashcards.filter((flashcard) => flashcard.id === collection.id)[0].count;
+	// Add the "count" field to each flashcardBox object
+	flashcardCollections.forEach((collection) => {
+		if (!collection.expand) return;
+
+		collection.expand.flashcardBox.forEach((box) => {
+			box.count = flashcards.filter((flashcard) => flashcard.id === box.id)[0].count;
+		});
 	});
 
 	// Server API:
-	const form = await superValidate(flashcardsSchema);
+	const form = await superValidate(flashcardCollectionSchema);
 	const quizForm = await superValidate(quizSchema);
 
 	return {
 		form,
 		quizForm: quizForm,
-		flashcards: structuredClone(flashcardsCollection)
+		flashcardCollections
 	};
 };
 
 /** @type {import('./$types').Actions} */
 export const actions = {
 	add: async ({ request, locals }) => {
-		const form = await superValidate(request, flashcardsSchema);
+		const form = await superValidate(request, flashcardCollectionSchema);
 
 		// Convenient validation check:
 		if (!form.valid) return fail(400, { form });
 
-		// Get user id from authStore
-		const { id } = await locals.pb.authStore.model;
-
-		let folder_flashcards;
-
 		try {
 			// Create a new collection of flashcards
-			folder_flashcards = await locals.pb
-				.collection('flashcards')
-				.create({ name: form.data.name, description: form.data.description, userId: id });
+			await locals.pb.collection('flashcardCollections').create({
+				name: form.data.name,
+				description: form.data.description,
+				userId: locals?.pb.authStore.model?.id
+			});
 		} catch (_) {
 			form.errors.name = ['Name already exists'];
 			return { form };
 		}
 
-		throw redirect(303, `/flashcards/${folder_flashcards.id}`);
+		return { form };
 	},
 	edit: async ({ request, locals }) => {
-		const form = await superValidate(request, flashcardsSchema);
+		const form = await superValidate(request, flashcardCollectionSchema);
 
 		// Convenient validation check:
 		if (!form.valid) return fail(400, { form });
 
 		try {
 			// Update the flashcard
-			await locals.pb.collection('flashcards').update(form.data.id, {
+			await locals.pb.collection('flashcardCollections').update(form.data.id, {
 				name: form.data.name,
 				description: form.data.description
 			});
@@ -77,7 +75,7 @@ export const actions = {
 		return { form };
 	},
 	delete: async ({ request, locals }) => {
-		const form = await superValidate(request, flashcardsSchema);
+		const form = await superValidate(request, flashcardCollectionSchema);
 
 		// Convenient validation check:
 		if (!form.valid) return fail(400, { form });
@@ -98,18 +96,12 @@ export const actions = {
 		// Convenient validation check:
 		if (!form.valid) return fail(400, { form });
 
-		// Set the form userId to the current user
-		const userId = locals.pb.authStore.model?.id;
-
 		let quiz;
 
 		// Get the current flashcards
-		const flashcards = (
-			await locals.pb.collection('flashcard').getFullList({
-				filter: `flashcardsId = "${form.data.flashcardsId}"`
-			})
-		).map((card) => {
-			return { name: card.name, meaning: card.meaning };
+		const flashcards = await locals.pb.collection('flashcard').getFullList({
+			filter: `flashcardBox = "${form.data.flashcardBox}"`,
+			fields: 'name,meaning'
 		});
 
 		try {
@@ -117,9 +109,9 @@ export const actions = {
 				name: form.data.name,
 				choice: form.data.choice,
 				type: form.data.type,
-				userId,
+				userId: locals.pb.authStore.model?.id,
 				maxCount: form.data.maxCount,
-				flashcardsId: form.data.flashcardsId,
+				flashcardBox: form.data.flashcardBox,
 				timeLimit: form.data.timeLimit,
 				flashcards: JSON.stringify(flashcards)
 			});

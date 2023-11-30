@@ -10,7 +10,7 @@
 	<meta name="theme-color" content="rgb(0,0,0)" />
 </svelte:head>
 
-<main class="flex h-full select-none flex-col items-center overflow-hidden bg-white px-3 py-5">
+<main class="flex h-[100dvh] select-none flex-col items-center overflow-hidden bg-white px-3 py-5">
 	<nav class="z-[99] flex w-full p-5">
 		<button
 			on:click|preventDefault={() =>

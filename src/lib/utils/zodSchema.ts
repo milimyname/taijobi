@@ -24,11 +24,11 @@ export const flashcardSchema = z.object({
 	notes: z.string().optional(),
 	romanji: z.string().optional(),
 	furigana: z.string(),
-	flashcardsId: z.string().optional(),
+	flashcardBox: z.string().optional(),
 	id: z.string().optional()
 });
 
-export const flashcardsSchema = z.object({
+export const flashcardCollectionSchema = z.object({
 	name: z.string().max(25),
 	description: z.string().max(100).optional(),
 	id: z.string().optional()
@@ -48,7 +48,7 @@ export const quizSchema = z.object({
 	maxCount: z.number().default(20),
 	startCount: z.number().default(1),
 	score: z.number().default(0),
-	flashcardsId: z.string(),
+	flashcardBox: z.string(),
 	userId: z.string(),
 	timeLimit: z.boolean().default(false),
 	id: z.string().optional(),

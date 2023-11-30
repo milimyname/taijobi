@@ -19,7 +19,7 @@ export const load = async ({ params, locals }) => {
 
 		return {
 			quiz: {
-				flashcardsId: '-',
+				flashcardBox: '-',
 				id: params.slug,
 				maxCount: 46,
 				score: 0,

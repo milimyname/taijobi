@@ -30,7 +30,7 @@ export const load = async ({ locals }) => {
 
 	// Get all flashcards
 	const flashcard = await locals.pb.collection('flashcard').getFullList({
-		filter: `flashcardsId = "${kanjiId}"`,
+		filter: `flashcardBox = "${kanjiId}"`,
 		fields: 'name'
 	});
 
@@ -75,7 +75,7 @@ export const actions = {
 				userId,
 				maxCount: form.data.maxCount,
 				startCount: 2,
-				flashcardsId: kanjiId,
+				flashcardBox: kanjiId,
 				timeLimit: form.data.timeLimit,
 				flashcards: JSON.stringify(flashcards)
 			});

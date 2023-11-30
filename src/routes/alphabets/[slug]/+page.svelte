@@ -86,7 +86,7 @@
 			await pocketbase.collection('flashcard').create({
 				name: $currentLetter,
 				meaning: kanji[$currentLetter].meaning,
-				flashcardsId: data.kanjiId,
+				flashcardBox: data.kanjiId,
 				type: 'kanji'
 			});
 

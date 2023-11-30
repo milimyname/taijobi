@@ -23,6 +23,9 @@ dependencies:
   kuroshiro-analyzer-kuromoji:
     specifier: ^1.1.0
     version: 1.1.0
+  lucide-svelte:
+    specifier: ^0.294.0
+    version: 0.294.0(svelte@4.1.1)
   pocketbase:
     specifier: ^0.19.0
     version: 0.19.0
@@ -2205,6 +2208,14 @@ packages:
     dependencies:
       yallist: 4.0.0
     dev: true
+
+  /lucide-svelte@0.294.0(svelte@4.1.1):
+    resolution: {integrity: sha512-jqQDL9bfZm3DzEhulRdPWWw88qQpS/w/fDAdgTsYXjij5I81HYFFxbDHpnSHes2oH9Eri5M3QQDgqV9xtqkyig==}
+    peerDependencies:
+      svelte: '>=3 <5'
+    dependencies:
+      svelte: 4.1.1
+    dev: false
 
   /magic-string@0.27.0:
     resolution: {integrity: sha512-8UnnX2PeRAPZuN12svgR9j7M1uWMovg/CEnIwIG0LFkXSJJe4PdfUGiTGl8V9bsBHFUtfVINcSyYxd7q+kx9fA==}

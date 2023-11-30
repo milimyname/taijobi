@@ -179,7 +179,7 @@
 				</button>
 				<input use:melt={$input} type="checkbox" name="timeLimit" bind:value={$form.timeLimit} />
 			</div>
-			<input type="hidden" name="flashcardsId" bind:value={$form.flashcardsId} />
+			<input type="hidden" name="flashcardBox" bind:value={$form.flashcardBox} />
 			<input type="hidden" name="name" bind:value={$form.name} />
 		</div>
 
@@ -188,7 +188,8 @@
 				type="button"
 				on:click={() => ($clickedQuizForm = false)}
 				class="text-md rounded-md border-2 border-black px-4 py-2 font-medium shadow-lg transition duration-200 visited:-translate-x-4 active:translate-y-1 active:shadow-sm"
-				>Cancel
+			>
+				Cancel
 			</button>
 			<button
 				formaction="?/addQuiz"

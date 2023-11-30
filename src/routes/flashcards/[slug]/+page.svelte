@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Card from './Flashcard.svelte';
-	import { clickedEditFlashcard, clickedAddFlashcard } from '$lib/utils/stores';
+	import { clickedEditFlashcard, clickedAddFlashcardCollection } from '$lib/utils/stores';
 	import { spring } from 'svelte/motion';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { clickOutside } from '$lib/utils/clickOutside.js';
@@ -25,12 +25,12 @@
 		applyAction: true,
 		onSubmit: async (form) => {
 			$clickedEditFlashcard = false;
-			$clickedAddFlashcard = false;
+			$clickedAddFlashcardCollection = false;
 
 			if (form.action.search.endsWith('delete')) currentIndex = 0;
 		},
 		onUpdated: () => {
-			if (!$errors.name) $clickedAddFlashcard = false;
+			if (!$errors.name) $clickedAddFlashcardCollection = false;
 		}
 	});
 
@@ -160,7 +160,7 @@
 	class="flex flex-1 flex-col items-center justify-center gap-5"
 	use:clickOutside
 	on:outsideclick={() => {
-		$clickedAddFlashcard = false;
+		$clickedAddFlashcardCollection = false;
 		// Clear the form
 		$form.name = '';
 		$form.meaning = '';

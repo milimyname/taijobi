@@ -19,7 +19,7 @@ export const load = async ({ locals, params }) => {
 
 	// Get all the flashcards
 	const flashcards = await locals.pb.collection('flashcard').getFullList({
-		filter: `flashcardsId = "${params.slug}"`,
+		filter: `flashcardBox = "${params.slug}"`,
 		fields: `id, name, meaning, romanji, furigana, type, notes`
 	});
 
@@ -80,7 +80,7 @@ export const actions = {
 				romanji: form.data.romanji,
 				furigana: form.data.name,
 				type: form.data.type,
-				flashcardsId: params.slug,
+				flashcardBox: params.slug,
 				notes: form.data.notes
 			});
 		} catch (e) {
