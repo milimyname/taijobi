@@ -5,9 +5,12 @@
 		clickedAddFlashcardCollection,
 		maxFlashcards,
 		currentFlashcardCollectionId,
-		clickedFlashCard,
+		clickedAddFlahcardBox,
 		clickedEditFlashcard,
-		clickedQuizForm
+		clickedQuizForm,
+		flashcardsBoxType,
+		skippedFlashcard,
+		showCollections
 	} from '$lib/utils/stores.js';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { twSmallScreen } from '$lib/utils/constants';
@@ -16,31 +19,23 @@
 	import { quintOut } from 'svelte/easing';
 	import { fly } from 'svelte/transition';
 	import { clickOutside } from '$lib/utils/clickOutside';
-	import { Dices } from 'lucide-svelte';
-
-	import { writable } from 'svelte/store';
-	const skippedFlashcard = writable(false);
-	const showCollections = writable(false);
+	import { Dices, Plus, FolderEdit } from 'lucide-svelte';
+	import { goto } from '$app/navigation';
 
 	export let data;
 
-	// console.log(data.flashcardCollections);
-	// Client API:
+	// Flashcard collection form:
 	const { form, errors, constraints, enhance } = superForm(data.form, {
 		taintedMessage: null,
 		resetForm: true,
 		applyAction: true,
-		onSubmit: () => {
-			$clickedEditFlashcard = false;
-			$clickedAddFlashcardCollection = false;
-			$clickedFlashCard = false;
-		},
+		onSubmit: () => ($clickedAddFlashcardCollection = false),
 		onUpdated: () => {
 			if ($errors.name || $errors.description) $clickedAddFlashcardCollection = true;
 		}
 	});
 
-	// Client API:
+	// Quiz form:
 	const {
 		form: quizForm,
 		errors: quizErrors,
@@ -50,10 +45,23 @@
 		taintedMessage: null,
 		resetForm: true,
 		applyAction: true,
-		onSubmit: () => {
-			$clickedQuizForm = false;
-			$clickedFlashCard = false;
-		},
+		onSubmit: () => ($clickedQuizForm = false),
+		onUpdated: () => {
+			if ($errors.name || $errors.description) $clickedQuizForm = true;
+		}
+	});
+
+	// Box form:
+	const {
+		form: boxForm,
+		errors: boxErrors,
+		constraints: boxConstraints,
+		enhance: boxEnhance
+	} = superForm(data.boxForm, {
+		taintedMessage: null,
+		resetForm: true,
+		applyAction: true,
+		onSubmit: () => ($clickedAddFlahcardBox = false),
 		onUpdated: () => {
 			if ($errors.name || $errors.description) $clickedQuizForm = true;
 		}
@@ -80,16 +88,27 @@
 	}
 </script>
 
+<svelte:window bind:innerWidth={$innerWidthStore} />
+
+{#if $clickedAddFlashcardCollection}
+	<FlashcardCollectionForm {enhance} {errors} {form} {constraints} />
+{/if}
+
+{#if $clickedAddFlahcardBox}
+	<FlashcardCollectionForm
+		errors={boxErrors}
+		enhance={boxEnhance}
+		form={boxForm}
+		constraints={boxConstraints}
+	/>
+{/if}
+
 <TextQuizForm
 	errors={quizErrors}
 	enhance={quizEnhance}
 	form={quizForm}
 	constraints={quizConstraints}
 />
-
-<FlashcardCollectionForm {enhance} {errors} {form} {constraints} />
-
-<svelte:window bind:innerWidth={$innerWidthStore} />
 
 <section
 	use:clickOutside
@@ -107,10 +126,9 @@
 				name={card.name}
 				id={card.id}
 				description={card.description}
-				expand={card.expand}
-				{skippedFlashcard}
-				{showCollections}
+				type={card.type}
 				{index}
+				{form}
 				totalCount={data.flashcardCollections.length}
 			/>
 		{/each}
@@ -125,10 +143,9 @@
 					name={card.name}
 					id={card.id}
 					description={card.description}
-					expand={card.expand}
-					{skippedFlashcard}
-					{showCollections}
+					type={card.type}
 					{index}
+					{form}
 					totalCount={data.flashcardCollections.length}
 				/>
 			{/each}
@@ -138,16 +155,16 @@
 </section>
 
 {#if $showCollections}
-	<div class="fixed top-0 z-[100] h-[100dvh] w-screen bg-black/50 backdrop-blur-md" />
-{/if}
-
-{#if $showCollections}
 	<div
 		use:clickOutside
-		on:outsideclick={() => ($showCollections = false)}
+		on:outsideclick={() => {
+			$clickedAddFlashcardCollection = false;
+			$clickedAddFlahcardBox = false;
+			$showCollections = false;
+		}}
 		class="
-			  add-form-btn scrollable fixed bottom-0 left-1/2 z-[200] flex h-[40dvh] w-full -translate-x-1/2
-			  items-center gap-2 overflow-auto rounded-t-2xl bg-white px-2 sm:bottom-0 sm:pb-0 md:max-w-4xl"
+			  add-form-btn scrollable fixed bottom-0 left-1/2 z-[200] flex min-h-fit w-full -translate-x-1/2
+			 items-center gap-2 overflow-auto rounded-t-2xl bg-white px-2 py-2 sm:bottom-0 md:max-w-4xl"
 		transition:fly={{
 			delay: 0,
 			duration: 500,
@@ -158,30 +175,67 @@
 	>
 		{#each data.flashcardCollections as collection}
 			{#if collection.id === $currentFlashcardCollectionId && collection.expand}
-				{#each collection.expand.flashcardBox as box}
-					<a
-						href={`/flashcards/${box.id}`}
+				{#each collection.expand.flashcardBoxes as box}
+					<button
+						on:click={() => {
+							$showCollections = false;
+							$clickedAddFlashcardCollection = false;
+							$clickedAddFlahcardBox = false;
+							goto(`/flashcards/${box.id}`);
+						}}
 						class=" flex h-60 flex-none basis-1/2 flex-col items-center justify-between rounded-xl bg-blue-400 text-center text-xl font-bold text-white sm:h-80 sm:basis-1/3"
 					>
 						<span class="p-4">
 							{box.name}
 						</span>
 
-						<button
-							class=" flex w-full justify-center rounded-t-xl bg-blue-500 p-4"
-							on:click|preventDefault={() => {
-								$quizForm.flashcardBox = box.id;
-								$maxFlashcards = box.count;
-								$clickedQuizForm = true;
-								$showCollections = false;
-							}}
-						>
-							<Dices />
-						</button>
-					</a>
+						<div class="flex w-full justify-around rounded-t-xl bg-blue-500 p-4">
+							<button
+								on:click|stopPropagation={() => {
+									$clickedEditFlashcard = true;
+									$clickedAddFlahcardBox = true;
+									$showCollections = false;
+									$clickedAddFlashcardCollection = false;
+									$flashcardsBoxType = collection.type;
+
+									// Fill in the form with the current flashcard data
+									$boxForm.name = box.name;
+									$boxForm.description = box.description;
+									$boxForm.id = box.id;
+								}}
+							>
+								<FolderEdit />
+							</button>
+							<button
+								on:click|stopPropagation={() => {
+									$quizForm.flashcardBox = box.id;
+									$maxFlashcards = box.count;
+									$clickedQuizForm = true;
+									$showCollections = false;
+									$clickedAddFlashcardCollection = false;
+									$clickedAddFlahcardBox = false;
+									$flashcardsBoxType = collection.type;
+								}}
+							>
+								<Dices />
+							</button>
+						</div>
+					</button>
 				{/each}
 			{/if}
 		{/each}
+
+		{#if $flashcardsBoxType !== 'original' || data.isAdmin}
+			<button
+				class="flex h-60 flex-none basis-1/4 flex-col items-center justify-center rounded-xl border-4 border-blue-400 text-center text-xl font-bold text-blue-500 hover:border-blue-500 sm:h-80"
+				on:click={() => {
+					$clickedAddFlahcardBox = true;
+					$showCollections = false;
+				}}
+			>
+				<Plus class="h-10 w-10" />
+			</button>
+		{/if}
 	</div>
 {/if}
 

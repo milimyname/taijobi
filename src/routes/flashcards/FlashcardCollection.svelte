@@ -3,25 +3,28 @@
 	import { onDestroy, onMount } from 'svelte';
 	import {
 		clickedAddFlashcardCollection,
+		clickedAddFlahcardBox,
 		innerWidthStore,
 		currentFlashcardCollectionId,
-		clickedQuizForm
+		flashcardsBoxType,
+		clickedQuizForm,
+		skippedFlashcard,
+		showCollections,
+		clickedEditFlashcard
 	} from '$lib/utils/stores';
-	import type { Writable } from 'svelte/store';
 	import { twSmallScreen } from '$lib/utils/constants';
-
+	import { FolderEdit } from 'lucide-svelte';
 	import { spring } from 'svelte/motion';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 
 	export let name: string;
 	export let description: string;
+	export let type: string;
 	export let index: number;
 	export let id: number;
-	export let expand: boolean;
 	export let totalCount: number;
-	export let skippedFlashcard: Writable<boolean>;
-	export let showCollections: Writable<boolean>;
+	export let form;
 
 	// Calculate the spring values for x, y, rotation, and scale based on index
 	const x = spring(0, { stiffness: 0.1, damping: 0.8, precision: 0.1 });
@@ -42,6 +45,7 @@
 			index !== totalCount - 1 ||
 			$showCollections ||
 			$clickedAddFlashcardCollection ||
+			$clickedAddFlahcardBox ||
 			$clickedQuizForm
 		)
 			return;
@@ -74,28 +78,38 @@
 	}
 
 	function onClick(event: MouseEvent) {
-		if ((!isDragging && index !== totalCount - 1) || $clickedAddFlashcardCollection) return;
+		if (
+			(!isDragging && index !== totalCount - 1) ||
+			$clickedAddFlashcardCollection ||
+			$clickedAddFlahcardBox ||
+			$clickedQuizForm
+		)
+			return;
 
-		if ($rotateY > 15 && expand) {
+		if ($rotateY > 15) {
 			$rotateY = 60;
 			$x = 1000;
+
 			$showCollections = true;
 			$currentFlashcardCollectionId = id;
-		} else if ($rotateY > 15 && !expand) {
-			$rotateY = 60;
-			$x = 1000;
-			$skippedFlashcard = true;
-		} else if ($rotateY < -15) {
+			$flashcardsBoxType = type;
+		}
+
+		if ($rotateY < -15) {
 			$rotateY = -60;
 			$x = -1000;
 			$skippedFlashcard = true;
-		} else if (event.clientX > cardRight && event.clientX < cardLeft) {
-			$showCollections = true;
 		}
 	}
 
 	function onTouchStart(event: TouchEvent) {
-		if (!$showCollections && !$clickedQuizForm) event.preventDefault();
+		if (
+			!$showCollections &&
+			!$clickedQuizForm &&
+			!$clickedAddFlashcardCollection &&
+			!$clickedAddFlahcardBox
+		)
+			event.preventDefault();
 
 		if (!isDragging && index !== totalCount - 1) return;
 
@@ -114,7 +128,14 @@
 	}
 
 	function onTouchMove(event: TouchEvent) {
-		if (!$showCollections && !$clickedQuizForm) event.preventDefault();
+		if (
+			!$showCollections &&
+			!$clickedQuizForm &&
+			!$clickedAddFlashcardCollection &&
+			!$clickedAddFlahcardBox
+		)
+			event.preventDefault();
+
 		if ((!isDragging && index !== totalCount - 1) || $showCollections) return;
 
 		const touch = event.touches[0];
@@ -151,23 +172,23 @@
 	}
 
 	function onTouchEnd(event: TouchEvent) {
-		if (!$showCollections && !$clickedQuizForm) event.preventDefault();
-
+		if (
+			!$showCollections &&
+			!$clickedQuizForm &&
+			!$clickedAddFlashcardCollection &&
+			!$clickedAddFlahcardBox
+		)
+			event.preventDefault();
 		isDragging = false;
 
 		if (!isDragging && index !== totalCount - 1) return;
 
-		if ($rotateY > 10 && expand) {
+		if ($rotateY > 10) {
 			$rotateY = 60;
 			$x = 1000;
 			$showCollections = true;
 			$currentFlashcardCollectionId = id;
-		}
-
-		if ($rotateY > 10 && !expand) {
-			$rotateY = 60;
-			$x = 1000;
-			$skippedFlashcard = true;
+			$flashcardsBoxType = type;
 		}
 
 		if ($rotateY < -5) {
@@ -246,5 +267,26 @@
 		/>
 	{/if}
 	<h2>{name}</h2>
-	<div class="h-40 w-full rounded-xl bg-blue-400 p-4">{description}</div>
+	<div class="flex h-40 w-full flex-col justify-between rounded-xl bg-blue-400 p-4">
+		<span>
+			{description}
+		</span>
+
+		<button
+			class="self-end rounded-lg bg-white p-2"
+			on:click|stopPropagation={() => {
+				$clickedEditFlashcard = true;
+				$clickedAddFlashcardCollection = true;
+				$clickedAddFlahcardBox = false;
+				$showCollections = false;
+
+				// Fill in the form with the current flashcard data
+				$form.name = name;
+				$form.description = description;
+				$form.id = id;
+			}}
+		>
+			<FolderEdit />
+		</button>
+	</div>
 </button>

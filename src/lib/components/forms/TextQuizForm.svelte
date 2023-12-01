@@ -16,7 +16,7 @@
 		elements: { root, input }
 	} = createSwitch();
 
-	export let enhance: boolean;
+	export let enhance;
 	export let errors;
 	export let form;
 	export let constraints;

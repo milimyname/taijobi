@@ -7,7 +7,7 @@ export const load = async ({ locals }) => {
 	// Get all the flashcards collection
 	const flashcardCollections = await locals.pb.collection('flashcardCollections').getFullList({
 		filter: `userId = "${locals.pb.authStore.model?.id}" || type = "original"`,
-		expand: 'flashcardBox'
+		expand: 'flashcardBoxes'
 	});
 
 	// Get all the flashcard from the server
@@ -17,19 +17,27 @@ export const load = async ({ locals }) => {
 	flashcardCollections.forEach((collection) => {
 		if (!collection.expand) return;
 
-		collection.expand.flashcardBox.forEach((box) => {
+		collection.expand.flashcardBoxes.forEach((box) => {
 			box.count = flashcards.filter((flashcard) => flashcard.id === box.id)[0].count;
 		});
 	});
 
 	// Server API:
-	const form = await superValidate(flashcardCollectionSchema);
-	const quizForm = await superValidate(quizSchema);
+	const form = await superValidate(flashcardCollectionSchema, {
+		id: 'collection'
+	});
+	const boxForm = await superValidate(flashcardCollectionSchema, {
+		id: 'box'
+	});
+	const quizForm = await superValidate(quizSchema, {
+		id: 'quiz'
+	});
 
 	return {
 		form,
 		quizForm: quizForm,
-		flashcardCollections
+		flashcardCollections,
+		boxForm
 	};
 };
 
@@ -41,18 +49,39 @@ export const actions = {
 		// Convenient validation check:
 		if (!form.valid) return fail(400, { form });
 
-		try {
-			// Create a new collection of flashcards
-			await locals.pb.collection('flashcardCollections').create({
-				name: form.data.name,
-				description: form.data.description,
-				userId: locals?.pb.authStore.model?.id
-			});
-		} catch (_) {
-			form.errors.name = ['Name already exists'];
-			return { form };
-		}
+		if (form.id === 'collection') {
+			try {
+				// Create a new collection of flashcards
+				await locals.pb.collection('flashcardCollections').create({
+					name: form.data.name,
+					description: form.data.description,
+					userId: locals?.pb.authStore.model?.id
+				});
+			} catch (_) {
+				form.errors.name = ['Name already exists'];
+				return { form };
+			}
+		} else {
+			try {
+				if (!form.data.flashcardCollection) throw new Error('No flashcard collection id provided');
 
+				// Create a new flashcard box
+				const flashBox = await locals.pb.collection('flashcardBoxes').create({
+					name: form.data.name,
+					description: form.data.description,
+					userId: locals?.pb.authStore.model?.id,
+					flashcardCollection: form.data.flashcardCollection
+				});
+
+				// Update the flashcard collection
+				await locals.pb.collection('flashcardCollections').update(form.data.flashcardCollection, {
+					'flashcardBoxes+': flashBox.id
+				});
+			} catch (_) {
+				form.errors.name = ['Name already exists'];
+				return { form };
+			}
+		}
 		return { form };
 	},
 	edit: async ({ request, locals }) => {
@@ -61,15 +90,31 @@ export const actions = {
 		// Convenient validation check:
 		if (!form.valid) return fail(400, { form });
 
-		try {
-			// Update the flashcard
-			await locals.pb.collection('flashcardCollections').update(form.data.id, {
-				name: form.data.name,
-				description: form.data.description
-			});
-		} catch (_) {
-			form.errors.name = ['Name already exists'];
-			return { form };
+		// Check if the id is provided
+		if (!form.data.id) return fail(400, { form });
+
+		if (form.id === 'collection') {
+			try {
+				// Create a new collection of flashcards
+				await locals.pb.collection('flashcardCollections').update(form.data.id, {
+					name: form.data.name,
+					description: form.data.description
+				});
+			} catch (_) {
+				form.errors.name = ['Name already exists'];
+				return { form };
+			}
+		} else {
+			try {
+				// Create a new flashcard box
+				await locals.pb.collection('flashcardBoxes').update(form.data.id, {
+					name: form.data.name,
+					description: form.data.description
+				});
+			} catch (_) {
+				form.errors.name = ['Name already exists'];
+				return { form };
+			}
 		}
 
 		return { form };
@@ -80,12 +125,25 @@ export const actions = {
 		// Convenient validation check:
 		if (!form.valid) return fail(400, { form });
 
-		try {
-			// Delete the flashcard
-			await locals.pb.collection('flashcards').delete(form.data.id);
-		} catch (_) {
-			form.errors.name = ['Cannot delete flashcard'];
-			return { form };
+		// Check if the id is provided
+		if (!form.data.id) return fail(400, { form });
+
+		if (form.id === 'collection') {
+			try {
+				// Delete the flashcard
+				await locals.pb.collection('flashcardCollections').delete(form.data.id);
+			} catch (_) {
+				form.errors.name = ['Cannot delete flashcard'];
+				return { form };
+			}
+		} else {
+			try {
+				// Create a new flashcard box
+				await locals.pb.collection('flashcardBoxes').delete(form.data.id);
+			} catch (_) {
+				form.errors.name = ['Name already exists'];
+				return { form };
+			}
 		}
 
 		return { form };

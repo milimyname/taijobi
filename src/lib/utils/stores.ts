@@ -11,11 +11,15 @@ export const lastPoint = writable({ x: 0, y: 0 });
 export const clickedAddFlashcardCollection = writable(false);
 export const currentFlashcardCollectionId = writable(0);
 export const clickedEditFlashcard = writable(false);
-export const clickedFlashCard = writable(false);
+export const clickedAddFlahcardBox = writable(false);
 export const clickedFeedback = writable(false);
 export const clickedQuizForm = writable(false);
 export const clickedKanjiForm = writable(false);
+export const clickedFlashcardForm = writable(false);
+export const skippedFlashcard = writable(false);
+export const showCollections = writable(false);
 export const clickedReport = writable(false);
+export const flashcardsBoxType = writable('');
 export const selectedKanjiGrade = writable('0');
 export const maxFlashcards = writable('');
 

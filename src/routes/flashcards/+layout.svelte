@@ -2,22 +2,20 @@
 	import { onMount, afterUpdate } from 'svelte';
 	import {
 		clickedAddFlashcardCollection,
+		clickedAddFlahcardBox,
 		clickedEditFlashcard,
-		clickedQuizForm
+		showCollections,
+		clickedQuizForm,
+		flashcardsBoxType
 	} from '$lib/utils/stores';
 	import { goto } from '$app/navigation';
 	import { icons } from '$lib/utils/icons';
 	import { page } from '$app/stores';
-	import { browser } from '$app/environment';
-
-	let isConstantFlashcard: string;
 
 	onMount(() => {
 		if ($clickedAddFlashcardCollection) document.body.style.backgroundColor = 'rgb(0,0,0)';
 		else if ($clickedQuizForm) document.body.style.backgroundColor = 'rgb(0,0,0)';
 		else document.body.style.backgroundColor = 'rgb(255,255,255)';
-
-		isConstantFlashcard = localStorage.getItem('isConstantFlashcard') as string;
 	});
 
 	afterUpdate(() => {
@@ -25,12 +23,6 @@
 		else if ($clickedQuizForm) document.body.style.backgroundColor = 'rgb(0,0,0)';
 		else document.body.style.backgroundColor = 'rgb(255,255,255)';
 	});
-
-	$: if (browser) {
-		// Update isConstantFlashcard value
-		if (isConstantFlashcard || $page.data.isAdmin)
-			isConstantFlashcard = localStorage.getItem('isConstantFlashcard') as string;
-	}
 </script>
 
 <svelte:head>
@@ -38,6 +30,10 @@
 	<meta name="description" content="Flashcards" />
 	<meta name="theme-color" content="rgb(0,0,0)" />
 </svelte:head>
+
+{#if $showCollections || $clickedAddFlahcardBox || $clickedAddFlashcardCollection}
+	<div class="fixed top-0 z-[100] h-[100dvh] w-screen bg-black/50 backdrop-blur-md" />
+{/if}
 
 <main
 	class="flex h-[100dvh] select-none flex-col items-center overflow-hidden bg-white px-3 py-5 transition-all {$clickedAddFlashcardCollection &&
@@ -47,17 +43,19 @@
 		<button
 			on:click={() => {
 				$page.route.id && goto($page.route.id.length < 12 ? '/' : '/flashcards');
-				localStorage.setItem('isConstantFlashcard', 'false');
+				$showCollections = false;
 			}}
 			class="go-back-btn flex items-center gap-2"
 		>
 			{@html icons.previous}
 			<span>Back</span>
 		</button>
-		{#if $page.data.isAdmin || (!$page.data.isAdmin && isConstantFlashcard === 'false')}
+
+		{#if $flashcardsBoxType !== 'original' || $page.data.isAdmin}
 			<button
 				on:click={() => {
-					$clickedAddFlashcardCollection = !$clickedAddFlashcardCollection;
+					$clickedAddFlahcardBox = false;
+					$clickedAddFlashcardCollection = true;
 					$clickedEditFlashcard = false;
 				}}
 				class="add-btn transition-all hover:scale-110 active:scale-110"
