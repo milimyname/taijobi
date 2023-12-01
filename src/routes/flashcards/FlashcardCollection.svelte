@@ -124,6 +124,17 @@
 			return;
 		}
 
+		// If the user clicks on the add button, don't move the card
+		if (event.target?.closest('.edit-collection-btn')) {
+			$clickedAddFlashcardCollection = true;
+			$clickedEditFlashcard = true;
+			// Fill in the form with the current flashcard data
+			$form.name = name;
+			$form.description = description;
+			$form.id = id;
+			return;
+		}
+
 		isDragging = true;
 	}
 
@@ -243,6 +254,8 @@
 		$skewX = 0;
 		$scaleShadow = 0.8;
 	}
+
+	$: console.log({ type }, $page.data.isAdmin);
 </script>
 
 <svelte:window on:click={onClick} on:mousemove={onMouseMove} />
@@ -272,21 +285,23 @@
 			{description}
 		</span>
 
-		<button
-			class="self-end rounded-lg bg-white p-2"
-			on:click|stopPropagation={() => {
-				$clickedEditFlashcard = true;
-				$clickedAddFlashcardCollection = true;
-				$clickedAddFlahcardBox = false;
-				$showCollections = false;
+		{#if type !== 'original' || $page.data.isAdmin}
+			<button
+				class="edit-collection-btn self-end rounded-lg bg-white p-2"
+				on:click|stopPropagation={() => {
+					$clickedEditFlashcard = true;
+					$clickedAddFlashcardCollection = true;
+					$clickedAddFlahcardBox = false;
+					$showCollections = false;
 
-				// Fill in the form with the current flashcard data
-				$form.name = name;
-				$form.description = description;
-				$form.id = id;
-			}}
-		>
-			<FolderEdit />
-		</button>
+					// Fill in the form with the current flashcard data
+					$form.name = name;
+					$form.description = description;
+					$form.id = id;
+				}}
+			>
+				<FolderEdit />
+			</button>
+		{/if}
 	</div>
 </button>

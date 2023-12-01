@@ -28,7 +28,7 @@
 <svelte:head>
 	<title>Flashcards</title>
 	<meta name="description" content="Flashcards" />
-	<meta name="theme-color" content="rgb(0,0,0)" />
+	<!-- <meta name="theme-color" content="rgb(0,0,0)" /> -->
 </svelte:head>
 
 {#if $showCollections || $clickedAddFlahcardBox || $clickedAddFlashcardCollection}

@@ -190,22 +190,24 @@
 						</span>
 
 						<div class="flex w-full justify-around rounded-t-xl bg-blue-500 p-4">
-							<button
-								on:click|stopPropagation={() => {
-									$clickedEditFlashcard = true;
-									$clickedAddFlahcardBox = true;
-									$showCollections = false;
-									$clickedAddFlashcardCollection = false;
-									$flashcardsBoxType = collection.type;
+							{#if $flashcardsBoxType !== 'original' || data.isAdmin}
+								<button
+									on:click|stopPropagation={() => {
+										$clickedEditFlashcard = true;
+										$clickedAddFlahcardBox = true;
+										$showCollections = false;
+										$clickedAddFlashcardCollection = false;
+										$flashcardsBoxType = collection.type;
 
-									// Fill in the form with the current flashcard data
-									$boxForm.name = box.name;
-									$boxForm.description = box.description;
-									$boxForm.id = box.id;
-								}}
-							>
-								<FolderEdit />
-							</button>
+										// Fill in the form with the current flashcard data
+										$boxForm.name = box.name;
+										$boxForm.description = box.description;
+										$boxForm.id = box.id;
+									}}
+								>
+									<FolderEdit />
+								</button>
+							{/if}
 							<button
 								on:click|stopPropagation={() => {
 									$quizForm.flashcardBox = box.id;
