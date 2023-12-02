@@ -17,7 +17,7 @@ export const load = async ({ locals }) => {
 	flashcardCollections.forEach((collection) => {
 		if (!collection.expand) return;
 
-		collection.expand.flashcardBoxes.forEach((box) => {
+		collection.expand.flashcardBoxes.forEach((box: { count: number; id: string }) => {
 			box.count = flashcards.filter((flashcard) => flashcard.id === box.id)[0].count;
 		});
 	});
@@ -66,7 +66,7 @@ export const actions = {
 				if (!form.data.flashcardCollection) throw new Error('No flashcard collection id provided');
 
 				// Create a new flashcard box
-				const flashBox = await locals.pb.collection('flashcardBoxes').create({
+				const flashcardBox = await locals.pb.collection('flashcardBoxes').create({
 					name: form.data.name,
 					description: form.data.description,
 					userId: locals?.pb.authStore.model?.id,
@@ -75,7 +75,7 @@ export const actions = {
 
 				// Update the flashcard collection
 				await locals.pb.collection('flashcardCollections').update(form.data.flashcardCollection, {
-					'flashcardBoxes+': flashBox.id
+					'flashcardBoxes+': flashcardBox.id
 				});
 			} catch (_) {
 				form.errors.name = ['Name already exists'];

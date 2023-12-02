@@ -2,42 +2,50 @@ import { superValidate } from 'sveltekit-superforms/server';
 import { fail, redirect } from '@sveltejs/kit';
 import { quizSchema } from '$lib/utils/zodSchema';
 import { kanji } from '$lib/static/kanji.js';
-
-let kanjiId = '';
+import type Pocketbase from 'pocketbase';
 
 /** @type {import('./$types').PageServerLoad} */
 export const load = async ({ locals }) => {
-	// Get all the collection of flashcards
-
-	const userId = locals.pb.authStore.model?.id;
-
 	try {
-		const existingFlashcards = await locals.pb.collection('flashcards').getFullList({
-			filter: `userId = "${userId}" && name = "漢字"`
+		const kanjiId = await getOrCreateKanjiId(locals.pb, locals.pb.authStore.model?.id);
+
+		const flashcard = await locals.pb.collection('flashcard').getFullList({
+			filter: `flashcardBox = "${kanjiId}"`,
+			fields: 'name'
 		});
 
-		if (existingFlashcards.length === 0)
-			kanjiId = (
-				await locals.pb.collection('flashcards').create({
-					name: '漢字',
-					userId,
-					description: 'It is a list of saved kanji.'
-				})
-			).id;
-	} catch (e) {
-		console.log(e);
-	}
+		const quizForm = await superValidate(quizSchema);
 
-	// Get all flashcards
-	const flashcard = await locals.pb.collection('flashcard').getFullList({
-		filter: `flashcardBox = "${kanjiId}"`,
-		fields: 'name'
+		return { flashcard: structuredClone(flashcard), kanjiId, quizForm };
+	} catch (e) {
+		console.error(e);
+		return fail(500, 'Internal Server Error');
+	}
+};
+
+async function getOrCreateKanjiId(pb: Pocketbase, userId: string) {
+	const existingFlashcards = await pb.collection('flashcardBoxes').getFullList({
+		filter: `userId = "${userId}" && name = "漢字"`
 	});
 
-	const quizForm = await superValidate(quizSchema);
+	// If the user already has a flashcard box, return it
+	if (existingFlashcards.length > 0) return existingFlashcards[0].id;
 
-	return { flashcard: structuredClone(flashcard), kanjiId, quizForm };
-};
+	const flashcardBox = await pb.collection('flashcardBoxes').create({
+		name: '漢字',
+		userId,
+		description: 'It is a list of saved kanji.'
+	});
+
+	await pb.collection('flashcardCollections').create({
+		name: 'Taijobi',
+		description: 'It is a list of saved flashcards by Taijobi.',
+		userId: userId,
+		'flashcardBoxes+': flashcardBox.id
+	});
+
+	return flashcardBox.id;
+}
 
 /** @type {import('./$types').Actions} */
 export const actions = {

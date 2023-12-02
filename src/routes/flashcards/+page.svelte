@@ -223,19 +223,22 @@
 									<FolderEdit />
 								</button>
 							{/if}
-							<button
-								on:click|stopPropagation={() => {
-									$quizForm.flashcardBox = box.id;
-									$maxFlashcards = box.count;
-									$clickedQuizForm = true;
-									$showCollections = false;
-									$clickedAddFlashcardCollection = false;
-									$clickedAddFlahcardBox = false;
-									$flashcardsBoxType = collection.type;
-								}}
-							>
-								<Dices />
-							</button>
+
+							{#if box.count > 20}
+								<button
+									on:click|stopPropagation={() => {
+										$quizForm.flashcardBox = box.id;
+										$maxFlashcards = box.count;
+										$clickedQuizForm = true;
+										$showCollections = false;
+										$clickedAddFlashcardCollection = false;
+										$clickedAddFlahcardBox = false;
+										$flashcardsBoxType = collection.type;
+									}}
+								>
+									<Dices />
+								</button>
+							{/if}
 						</div>
 					</button>
 				{/each}
