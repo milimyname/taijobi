@@ -12,6 +12,7 @@
 	import { wordClasses } from '$lib/utils/constants.js';
 	import { page } from '$app/stores';
 	import EditButton from './EditButton.svelte';
+	import { getLocalStorageItem } from '$lib/utils/localStorage';
 
 	export let data;
 
@@ -20,6 +21,7 @@
 	let currentFlashcardFurigana: string;
 	let currentFlashcardType: string;
 	let currentIndex: number = Math.floor(data.flashcards.length / 2);
+	let islocalBoxTypeOriginal = getLocalStorageItem('flashcardsBoxType') !== 'original';
 
 	// Client API:
 	const { form, errors, constraints, enhance } = superForm(data.form, {
@@ -150,7 +152,7 @@
 	};
 </script>
 
-{#if ($flashcardsBoxType !== 'original' && $flashcardsBoxType !== '') || $page.data.isAdmin}
+{#if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin}
 	<FlashcardForm {currentFlashcardType} {constraints} {form} {errors} {enhance} />
 {/if}
 
@@ -171,7 +173,7 @@
 >
 	{#if data.flashcards.length > 0}
 		<Card
-			{data}
+			flashcards={data.flashcards}
 			{currentIndex}
 			longWord={currentFlashcard.length > 8}
 			{currentFlashcardType}
@@ -180,7 +182,7 @@
 		/>
 
 		<div class="mb-auto flex items-center justify-center sm:mx-auto sm:w-[600px]">
-			{#if ($flashcardsBoxType !== 'original' && $flashcardsBoxType !== '') || $page.data.isAdmin}
+			{#if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin}
 				<div
 					class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
 				>

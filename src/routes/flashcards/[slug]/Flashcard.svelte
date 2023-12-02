@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { FlashcardType } from '$lib/utils/ambient.d.ts';
 	import { icons } from '$lib/utils/icons';
 	import { kanji } from '$lib/static/kanji';
 	import { fly } from 'svelte/transition';
@@ -14,11 +15,14 @@
 	let showNotes: boolean = false;
 
 	export let currentFlashcard: string;
+	export let flashcards: FlashcardType[];
 	export let currentFlashcardFurigana: string;
 	export let currentFlashcardType: string;
 	export let currentIndex: number;
 	export let longWord: boolean;
-	export let data;
+
+	let flashcard = kanji[currentFlashcard as keyof typeof kanji];
+	let fetchedFlashcard = flashcards.at(currentIndex);
 </script>
 
 <div style="perspective: 3000px; position: relative;">
@@ -60,20 +64,20 @@
 			<div class="grid-rows-[max-content 1fr] grid h-full">
 				<h2 class="text-center text-9xl">{currentFlashcard}</h2>
 				<div>
-					<h2 class="text-4xl font-medium">{kanji[currentFlashcard].meaning}</h2>
+					<h2 class="text-4xl font-medium">{flashcard.meaning}</h2>
 					<p class=" text-sm text-gray-300">Meaning</p>
 				</div>
 				<div>
-					<h4 class="text-lg tracking-widest">{kanji[currentFlashcard].onyomi}</h4>
+					<h4 class="text-lg tracking-widest">{flashcard.onyomi}</h4>
 					<p class=" text-sm text-gray-300">Onyomi</p>
 				</div>
-				{#if kanji[currentFlashcard].kunyomi.length > 0}
+				{#if flashcard.kunyomi.length > 0}
 					<div>
-						<h4 class="text-lg tracking-widest">{kanji[currentFlashcard].kunyomi}</h4>
+						<h4 class="text-lg tracking-widest">{flashcard.kunyomi}</h4>
 						<p class=" text-sm text-gray-300">Kunyomi</p>
 					</div>
 				{/if}
-				{#if data.flashcards.at(currentIndex).notes && data.flashcards.at(currentIndex).notes.length > 0}
+				{#if fetchedFlashcard && fetchedFlashcard.notes && fetchedFlashcard.notes.length > 0}
 					<button
 						class="fixed bottom-0 left-0 z-10 rounded-tr-xl {showNotes
 							? 'bg-white text-black'
@@ -94,7 +98,7 @@
 							}}
 							class="z-4 absolute bottom-0 left-0 h-5/6 w-full rounded-xl bg-primary p-4 text-sm text-white"
 						>
-							{data.flashcards.at(currentIndex).notes}
+							{fetchedFlashcard.notes}
 						</p>
 					{/if}
 				{/if}
@@ -110,22 +114,22 @@
 			<div class="grid-rows-[max-content 1fr] grid h-full">
 				<h2 class="text-center text-4xl">{currentFlashcard}</h2>
 				<div>
-					<h2 class="text-xl font-medium">{data.flashcards.at(currentIndex).meaning}</h2>
+					<h2 class="text-xl font-medium">{fetchedFlashcard && fetchedFlashcard.meaning}</h2>
 					<p class=" text-sm text-gray-300">Meaning</p>
 				</div>
-				{#if data.flashcards.at(currentIndex).customFurigana}
+				{#if fetchedFlashcard && fetchedFlashcard.customFurigana}
 					<div>
-						<h2 class="text-xl font-medium">{data.flashcards.at(currentIndex).customFurigana}</h2>
+						<h2 class="text-xl font-medium">{fetchedFlashcard.customFurigana}</h2>
 						<p class=" text-sm text-gray-300">Furigana</p>
 					</div>
 				{/if}
-				{#if data.flashcards.at(currentIndex).romanji}
+				{#if fetchedFlashcard && fetchedFlashcard.romanji}
 					<div>
-						<h2 class="text-xl font-medium">{data.flashcards.at(currentIndex).romanji}</h2>
+						<h2 class="text-xl font-medium">{fetchedFlashcard.romanji}</h2>
 						<p class=" text-sm text-gray-300">Romanji</p>
 					</div>
 				{/if}
-				{#if data.flashcards.at(currentIndex).notes.length > 0}
+				{#if fetchedFlashcard && fetchedFlashcard?.notes.length > 0}
 					<button
 						class="fixed bottom-0 left-0 z-10 rounded-tr-xl {showNotes
 							? 'bg-white text-black'
@@ -146,7 +150,7 @@
 							}}
 							class="z-4 absolute bottom-0 left-0 h-5/6 w-full rounded-xl bg-primary p-4 text-sm text-white"
 						>
-							{data.flashcards.at(currentIndex).notes}
+							{fetchedFlashcard.notes}
 						</p>
 					{/if}
 				{/if}

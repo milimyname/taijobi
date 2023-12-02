@@ -21,6 +21,7 @@
 	import { clickOutside } from '$lib/utils/clickOutside';
 	import { Dices, Plus, FolderEdit } from 'lucide-svelte';
 	import { goto } from '$app/navigation';
+	import { createLocalStorageStore } from '$lib/utils/localStorage';
 
 	export let data;
 
@@ -196,6 +197,10 @@
 							$showCollections = false;
 							$clickedAddFlashcardCollection = false;
 							$clickedAddFlahcardBox = false;
+
+							// Save the type to local storage
+							localStorage.setItem('flashcardsBoxType', collection.type);
+
 							goto(`/flashcards/${box.id}`);
 						}}
 						class=" flex h-60 flex-none basis-1/2 flex-col items-center justify-between rounded-xl bg-blue-400 text-center text-xl font-bold text-white sm:h-80 sm:basis-1/3"

@@ -40,6 +40,9 @@ export type FlashcardType = {
 	onyomi: string;
 	kunyomi: string;
 	meaning: string;
+	notes?: string;
+	customFurigana?: string;
+	romanji?: string;
 };
 
 export type ProgressDataItem = {

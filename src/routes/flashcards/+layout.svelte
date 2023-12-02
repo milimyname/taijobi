@@ -11,6 +11,7 @@
 	import { goto } from '$app/navigation';
 	import { icons } from '$lib/utils/icons';
 	import { page } from '$app/stores';
+	import { getLocalStorageItem } from '$lib/utils/localStorage';
 
 	onMount(() => {
 		if ($clickedAddFlashcardCollection) document.body.style.backgroundColor = 'rgb(0,0,0)';
@@ -23,6 +24,8 @@
 		else if ($clickedQuizForm) document.body.style.backgroundColor = 'rgb(0,0,0)';
 		else document.body.style.backgroundColor = 'rgb(255,255,255)';
 	});
+
+	let islocalBoxTypeOriginal = getLocalStorageItem('flashcardsBoxType') !== 'original';
 </script>
 
 <svelte:head>
@@ -62,7 +65,7 @@
 			>
 				{@html icons.collection}
 			</button>
-		{:else if ($flashcardsBoxType !== 'original' && $flashcardsBoxType !== '') || $page.data.isAdmin}
+		{:else if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin}
 			<button
 				on:click={() => {
 					$clickedAddFlahcardBox = false;

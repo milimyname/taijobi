@@ -19,7 +19,7 @@ export const load = async ({ locals }) => {
 		return { flashcard: structuredClone(flashcard), kanjiId, quizForm };
 	} catch (e) {
 		console.error(e);
-		return fail(500, 'Internal Server Error');
+		return fail(500, { message: 'Something went wrong' });
 	}
 };
 
@@ -41,6 +41,7 @@ async function getOrCreateKanjiId(pb: Pocketbase, userId: string) {
 		name: 'Taijobi',
 		description: 'It is a list of saved flashcards by Taijobi.',
 		userId: userId,
+		type: 'custom',
 		'flashcardBoxes+': flashcardBox.id
 	});
 

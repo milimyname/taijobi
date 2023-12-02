@@ -2,7 +2,8 @@
 	import { clickedEditFlashcard, clickedAddFlashcardCollection } from '$lib/utils/stores';
 	import { slide, fly } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
-	import { icons } from '$lib/utils/icons';
+	import { HelpCircle } from 'lucide-svelte';
+
 	import { clickOutside } from '$lib/utils/clickOutside';
 
 	export let currentFlashcardType: string;
@@ -56,7 +57,7 @@
 						on:mouseleave={() => (showInfo = false)}
 						class="relative hover:fill-black/50"
 					>
-						{@html icons.question}
+						<HelpCircle class="h-5 w-5 transition-transform hover:scale-125" />
 					</button>
 
 					{#if showInfo}
