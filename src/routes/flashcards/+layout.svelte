@@ -9,9 +9,9 @@
 		flashcardsBoxType
 	} from '$lib/utils/stores';
 	import { goto } from '$app/navigation';
-	import { icons } from '$lib/utils/icons';
 	import { page } from '$app/stores';
 	import { getLocalStorageItem } from '$lib/utils/localStorage';
+	import { ArrowLeft, FolderPlus } from 'lucide-svelte';
 
 	onMount(() => {
 		if ($clickedAddFlashcardCollection) document.body.style.backgroundColor = 'rgb(0,0,0)';
@@ -50,7 +50,7 @@
 			}}
 			class="go-back-btn flex items-center gap-2"
 		>
-			{@html icons.previous}
+			<ArrowLeft class="h-5 w-5" />
 			<span>Back</span>
 		</button>
 
@@ -63,7 +63,7 @@
 				}}
 				class="add-btn transition-all hover:scale-110 active:scale-110"
 			>
-				{@html icons.collection}
+				<FolderPlus />
 			</button>
 		{:else if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin}
 			<button
@@ -74,7 +74,7 @@
 				}}
 				class="add-btn transition-all hover:scale-110 active:scale-110"
 			>
-				{@html icons.collection}
+				<FolderPlus />
 			</button>
 		{/if}
 	</nav>

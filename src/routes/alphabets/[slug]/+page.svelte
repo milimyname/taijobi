@@ -2,6 +2,7 @@
 	import type { Ctx } from '$lib/utils/ambient.d.ts';
 	import { clickedKanjiForm, kanjiStore } from '$lib/utils/stores';
 	import { onMount } from 'svelte';
+	import { ArrowRight, ArrowLeft, RotateCcw, Search, Dices } from 'lucide-svelte';
 	import {
 		progressSlider,
 		currentLetter,
@@ -15,7 +16,6 @@
 	} from '$lib/utils/stores';
 	import { cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
-	import { icons } from '$lib/utils/icons';
 	import { clearCanvas } from '$lib/utils/actions';
 	import { toRomaji } from 'wanakana';
 	import { goto } from '$app/navigation';
@@ -135,17 +135,17 @@
 	constraints={quizConstraints}
 />
 
-<section class="flex flex-1 flex-col gap-2 sm:justify-center sm:gap-5">
+<section class="flex flex-1 flex-col justify-center gap-2 sm:justify-center sm:gap-5">
 	<div class="relative flex justify-between">
 		<button on:click={() => goto('/')} class="flex items-center gap-2">
-			{@html icons.previous}
+			<ArrowLeft class="h-4 w-4" />
 			<span>Back</span>
 		</button>
 
 		{#if $currentAlphabet === 'kanji'}
 			<div class="kanji-search">
 				<label for="search">
-					{@html icons.search}
+					<Search class="absolute right-0 top-3 h-5 w-5" />
 				</label>
 				<input
 					type="text"
@@ -219,7 +219,7 @@
 					$rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0);
 				}}
 			>
-				{@html icons.backside}
+				<RotateCcw class="h-4 w-4" />
 			</button>
 		</div>
 
@@ -259,7 +259,7 @@
 							$clickedKanjiForm = true;
 						}}
 					>
-						{@html icons.quiz}
+						<Dices class="h-4 w-4" />
 					</button>
 				</div>
 			{:else}
@@ -281,7 +281,7 @@
 			}}
 			class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
 		>
-			{@html icons.previous}
+			<ArrowLeft class="h-4 w-4" />
 		</button>
 
 		{#if $currentAlphabet === 'kanji'}
@@ -310,7 +310,7 @@
 			}}
 			class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
 		>
-			{@html icons.next}
+			<ArrowRight class="h-4 w-4" />
 		</button>
 	</div>
 </section>

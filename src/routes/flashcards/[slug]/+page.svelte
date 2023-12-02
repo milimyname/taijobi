@@ -186,7 +186,7 @@
 				<div
 					class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
 				>
-					<EditButton {form} {data} {currentIndex} />
+					<EditButton {form} flashcards={data.flashcards} {currentIndex} />
 				</div>
 			{/if}
 		</div>

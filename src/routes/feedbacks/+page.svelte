@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { goto, invalidateAll } from '$app/navigation';
-	import { icons } from '$lib/utils/icons';
 	import { clickedReport } from '$lib/utils/stores';
 	import { quintOut } from 'svelte/easing';
 	import { fly } from 'svelte/transition';
 	import { pocketbase } from '$lib/utils/pocketbase.js';
+	import { ArrowRight } from 'lucide-svelte';
 
 	export let data;
 
@@ -190,7 +190,7 @@
 >
 	<nav class="z-[99] flex w-full justify-between">
 		<button on:click|preventDefault={() => goto('/')} class="flex items-center gap-2">
-			{@html icons.previous}
+			<ArrowRight class="h-5 w-5 " />
 			<span>Back</span>
 		</button>
 	</nav>

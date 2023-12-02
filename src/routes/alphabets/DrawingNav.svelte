@@ -1,17 +1,8 @@
 <script lang="ts">
-	import { twSmallScreen } from '$lib/utils/constants';
 	import { fly } from 'svelte/transition';
 	import { sineIn } from 'svelte/easing';
 	import type { Ctx } from '$lib/utils/ambient.d.ts';
-
-	import {
-		animateSVG,
-		innerWidthStore,
-		isLongPress,
-		strokeColor,
-		showProgressSlider
-	} from '$lib/utils/stores';
-	import { icons } from '$lib/utils/icons';
+	import { animateSVG, isLongPress, strokeColor, showProgressSlider } from '$lib/utils/stores';
 	import {
 		handleUserIconClick,
 		handleLongPress,
@@ -19,6 +10,7 @@
 		clearCanvas
 	} from '$lib/utils/actions';
 	import { onMount } from 'svelte';
+	import { Brush, Eraser, RefreshCcw, MoveHorizontal } from 'lucide-svelte';
 
 	let longPressTimer: NodeJS.Timeout;
 	let canvas: HTMLCanvasElement | null, ctx: Ctx;
@@ -50,7 +42,7 @@
 			{#if !$isLongPress}
 				<input type="color" class="absolute left-0 top-0 opacity-0" bind:value={$strokeColor} />
 			{/if}
-			{@html icons.draw}
+			<Brush />
 		</button>
 
 		{#if !$isLongPress}
@@ -64,7 +56,7 @@
 				}}
 				on:click|preventDefault={() => clearCanvas(ctx, canvas)}
 			>
-				{@html icons.erase}
+				<Eraser />
 			</button>
 			<button
 				on:click|preventDefault={() => {
@@ -73,7 +65,7 @@
 				}}
 				class="transition-transform active:rotate-180"
 			>
-				{@html icons.animate}
+				<RefreshCcw />
 			</button>
 			<button
 				transition:fly={{
@@ -85,7 +77,7 @@
 				}}
 				on:click|preventDefault={() => ($showProgressSlider = !$showProgressSlider)}
 			>
-				{@html icons.rotate}
+				<MoveHorizontal />
 			</button>
 		{/if}
 	</nav>

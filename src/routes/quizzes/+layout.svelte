@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { icons } from '$lib/utils/icons';
 	import { page } from '$app/stores';
+	import { ArrowLeft } from 'lucide-svelte';
 </script>
 
 <svelte:head>
@@ -17,7 +17,7 @@
 				$page.route.id && goto($page.route.id.length < 12 ? '/' : '/quizzes')}
 			class="flex items-center gap-2"
 		>
-			{@html icons.previous}
+			<ArrowLeft class="h-5 w-5" />
 			<span>Back</span>
 		</button>
 	</nav>

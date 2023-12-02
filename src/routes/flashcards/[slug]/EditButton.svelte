@@ -1,10 +1,12 @@
 <script lang="ts">
-	import { icons } from '$lib/utils/icons';
 	import { clickedEditFlashcard, clickedAddFlashcardCollection } from '$lib/utils/stores';
+	import { ArrowUpCircle } from 'lucide-svelte';
+	import type { FlashcardType } from '$lib/utils/ambient.d.ts';
 
 	export let form;
-	export let data;
+	export let flashcards: FlashcardType[];
 	export let currentIndex: number;
+	let fetchedFlashcard = flashcards[currentIndex];
 </script>
 
 <button
@@ -12,16 +14,15 @@
 		$clickedAddFlashcardCollection = true;
 		$clickedEditFlashcard = true;
 		// Fill out the form with the current card data
-		if (data.flashcards.at(currentIndex).customFurigana)
-			$form.name = data.flashcards.at(currentIndex).customFurigana;
-		else $form.name = data.flashcards.at(currentIndex).name;
+		if (fetchedFlashcard.customFurigana) $form.name = fetchedFlashcard.customFurigana;
+		else $form.name = fetchedFlashcard.name;
 
-		$form.meaning = data.flashcards.at(currentIndex).meaning;
-		$form.id = data.flashcards.at(currentIndex).id;
-		$form.notes = data.flashcards.at(currentIndex).notes;
-		$form.type = data.flashcards.at(currentIndex).type;
-		$form.romanji = data.flashcards.at(currentIndex).romanji;
+		$form.meaning = fetchedFlashcard.meaning;
+		$form.id = fetchedFlashcard.id;
+		$form.notes = fetchedFlashcard.notes;
+		$form.type = fetchedFlashcard.type;
+		$form.romanji = fetchedFlashcard.romanji;
 	}}
 >
-	{@html icons.edit}
+	<ArrowUpCircle class="h-5 w-5" />
 </button>

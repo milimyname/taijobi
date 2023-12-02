@@ -1,11 +1,11 @@
 <script lang="ts">
 	import type { FlashcardType } from '$lib/utils/ambient.d.ts';
-	import { icons } from '$lib/utils/icons';
 	import { kanji } from '$lib/static/kanji';
 	import { fly } from 'svelte/transition';
 	import { currentAlphabet } from '$lib/utils/stores';
 	import { quintOut, cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
+	import { RotateCcw, Scroll } from 'lucide-svelte';
 
 	const rotateYCard = tweened(0, {
 		duration: 2000,
@@ -48,7 +48,7 @@
 						fixed bottom-5 right-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all"
 			on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
 		>
-			{@html icons.backside}
+			<RotateCcw class="h-4 w-4" />
 		</button>
 	</div>
 
@@ -84,7 +84,7 @@
 							: 'bg-blue-200'} p-5"
 						on:click|preventDefault={() => (showNotes = !showNotes)}
 					>
-						{@html icons.notes}
+						<Scroll class="h-6 w-6" />
 					</button>
 
 					{#if showNotes}
@@ -107,7 +107,7 @@
 								fixed bottom-5 right-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all"
 					on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
 				>
-					{@html icons.backside}
+					<RotateCcw class="h-4 w-4" />
 				</button>
 			</div>
 		{:else}
@@ -136,7 +136,7 @@
 							: 'bg-blue-200'} p-5"
 						on:click|preventDefault={() => (showNotes = !showNotes)}
 					>
-						{@html icons.notes}
+						<Scroll class="h-6 w-6" />
 					</button>
 
 					{#if showNotes}
@@ -159,7 +159,7 @@
 								fixed bottom-5 right-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all"
 					on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
 				>
-					{@html icons.backside}
+					<RotateCcw class="h-4 w-4" />
 				</button>
 			</div>
 		{/if}

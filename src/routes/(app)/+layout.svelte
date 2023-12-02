@@ -6,8 +6,8 @@
 	import { showAppNav, showNav, innerWidthStore } from '$lib/utils/stores';
 	import { onMount } from 'svelte';
 	import image from '$lib/static/taijobi.png';
-	import { icons } from '$lib/utils/icons';
 	import { pocketbase } from '$lib/utils/pocketbase';
+	import { Home, LogOut, Newspaper, GraduationCap, Menu } from 'lucide-svelte';
 
 	let innerWidth: number;
 	let longPressTimer: NodeJS.Timeout;
@@ -75,12 +75,18 @@
 				/>
 			</a>
 			<div class="flex gap-10 sm:flex-col">
-				<a href="/signup">{@html icons.signup} </a>
-				<a href="/studying">{@html icons.school} </a>
-				<a href="/profile">{@html icons.news} </a>
+				<a href="/">
+					<Home class="h-6 w-6" />
+				</a>
+				<a href="/studying">
+					<GraduationCap class="h-6 w-6" />
+				</a>
+				<a href="/profile">
+					<Newspaper class="h-6 w-6" />
+				</a>
 				<form action="/logout" method="POST">
 					<button type="submit">
-						{@html icons.logout}
+						<LogOut class="h-6 w-6" />
 					</button>
 				</form>
 			</div>
@@ -114,7 +120,7 @@
 					}}
 					on:click|preventDefault={handleMenuIconClick}
 				>
-					{@html icons.menu}
+					<Menu class="h-8 w-8" />
 				</button>
 			{/if}
 		{/if}

@@ -3,8 +3,7 @@
 	import { sineIn } from 'svelte/easing';
 	import { showAppNav, showNav } from '$lib/utils/stores';
 	import { clickOutside } from '$lib/utils/clickOutside';
-	import { icons } from '$lib/utils/icons';
-	import { navItems } from '$lib/utils/constants';
+	import { HelpCircle, CreditCard, CircleUser, Dices, LogOut, GraduationCap } from 'lucide-svelte';
 </script>
 
 {#if $showNav}
@@ -23,23 +22,45 @@
 			easing: sineIn
 		}}
 	>
-		{#each navItems.slice(0, 3) as item}
-			<div
-				class="{item.mb} {item.height} {item.borderColor} w-full rounded-4xl border-4 bg-white shadow-xl"
+		<div class="-mb-52 h-17 w-full rounded-4xl border-4 border-[#bddffa] bg-white shadow-xl">
+			<a
+				href="/"
+				class="flex justify-between p-4"
+				on:click={() => {
+					$showAppNav = false;
+					$showNav = false;
+				}}
 			>
-				<a
-					href={item.url}
-					class="flex justify-between p-4"
-					on:click={() => {
-						$showAppNav = false;
-						$showNav = false;
-					}}
-				>
-					{@html icons[item.icon]}
-					<h4 class="text-xl font-medium">{item.label}</h4>
-				</a>
-			</div>
-		{/each}
+				<HelpCircle />
+				<h4 class="text-xl font-medium">Taijobi</h4>
+			</a>
+		</div>
+		<div class="-mb-36 h-52 w-full rounded-4xl border-4 border-[#82c5f7] bg-white shadow-xl">
+			<a
+				href="/"
+				class="flex justify-between p-4"
+				on:click={() => {
+					$showAppNav = false;
+					$showNav = false;
+				}}
+			>
+				<CreditCard />
+				<h4 class="text-xl font-medium">Pricing</h4>
+			</a>
+		</div>
+		<div class="-mb-20 h-36 w-full rounded-4xl border-4 border-[#40a8f0] bg-white shadow-xl">
+			<a
+				href="/profile"
+				class="flex justify-between p-4"
+				on:click={() => {
+					$showAppNav = false;
+					$showNav = false;
+				}}
+			>
+				<CircleUser />
+				<h4 class="text-xl font-medium">Profile</h4>
+			</a>
+		</div>
 	</div>
 {:else if $showAppNav}
 	<div
@@ -57,22 +78,44 @@
 			easing: sineIn
 		}}
 	>
-		{#each navItems.slice(3, 6) as item}
-			<div
-				class="{item.mb} {item.height} {item.borderColor} w-full rounded-4xl border-4 bg-white shadow-xl"
+		<div class="-mb-52 h-17 w-full rounded-4xl border-4 border-[#F86F03] bg-white shadow-xl">
+			<a
+				href="/quizzes"
+				class="flex justify-between p-4"
+				on:click={() => {
+					$showAppNav = false;
+					$showNav = false;
+				}}
 			>
-				<a
-					href={item.url}
-					class="flex justify-between p-4"
-					on:click={() => {
-						$showAppNav = false;
-						$showNav = false;
-					}}
-				>
-					{@html icons[item.icon]}
-					<h4 class="text-xl font-medium">{item.label}</h4>
-				</a>
-			</div>
-		{/each}
+				<GraduationCap />
+				<h4 class="text-xl font-medium">Studying</h4>
+			</a>
+		</div>
+		<div class="-mb-36 h-52 w-full rounded-4xl border-4 border-[#8294C4] bg-white shadow-xl">
+			<a
+				href="/"
+				class="flex justify-between p-4"
+				on:click={() => {
+					$showAppNav = false;
+					$showNav = false;
+				}}
+			>
+				<Dices />
+				<h4 class="text-xl font-medium">Quizzes</h4>
+			</a>
+		</div>
+		<div class="-mb-20 h-36 w-full rounded-4xl border-4 border-[#47A992] bg-white shadow-xl">
+			<a
+				href="/"
+				class="flex justify-between p-4"
+				on:click={() => {
+					$showAppNav = false;
+					$showNav = false;
+				}}
+			>
+				<LogOut />
+				<h4 class="text-xl font-medium">Log out</h4>
+			</a>
+		</div>
 	</div>
 {/if}

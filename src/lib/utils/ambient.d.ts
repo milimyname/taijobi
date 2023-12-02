@@ -43,6 +43,8 @@ export type FlashcardType = {
 	notes?: string;
 	customFurigana?: string;
 	romanji?: string;
+	id?: string;
+	type?: string;
 };
 
 export type ProgressDataItem = {

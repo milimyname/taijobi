@@ -13,7 +13,6 @@
 		showCollections
 	} from '$lib/utils/stores.js';
 	import { superForm } from 'sveltekit-superforms/client';
-	import { twSmallScreen } from '$lib/utils/constants';
 	import { innerWidthStore } from '$lib/utils/stores';
 	import FlashcardCollection from './FlashcardCollection.svelte';
 	import { quintOut } from 'svelte/easing';
@@ -21,7 +20,6 @@
 	import { clickOutside } from '$lib/utils/clickOutside';
 	import { Dices, Plus, FolderEdit } from 'lucide-svelte';
 	import { goto } from '$app/navigation';
-	import { createLocalStorageStore } from '$lib/utils/localStorage';
 
 	export let data;
 
