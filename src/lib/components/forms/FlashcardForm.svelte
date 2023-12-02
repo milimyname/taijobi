@@ -23,8 +23,8 @@
 		on:outsideclick={() => ($clickedAddFlashcardCollection = false)}
 		method="POST"
 		class="add-form-btn fixed -bottom-5 z-[1000] flex
-				h-[75dvh]
-				w-full flex-col gap-5 overflow-y-scroll rounded-t-2xl bg-white px-5 py-10 sm:bottom-0 md:max-w-4xl"
+				h-[90dvh] w-full
+				flex-col gap-5 overflow-y-scroll rounded-t-2xl bg-white px-5 py-10 sm:bottom-0 sm:h-[75dvh] md:max-w-4xl"
 		transition:fly={{
 			delay: 0,
 			duration: 1000,
