@@ -12,8 +12,10 @@
 	export let constraints;
 
 	let showInfo = false;
+	let type: string;
 
-	let type = currentFlashcardType === 'word' ? 'word' : 'kanji';
+	if (currentFlashcardType) type = currentFlashcardType === 'word' ? 'word' : 'kanji';
+	else type = 'word';
 </script>
 
 {#if $clickedAddFlashcardCollection}

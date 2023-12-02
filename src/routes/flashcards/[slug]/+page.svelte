@@ -1,13 +1,16 @@
 <script lang="ts">
 	import Card from './Flashcard.svelte';
-	import { clickedEditFlashcard, clickedAddFlashcardCollection } from '$lib/utils/stores';
+	import {
+		clickedEditFlashcard,
+		clickedAddFlashcardCollection,
+		flashcardsBoxType
+	} from '$lib/utils/stores';
 	import { spring } from 'svelte/motion';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { clickOutside } from '$lib/utils/clickOutside.js';
 	import FlashcardForm from '$lib/components/forms/FlashcardForm.svelte';
 	import { wordClasses } from '$lib/utils/constants.js';
 	import { page } from '$app/stores';
-	import { onMount } from 'svelte';
 	import EditButton from './EditButton.svelte';
 
 	export let data;
@@ -39,7 +42,6 @@
 	let mousedown = false;
 	let sliderWords: HTMLButtonElement;
 	let currentlyCenteredWord: HTMLButtonElement;
-	let isConstantFlashcard: string;
 
 	let progress = spring(0, {
 		stiffness: 0.1,
@@ -141,18 +143,14 @@
 	}
 
 	const handleClick = (name: string) => {
-		return function (e) {
+		return function () {
 			currentFlashcard = name;
 			currentIndex = data.flashcards.findIndex((flashcard) => flashcard.name === name);
 		};
 	};
-
-	onMount(() => {
-		isConstantFlashcard = localStorage.getItem('isConstantFlashcard') as string;
-	});
 </script>
 
-{#if $page.data.isAdmin || (!$page.data.isAdmin && isConstantFlashcard === 'false')}
+{#if $flashcardsBoxType !== 'original' || $page.data.isAdmin}
 	<FlashcardForm {currentFlashcardType} {constraints} {form} {errors} {enhance} />
 {/if}
 
@@ -182,13 +180,7 @@
 		/>
 
 		<div class="mb-auto flex items-center justify-center sm:mx-auto sm:w-[600px]">
-			{#if $page.data.isAdmin}
-				<div
-					class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
-				>
-					<EditButton {form} {data} {currentIndex} />
-				</div>
-			{:else if !$page.data.isAdmin && isConstantFlashcard === 'false'}
+			{#if $flashcardsBoxType !== 'original' || $page.data.isAdmin}
 				<div
 					class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
 				>

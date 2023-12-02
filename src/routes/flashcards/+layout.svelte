@@ -51,7 +51,18 @@
 			<span>Back</span>
 		</button>
 
-		{#if $flashcardsBoxType !== 'original' || $page.data.isAdmin}
+		{#if $page.route.id && $page.route.id.length < 12}
+			<button
+				on:click={() => {
+					$clickedAddFlahcardBox = false;
+					$clickedAddFlashcardCollection = true;
+					$clickedEditFlashcard = false;
+				}}
+				class="add-btn transition-all hover:scale-110 active:scale-110"
+			>
+				{@html icons.collection}
+			</button>
+		{:else if $flashcardsBoxType !== 'original' || $page.data.isAdmin}
 			<button
 				on:click={() => {
 					$clickedAddFlahcardBox = false;
