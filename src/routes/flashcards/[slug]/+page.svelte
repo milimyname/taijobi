@@ -150,7 +150,7 @@
 	};
 </script>
 
-{#if $flashcardsBoxType !== 'original' || $page.data.isAdmin}
+{#if ($flashcardsBoxType !== 'original' && $flashcardsBoxType !== '') || $page.data.isAdmin}
 	<FlashcardForm {currentFlashcardType} {constraints} {form} {errors} {enhance} />
 {/if}
 
@@ -180,7 +180,7 @@
 		/>
 
 		<div class="mb-auto flex items-center justify-center sm:mx-auto sm:w-[600px]">
-			{#if $flashcardsBoxType !== 'original' || $page.data.isAdmin}
+			{#if ($flashcardsBoxType !== 'original' && $flashcardsBoxType !== '') || $page.data.isAdmin}
 				<div
 					class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
 				>

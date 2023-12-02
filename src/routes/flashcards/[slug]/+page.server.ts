@@ -5,64 +5,52 @@ import Kuroshiro from '@sglkc/kuroshiro';
 import KuromojiAnalyzer from '@sglkc/kuroshiro-analyzer-kuromoji';
 import { convertToRubyTag } from '$lib/utils/actions.js';
 import { isHiragana } from 'wanakana';
+import type { RecordModel } from 'pocketbase';
 
 const kuroshiro = new Kuroshiro();
 
-let kuroshiroInitialized = false; // Add this flag to track initialization
+let kuroshiroInitialized = false;
 
 /** @type {import('./$types').PageServerLoad} */
 export const load = async ({ locals, params }) => {
-	if (!kuroshiroInitialized) {
-		await kuroshiro.init(new KuromojiAnalyzer());
-		kuroshiroInitialized = true;
-	}
-
 	// Get all the flashcards
 	const flashcards = await locals.pb.collection('flashcard').getFullList({
 		filter: `flashcardBox = "${params.slug}"`,
 		fields: `id, name, meaning, romanji, furigana, type, notes`
 	});
 
-	// Check if they are kanji type
-	const kanjiFlashcards = flashcards.filter((card) => card.type === 'kanji');
-
-	if (kanjiFlashcards.length > 0) {
-		// Server API:
-		const form = await superValidate(flashcardSchema);
-
-		return {
-			form,
-			flashcards: structuredClone(flashcards)
-		};
+	if (!kuroshiroInitialized) {
+		await kuroshiro.init(new KuromojiAnalyzer());
+		kuroshiroInitialized = true;
 	}
 
-	// Add furigana to the flashcards
-	const furiganaPromises = structuredClone(flashcards);
-
-	furiganaPromises.map(async (card) => {
-		if (card.furigana.includes('/') && isHiragana(card.furigana[card.furigana.indexOf('/') + 1])) {
-			card.customFurigana = card.furigana;
-			card.furigana = convertToRubyTag(card.furigana);
-			return;
-		}
-
-		card.furigana = await kuroshiro.convert(card.name, {
-			to: 'hiragana',
-			mode: 'furigana'
-		});
-	});
-
-	// Wait for all the Promises to resolve
-	const furiganas = await Promise.all(furiganaPromises);
+	// Process furigana in parallel
+	const processedFlashcards = await Promise.all(flashcards.map((card) => processFurigana(card)));
 
 	// Server API:
 	const form = await superValidate(flashcardSchema);
 
 	return {
 		form,
-		flashcards: furiganas
+		flashcards: processedFlashcards
 	};
 };
+
+async function processFurigana(card: RecordModel) {
+	// Custom furigana processing
+	if (card.furigana.includes('/') && isHiragana(card.furigana[card.furigana.indexOf('/') + 1])) {
+		card.customFurigana = card.furigana;
+		card.furigana = convertToRubyTag(card.furigana);
+	} else {
+		// Kuroshiro conversion for kanji cards
+		card.furigana = await kuroshiro.convert(card.name, {
+			to: 'hiragana',
+			mode: 'furigana'
+		});
+	}
+
+	return card;
+}
 
 /** @type {import('./$types').Actions} */
 export const actions = {

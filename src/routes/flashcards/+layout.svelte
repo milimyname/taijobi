@@ -62,7 +62,7 @@
 			>
 				{@html icons.collection}
 			</button>
-		{:else if $flashcardsBoxType !== 'original' || $page.data.isAdmin}
+		{:else if ($flashcardsBoxType !== 'original' && $flashcardsBoxType !== '') || $page.data.isAdmin}
 			<button
 				on:click={() => {
 					$clickedAddFlahcardBox = false;
