@@ -60,14 +60,14 @@
 		use:clickOutside
 		on:outsideclick={() => ($showProgressSlider = false)}
 		use:melt={$root}
-		class="fixed bottom-5 z-40 mx-auto flex w-[90%] items-center overflow-hidden rounded-full bg-black/40 sm:w-[600px]"
+		class="fixed bottom-5 z-40 mx-auto flex w-[90%] items-center rounded-full bg-black/40 sm:w-[416px]"
 	>
-		<div class=" block h-[67px] cursor-ew-resize">
-			<div use:melt={$range} class="h-[67px] rounded-l-full bg-[#0A6EBD] shadow-xl" />
+		<div class=" block h-[56px] cursor-ew-resize">
+			<div use:melt={$range} class="h-[56px] rounded-l-full bg-[#0A6EBD] shadow-xl" />
 		</div>
 		<div
 			use:melt={$thumb()}
-			class=" block h-[67px] w-2 overflow-auto rounded-full bg-white focus:ring-4 focus:ring-black/40"
+			class="block h-[56px] w-2 rounded-full bg-white focus:ring-4 focus:ring-black/40"
 		/>
 	</div>
 {/if}
