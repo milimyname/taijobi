@@ -86,6 +86,15 @@
 		setTimeout(() => discardCard(), 200);
 		$skippedFlashcard = false;
 	}
+
+	// Function to handle whether the device is touch screen
+	function isTouchScreen() {
+		if (typeof window === 'undefined') return false;
+
+		return (
+			'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0
+		);
+	}
 </script>
 
 <svelte:window bind:innerWidth={$innerWidthStore} />
@@ -114,10 +123,16 @@
 	use:clickOutside
 	on:outsideclick={() => {
 		$clickedAddFlashcardCollection = false;
+		$clickedEditFlashcard = false;
+
+		// Clear the form
+		$form.name = '';
+		$form.description = '';
+		$form.id = '';
 	}}
 	class="collection-container flex flex-1 cursor-pointer items-center justify-center pb-20"
 >
-	{#if $innerWidthStore > twSmallScreen}
+	{#if !isTouchScreen()}
 		<!-- <button class="mr-60 h-full border-b-2 pb-4 text-4xl font-bold text-gray-300">
 			Next Card
 		</button> -->

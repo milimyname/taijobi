@@ -96,21 +96,21 @@
 		on:outsideclick={() => ($showCollections = false)}
 		on:scroll|preventDefault
 		class="
-			  add-form-btn scrollable fixed -bottom-5 left-1/2 z-[200] flex h-[75dvh] w-full -translate-x-1/2
-			 flex-col gap-2 rounded-t-2xl bg-white px-2 py-10 sm:bottom-0 md:max-w-4xl"
+			  add-form-btn scrollable fixed bottom-0 left-1/2 z-[200] flex h-[40dvh] w-full -translate-x-1/2
+			  items-center gap-2 overflow-auto rounded-t-2xl bg-white px-2 sm:bottom-0 sm:pb-0 md:max-w-4xl"
 		transition:fly={{
 			delay: 0,
-			duration: 1000,
+			duration: 500,
 			opacity: 0,
 			y: 1000,
 			easing: quintOut
 		}}
 	>
 		{#each cards as d}
-			<a href="/daasd" class="] h-80 w-full rounded-xl bg-black p-4 text-center text-white">
-				<p class="text-xl font-bold">Flashcards</p>
-			</a>
-			<a href="/daasd" class="z h-80 w-full rounded-xl bg-black p-4 text-center text-white">
+			<a
+				href="/daasd"
+				class=" h-60 flex-none basis-1/2 rounded-xl bg-blue-400 p-4 text-center text-white sm:h-80 sm:basis-1/3"
+			>
 				<p class="text-xl font-bold">Flashcards</p>
 			</a>
 		{/each}

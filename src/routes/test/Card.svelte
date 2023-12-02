@@ -16,7 +16,7 @@
 	// Calculate the spring values for x, y, rotation, and scale based on index
 	const x = spring(0, { stiffness: 0.1, damping: 0.8, precision: 0.1 });
 	const skewX = spring(0, { stiffness: 0.1, damping: 0.5 });
-	const rotateY = spring(0, { stiffness: 0.1, damping: 0.5 });
+	const rotateY = spring(0, { stiffness: 0.1, damping: 0.8 });
 	const rotate = spring(0, { stiffness: 0.1, damping: 0.5 });
 	const scale = spring(1, { stiffness: 0.1, damping: 0.8 });
 	const scaleShadow = spring(0.8, { stiffness: 0.1, damping: 0.5 });

@@ -254,8 +254,6 @@
 		$skewX = 0;
 		$scaleShadow = 0.8;
 	}
-
-	$: console.log({ type }, $page.data.isAdmin);
 </script>
 
 <svelte:window on:click={onClick} on:mousemove={onMouseMove} />
