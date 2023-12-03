@@ -13,8 +13,8 @@ export default {
 			center: true,
 			padding: '2rem',
 			screens: {
-				'2xl': '1440px',
-			},
+				'2xl': '1440px'
+			}
 		},
 		extend: {
 			colors: {
@@ -22,25 +22,26 @@ export default {
 				success: '#47A992',
 				error: '#D80032',
 				magnum: {
-					'50': '#fff9ed',
-					'100': '#fef2d6',
-					'200': '#fce0ac',
-					'300': '#f9c978',
-					'400': '#f7b155',
-					'500': '#f38d1c',
-					'600': '#e47312',
-					'700': '#bd5711',
-					'800': '#964516',
-					'900': '#793a15',
-					'950': '#411c09',
-				},
+					50: '#fff9ed',
+					100: '#fef2d6',
+					200: '#fce0ac',
+					300: '#f9c978',
+					400: '#f7b155',
+					500: '#f38d1c',
+					600: '#e47312',
+					700: '#bd5711',
+					800: '#964516',
+					900: '#793a15',
+					950: '#411c09'
+				}
 			},
 			backgroundImage: {
 				alphabetGreen:
 					'linear-gradient(131deg, #C4DFDF 6.22%, rgba(210, 233, 233, 0.68) 55.03%, #47A992 96.27%);'
 			},
 			screens: {
-				xm: '400px'
+				xm: '450px',
+				xmm: '350px'
 			},
 			borderRadius: {
 				'4xl': '2.5rem'
@@ -69,7 +70,7 @@ export default {
 					'sans-serif',
 					'Apple Color Emoji',
 					'Segoe UI Emoji',
-					'Segoe UI Symbol',
+					'Segoe UI Symbol'
 				],
 				mono: [
 					'ui-monospace',
@@ -78,19 +79,19 @@ export default {
 					'Menlo',
 					'Consolas',
 					'Liberation Mono',
-					'monospace',
-				],
+					'monospace'
+				]
 			},
 			typography: (theme) => ({
 				DEFAULT: {
-				css: {
-					code: {
-					position: 'relative',
-					borderRadius: theme('borderRadius.md'),
-					},
-				},
-				},
-			}),
+					css: {
+						code: {
+							position: 'relative',
+							borderRadius: theme('borderRadius.md')
+						}
+					}
+				}
+			})
 		}
 	},
 	plugins: [

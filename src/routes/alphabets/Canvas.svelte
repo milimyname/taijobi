@@ -1,7 +1,12 @@
 <script lang="ts">
-	import { canvasLgHeight, canvasLgWidth, canvasSmWidth } from '$lib/utils/constants';
+	import {
+		canvasLgHeight,
+		canvasLgWidth,
+		canvasSmWidth,
+		canvasSmHeight
+	} from '$lib/utils/constants';
 	import type { Ctx } from '$lib/utils/ambient.d.ts';
-	import { twSmallScreen } from '$lib/utils/constants';
+	import { twSmallScreen, xmSmallScreen } from '$lib/utils/constants';
 	import { innerWidthStore, lastPoint, strokeColor } from '$lib/utils/stores';
 	import { onMount } from 'svelte';
 
@@ -73,8 +78,16 @@
 	on:touchend={stopDrawing}
 	on:touchmove|preventDefault={drawOnCanvas}
 	on:touchcancel={stopDrawing}
-	width={$innerWidthStore > twSmallScreen ? canvasLgWidth : canvasSmWidth}
-	height={canvasLgHeight}
+	width={$innerWidthStore > twSmallScreen
+		? canvasLgWidth
+		: $innerWidthStore < xmSmallScreen
+		? canvasSmWidth
+		: 0}
+	height={$innerWidthStore > twSmallScreen
+		? canvasLgHeight
+		: $innerWidthStore < xmSmallScreen
+		? canvasSmHeight
+		: 0}
 	style={`transform: rotateY(${-rotationY}deg); transform-style: preserve-3d; backface-visibility: hidden;`}
 	class="relative z-10 mx-auto cursor-pointer
 				{rotationY > 90 ? 'hidden' : 'block'} 

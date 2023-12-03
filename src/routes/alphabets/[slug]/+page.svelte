@@ -2,7 +2,7 @@
 	import type { Ctx } from '$lib/utils/ambient.d.ts';
 	import { clickedKanjiForm, kanjiStore } from '$lib/utils/stores';
 	import { onMount } from 'svelte';
-	import { ArrowRight, ArrowLeft, RotateCcw, Search, Dices } from 'lucide-svelte';
+	import { ArrowRight, ArrowLeft, RotateCcw, Search, Dices, X } from 'lucide-svelte';
 	import {
 		progressSlider,
 		currentLetter,
@@ -18,8 +18,6 @@
 	import { tweened } from 'svelte/motion';
 	import { clearCanvas } from '$lib/utils/actions';
 	import { toRomaji } from 'wanakana';
-	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
 	import Letter from '../Letter.svelte';
 	import Canvas from '../Canvas.svelte';
 	import { kanji } from '$lib/static/kanji';
@@ -28,10 +26,13 @@
 		canvasLgHeight,
 		canvasLgWidth,
 		twSmallScreen,
-		canvasSmWidth
+		canvasSmWidth,
+		xmSmallScreen,
+		canvasSmHeight
 	} from '$lib/utils/constants';
 	import TextQuizForm from '$lib/components/forms/TextQuizForm.svelte';
 	import { superForm } from 'sveltekit-superforms/client';
+	import { page } from '$app/stores';
 
 	export let data;
 
@@ -164,7 +165,7 @@
 		{/if}
 	</div>
 
-	<div style="perspective: 3000px; position: relative;">
+	<div style="perspective: 3000px; position: relative; overflow: hidden;">
 		<div>
 			<Canvas rotationY={$rotateYCard} {canvas} {ctx} />
 
@@ -178,7 +179,7 @@
 						savedKanji = !savedKanji;
 					}}
 					class="{$rotateYCard > 5 ? 'hidden' : 'text-black'} 
-				fixed left-5 top-5 z-30 text-lg font-medium"
+				fixed left-3 top-3 z-30 text-lg font-medium sm:left-5 sm:top-5"
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -201,21 +202,21 @@
 			<span
 				class="{$rotateYCard > 5
 					? 'hidden'
-					: 'text-black'} fixed right-5 top-5 z-30 text-lg font-medium"
+					: 'text-black'} fixed right-3 top-3 z-30 text-lg font-medium sm:right-5 sm:top-5"
 			>
 				{$currentLetter}
 			</span>
 
 			<span
 				class="{$rotateYCard > 5 ? 'hidden' : 'block'}
-				fixed bottom-6 left-5 z-30 transition-all"
+				fixed bottom-3 left-3 z-30 transition-all sm:bottom-5 sm:left-5"
 			>
 				{$progressSlider}
 			</span>
 
 			<button
 				class="{$rotateYCard > 5 && $rotateYCard < 175 ? 'hidden' : 'block'}
-				fixed bottom-5 right-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all"
+				fixed bottom-3 right-2 z-30 rounded-full border bg-white p-2 shadow-sm transition-all sm:bottom-5 sm:right-5"
 				on:click={() => {
 					$rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0);
 				}}
@@ -227,20 +228,28 @@
 		<div
 			style={`transform: rotateY(${180 - $rotateYCard}deg); backface-visibility: hidden; width: ${
 				$innerWidthStore > twSmallScreen ? canvasLgWidth : canvasSmWidth
-			}px; height: ${canvasLgHeight}px
+			}px; height: ${
+				$innerWidthStore > twSmallScreen
+					? canvasLgHeight
+					: $innerWidthStore < xmSmallScreen
+					? canvasSmHeight
+					: 0
+			}px;
 			`}
 			class="alphabet relative z-10 mx-auto
 				{$rotateYCard > 90 ? 'block' : 'hidden'} 
 				 flex flex-col
-				 {$currentAlphabet === 'kanji' ? 'gap-1' : 'gap-5'}
-				 justify-center overflow-hidden rounded-xl border p-10 shadow-sm"
+				 {$currentAlphabet === 'kanji' ? 'gap-1' : ' gap-2 sm:gap-5'}
+				 justify-center overflow-hidden rounded-xl border p-3 shadow-sm xm:p-5 sm:p-10"
 		>
 			{#if $currentAlphabet === 'kanji'}
-				<div class="grid-rows-[max-content 1fr] grid h-full">
-					<h2 class="text-center text-9xl">{$currentLetter}</h2>
+				<div
+					class=" grid-rows-[max-content max-content] sm:grid-rows-[max-content 1fr] grid h-full grid-cols-2 sm:gap-0"
+				>
+					<h2 class="col-span-2 text-center text-6xl sm:text-9xl">{$currentLetter}</h2>
 					<div>
-						<h2 class="text-4xl font-medium">{kanji[$currentLetter].meaning}</h2>
-						<p class=" text-sm text-gray-300">Meaning</p>
+						<h2 class="text-lg font-medium sm:text-4xl">{kanji[$currentLetter].meaning}</h2>
+						<p class=" text-[10px] text-gray-300 sm:text-sm">Meaning</p>
 					</div>
 					<div>
 						<h4 class="text-lg tracking-widest">{kanji[$currentLetter].onyomi}</h4>
@@ -254,7 +263,7 @@
 					{/if}
 
 					<button
-						class="fixed bottom-5 left-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all"
+						class="fixed bottom-3 left-3 z-30 rounded-full border bg-white p-2 shadow-sm transition-all sm:bottom-5 sm:left-5"
 						on:click={() => {
 							$clickedQuizForm = true;
 							$clickedKanjiForm = true;

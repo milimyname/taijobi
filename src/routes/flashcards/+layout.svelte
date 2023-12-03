@@ -38,10 +38,10 @@
 {/if}
 
 <main
-	class="flex h-[100dvh] select-none flex-col items-center overflow-hidden bg-white px-3 py-5 transition-all {$clickedAddFlashcardCollection &&
+	class="flex h-[100dvh] select-none flex-col items-center overflow-hidden bg-white p-2 transition-all sm:px-3 sm:py-5 {$clickedAddFlashcardCollection &&
 		'mt-5 rounded-t-2xl py-14'} {$clickedQuizForm && 'mt-5 rounded-t-2xl py-14'}"
 >
-	<nav class="flex w-full justify-between p-5">
+	<nav class="flex w-full justify-between px-2 py-3 xm:p-5">
 		<a
 			href={$page.route.id && $page.route.id.length < 12 ? '/' : '/flashcards'}
 			class="go-back-btn group flex items-center gap-2"

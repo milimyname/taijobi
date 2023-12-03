@@ -29,16 +29,16 @@
 	<div
 		style={`transform: rotateY(${-$rotateYCard}deg); transform-style: preserve-3d; backface-visibility: hidden; `}
 		class="relative z-10 cursor-pointer
-				{$rotateYCard > 90 ? 'hidden' : 'block'} h-[474px] w-[354px] rounded-xl
+				{$rotateYCard > 90 ? 'hidden' : 'block'} h-[300px] w-[240px] rounded-xl xm:h-[474px] xm:w-[354px]
 				{longWord ? 'py-32 text-4xl' : 'text-5xl'} flex items-center justify-center border
 				shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200 sm:h-[32rem] sm:w-[32rem]"
 	>
 		{#if currentFlashcardType === 'kanji'}
-			<span class="text-[14rem]">
+			<span class="text-9xl sm:text-[14rem]">
 				{currentFlashcard}
 			</span>
 		{:else}
-			<p class="vertical leading-loose tracking-widest">
+			<p class="vertical text-3xl leading-loose tracking-widest sm:text-4xl">
 				{@html currentFlashcardFurigana}
 			</p>
 		{/if}
@@ -56,15 +56,17 @@
 		style={`transform: rotateY(${180 - $rotateYCard}deg); backface-visibility: hidden;`}
 		class="relative z-10 mx-auto
 				{$rotateYCard > 90 ? 'block' : 'hidden'} 
-				 flex h-[474px] w-[354px] flex-col
+				 flex flex-col
 				 {$currentAlphabet === 'kanji' ? 'gap-1' : 'gap-5'}  
-				 justify-center overflow-hidden rounded-xl border p-10 shadow-sm sm:h-[32rem] sm:w-[32rem]"
+				 h-[300px] w-[240px] justify-center overflow-hidden rounded-xl border p-5 shadow-sm xm:h-[474px] xm:w-[354px] sm:h-[32rem] sm:w-[32rem] sm:p-10"
 	>
 		{#if currentFlashcardType === 'kanji'}
-			<div class="grid-rows-[max-content 1fr] grid h-full">
-				<h2 class="text-center text-9xl">{currentFlashcard}</h2>
+			<div
+				class="grid-rows-[max-content max-content] sm:grid-rows-[max-content 1fr] grid h-full grid-cols-2 sm:gap-0"
+			>
+				<h2 class="col-span-2 text-center text-6xl sm:text-9xl">{currentFlashcard}</h2>
 				<div>
-					<h2 class="text-4xl font-medium">{flashcard.meaning}</h2>
+					<h2 class="text-lg font-medium sm:text-4xl">{flashcard.meaning}</h2>
 					<p class=" text-sm text-gray-300">Meaning</p>
 				</div>
 				<div>
@@ -111,8 +113,10 @@
 				</button>
 			</div>
 		{:else}
-			<div class="grid-rows-[max-content 1fr] grid h-full">
-				<h2 class="text-center text-4xl">{currentFlashcard}</h2>
+			<div
+				class="grid-rows-[max-content max-content] sm:grid-rows-[max-content 1fr] grid h-full grid-cols-2 sm:gap-0"
+			>
+				<h2 class="col-span-2 text-center text-4xl">{currentFlashcard}</h2>
 				<div>
 					<h2 class="text-xl font-medium">{fetchedFlashcard && fetchedFlashcard.meaning}</h2>
 					<p class=" text-sm text-gray-300">Meaning</p>

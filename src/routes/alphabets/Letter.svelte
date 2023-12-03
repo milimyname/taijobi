@@ -10,13 +10,15 @@
 		selectedKanjiGrade,
 		kanjiLength,
 		kanjiWidthMulitplier,
-		searchKanji
+		searchKanji,
+		innerWidthStore
 	} from '$lib/utils/stores';
 	import { draw } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 	import { hiragana } from '$lib/static/hiragana';
 	import { katakana } from '$lib/static/katakana';
 	import { kanji } from '$lib/static/kanji';
+	import { twSmallScreen, xmSmallScreen } from '$lib/utils/constants';
 
 	export let rotationY: number;
 	export let saved: {
@@ -32,11 +34,21 @@
 	$: switch ($currentAlphabet) {
 		case 'katakana':
 			$currentLetter = $katakanaStore[Math.min($progressSlider - 1, $katakanaStore.length - 1)];
-			viewBox = '0 0 1024 1024';
+			viewBox =
+				$innerWidthStore > twSmallScreen
+					? '0 0 1024 1024'
+					: $innerWidthStore < xmSmallScreen
+					? '0 0 400 400'
+					: '0 0 1024 1024';
 			currentObject = katakana;
 			break;
 		case 'kanji':
-			viewBox = '0 0 109 109';
+			viewBox =
+				$innerWidthStore > twSmallScreen
+					? '0 0 109 109'
+					: $innerWidthStore < xmSmallScreen
+					? '0 0 140 140'
+					: '0 0 140 140';
 			// Get only the kanji that match the selected grade if selectedKanjiGrade is not 0
 			// kanji is an object of objects, so we need to use Object.values() to get an array of objects
 			// Then we filter the array of objects based on the grade
@@ -118,9 +130,11 @@
 	xmlns="http://www.w3.org/2000/svg"
 	{viewBox}
 	fill="none"
-	class="absolute {$currentAlphabet === 'hiragana' ? 'left-[60%] top-1/2' : 'left-1/2 top-[45%]'}
-		{rotationY > 5 ? 'hidden' : 'block'} w-80 -translate-x-1/2
-		-translate-y-1/2 opacity-20 sm:left-[50%] sm:top-1/2 sm:w-96 sm:-translate-y-1/2"
+	class="absolute {$currentAlphabet === 'hiragana'
+		? 'left-[70%] top-[60%] xm:left-[60%] xm:top-1/2'
+		: 'left-[63%] top-[63%] xm:left-1/2 xm:top-[45%]'}
+		{rotationY > 5 ? 'hidden' : 'block'} sm:w-26 w-80
+		-translate-x-1/2 -translate-y-1/2 overflow-hidden opacity-20 sm:left-[50%] sm:top-1/2 sm:-translate-y-1/2"
 >
 	{#each currentObject[$currentLetter].ds as path, index}
 		{#if $animateSVG}
