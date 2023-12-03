@@ -82,12 +82,12 @@
 		? canvasLgWidth
 		: $innerWidthStore < xmSmallScreen
 		? canvasSmWidth
-		: 0}
+		: canvasSmWidth}
 	height={$innerWidthStore > twSmallScreen
 		? canvasLgHeight
 		: $innerWidthStore < xmSmallScreen
 		? canvasSmHeight
-		: 0}
+		: window.innerHeight * 0.6}
 	style={`transform: rotateY(${-rotationY}deg); transform-style: preserve-3d; backface-visibility: hidden;`}
 	class="relative z-10 mx-auto cursor-pointer
 				{rotationY > 90 ? 'hidden' : 'block'} 

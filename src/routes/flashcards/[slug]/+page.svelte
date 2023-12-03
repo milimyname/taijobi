@@ -181,7 +181,7 @@
 			{currentFlashcardFurigana}
 		/>
 
-		<div class="mb-auto flex items-center justify-center sm:mx-auto sm:w-[600px]">
+		<div class="flex items-center justify-center sm:mx-auto sm:w-[600px]">
 			{#if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin}
 				<div
 					class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
@@ -205,8 +205,8 @@
 		{#each data.flashcards as { name }}
 			<button
 				class="relative w-max {name.length > 5
-					? 'h-12  text-[12px] xm:text-sm sm:text-xl'
-					: 'h-14 text-lg  sm:text-2xl'} {currentFlashcard === name
+					? 'h-12 text-lg sm:text-xl'
+					: 'h-14 text-xl  sm:text-2xl'} {currentFlashcard === name
 					? " text-3xl text-black before:absolute before:left-1/2 before:top-0 before:h-1.5  before:w-1.5 before:-translate-x-1/2 before:rounded-full before:bg-black before:content-['']"
 					: 'text-gray-200 '}"
 				on:click={handleClick(name)}
