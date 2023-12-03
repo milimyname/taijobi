@@ -8,7 +8,6 @@
 		clickedQuizForm,
 		flashcardsBoxType
 	} from '$lib/utils/stores';
-	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { getLocalStorageItem } from '$lib/utils/localStorage';
 	import { ArrowLeft, FolderPlus } from 'lucide-svelte';
@@ -39,20 +38,19 @@
 {/if}
 
 <main
-	class="flex h-[100dvh] select-none flex-col items-center overflow-hidden bg-white px-3 py-5 transition-all {$clickedAddFlashcardCollection &&
+	class="flex h-[100dvh] select-none flex-col items-center overflow-hidden bg-white p-2 transition-all sm:px-3 sm:py-5 {$clickedAddFlashcardCollection &&
 		'mt-5 rounded-t-2xl py-14'} {$clickedQuizForm && 'mt-5 rounded-t-2xl py-14'}"
 >
-	<nav class="flex w-full justify-between p-5">
-		<button
-			on:click={() => {
-				$page.route.id && goto($page.route.id.length < 12 ? '/' : '/flashcards');
-				$showCollections = false;
-			}}
-			class="go-back-btn flex items-center gap-2"
+	<nav class="flex w-full justify-between px-2 py-3 xm:p-5">
+		<a
+			href={$page.route.id && $page.route.id.length < 12 ? '/' : '/flashcards'}
+			class="go-back-btn group flex items-center gap-2"
 		>
-			<ArrowLeft class="h-5 w-5" />
+			<ArrowLeft
+				class="h-4 w-4 transition-transform  group-hover:-translate-x-2  group-active:-translate-x-2 "
+			/>
 			<span>Back</span>
-		</button>
+		</a>
 
 		{#if $page.route.id && $page.route.id.length < 12}
 			<button

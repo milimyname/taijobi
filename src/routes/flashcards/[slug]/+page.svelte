@@ -194,7 +194,7 @@
 
 	<button
 		bind:this={sliderWords}
-		class="fixed bottom-5 flex cursor-ew-resize items-center justify-between gap-5 overflow-x-hidden"
+		class="fixed bottom-0 flex cursor-ew-resize items-center justify-between gap-5 overflow-x-hidden sm:bottom-5"
 		on:mousedown|preventDefault={start}
 		on:mouseup|preventDefault={end}
 		on:mousemove|preventDefault={move}
@@ -205,8 +205,8 @@
 		{#each data.flashcards as { name }}
 			<button
 				class="relative w-max {name.length > 5
-					? 'h-12  text-sm sm:text-xl'
-					: 'h-14  text-2xl'} {currentFlashcard === name
+					? 'h-12  text-[12px] xm:text-sm sm:text-xl'
+					: 'h-14 text-lg  sm:text-2xl'} {currentFlashcard === name
 					? " text-3xl text-black before:absolute before:left-1/2 before:top-0 before:h-1.5  before:w-1.5 before:-translate-x-1/2 before:rounded-full before:bg-black before:content-['']"
 					: 'text-gray-200 '}"
 				on:click={handleClick(name)}

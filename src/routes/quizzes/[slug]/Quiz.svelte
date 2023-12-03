@@ -17,7 +17,7 @@
 
 <section class="flex h-screen flex-col items-center justify-between md:gap-20">
 	<div
-		class="relative flex h-[404px] w-[354px] items-center justify-center rounded-xl border p-10 shadow-sm sm:w-96"
+		class="relative flex h-fit w-[300px] items-center justify-center rounded-xl border p-10 shadow-sm xm:w-[354px] sm:h-[404px] sm:w-96"
 	>
 		{#if type === 'name'}
 			<h2 class={flashcard.meaning.length > 2 ? 'text-4xl' : 'text-8xl'}>
@@ -34,7 +34,7 @@
 		/>
 	</div>
 	<div
-		class="fixed bottom-5 grid w-[354px] grid-flow-row grid-cols-2 justify-center gap-5 {type ===
+		class="fixed bottom-5 grid w-[300px] grid-flow-row grid-cols-2 justify-center gap-2 xm:w-[354px] sm:gap-5 {type ===
 		'name'
 			? 'text-4xl'
 			: 'text-lg'}  sm:w-96"

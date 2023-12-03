@@ -120,7 +120,7 @@
 		}
 		// If the user clicks on the add button, don't move the card
 		if (event.target?.closest('.go-back-btn')) {
-			$page.route.id && goto($page.route.id.length < 12 ? '/' : '/flashcards');
+			$page.route.id && goto('/');
 			return;
 		}
 
@@ -267,7 +267,7 @@
 			z-index: {index};
 			transform-style: preserve-3d;
 			"
-	class="card absolute flex h-[50dvh] w-64 select-none flex-col items-center justify-between rounded-2xl bg-white p-2 shadow-md before:absolute before:bottom-1 before:left-1 before:right-1 before:top-1 before:z-[-1] before:rounded-2xl before:bg-slate-200 sm:h-[55dvh] sm:w-80"
+	class="card absolute flex h-[50dvh] w-[15rem] select-none flex-col items-center justify-between rounded-2xl bg-white p-2 shadow-md before:absolute before:bottom-1 before:left-1 before:right-1 before:top-1 before:z-[-1] before:rounded-2xl before:bg-slate-200 xm:w-64 sm:h-[55dvh] sm:w-80"
 >
 	{#if index === totalCount - 1 && totalCount > 1}
 		<div

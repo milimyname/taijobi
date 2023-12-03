@@ -29,7 +29,7 @@
 	<nav
 		class=" {!$isLongPress
 			? 'w-[90%] px-10 py-4'
-			: 'ml-auto p-2'} fixed bottom-5 z-40 flex items-center justify-between rounded-full bg-black text-white transition-all sm:w-auto sm:justify-center sm:gap-20 sm:px-10"
+			: 'ml-auto p-2'} fixed bottom-2 z-40 flex items-center justify-between rounded-full bg-black text-white transition-all sm:bottom-5 sm:w-auto sm:justify-center sm:gap-20 sm:px-10"
 	>
 		<button
 			on:click|preventDefault={handleUserIconClick}
@@ -42,7 +42,7 @@
 			{#if !$isLongPress}
 				<input type="color" class="absolute left-0 top-0 opacity-0" bind:value={$strokeColor} />
 			{/if}
-			<Brush />
+			<Brush class="h-5 w-5 sm:h-6 sm:w-6" />
 		</button>
 
 		{#if !$isLongPress}
@@ -56,7 +56,7 @@
 				}}
 				on:click|preventDefault={() => clearCanvas(ctx, canvas)}
 			>
-				<Eraser />
+				<Eraser class="h-5 w-5 sm:h-6 sm:w-6" />
 			</button>
 			<button
 				on:click|preventDefault={() => {
@@ -65,7 +65,7 @@
 				}}
 				class="transition-transform active:rotate-180"
 			>
-				<RefreshCcw />
+				<RefreshCcw class="h-5 w-5 sm:h-6 sm:w-6" />
 			</button>
 			<button
 				transition:fly={{
@@ -77,7 +77,7 @@
 				}}
 				on:click|preventDefault={() => ($showProgressSlider = !$showProgressSlider)}
 			>
-				<MoveHorizontal />
+				<MoveHorizontal class="h-5 w-5 sm:h-6 sm:w-6" />
 			</button>
 		{/if}
 	</nav>

@@ -59,12 +59,12 @@
 <svelte:window bind:innerWidth />
 
 <main
-	class="relative flex h-[100dvh] select-none flex-col-reverse items-center overflow-auto p-5 sm:flex-row"
+	class="relative flex h-screen select-none flex-col-reverse items-center overflow-auto p-5 sm:flex-row"
 >
 	<nav
 		class="{!isLongPress
 			? 'w-[90%] p-4'
-			: 'right-5 p-2'}  fixed bottom-5 z-40 flex items-center justify-between rounded-full bg-primary text-white transition-all sm:relative sm:bottom-0 sm:h-full sm:w-24 sm:flex-col sm:justify-center sm:gap-10 sm:p-5"
+			: 'right-5 p-2'}  fixed bottom-5 z-40 flex items-center justify-between rounded-full bg-primary p-2 text-white transition-all xm:p-2 sm:relative sm:bottom-0 sm:h-full sm:w-24 sm:flex-col sm:justify-center sm:gap-10 sm:p-5"
 	>
 		{#if innerWidth > twSmallScreen}
 			<a href="/" class="mb-auto">
@@ -104,7 +104,7 @@
 			>
 				<img
 					src={imageSrc}
-					class="pointer-events-none h-12 w-12 select-none rounded-full shadow-logo hover:h-12 hover:w-12"
+					class="pointer-events-none h-8 w-8 select-none rounded-full shadow-logo hover:h-12 hover:w-12 xm:h-10 xm:w-10 sm:h-12 sm:w-12"
 					alt="Profile Pic"
 				/>
 			</button>
@@ -120,7 +120,7 @@
 					}}
 					on:click|preventDefault={handleMenuIconClick}
 				>
-					<Menu class="h-8 w-8" />
+					<Menu class=" h-6 w-6 xm:h-8 xm:w-8" />
 				</button>
 			{/if}
 		{/if}
