@@ -6,13 +6,14 @@
 	export let form;
 	export let flashcards: FlashcardType[];
 	export let currentIndex: number;
-	let fetchedFlashcard = flashcards[currentIndex];
 </script>
 
 <button
 	on:click|stopPropagation={() => {
 		$clickedAddFlashcardCollection = true;
 		$clickedEditFlashcard = true;
+		const fetchedFlashcard = flashcards[currentIndex];
+
 		// Fill out the form with the current card data
 		if (fetchedFlashcard.customFurigana) $form.name = fetchedFlashcard.customFurigana;
 		else $form.name = fetchedFlashcard.name;
