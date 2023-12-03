@@ -15,6 +15,7 @@
 		<a
 			href={$page.route.id && $page.route.id.length < 12 ? '/' : '/quizzes'}
 			class="group flex items-center gap-2"
+			data-sveltekit-preload-data
 		>
 			<ArrowLeft
 				class="h-4 w-4 transition-transform group-hover:-translate-x-2 group-active:-translate-x-2"
