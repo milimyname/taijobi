@@ -29,7 +29,7 @@
 	<div
 		style={`transform: rotateY(${-$rotateYCard}deg); transform-style: preserve-3d; backface-visibility: hidden; `}
 		class="relative z-10 cursor-pointer
-				{$rotateYCard > 90 ? 'hidden' : 'block'} h-[300px] w-[240px] rounded-xl xm:h-[474px] xm:w-[354px]
+				{$rotateYCard > 90 ? 'hidden' : 'block'} h-[60dvh] w-[300px] rounded-xl xm:h-[474px] xm:w-[354px]
 				{longWord ? 'py-32 text-4xl' : 'text-5xl'} flex items-center justify-center border
 				shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200 sm:h-[32rem] sm:w-[32rem]"
 	>
