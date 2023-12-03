@@ -3,7 +3,7 @@
 	import { fly } from 'svelte/transition';
 	import { sineIn } from 'svelte/easing';
 	import MobileNav from './MobileNav.svelte';
-	import { showAppNav, showNav, innerWidthStore } from '$lib/utils/stores';
+	import { showAppNav, showNav, innerWidthStore, innerHeightStore } from '$lib/utils/stores';
 	import { onMount } from 'svelte';
 	import image from '$lib/static/taijobi.png';
 	import { pocketbase } from '$lib/utils/pocketbase';
@@ -56,7 +56,7 @@
 	}
 </script>
 
-<svelte:window bind:innerWidth />
+<svelte:window bind:innerWidth bind:innerHeight={$innerHeightStore} />
 
 <main
 	class="relative flex h-screen select-none flex-col-reverse items-center overflow-auto p-5 sm:flex-row"

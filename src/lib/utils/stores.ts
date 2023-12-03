@@ -7,6 +7,7 @@ export const animateSVG = writable(true);
 export const showProgressSlider = writable(false);
 export const strokeColor = writable('#000000');
 export const innerWidthStore = writable(0);
+export const innerHeightStore = writable(0);
 export const lastPoint = writable({ x: 0, y: 0 });
 export const clickedAddFlashcardCollection = writable(false);
 export const currentFlashcardCollectionId = writable(0);

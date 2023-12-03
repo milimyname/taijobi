@@ -105,17 +105,12 @@
 			</a>
 		</div>
 		<div class="-mb-20 h-36 w-full rounded-4xl border-4 border-[#47A992] bg-white shadow-xl">
-			<a
-				href="/"
-				class="flex justify-between p-4"
-				on:click={() => {
-					$showAppNav = false;
-					$showNav = false;
-				}}
-			>
-				<LogOut />
-				<h4 class="text-xl font-medium">Log out</h4>
-			</a>
+			<form action="/logout" method="POST">
+				<button type="submit" class="flex w-full justify-between p-4">
+					<LogOut class="h-6 w-6" />
+					<h4 class="text-xl font-medium">Log out</h4>
+				</button>
+			</form>
 		</div>
 	</div>
 {/if}

@@ -40,7 +40,7 @@ export default {
 					'linear-gradient(131deg, #C4DFDF 6.22%, rgba(210, 233, 233, 0.68) 55.03%, #47A992 96.27%);'
 			},
 			screens: {
-				xm: '450px',
+				xm: '400px',
 				xmm: '350px'
 			},
 			borderRadius: {

@@ -12,7 +12,8 @@
 		selectedKanjiGrade,
 		searchKanji,
 		innerWidthStore,
-		clickedQuizForm
+		clickedQuizForm,
+		innerHeightStore
 	} from '$lib/utils/stores';
 	import { cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
@@ -22,14 +23,7 @@
 	import Canvas from '../Canvas.svelte';
 	import { kanji } from '$lib/static/kanji';
 	import { pocketbase } from '$lib/utils/pocketbase';
-	import {
-		canvasLgHeight,
-		canvasLgWidth,
-		twSmallScreen,
-		canvasSmWidth,
-		xmSmallScreen,
-		canvasSmHeight
-	} from '$lib/utils/constants';
+	import { canvasLgHeight, twSmallScreen, xmSmallScreen } from '$lib/utils/constants';
 	import TextQuizForm from '$lib/components/forms/TextQuizForm.svelte';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { page } from '$app/stores';
@@ -156,7 +150,7 @@
 					bind:value={$searchKanji}
 					on:input={(e) => {
 						// Limit the search to one character
-						if (e.target.value.length > 1) e.target.value = e.target.value.slice(0, 1);
+						if (e.target && e.target.value.length > 1) e.target.value = e.target.value.slice(0, 1);
 					}}
 					autocomplete="off"
 					class="w-14 border-hidden bg-white outline-none focus:border-transparent focus:bg-transparent focus:ring-0 focus:ring-transparent"
@@ -226,14 +220,14 @@
 		</div>
 
 		<div
-			style={`transform: rotateY(${180 - $rotateYCard}deg); backface-visibility: hidden; width: ${
-				$innerWidthStore > twSmallScreen ? canvasLgWidth : canvasSmWidth
-			}px; height: ${
+			style={`transform: rotateY(${
+				180 - $rotateYCard
+			}deg); backface-visibility: hidden; width:90vw; height: ${
 				$innerWidthStore > twSmallScreen
 					? canvasLgHeight
 					: $innerWidthStore < xmSmallScreen
-					? canvasSmHeight
-					: 0
+					? $innerHeightStore * 0.6
+					: $innerHeightStore * 0.6
 			}px;
 			`}
 			class="alphabet relative z-10 mx-auto
@@ -244,12 +238,12 @@
 		>
 			{#if $currentAlphabet === 'kanji'}
 				<div
-					class=" grid-rows-[max-content max-content] sm:grid-rows-[max-content 1fr] grid h-full grid-cols-2 sm:gap-0"
+					class=" grid-rows-[max-content max-content] xm:grid-rows-[max-content 1fr] grid h-full grid-cols-2 xm:grid-cols-none xm:gap-0"
 				>
-					<h2 class="col-span-2 text-center text-6xl sm:text-9xl">{$currentLetter}</h2>
+					<h2 class="col-span-2 text-center text-6xl xm:text-9xl">{$currentLetter}</h2>
 					<div>
 						<h2 class="text-lg font-medium sm:text-4xl">{kanji[$currentLetter].meaning}</h2>
-						<p class=" text-[10px] text-gray-300 sm:text-sm">Meaning</p>
+						<p class=" text-sm text-gray-300 sm:text-sm">Meaning</p>
 					</div>
 					<div>
 						<h4 class="text-lg tracking-widest">{kanji[$currentLetter].onyomi}</h4>
@@ -279,10 +273,7 @@
 		</div>
 	</div>
 
-	<div
-		class="flex items-center justify-between sm:mx-auto"
-		style={`width: ${$innerWidthStore > twSmallScreen ? canvasLgWidth : canvasSmWidth}px;`}
-	>
+	<div class="flex w-[90vw] items-center justify-between sm:mx-auto">
 		<button
 			on:click|preventDefault={() => {
 				clearCanvas(ctx, canvas);

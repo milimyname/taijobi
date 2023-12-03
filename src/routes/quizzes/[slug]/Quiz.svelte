@@ -17,14 +17,14 @@
 
 <section class="flex h-screen flex-col items-center justify-between md:gap-20">
 	<div
-		class="relative flex h-fit w-[300px] items-center justify-center rounded-xl border p-10 shadow-sm xm:w-[354px] sm:h-[404px] sm:w-96"
+		class="relative flex h-fit w-[300px] items-center justify-center rounded-xl border p-10 shadow-sm xm:h-[60dvh] xm:w-[354px] sm:h-[404px] sm:w-96"
 	>
 		{#if type === 'name'}
-			<h2 class={flashcard.meaning.length > 2 ? 'text-4xl' : 'text-8xl'}>
+			<h2 class={flashcard.meaning.length > 2 ? 'text-2xl sm:text-4xl' : 'text-2xl sm:text-8xl'}>
 				{flashcard.meaning}
 			</h2>
 		{:else}
-			<h2 class={flashcard.name.length > 2 ? 'text-4xl' : 'text-8xl'}>
+			<h2 class={flashcard.name.length > 2 ? 'text-3xl sm:text-4xl' : 'text-2xl  sm:text-8xl'}>
 				{flashcard.name}
 			</h2>
 		{/if}
@@ -34,10 +34,10 @@
 		/>
 	</div>
 	<div
-		class="fixed bottom-5 grid w-[300px] grid-flow-row grid-cols-2 justify-center gap-2 xm:w-[354px] sm:gap-5 {type ===
+		class="fixed bottom-2 grid w-[300px] grid-flow-row grid-cols-2 justify-center gap-2 xm:w-[354px] sm:bottom-5 sm:gap-5 {type ===
 		'name'
-			? 'text-4xl'
-			: 'text-lg'}  sm:w-96"
+			? 'sm:text-4xl'
+			: 'text-sm sm:text-lg'}  sm:w-96"
 	>
 		{#each shuffledOptions as option}
 			<button

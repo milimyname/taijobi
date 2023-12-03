@@ -157,7 +157,7 @@
 {/if}
 
 <section
-	class="flex flex-1 flex-col items-center justify-center gap-5"
+	class="mb-10 flex flex-1 flex-col items-center justify-center gap-2 sm:gap-5"
 	use:clickOutside
 	on:outsideclick={() => {
 		$clickedAddFlashcardCollection = false;

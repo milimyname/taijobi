@@ -48,7 +48,7 @@
 					? '0 0 109 109'
 					: $innerWidthStore < xmSmallScreen
 					? '0 0 140 140'
-					: '0 0 140 140';
+					: '0 0 109 109';
 			// Get only the kanji that match the selected grade if selectedKanjiGrade is not 0
 			// kanji is an object of objects, so we need to use Object.values() to get an array of objects
 			// Then we filter the array of objects based on the grade
@@ -131,8 +131,8 @@
 	{viewBox}
 	fill="none"
 	class="absolute {$currentAlphabet === 'hiragana'
-		? 'left-[70%] top-[60%]  xm:top-1/2'
-		: 'left-[63%] top-[63%]  xm:top-[55%]'}
+		? 'left-[70%] top-[60%] xm:left-[60%]  xm:top-[65%]'
+		: 'left-[63%] top-[63%]  xm:left-1/2 xm:top-1/2'}
 		{rotationY > 5 ? 'hidden' : 'block'} sm:w-26 w-80
 		-translate-x-1/2 -translate-y-1/2 overflow-hidden opacity-20 sm:left-[50%] sm:top-1/2 sm:-translate-y-1/2"
 >

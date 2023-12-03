@@ -7,7 +7,7 @@
 	} from '$lib/utils/constants';
 	import type { Ctx } from '$lib/utils/ambient.d.ts';
 	import { twSmallScreen, xmSmallScreen } from '$lib/utils/constants';
-	import { innerWidthStore, lastPoint, strokeColor } from '$lib/utils/stores';
+	import { innerWidthStore, lastPoint, strokeColor, innerHeightStore } from '$lib/utils/stores';
 	import { onMount } from 'svelte';
 
 	export let rotationY: number;
@@ -82,12 +82,12 @@
 		? canvasLgWidth
 		: $innerWidthStore < xmSmallScreen
 		? canvasSmWidth
-		: canvasSmWidth}
+		: $innerWidthStore * 0.9}
 	height={$innerWidthStore > twSmallScreen
 		? canvasLgHeight
 		: $innerWidthStore < xmSmallScreen
-		? canvasSmHeight
-		: window.innerHeight * 0.6}
+		? $innerHeightStore * 0.6
+		: $innerHeightStore * 0.6}
 	style={`transform: rotateY(${-rotationY}deg); transform-style: preserve-3d; backface-visibility: hidden;`}
 	class="relative z-10 mx-auto cursor-pointer
 				{rotationY > 90 ? 'hidden' : 'block'} 

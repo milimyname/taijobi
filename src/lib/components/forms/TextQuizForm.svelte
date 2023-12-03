@@ -38,8 +38,8 @@
 		on:outsideclick={() => ($clickedQuizForm = false)}
 		method="POST"
 		class="quiz-form fixed -bottom-5 z-[1000] flex {$clickedKanjiForm
-			? ' h-5/6'
-			: ' h-3/4'} w-full flex-col gap-5 overflow-hidden rounded-t-2xl bg-white px-5 py-10 sm:bottom-0 md:max-w-4xl"
+			? ' h-[80dvh] sm:h-5/6'
+			: ' h-[80dvh] sm:h-3/4'} w-full flex-col gap-5 overflow-scroll rounded-t-2xl bg-white px-5 py-10 sm:bottom-0 md:max-w-4xl"
 		transition:fly={{
 			delay: 0,
 			duration: 1000,
