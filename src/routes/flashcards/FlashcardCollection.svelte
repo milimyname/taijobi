@@ -10,7 +10,7 @@
 		clickedQuizForm,
 		skippedFlashcard,
 		showCollections,
-		clickedEditFlashcard
+		clickedEditFlashcard,
 	} from '$lib/utils/stores';
 	import { twSmallScreen } from '$lib/utils/constants';
 	import { FolderEdit } from 'lucide-svelte';
@@ -120,7 +120,7 @@
 		}
 		// If the user clicks on the add button, don't move the card
 		if (event.target?.closest('.go-back-btn')) {
-			$page.route.id && goto($page.route.id.length < 12 ? '/' : '/flashcards');
+			$page.route.id && goto('/');
 			return;
 		}
 

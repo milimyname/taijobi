@@ -40,7 +40,7 @@
 		easing: cubicOut
 	});
 	// Get the alphabet store length
-	let alphabetLengh: number;
+	let alphabetLength: number;
 	let canvas: HTMLCanvasElement;
 	let ctx: Ctx;
 
@@ -52,13 +52,13 @@
 	$: {
 		switch ($currentAlphabet) {
 			case 'katakana':
-				alphabetLengh = $katakanaStore.length;
+				alphabetLength = $katakanaStore.length;
 				break;
 			case 'kanji':
-				alphabetLengh = $kanjiStore.length;
+				alphabetLength = $kanjiStore.length;
 				break;
 			default:
-				alphabetLengh = $hiraganaStore.length;
+				alphabetLength = $hiraganaStore.length;
 		}
 
 		// Check whether the current letter is saved in the db
@@ -137,10 +137,12 @@
 
 <section class="mb-10 flex flex-1 flex-col justify-center gap-2 sm:justify-center sm:gap-5">
 	<div class="relative flex justify-between">
-		<button on:click={() => goto('/')} class="flex items-center gap-2">
-			<ArrowLeft class="h-4 w-4" />
+		<a href="/" class="group flex items-center gap-2">
+			<ArrowLeft
+				class="h-4 w-4 transition-transform group-hover:-translate-x-2 group-active:-translate-x-2"
+			/>
 			<span>Back</span>
-		</button>
+		</a>
 
 		{#if $currentAlphabet === 'kanji'}
 			<div class="kanji-search">
@@ -204,13 +206,12 @@
 				{$currentLetter}
 			</span>
 
-			<button
+			<span
 				class="{$rotateYCard > 5 ? 'hidden' : 'block'}
 				fixed bottom-6 left-5 z-30 transition-all"
-				on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
 			>
 				{$progressSlider}
-			</button>
+			</span>
 
 			<button
 				class="{$rotateYCard > 5 && $rotateYCard < 175 ? 'hidden' : 'block'}
@@ -302,15 +303,28 @@
 			</select>
 		{/if}
 
-		<button
-			on:click|preventDefault={() => {
-				clearCanvas(ctx, canvas);
-				$progressSlider < alphabetLengh ? $progressSlider++ : $progressSlider;
-				$searchKanji = '';
-			}}
-			class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
-		>
-			<ArrowRight class="h-4 w-4" />
-		</button>
+		{#if alphabetLength !== $progressSlider}
+			<button
+				on:click|preventDefault={() => {
+					clearCanvas(ctx, canvas);
+					$progressSlider < alphabetLength ? $progressSlider++ : $progressSlider;
+					$searchKanji = '';
+				}}
+				class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
+			>
+				<ArrowRight class="h-4 w-4" />
+			</button>
+		{:else}
+			<button
+				on:click|preventDefault={() => {
+					clearCanvas(ctx, canvas);
+					$progressSlider = 1;
+					$searchKanji = '';
+				}}
+				class="previousLetter h-fit w-fit rounded-full border bg-white px-3 py-1 shadow-sm transition-all"
+			>
+				1
+			</button>
+		{/if}
 	</div>
 </section>
