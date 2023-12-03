@@ -129,7 +129,7 @@
 			</fieldset>
 			{#if currentFlashcardType !== 'kanji'}
 				<fieldset class=" flex w-full flex-col">
-					<label for="romanji">Romanji</label>
+					<label for="romanji">Romanji/Furigana</label>
 					<input
 						type="text"
 						name="romanji"
