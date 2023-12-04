@@ -23,7 +23,13 @@
 	import Canvas from '../Canvas.svelte';
 	import { kanji } from '$lib/static/kanji';
 	import { pocketbase } from '$lib/utils/pocketbase';
-	import { canvasLgHeight, twSmallScreen, xmSmallScreen } from '$lib/utils/constants';
+	import {
+		canvasLgHeight,
+		twSmallScreen,
+		xmSmallScreen,
+		canvasLgWidth,
+		canvasSmWidth
+	} from '$lib/utils/constants';
 	import TextQuizForm from '$lib/components/forms/TextQuizForm.svelte';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { page } from '$app/stores';
@@ -220,9 +226,13 @@
 		</div>
 
 		<div
-			style={`transform: rotateY(${
-				180 - $rotateYCard
-			}deg); backface-visibility: hidden; width:90vw; height: ${
+			style={`transform: rotateY(${180 - $rotateYCard}deg); backface-visibility: hidden; width: ${
+				$innerWidthStore > twSmallScreen
+					? canvasLgWidth
+					: $innerWidthStore < xmSmallScreen
+					? canvasSmWidth
+					: $innerWidthStore * 0.9
+			}px; height: ${
 				$innerWidthStore > twSmallScreen
 					? canvasLgHeight
 					: $innerWidthStore < xmSmallScreen
@@ -273,7 +283,16 @@
 		</div>
 	</div>
 
-	<div class="flex w-[90vw] items-center justify-between sm:mx-auto">
+	<div
+		style={`width: ${
+			$innerWidthStore > twSmallScreen
+				? canvasLgWidth
+				: $innerWidthStore < xmSmallScreen
+				? canvasSmWidth
+				: $innerWidthStore * 0.9
+		}px;`}
+		class="flex items-center justify-between sm:mx-auto"
+	>
 		<button
 			on:click|preventDefault={() => {
 				clearCanvas(ctx, canvas);
