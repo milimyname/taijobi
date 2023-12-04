@@ -53,6 +53,8 @@
 	});
 
 	$: $value[0] = $progressSlider;
+
+	$: $max = $currentAlphabet === 'kanji' ? $kanjiLength : $hiraganaStore.length;
 </script>
 
 {#if $showProgressSlider}
