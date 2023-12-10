@@ -151,34 +151,26 @@
 
 		const touch = event.touches[0];
 
-		// Don't move if the mouse is in the card area, return to the intial position
-		if (touch.clientX > cardLeft && touch.clientX < cardRight) {
-			$rotateY = 0;
-			$x = 0;
-			$scale = 1;
-			$scaleShadow = 0.8;
-
-			return;
-		}
-
-		if (touch.clientX < cardLeft) {
+		if (touch.clientX < cardRight - 200) {
 			$x = -150;
 			$rotateY = -35;
-			$rotate = Math.max(-35, touch.clientX - cardLeft);
+			$rotate = Math.max(-35, touch.clientX - cardRight);
 			$scale = 1.05;
 			$skewX = 12;
 
 			$scaleShadow = 1.2;
+			return;
 		}
 
-		if (touch.clientX > cardRight) {
+		if (touch.clientX > cardLeft + 200) {
 			$x = 150;
 			$rotateY = 35;
-			$rotate = Math.min(35, touch.clientX - cardRight);
+			$rotate = Math.min(35, touch.clientX - cardLeft);
 			$scale = 1.05;
 
 			$skewX = -12;
 			$scaleShadow = 1.2;
+			return;
 		}
 	}
 
