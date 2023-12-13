@@ -1,27 +1,30 @@
 <script lang="ts">
-	import Card from './Flashcard.svelte';
+	import Flashcard from './Flashcard.svelte';
 	import {
 		clickedEditFlashcard,
 		clickedAddFlashcardCollection,
-		flashcardsBoxType
+		flashcardsBoxType,
+		currentFlashcard
 	} from '$lib/utils/stores';
-	import { spring } from 'svelte/motion';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { clickOutside } from '$lib/utils/clickOutside.js';
 	import FlashcardForm from '$lib/components/forms/FlashcardForm.svelte';
-	import { wordClasses } from '$lib/utils/constants.js';
 	import { page } from '$app/stores';
 	import EditButton from './EditButton.svelte';
 	import { getLocalStorageItem } from '$lib/utils/localStorage';
+	import { onMount } from 'svelte';
+	import Swiper from 'swiper';
+	import { Navigation, Pagination } from 'swiper/modules';
+	import 'swiper/swiper-bundle.css';
 
 	export let data;
 
 	// Get the alphabet store length
-	let currentFlashcard: string;
 	let currentFlashcardFurigana: string;
 	let currentFlashcardType: string;
 	let currentIndex: number = Math.floor(data.flashcards.length / 2);
 	let islocalBoxTypeOriginal = getLocalStorageItem('flashcardsBoxType') !== 'original';
+	let swiperInstance: Swiper;
 
 	// Client API:
 	const { form, errors, constraints, enhance } = superForm(data.form, {
@@ -39,117 +42,35 @@
 		}
 	});
 
-	let initialX = 0; // track the initial X position on drag start
-	let initialValue = 0; // track the initial slider value on drag start
-	let mousedown = false;
-	let sliderWords: HTMLButtonElement;
-	let currentlyCenteredWord: HTMLButtonElement;
-
-	let progress = spring(0, {
-		stiffness: 0.1,
-		damping: 0.4
-	});
-
-	const start = (e: any) => {
-		mousedown = true;
-
-		initialValue = $progress; // store the initial slider value
-
-		if (e.type === 'touchstart') initialX = e.touches[0].clientX;
-		else initialX = e.clientX;
-	};
-
-	const end = () => (mousedown = false);
-
-	const move = (e: any) => {
-		if (!mousedown) return;
-
-		let currentX;
-
-		currentX = e.type === 'touchmove' ? e.touches[0].clientX : (currentX = e.clientX);
-
-		const deltaX = currentX - initialX; // difference from initial position
-		const sensitivity = 2; // adjust as needed for smoother or sharper response
-		let change = Math.round(deltaX * sensitivity);
-
-		// Calculate the new progress value
-		const newProgress = initialValue + change;
-
-		// Calculate the minimum and maximum values for progress
-		const minProgress = -sliderWords.getBoundingClientRect().width / 2;
-		const maxProgress = sliderWords.getBoundingClientRect().width / 2;
-
-		// Check if the new progress is within the allowed range
-		if (newProgress >= minProgress && newProgress <= maxProgress) $progress = newProgress;
-		else if (newProgress < minProgress)
-			// If newProgress goes below the minimum, set it to the minimum
-			$progress = -maxProgress;
-		else if (newProgress > maxProgress)
-			// If newProgress goes above the maximum, set it to the maximum
-			$progress = maxProgress;
-
-		const words = sliderWords.querySelectorAll('button');
-
-		words.forEach((word: HTMLButtonElement) => {
-			const wordLeft = word.getBoundingClientRect().left;
-			const width =
-				currentFlashcardType === 'kanji'
-					? word.getBoundingClientRect().width * 2
-					: currentFlashcard.length > 8
-					? word.getBoundingClientRect().width
-					: word.getBoundingClientRect().width / 2;
-
-			// Check if the word is in the middle of the screen
-			if (
-				wordLeft > window.innerWidth / 2 - width - 60 &&
-				wordLeft < window.innerWidth / 2 + width
-			) {
-				// Set the current flashcard to the word in the middle of the screen
-				if (word !== currentlyCenteredWord) {
-					// Remove special styling from the previously centered word
-					if (currentlyCenteredWord) {
-						currentlyCenteredWord.classList.add('text-gray-200', 'text-2xl');
-						currentlyCenteredWord.classList.remove(...wordClasses);
-					}
-					// Apply special styling to the new centered word
-					word.classList.remove('text-gray-200', 'text-2xl');
-					word.classList.add(...wordClasses);
-
-					// Update the currently centered word
-					currentlyCenteredWord = word;
-
-					currentFlashcard = data.flashcards.at(
-						Array.from(words).indexOf(currentlyCenteredWord)
-					).name;
-
-					currentFlashcardType = data.flashcards.at(
-						Array.from(words).indexOf(currentlyCenteredWord)
-					).type;
-
-					currentIndex = Array.from(words).indexOf(currentlyCenteredWord);
-				}
-			} else {
-				// Remove special styling from words that are no longer centered
-				word.classList.add('text-gray-200', 'text-2xl');
-				word.classList.remove(...wordClasses);
-			}
-
-			word.style.transform = `translateX(${$progress}px)`;
-		});
-	};
-
 	$: if (data.flashcards.length > 0) {
-		currentFlashcard = data.flashcards.at(currentIndex).name;
+		$currentFlashcard = data.flashcards.at(currentIndex).name;
 		currentFlashcardFurigana = data.flashcards.at(currentIndex).furigana;
 		currentFlashcardType = data.flashcards.at(currentIndex).type;
 	}
 
-	const handleClick = (name: string) => {
-		return function () {
-			currentFlashcard = name;
-			currentIndex = data.flashcards.findIndex((flashcard) => flashcard.name === name);
-		};
-	};
+	onMount(() => {
+		swiperInstance = new Swiper('.swiper-container', {
+			modules: [Navigation, Pagination],
+			slidesPerView: 'auto',
+			centeredSlides: true,
+			spaceBetween: 30,
+			slideToClickedSlide: true,
+			grabCursor: true,
+			on: {
+				slideChange: () => {
+					updateCurrentFlashcard();
+				}
+			}
+		});
+	});
+
+	function updateCurrentFlashcard() {
+		if (swiperInstance && typeof swiperInstance.realIndex !== 'undefined') {
+			let activeIndex = swiperInstance.activeIndex;
+			$currentFlashcard = data.flashcards[activeIndex].name;
+			currentIndex = activeIndex;
+		} else console.error('Swiper instance is not defined or realIndex is unavailable');
+	}
 </script>
 
 {#if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin}
@@ -172,12 +93,11 @@
 	}}
 >
 	{#if data.flashcards.length > 0}
-		<Card
+		<Flashcard
 			flashcards={data.flashcards}
 			{currentIndex}
-			longWord={currentFlashcard.length > 8}
+			longWord={$currentFlashcard.length > 8}
 			{currentFlashcardType}
-			{currentFlashcard}
 			{currentFlashcardFurigana}
 		/>
 
@@ -192,28 +112,37 @@
 		</div>
 	{/if}
 
-	<button
-		bind:this={sliderWords}
-		class="fixed bottom-0 flex cursor-ew-resize items-center justify-between gap-5 overflow-x-hidden sm:bottom-5"
-		on:mousedown|preventDefault={start}
-		on:mouseup|preventDefault={end}
-		on:mousemove|preventDefault={move}
-		on:touchstart|preventDefault={start}
-		on:touchend|preventDefault={end}
-		on:touchmove|preventDefault={move}
+	<div
+		class="swiper-container fixed bottom-5 flex cursor-ew-resize items-center justify-between gap-5 overflow-x-hidden sm:bottom-5"
 	>
-		{#each data.flashcards as { name }}
-			<button
-				class="relative w-max {name.length > 5
-					? 'h-12 text-lg sm:text-xl'
-					: 'h-14 text-xl  sm:text-2xl'} {currentFlashcard === name
-					? " text-3xl text-black before:absolute before:left-1/2 before:top-0 before:h-1.5  before:w-1.5 before:-translate-x-1/2 before:rounded-full before:bg-black before:content-['']"
-					: 'text-gray-200 '}"
-				on:click={handleClick(name)}
-				on:touchstart={handleClick(name)}
-			>
-				{name}
-			</button>
-		{/each}
-	</button>
+		<div class="swiper-wrapper mt-40">
+			{#each data.flashcards as flashcard, index}
+				<div
+					style="display: flex; justify-content: center; width: fit-content"
+					class="swiper-slide"
+				>
+					<button class="text-2xl sm:text-4xl" on:click={() => swiperInstance.slideTo(index)}>
+						{flashcard.name}
+					</button>
+				</div>
+			{/each}
+		</div>
+		<div class="swiper-pagination" />
+		<!-- Add navigation buttons if needed -->
+	</div>
 </section>
+
+<style>
+	/* Styles for non-active slides */
+	.swiper-slide:not(.swiper-slide-active) {
+		opacity: 0.5; /* Make them grayer */
+		transform: scale(0.8); /* Make them smaller */
+		transition: transform 0.3s, opacity 0.3s; /* Smooth transition for scaling and opacity */
+	}
+
+	/* Styles for active slide */
+	.swiper-slide-active {
+		opacity: 1; /* Full opacity for active slide */
+		transform: scale(1); /* Normal size for active slide */
+	}
+</style>

@@ -2,10 +2,12 @@
 	import type { FlashcardType } from '$lib/utils/ambient.d.ts';
 	import { kanji } from '$lib/static/kanji';
 	import { fly } from 'svelte/transition';
-	import { currentAlphabet } from '$lib/utils/stores';
+	import { currentAlphabet, currentFlashcard } from '$lib/utils/stores';
 	import { quintOut, cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
-	import { RotateCcw, Scroll } from 'lucide-svelte';
+	import { RotateCcw, Scroll, PenTool } from 'lucide-svelte';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 
 	const rotateYCard = tweened(0, {
 		duration: 2000,
@@ -14,14 +16,13 @@
 
 	let showNotes: boolean = false;
 
-	export let currentFlashcard: string;
 	export let flashcards: FlashcardType[];
 	export let currentFlashcardFurigana: string;
 	export let currentFlashcardType: string;
 	export let currentIndex: number;
 	export let longWord: boolean;
 
-	let flashcard = kanji[currentFlashcard as keyof typeof kanji];
+	let flashcard = kanji[$currentFlashcard as keyof typeof kanji];
 </script>
 
 <div style="perspective: 3000px; position: relative;">
@@ -34,13 +35,29 @@
 	>
 		{#if currentFlashcardType === 'kanji'}
 			<span class="text-9xl sm:text-[14rem]">
-				{currentFlashcard}
+				{$currentFlashcard}
 			</span>
 		{:else}
 			<p class="vertical text-5xl leading-loose tracking-widest">
 				{@html currentFlashcardFurigana}
 			</p>
 		{/if}
+
+		<button
+			class="fixed bottom-5 left-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all
+				{showNotes && 'hidden'}"
+			on:click={() => {
+				goto(
+					`/flashcards/draw/${
+						currentFlashcardType === 'kanji'
+							? `kanji-${$page.url.pathname.split('/').at(-1)}-${currentIndex}`
+							: currentIndex
+					}`
+				);
+			}}
+		>
+			<PenTool class="h-4 w-4" />
+		</button>
 
 		<button
 			class="{showNotes && 'hidden'} 
@@ -63,7 +80,7 @@
 			<div
 				class="grid-rows-[max-content max-content] sm:grid-rows-[max-content 1fr] grid h-full grid-cols-2 sm:gap-0"
 			>
-				<h2 class="col-span-2 text-center text-6xl sm:text-9xl">{currentFlashcard}</h2>
+				<h2 class="col-span-2 text-center text-6xl sm:text-9xl">{$currentFlashcard}</h2>
 				<div>
 					<h2 class="text-lg font-medium sm:text-4xl">{flashcard.meaning}</h2>
 					<p class=" text-sm text-gray-300">Meaning</p>
@@ -115,7 +132,7 @@
 			<div
 				class="grid-rows-[max-content max-content] sm:grid-rows-[max-content 1fr] grid h-full grid-cols-2 sm:gap-0"
 			>
-				<h2 class="col-span-2 text-center text-4xl">{currentFlashcard}</h2>
+				<h2 class="col-span-2 text-center text-4xl">{$currentFlashcard}</h2>
 				<div>
 					<h2 class="text-xl font-medium">
 						{flashcards.at(currentIndex) && flashcards.at(currentIndex).meaning}
@@ -131,7 +148,7 @@
 				{#if flashcards.at(currentIndex) && flashcards.at(currentIndex).romanji}
 					<div>
 						<h2 class="text-xl font-medium">{flashcards.at(currentIndex).romanji}</h2>
-						<p class=" text-sm text-gray-300">Romanji</p>
+						<p class=" text-sm text-gray-300">Romanji/Furigana</p>
 					</div>
 				{/if}
 				{#if flashcards.at(currentIndex) && flashcards.at(currentIndex)?.notes.length > 0}
@@ -159,6 +176,7 @@
 						</p>
 					{/if}
 				{/if}
+
 				<button
 					class="{showNotes && 'hidden'}
 								fixed bottom-5 right-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all"
