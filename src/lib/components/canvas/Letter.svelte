@@ -145,7 +145,7 @@
 		{viewBox}
 		fill="none"
 		class="absolute {$currentAlphabet === 'hiragana'
-			? 'left-[70%] top-[60%] xm:left-[60%]  xm:top-[65%]'
+			? 'left-[70%] top-[60%] xm:left-[60%]  xm:top-[55%]'
 			: 'left-[63%] top-[63%]  xm:left-1/2 xm:top-1/2'}
 		{rotationY > 5 ? 'hidden' : 'block'} sm:w-26 w-80
 		-translate-x-1/2 -translate-y-1/2 overflow-hidden opacity-20 sm:left-[50%] sm:top-1/2 sm:-translate-y-1/2"

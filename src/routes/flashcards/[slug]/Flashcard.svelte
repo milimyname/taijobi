@@ -38,7 +38,7 @@
 				{$currentFlashcard}
 			</span>
 		{:else}
-			<p class="vertical text-5xl leading-loose tracking-widest">
+			<p class="vertical text-5xl leading-normal tracking-widest">
 				{@html currentFlashcardFurigana}
 			</p>
 		{/if}

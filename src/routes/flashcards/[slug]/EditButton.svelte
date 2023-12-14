@@ -9,6 +9,7 @@
 </script>
 
 <button
+	class="z-40"
 	on:click|stopPropagation={() => {
 		$clickedAddFlashcardCollection = true;
 		$clickedEditFlashcard = true;
