@@ -1,12 +1,13 @@
 <script lang="ts">
 	import type { Ctx } from '$lib/utils/ambient.d.ts';
-	import { currentAlphabet, currentFlashcard } from '$lib/utils/stores';
+	import { currentAlphabet, currentFlashcard, currentIndexStore } from '$lib/utils/stores';
 	import { onMount } from 'svelte';
 	import { cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
 	import Letter from '$lib/components/canvas/Letter.svelte';
 	import Canvas from '$lib/components/canvas/Canvas.svelte';
 	import MobileNav from '$lib/components/MobileNav.svelte';
+	import { page } from '$app/stores';
 
 	const rotateYCard = tweened(0, {
 		duration: 2000,
@@ -23,6 +24,10 @@
 
 		// Get the last segment of the URL path (assuming it contains the identifier you need)
 		$currentAlphabet = 'kanji';
+
+		$currentIndexStore = +$page.url.pathname.split('-').at(-1);
+
+		console.log($currentIndexStore, $page.url.pathname.split('-').at(-1));
 	});
 </script>
 

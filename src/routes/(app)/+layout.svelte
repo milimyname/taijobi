@@ -9,7 +9,6 @@
 	import { pocketbase } from '$lib/utils/pocketbase';
 	import { Home, LogOut, Newspaper, GraduationCap, Menu } from 'lucide-svelte';
 
-	let innerWidth: number;
 	let longPressTimer: NodeJS.Timeout;
 	let isLongPress = false;
 	let imageSrc = image;
@@ -49,14 +48,12 @@
 	});
 
 	$: {
-		innerWidth > twSmallScreen && ($showNav = false);
-		innerWidth > twSmallScreen && ($showAppNav = false);
-		// Set innerWidth to store
-		$innerWidthStore = innerWidth;
+		$innerWidthStore > twSmallScreen && ($showNav = false);
+		$innerWidthStore > twSmallScreen && ($showAppNav = false);
 	}
 </script>
 
-<svelte:window bind:innerWidth bind:innerHeight={$innerHeightStore} />
+<svelte:window bind:innerWidth={$innerWidthStore} bind:innerHeight={$innerHeightStore} />
 
 <main
 	class="relative flex h-screen select-none flex-col-reverse items-center overflow-auto p-5 sm:flex-row"
@@ -66,7 +63,7 @@
 			? 'w-[90%] p-4'
 			: 'right-5 p-2'}  fixed bottom-5 z-40 flex items-center justify-between rounded-full bg-primary p-2 text-white transition-all xm:p-2 sm:relative sm:bottom-0 sm:h-full sm:w-24 sm:flex-col sm:justify-center sm:gap-10 sm:p-5"
 	>
-		{#if innerWidth > twSmallScreen}
+		{#if $innerWidthStore > twSmallScreen}
 			<a href="/" class="mb-auto">
 				<img
 					src="/taijobi.png"

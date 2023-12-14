@@ -4,7 +4,8 @@
 		clickedAddFlashcardCollection,
 		clickedQuizForm,
 		innerHeightStore,
-		innerWidthStore
+		innerWidthStore,
+		currentIndexStore
 	} from '$lib/utils/stores';
 	import { ArrowLeft } from 'lucide-svelte';
 	import DrawingNav from '$lib/components/DrawingNav.svelte';
@@ -26,6 +27,7 @@
 			href={'/flashcards/' + $page.url.pathname.split('-').at(1)}
 			class="go-back-btn group flex items-center gap-2"
 			data-sveltekit-preload-data
+			on:click={() => ($currentIndexStore = 0)}
 		>
 			<ArrowLeft
 				class="h-4 w-4 transition-transform  group-hover:-translate-x-2  group-active:-translate-x-2 "

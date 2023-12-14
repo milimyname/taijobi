@@ -24,6 +24,7 @@ export const flashcardsBoxType = writable('');
 export const selectedKanjiGrade = writable('0');
 export const maxFlashcards = writable('');
 export const currentFlashcard = writable('');
+export const currentIndexStore = writable<number>();
 
 export const hiraganaStore = writable([
 	'あ',

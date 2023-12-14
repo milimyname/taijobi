@@ -4,7 +4,8 @@
 		clickedEditFlashcard,
 		clickedAddFlashcardCollection,
 		flashcardsBoxType,
-		currentFlashcard
+		currentFlashcard,
+		currentIndexStore
 	} from '$lib/utils/stores';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { clickOutside } from '$lib/utils/clickOutside.js';
@@ -22,7 +23,9 @@
 	// Get the alphabet store length
 	let currentFlashcardFurigana: string;
 	let currentFlashcardType: string;
-	let currentIndex: number = Math.floor(data.flashcards.length / 2);
+	let currentIndex: number = $currentIndexStore
+		? $currentIndexStore
+		: Math.floor(data.flashcards.length / 2);
 	let islocalBoxTypeOriginal = getLocalStorageItem('flashcardsBoxType') !== 'original';
 	let swiperInstance: Swiper;
 
@@ -42,12 +45,6 @@
 		}
 	});
 
-	$: if (data.flashcards.length > 0) {
-		$currentFlashcard = data.flashcards.at(currentIndex).name;
-		currentFlashcardFurigana = data.flashcards.at(currentIndex).furigana;
-		currentFlashcardType = data.flashcards.at(currentIndex).type;
-	}
-
 	onMount(() => {
 		swiperInstance = new Swiper('.swiper-container', {
 			modules: [Navigation, Pagination],
@@ -62,6 +59,9 @@
 				}
 			}
 		});
+
+		// Set the initial flashcard
+		swiperInstance.activeIndex = Math.floor(data.flashcards.length / 2);
 	});
 
 	function updateCurrentFlashcard() {
@@ -69,7 +69,18 @@
 			let activeIndex = swiperInstance.activeIndex;
 			$currentFlashcard = data.flashcards[activeIndex].name;
 			currentIndex = activeIndex;
+			$currentIndexStore = activeIndex;
 		} else console.error('Swiper instance is not defined or realIndex is unavailable');
+	}
+
+	$: if (data.flashcards.length > 0) {
+		$currentFlashcard = data.flashcards.at(currentIndex).name;
+		currentFlashcardFurigana = data.flashcards.at(currentIndex).furigana;
+		currentFlashcardType = data.flashcards.at(currentIndex).type;
+	}
+
+	$: if ($currentIndexStore && swiperInstance) {
+		swiperInstance.activeIndex = $currentIndexStore;
 	}
 </script>
 
