@@ -14,6 +14,8 @@ RUN pnpm i
 
 COPY . .
 
+ENV NODE_ENV production
+
 # Build application
 # Note: Secret management is a bit tricky. Make sure the secret is available at build time.
 # If you're using Docker secrets, the secret should be available as a file in /run/secrets/
@@ -33,6 +35,8 @@ WORKDIR /app
 COPY --from=builder /app .
 
 ENV PORT=3000
+
+ENV NODE_ENV production
 
 # Set the environment variable here. It's important to understand that this value will not be
 # the secret value from the build stage, but rather a placeholder to be set at container runtime.
