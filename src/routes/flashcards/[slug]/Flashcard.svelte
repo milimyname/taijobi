@@ -51,7 +51,7 @@
 					`/flashcards/draw/${
 						currentFlashcardType === 'kanji'
 							? `kanji-${$page.url.pathname.split('/').at(-1)}-${currentIndex}`
-							: currentIndex
+							: `word-${$page.url.pathname.split('/').at(-1)}-${currentIndex}`
 					}`
 				);
 			}}
