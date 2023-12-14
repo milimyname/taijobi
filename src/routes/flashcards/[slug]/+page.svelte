@@ -113,7 +113,7 @@
 	{/if}
 
 	<div
-		class="swiper-container fixed bottom-5 flex cursor-ew-resize items-center justify-between gap-5 overflow-x-hidden sm:bottom-5"
+		class="swiper-container -z-1 fixed bottom-5 flex cursor-ew-resize items-center justify-between gap-5 overflow-x-hidden sm:bottom-5"
 	>
 		<div class="swiper-wrapper mt-40">
 			{#each data.flashcards as flashcard, index}
@@ -133,16 +133,15 @@
 </section>
 
 <style>
-	/* Styles for non-active slides */
 	.swiper-slide:not(.swiper-slide-active) {
-		opacity: 0.5; /* Make them grayer */
-		transform: scale(0.8); /* Make them smaller */
-		transition: transform 0.3s, opacity 0.3s; /* Smooth transition for scaling and opacity */
+		opacity: 0.5;
+		transform: scale(0.8);
+		transition: transform 0.3s, opacity 0.3s;
 	}
 
 	/* Styles for active slide */
 	.swiper-slide-active {
-		opacity: 1; /* Full opacity for active slide */
-		transform: scale(1); /* Normal size for active slide */
+		opacity: 1;
+		transform: scale(1);
 	}
 </style>

@@ -11,6 +11,7 @@
 	} from '$lib/utils/actions';
 	import { onMount } from 'svelte';
 	import { Brush, Eraser, RefreshCcw, MoveHorizontal } from 'lucide-svelte';
+	import { page } from '$app/stores';
 
 	let longPressTimer: NodeJS.Timeout;
 	let canvas: HTMLCanvasElement | null, ctx: Ctx;
@@ -67,18 +68,20 @@
 			>
 				<RefreshCcw class="h-5 w-5 sm:h-6 sm:w-6" />
 			</button>
-			<button
-				transition:fly={{
-					delay: 0,
-					duration: 0,
-					opacity: 0,
-					x: 100,
-					easing: sineIn
-				}}
-				on:click|preventDefault={() => ($showProgressSlider = !$showProgressSlider)}
-			>
-				<MoveHorizontal class="h-5 w-5 sm:h-6 sm:w-6" />
-			</button>
+			{#if !$page.url.pathname.includes('draw')}
+				<button
+					transition:fly={{
+						delay: 0,
+						duration: 0,
+						opacity: 0,
+						x: 100,
+						easing: sineIn
+					}}
+					on:click|preventDefault={() => ($showProgressSlider = !$showProgressSlider)}
+				>
+					<MoveHorizontal class="h-5 w-5 sm:h-6 sm:w-6" />
+				</button>
+			{/if}
 		{/if}
 	</nav>
 {/if}

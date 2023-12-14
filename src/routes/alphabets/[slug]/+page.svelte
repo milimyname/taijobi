@@ -19,8 +19,8 @@
 	import { tweened } from 'svelte/motion';
 	import { clearCanvas } from '$lib/utils/actions';
 	import { toRomaji } from 'wanakana';
-	import Letter from '../Letter.svelte';
-	import Canvas from '../Canvas.svelte';
+	import Letter from '$lib/components/canvas/Letter.svelte';
+	import Canvas from '$lib/components/canvas/Canvas.svelte';
 	import { kanji } from '$lib/static/kanji';
 	import { pocketbase } from '$lib/utils/pocketbase';
 	import {

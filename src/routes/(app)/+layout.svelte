@@ -2,7 +2,7 @@
 	import { twSmallScreen } from '$lib/utils/constants';
 	import { fly } from 'svelte/transition';
 	import { sineIn } from 'svelte/easing';
-	import MobileNav from './MobileNav.svelte';
+	import MobileNav from '$lib/components/MobileNav.svelte';
 	import { showAppNav, showNav, innerWidthStore, innerHeightStore } from '$lib/utils/stores';
 	import { onMount } from 'svelte';
 	import image from '$lib/static/taijobi.png';
@@ -120,7 +120,7 @@
 					}}
 					on:click|preventDefault={handleMenuIconClick}
 				>
-					<Menu class=" h-6 w-6 xm:h-8 xm:w-8" />
+					<Menu class="mr-1 xm:h-6 xm:w-6 sm:h-8 sm:w-8" />
 				</button>
 			{/if}
 		{/if}

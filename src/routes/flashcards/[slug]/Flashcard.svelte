@@ -25,7 +25,7 @@
 	let flashcard = kanji[$currentFlashcard as keyof typeof kanji];
 </script>
 
-<div style="perspective: 3000px; position: relative;">
+<div style="perspective: 3000px; position: relative; z-index: 100">
 	<div
 		style={`transform: rotateY(${-$rotateYCard}deg); transform-style: preserve-3d; backface-visibility: hidden; `}
 		class="relative z-10 cursor-pointer
