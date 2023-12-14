@@ -25,6 +25,8 @@ RUN --mount=type=secret,id=VITE_POCKETBASE_URL \
     export VITE_POCKETBASE_URL="$(cat /run/secrets/VITE_POCKETBASE_URL)" && \
     pnpm run build
 
+# Remove dev dependencies
+RUN pnpm prune --prod
 
 # Stage 2: Create the production image
 FROM node:lts-alpine
