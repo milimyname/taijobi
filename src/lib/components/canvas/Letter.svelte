@@ -31,31 +31,14 @@
 		name: ''
 	};
 
-	// Set the correct viewBox for the SVG
-	let viewBox: string;
-
 	// Determine which object (hiragana, katakana, kanji) to use based on the URL path
 	let currentObject: any;
-
-	function getViewBox() {
-		if ($currentAlphabet === 'katakana') {
-			return '0 0 100 107';
-		} else if ($currentAlphabet === 'kanji') {
-			return $innerWidthStore > twSmallScreen
-				? '0 0 109 109'
-				: $innerWidthStore < xmSmallScreen
-				? '0 0 140 140'
-				: '0 0 109 109';
-		} else return '0 0 100 107'; // Default for hiragana
-	}
 
 	// Set the current letter and object based on the currentAlphabet
 	function setCurrentLetterAndObject(store: string[], object: any) {
 		$currentLetter = store[Math.min($progressSlider - 1, store.length - 1)];
 		currentObject = object;
 	}
-
-	$: viewBox = getViewBox();
 
 	$: switch ($currentAlphabet) {
 		case 'katakana':
@@ -146,11 +129,11 @@
 {#if currentObject[$currentLetter]}
 	<svg
 		xmlns="http://www.w3.org/2000/svg"
-		{viewBox}
+		viewBox="0 0 110 117"
 		fill="none"
-		class="absolute {$currentAlphabet === 'hiragana'
-			? 'left-[70%] top-[60%] xm:left-[60%]  xm:top-[55%]'
-			: 'left-[63%] top-[63%]  xm:left-1/2 xm:top-1/2'}
+		class="absolute {$currentAlphabet === 'hiragana' || $currentAlphabet === 'katakana'
+			? 'left-1/2 top-1/2'
+			: 'left-1/2 top-1/2'}
 		{rotationY > 5 ? 'hidden' : 'block'} sm:w-26 w-80
 		-translate-x-1/2 -translate-y-1/2 overflow-hidden opacity-20 sm:left-[50%] sm:top-1/2 sm:-translate-y-1/2"
 	>

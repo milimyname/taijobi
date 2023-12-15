@@ -15,6 +15,7 @@
 	import { page } from '$app/stores';
 	import { isKanji, isKatakana } from 'wanakana';
 	import { ArrowLeft, ArrowRight } from 'lucide-svelte';
+	import { clearCanvas } from '$lib/utils/actions';
 
 	const rotateYCard = tweened(0, {
 		duration: 2000,
@@ -40,7 +41,6 @@
 		/// Set the current alphabet if the flashcard contains only one character
 		if (isKanji($currentFlashcard)) {
 			$currentAlphabet = 'kanji';
-			console.log(isKanji($currentFlashcard), $currentFlashcard, $currentLetter);
 		} else if (isKatakana($currentFlashcard)) $currentAlphabet = 'katakana';
 		else $currentAlphabet = 'hiragana';
 
@@ -54,7 +54,6 @@
 		else $currentAlphabet = 'hiragana';
 
 		$currentLetter = slicedFlashcard[index];
-
 	}
 </script>
 
@@ -74,14 +73,20 @@
 		{#if $currentFlashcard.length > 1}
 			<div class="mt-5 flex items-center justify-between sm:mx-auto">
 				<button
-					on:click|preventDefault={() => (index > 0 ? (index -= 1) : null)}
+					on:click|preventDefault={() => {
+						index > 0 ? (index -= 1) : null;
+						clearCanvas(ctx, canvas);
+					}}
 					class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
 				>
 					<ArrowLeft class="h-4 w-4" />
 				</button>
 
 				<button
-					on:click|preventDefault={() => (index < slicedFlashcard.length - 1 ? (index += 1) : null)}
+					on:click|preventDefault={() => {
+						index < slicedFlashcard.length - 1 ? (index += 1) : null;
+						clearCanvas(ctx, canvas);
+					}}
 					class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
 				>
 					<ArrowRight class="h-4 w-4" />
