@@ -39,11 +39,7 @@
 
 	function getViewBox() {
 		if ($currentAlphabet === 'katakana') {
-			return innerWidth > twSmallScreen
-				? '0 0 1024 1024'
-				: $innerWidthStore < xmSmallScreen
-				? '0 0 400 400'
-				: '0 0 1024 1024';
+			return '0 0 100 107';
 		} else if ($currentAlphabet === 'kanji') {
 			return $innerWidthStore > twSmallScreen
 				? '0 0 109 109'
@@ -163,7 +159,7 @@
 				<path
 					d={path}
 					stroke="black"
-					stroke-width={$currentAlphabet === 'katakana' ? '30' : '3'}
+					stroke-width="3"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					in:draw={{ duration: 1000, delay: index * 1000, easing: quintOut }}

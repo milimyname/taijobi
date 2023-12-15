@@ -6,7 +6,8 @@
 		currentAlphabet,
 		kanjiLength,
 		searchKanji,
-		selectedKanjiGrade
+		selectedKanjiGrade,
+		katakanaStore
 	} from '$lib/utils/stores';
 	import { clickOutside } from '$lib/utils/clickOutside';
 	import { spring } from 'svelte/motion';
@@ -17,13 +18,24 @@
 
 	let progress = spring(1, { stiffness: 0.1, damping: 0.5 });
 
+	function getAlphabetLength() {
+		switch ($currentAlphabet) {
+			case 'katakana':
+				return $katakanaStore.length;
+			case 'kanji':
+				return $kanjiLength;
+			default:
+				return $hiraganaStore.length;
+		}
+	}
+
 	const {
 		elements: { root, range, thumb },
 		states: { value },
 		options: { max }
 	} = createSlider({
 		min: 1,
-		max: $currentAlphabet === 'kanji' ? $kanjiLength : $hiraganaStore.length,
+		max: getAlphabetLength(),
 		step: 1,
 		onValueChange: (value) => {
 			$progress = value.curr[0];
@@ -35,17 +47,17 @@
 	});
 
 	onMount(() => {
-		$progress =
-			$currentAlphabet !== 'kanji' ? getRandomNumber(1, 46) : getRandomNumber(1, $kanjiLength);
+		$progress = getRandomNumber(1, getAlphabetLength());
+
 		$value = [$progress];
 	});
 
 	afterNavigate(() => {
 		$showProgressSlider = false;
-		$progress =
-			$currentAlphabet !== 'kanji' ? getRandomNumber(1, 46) : getRandomNumber(1, $kanjiLength);
 
-		$max = $currentAlphabet === 'kanji' ? $kanjiLength : $hiraganaStore.length;
+		$progress = getRandomNumber(1, getAlphabetLength());
+
+		$max = getAlphabetLength();
 
 		$progressSlider = $progress;
 

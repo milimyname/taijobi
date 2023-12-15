@@ -62,6 +62,8 @@
 				alphabetLength = $hiraganaStore.length;
 		}
 
+		console.log(alphabetLength);
+
 		// Check whether the current letter is saved in the db
 		savedKanji = false;
 		data.flashcard.forEach((flashcard: { name: string }) => {
