@@ -61,11 +61,10 @@
 
 	performAnimation();
 
+	/**
+	 * @type {HTMLButtonElement}
+	 */
 	let leaveFeedback;
-
-	onMount(() => {
-		leaveFeedback = document.querySelector('.leave-feedback');
-	});
 
 	$: {
 		if (
@@ -97,8 +96,7 @@
 {#if $clickedFeedback}
 	<form
 		on:submit|preventDefault={handleSubmit}
-		use:clickOutside
-		on:outsideclick={() => ($clickedFeedback = false)}
+		use:clickOutside={() => ($clickedFeedback = false)}
 		class="leave-feedback fixed -bottom-5 z-[1000] flex h-[70%] w-full flex-col gap-5 overflow-hidden rounded-t-2xl bg-white px-5 py-10 sm:bottom-0"
 		transition:fly={{
 			delay: 0,
@@ -187,6 +185,7 @@
 {/if}
 
 <button
+	bind:this={leaveFeedback}
 	on:click={() => ($clickedFeedback = !$clickedFeedback)}
 	class="leave-feedback absolute left-[25%] top-11 z-[888] w-28 -translate-y-1/2 translate-x-1/2 rounded-full border px-4 py-2 sm:left-[40%]"
 >

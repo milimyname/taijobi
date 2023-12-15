@@ -82,12 +82,12 @@
 			>
 				<h2 class="col-span-2 text-center text-6xl sm:text-9xl">{$currentFlashcard}</h2>
 				<div>
-					<h2 class="text-lg font-medium sm:text-4xl">{flashcard.meaning}</h2>
-					<p class=" text-sm text-gray-300">Meaning</p>
+					<h2 class="text-lg font-medium">{flashcard.meaning}</h2>
+					<p class="text-sm text-gray-300">Meaning</p>
 				</div>
 				<div>
 					<h4 class="text-lg tracking-widest">{flashcard.onyomi}</h4>
-					<p class=" text-sm text-gray-300">Onyomi</p>
+					<p class="text-sm text-gray-300">Onyomi</p>
 				</div>
 				{#if flashcard.kunyomi.length > 0}
 					<div>

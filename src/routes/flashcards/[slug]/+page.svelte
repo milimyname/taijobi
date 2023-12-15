@@ -90,8 +90,7 @@
 
 <section
 	class="mb-10 flex flex-1 flex-col items-center justify-center gap-2 sm:gap-5"
-	use:clickOutside
-	on:outsideclick={() => {
+	use:clickOutside={() => {
 		$clickedAddFlashcardCollection = false;
 		// Clear the form
 		$form.name = '';

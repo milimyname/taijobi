@@ -21,10 +21,13 @@
 	import { kanji } from '$lib/static/kanji';
 	import { twSmallScreen, xmSmallScreen } from '$lib/utils/constants';
 
-	export let rotationY: number;
-	export let saved: {
+	type SavedLetter = {
+		[x: string]: any;
 		name: string;
-	} = {
+	};
+
+	export let rotationY: number;
+	export let saved: SavedLetter = {
 		name: ''
 	};
 
@@ -70,11 +73,14 @@
 					if (kanjiChar === $currentFlashcard) $currentLetter = kanjiChar;
 				}
 			} else if ($selectedKanjiGrade === 'saved') {
-				const savedKanji = {};
+				const savedKanji: SavedLetter = {
+					name: ''
+				};
 
 				// Find all kanji that are saved in the saved array by its name
 				for (const kanjiChar in kanji) {
-					if (saved.find((k) => k.name === kanjiChar)) savedKanji[kanjiChar] = kanji[kanjiChar];
+					if (saved.find((k: { name: string }) => k.name === kanjiChar))
+						savedKanji[kanjiChar] = kanji[kanjiChar];
 				}
 
 				$kanjiLength = Object.values(savedKanji).length;
@@ -94,7 +100,9 @@
 					$currentLetter = $searchKanji;
 			} else if (+$selectedKanjiGrade !== 0) {
 				// Filter the kanji objects based on the selected grade
-				const filteredKanji = {};
+				const filteredKanji: SavedLetter = {
+					name: ''
+				};
 
 				for (const kanjiChar in kanji) {
 					if (kanji[kanjiChar].grade === +$selectedKanjiGrade)

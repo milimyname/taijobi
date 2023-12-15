@@ -9,7 +9,7 @@
 	import { quintOut } from 'svelte/easing';
 	import { clickOutside } from '$lib/utils/clickOutside';
 
-	export let enhance;
+	export let enhance: any;
 	export let errors;
 	export let form;
 	export let constraints;
@@ -17,8 +17,7 @@
 
 <form
 	use:enhance
-	use:clickOutside
-	on:outsideclick={() => {
+	use:clickOutside={() => {
 		$clickedAddFlashcardCollection = false;
 		$clickedAddFlahcardBox = false;
 	}}

@@ -16,7 +16,7 @@
 		elements: { root, input }
 	} = createSwitch();
 
-	export let enhance;
+	export let enhance: any;
 	export let errors;
 	export let form;
 	export let constraints;
@@ -34,8 +34,7 @@
 {#if $clickedQuizForm}
 	<form
 		use:enhance
-		use:clickOutside
-		on:outsideclick={() => ($clickedQuizForm = false)}
+		use:clickOutside={() => ($clickedQuizForm = false)}
 		method="POST"
 		class="quiz-form fixed -bottom-5 z-[1000] flex {$clickedKanjiForm
 			? ' h-[80dvh] sm:h-5/6'

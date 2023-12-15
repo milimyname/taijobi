@@ -92,8 +92,7 @@
 
 {#if $showCollections}
 	<div
-		use:clickOutside
-		on:outsideclick={() => ($showCollections = false)}
+		use:clickOutside={() => ($showCollections = false)}
 		on:scroll|preventDefault
 		class="
 			  add-form-btn scrollable fixed bottom-0 left-1/2 z-[200] flex h-[40dvh] w-full -translate-x-1/2

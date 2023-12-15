@@ -1,10 +1,13 @@
-export function clickOutside(node) {
+export function clickOutside(node: Node, callback: () => void) {
 	// the node has been mounted in the DOM
 
 	window.addEventListener('click', handleClick);
 	window.addEventListener('touchstart', handleTouch);
 
-	function handleClick(e) {
+	function handleClick(e: MouseEvent) {
+		// Ensure e.target is an instance of Element
+		if (!(e.target instanceof Element)) return;
+
 		if (
 			e.target.closest('nav') ||
 			e.target.closest('.previousLetter') ||
@@ -19,10 +22,13 @@ export function clickOutside(node) {
 			e.target.closest('.alphabet')
 		)
 			return;
-		if (!node.contains(e.target)) node.dispatchEvent(new CustomEvent('outsideclick'));
+		if (!node.contains(e.target)) callback();
 	}
 
-	function handleTouch(e) {
+	function handleTouch(e: TouchEvent) {
+		// Ensure e.target is an instance of Element
+		if (!(e.target instanceof Element)) return;
+
 		if (
 			e.target.closest('nav') ||
 			e.target.closest('.previousLetter') ||
@@ -37,7 +43,7 @@ export function clickOutside(node) {
 			e.target.closest('.alphabet')
 		)
 			return;
-		if (!node.contains(e.target)) node.dispatchEvent(new CustomEvent('outsideclick'));
+		if (!node.contains(e.target)) callback();
 	}
 
 	return {

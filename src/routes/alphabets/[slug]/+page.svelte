@@ -21,7 +21,7 @@
 	import { toRomaji } from 'wanakana';
 	import Letter from '$lib/components/canvas/Letter.svelte';
 	import Canvas from '$lib/components/canvas/Canvas.svelte';
-	import { kanji } from '$lib/static/kanji';
+	import { kanji } from '$lib/static/kanji.js';
 	import { pocketbase } from '$lib/utils/pocketbase';
 	import {
 		canvasLgHeight,
@@ -252,7 +252,9 @@
 				>
 					<h2 class="col-span-2 text-center text-6xl xm:text-9xl">{$currentLetter}</h2>
 					<div>
-						<h2 class="text-lg font-medium sm:text-4xl">{kanji[$currentLetter].meaning}</h2>
+						{#if kanji[$currentLetter]}
+							<h2 class="text-lg font-medium sm:text-4xl">{kanji[$currentLetter].meaning}</h2>
+						{/if}
 						<p class=" text-sm text-gray-300 sm:text-sm">Meaning</p>
 					</div>
 					<div>

@@ -91,7 +91,7 @@
 		if (typeof window === 'undefined') return false;
 
 		return (
-			'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0
+			'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.maxTouchPoints > 0
 		);
 	}
 </script>
@@ -119,8 +119,7 @@
 />
 
 <section
-	use:clickOutside
-	on:outsideclick={() => {
+	use:clickOutside={() => {
 		$clickedAddFlashcardCollection = false;
 		$clickedEditFlashcard = false;
 
@@ -170,8 +169,7 @@
 
 {#if $showCollections}
 	<div
-		use:clickOutside
-		on:outsideclick={() => {
+		use:clickOutside={() => {
 			$clickedAddFlashcardCollection = false;
 			$clickedAddFlahcardBox = false;
 			$showCollections = false;

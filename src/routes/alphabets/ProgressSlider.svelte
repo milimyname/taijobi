@@ -59,8 +59,7 @@
 
 {#if $showProgressSlider}
 	<div
-		use:clickOutside
-		on:outsideclick={() => ($showProgressSlider = false)}
+		use:clickOutside={() => ($showProgressSlider = false)}
 		use:melt={$root}
 		class="fixed bottom-2 z-40 mx-auto flex w-[90%] items-center rounded-full bg-black/40 sm:bottom-5 sm:w-[416px]"
 	>

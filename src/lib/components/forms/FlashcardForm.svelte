@@ -3,11 +3,10 @@
 	import { slide, fly } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 	import { HelpCircle } from 'lucide-svelte';
-
 	import { clickOutside } from '$lib/utils/clickOutside';
 
 	export let currentFlashcardType: string;
-	export let enhance: boolean;
+	export let enhance: any;
 	export let errors;
 	export let form;
 	export let constraints;
@@ -22,8 +21,7 @@
 {#if $clickedAddFlashcardCollection}
 	<form
 		use:enhance
-		use:clickOutside
-		on:outsideclick={() => ($clickedAddFlashcardCollection = false)}
+		use:clickOutside={() => ($clickedAddFlashcardCollection = false)}
 		method="POST"
 		class="add-form-btn fixed -bottom-5 z-[1000] flex
 				h-[90dvh] w-full

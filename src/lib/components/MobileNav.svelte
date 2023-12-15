@@ -8,8 +8,7 @@
 
 {#if $showNav}
 	<div
-		use:clickOutside
-		on:outsideclick={() => {
+		use:clickOutside={() => {
 			$showNav = false;
 			$showAppNav = false;
 		}}
@@ -64,8 +63,7 @@
 	</div>
 {:else if $showAppNav}
 	<div
-		use:clickOutside
-		on:outsideclick={() => {
+		use:clickOutside={() => {
 			$showNav = false;
 			$showAppNav = false;
 		}}

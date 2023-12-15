@@ -1,4 +1,16 @@
-export const grade1Kanji = {
+interface KanjiInfo {
+	ds: string[];
+	grade: number;
+	meaning: string;
+	onyomi: string[];
+	kunyomi: string[];
+}
+
+interface KanjiDictionary {
+	[key: string]: KanjiInfo;
+}
+
+const grade1Kanji: KanjiDictionary = {
 	一: {
 		ds: [
 			'M11,54.25c3.19,0.62,6.25,0.75,9.73,0.5c20.64-1.5,50.39-5.12,68.58-5.24c3.6-0.02,5.77,0.24,7.57,0.49'
@@ -1041,7 +1053,7 @@ export const grade1Kanji = {
 	}
 };
 
-export const grade2Kanji = {
+const grade2Kanji: KanjiDictionary = {
 	数: {
 		ds: [
 			'M17.25,21.5c2.36,1.58,5.91,6.04,6.5,8.5',
@@ -3643,7 +3655,7 @@ export const grade2Kanji = {
 	}
 };
 
-export const grade3Kanji = {
+const grade3Kanji: KanjiDictionary = {
 	丁: {
 		ds: [
 			'M14,24.17c2.44,0.56,6.92,0.82,9.35,0.56c18.9-1.99,39.53-5.36,60.62-6.48c4.05-0.21,6.5,0.27,8.53,0.55',
@@ -7134,7 +7146,7 @@ export const grade3Kanji = {
 	}
 };
 
-export const grade4Kanji = {
+const grade4Kanji: KanjiDictionary = {
 	不: {
 		ds: [
 			'M18.5,23.7c2.46,0.54,6.98,0.73,9.44,0.54c19.44-1.49,39.69-4.12,56.57-4.73c4.1-0.15,6.57,0.26,8.62,0.53',
@@ -10708,7 +10720,7 @@ export const grade4Kanji = {
 	}
 };
 
-export const grade5Kanji = {
+const grade5Kanji: KanjiDictionary = {
 	久: {
 		ds: [
 			'M43.75,16c0.07,0.91,0.14,2.36-0.13,3.67c-1.62,7.73-10.4,25.2-23.11,35.58',
@@ -14173,7 +14185,7 @@ export const grade5Kanji = {
 	}
 };
 
-export const grade6Kanji = {
+const grade6Kanji: KanjiDictionary = {
 	並: {
 		ds: [
 			'M34.77,17.84c3.56,2.48,9.2,9.7,10.09,13.56',
@@ -17539,7 +17551,7 @@ export const grade6Kanji = {
 	}
 };
 
-export const custom = {
+const custom: KanjiDictionary = {
 	歳: {
 		ds: [
 			'M53.37,9c0.88,0.88,1.21,2.25,1.21,3.75c0,1.02,0.03,10.5,0.03,17.75',
@@ -17578,7 +17590,7 @@ export const custom = {
 	}
 };
 
-export const kanji = {
+export const kanji: KanjiDictionary = {
 	...grade1Kanji,
 	...grade2Kanji,
 	...grade3Kanji,
