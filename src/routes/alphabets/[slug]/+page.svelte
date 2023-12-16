@@ -246,15 +246,13 @@
 				 {$currentAlphabet === 'kanji' ? 'gap-1' : ' gap-2 sm:gap-5'}
 				 justify-center overflow-hidden rounded-xl border p-3 shadow-sm xm:p-5 sm:p-10"
 		>
-			{#if $currentAlphabet === 'kanji'}
+			{#if $currentAlphabet === 'kanji' && kanji[$currentLetter]}
 				<div
 					class=" grid-rows-[max-content max-content] xm:grid-rows-[max-content 1fr] grid h-full grid-cols-2 xm:grid-cols-none xm:gap-0"
 				>
 					<h2 class="col-span-2 text-center text-6xl xm:text-9xl">{$currentLetter}</h2>
 					<div>
-						{#if kanji[$currentLetter]}
-							<h2 class="text-lg font-medium sm:text-4xl">{kanji[$currentLetter].meaning}</h2>
-						{/if}
+						<h2 class="text-lg font-medium sm:text-4xl">{kanji[$currentLetter].meaning}</h2>
 						<p class=" text-sm text-gray-300 sm:text-sm">Meaning</p>
 					</div>
 					<div>
