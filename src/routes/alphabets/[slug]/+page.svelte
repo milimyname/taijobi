@@ -1,8 +1,7 @@
 <script lang="ts">
 	import type { Ctx } from '$lib/utils/ambient.d.ts';
-	import { clickedKanjiForm, kanjiStore } from '$lib/utils/stores';
 	import { onMount } from 'svelte';
-	import { ArrowRight, ArrowLeft, RotateCcw, Search, Dices, X } from 'lucide-svelte';
+	import { ArrowRight, ArrowLeft, RotateCcw } from 'lucide-svelte';
 	import {
 		progressSlider,
 		currentLetter,
@@ -13,26 +12,20 @@
 		searchKanji,
 		innerWidthStore,
 		clickedQuizForm,
-		innerHeightStore
+		kanjiStore
 	} from '$lib/utils/stores';
 	import { cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
 	import { clearCanvas } from '$lib/utils/actions';
-	import { toRomaji } from 'wanakana';
 	import Letter from '$lib/components/canvas/Letter.svelte';
 	import Canvas from '$lib/components/canvas/Canvas.svelte';
-	import { kanji } from '$lib/static/kanji.js';
+	import { kanji } from '$lib/static/kanji';
 	import { pocketbase } from '$lib/utils/pocketbase';
-	import {
-		canvasLgHeight,
-		twSmallScreen,
-		xmSmallScreen,
-		canvasLgWidth,
-		canvasSmWidth
-	} from '$lib/utils/constants';
+	import { twSmallScreen, xmSmallScreen, canvasLgWidth, canvasSmWidth } from '$lib/utils/constants';
 	import TextQuizForm from '$lib/components/forms/TextQuizForm.svelte';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { page } from '$app/stores';
+	import BacksideCard from '$lib/components/canvas/BacksideCard.svelte';
 
 	export let data;
 
@@ -46,9 +39,6 @@
 	let ctx: Ctx;
 
 	let savedKanji: boolean = false;
-
-	// Get the last segment of the URL path (assuming it contains the identifier you need)
-	$currentAlphabet = $page.url.pathname.split('/').pop() as 'hiragana' | 'katakana' | 'kanji';
 
 	$: {
 		switch ($currentAlphabet) {
@@ -105,10 +95,9 @@
 	onMount(() => {
 		canvas = document.querySelector('canvas') as HTMLCanvasElement;
 		ctx = canvas.getContext('2d') as Ctx;
-
-		// Get the last segment of the URL path (assuming it contains the identifier you need)
-		$currentAlphabet = $page.url.pathname.split('/').pop() as 'hiragana' | 'katakana' | 'kanji';
 	});
+
+	$: $currentAlphabet = $page.url.pathname.split('/')[2] as 'hiragana' | 'katakana' | 'kanji';
 
 	// Client API:
 	const {
@@ -120,9 +109,7 @@
 		taintedMessage: null,
 		resetForm: true,
 		applyAction: true,
-		onSubmit: () => {
-			$clickedQuizForm = false;
-		},
+		onSubmit: () => ($clickedQuizForm = false),
 		onUpdated: () => {
 			if ($quizErrors.maxCount) $clickedQuizForm = true;
 		}
@@ -137,34 +124,6 @@
 />
 
 <section class="mb-10 flex flex-1 flex-col justify-center gap-2 sm:justify-center sm:gap-5">
-	<div class="relative flex justify-between">
-		<a href="/" class="group flex items-center gap-2" data-sveltekit-preload-data>
-			<ArrowLeft
-				class="h-4 w-4 transition-transform group-hover:-translate-x-2 group-active:-translate-x-2"
-			/>
-			<span>Back</span>
-		</a>
-
-		{#if $currentAlphabet === 'kanji'}
-			<div class="kanji-search">
-				<label for="search">
-					<Search class="absolute right-0 top-3 h-5 w-5" />
-				</label>
-				<input
-					type="text"
-					id="search"
-					bind:value={$searchKanji}
-					on:input={(e) => {
-						// Limit the search to one character
-						if (e.target && e.target.value.length > 1) e.target.value = e.target.value.slice(0, 1);
-					}}
-					autocomplete="off"
-					class="w-14 border-hidden bg-white outline-none focus:border-transparent focus:bg-transparent focus:ring-0 focus:ring-transparent"
-				/>
-			</div>
-		{/if}
-	</div>
-
 	<div style="perspective: 3000px; position: relative; overflow: hidden;">
 		<div>
 			<Canvas rotationY={$rotateYCard} {canvas} {ctx} />
@@ -223,63 +182,8 @@
 			>
 				<RotateCcw class="h-4 w-4" />
 			</button>
-		</div>
 
-		<div
-			style={`transform: rotateY(${180 - $rotateYCard}deg); backface-visibility: hidden; width: ${
-				$innerWidthStore > twSmallScreen
-					? canvasLgWidth
-					: $innerWidthStore < xmSmallScreen
-					? canvasSmWidth
-					: $innerWidthStore * 0.9
-			}px; height: ${
-				$innerWidthStore > twSmallScreen
-					? canvasLgHeight
-					: $innerWidthStore < xmSmallScreen
-					? $innerHeightStore * 0.6
-					: $innerHeightStore * 0.6
-			}px;
-			`}
-			class="alphabet relative z-10 mx-auto
-				{$rotateYCard > 90 ? 'block' : 'hidden'} 
-				 flex flex-col
-				 {$currentAlphabet === 'kanji' ? 'gap-1' : ' gap-2 sm:gap-5'}
-				 justify-center overflow-hidden rounded-xl border p-3 shadow-sm xm:p-5 sm:p-10"
-		>
-			{#if $currentAlphabet === 'kanji' && kanji[$currentLetter]}
-				<div
-					class=" grid-rows-[max-content max-content] xm:grid-rows-[max-content 1fr] grid h-full grid-cols-2 xm:grid-cols-none xm:gap-0"
-				>
-					<h2 class="col-span-2 text-center text-6xl xm:text-9xl">{$currentLetter}</h2>
-					<div>
-						<h2 class="text-lg font-medium sm:text-4xl">{kanji[$currentLetter].meaning}</h2>
-						<p class=" text-sm text-gray-300 sm:text-sm">Meaning</p>
-					</div>
-					<div>
-						<h4 class="text-lg tracking-widest">{kanji[$currentLetter].onyomi}</h4>
-						<p class=" text-sm text-gray-300">Onyomi</p>
-					</div>
-					{#if kanji[$currentLetter].kunyomi && kanji[$currentLetter].kunyomi.length > 0}
-						<div>
-							<h4 class="text-lg tracking-widest">{kanji[$currentLetter].kunyomi}</h4>
-							<p class="text-sm text-gray-300">Kunyomi</p>
-						</div>
-					{/if}
-
-					<button
-						class="fixed bottom-3 left-3 z-30 rounded-full border bg-white p-2 shadow-sm transition-all sm:bottom-5 sm:left-5"
-						on:click={() => {
-							$clickedQuizForm = true;
-							$clickedKanjiForm = true;
-						}}
-					>
-						<Dices class="h-4 w-4" />
-					</button>
-				</div>
-			{:else}
-				<h2 class="text-center text-9xl font-medium">{toRomaji($currentLetter).toUpperCase()}</h2>
-				<p class="text-center text-lg">Romanji</p>
-			{/if}
+			<BacksideCard rotateYCard={$rotateYCard} />
 		</div>
 	</div>
 
