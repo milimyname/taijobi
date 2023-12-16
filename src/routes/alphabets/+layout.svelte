@@ -6,7 +6,8 @@
 		innerWidthStore,
 		innerHeightStore,
 		currentAlphabet,
-		searchKanji
+		searchKanji,
+		currentFlashcard
 	} from '$lib/utils/stores';
 	import DrawingNav from '$lib/components/DrawingNav.svelte';
 	import { ArrowLeft, Search } from 'lucide-svelte';
@@ -23,7 +24,11 @@
 
 <main class="relative flex h-[100dvh] select-none flex-col items-center p-2 sm:px-3 sm:py-5">
 	<nav class="relative flex w-full justify-between px-2 py-3 xm:p-5">
-		<a href="/" class="go-back-btn group group flex items-center gap-2">
+		<a
+			href="/"
+			class="go-back-btn group group flex items-center gap-2"
+			on:click={() => ($currentFlashcard = '')}
+		>
 			<ArrowLeft
 				class="h-4 w-4 transition-transform group-hover:-translate-x-2 group-active:-translate-x-2"
 			/>
@@ -33,7 +38,7 @@
 		{#if $currentAlphabet === 'kanji'}
 			<div class="kanji-search">
 				<label for="search">
-					<Search class="absolute right-0 top-7 h-5 w-5" />
+					<Search class="absolute right-2 top-5 h-5 w-5 xm:right-5 xm:top-7" />
 				</label>
 				<input
 					type="text"
