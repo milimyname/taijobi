@@ -11,7 +11,6 @@
 		kanjiLength,
 		kanjiWidthMulitplier,
 		searchKanji,
-		innerWidthStore,
 		currentFlashcard
 	} from '$lib/utils/stores';
 	import { draw } from 'svelte/transition';
@@ -19,7 +18,6 @@
 	import { hiragana } from '$lib/static/hiragana';
 	import { katakana } from '$lib/static/katakana';
 	import { kanji } from '$lib/static/kanji';
-	import { twSmallScreen, xmSmallScreen } from '$lib/utils/constants';
 
 	type SavedLetter = {
 		[x: string]: any;

@@ -82,15 +82,27 @@
 					<ArrowLeft class="h-4 w-4" />
 				</button>
 
-				<button
-					on:click|preventDefault={() => {
-						index < slicedFlashcard.length - 1 ? (index += 1) : null;
-						clearCanvas(ctx, canvas);
-					}}
-					class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
-				>
-					<ArrowRight class="h-4 w-4" />
-				</button>
+				{#if slicedFlashcard.length - 1 !== index}
+					<button
+						on:click|preventDefault={() => {
+							index < slicedFlashcard.length - 1 ? (index += 1) : null;
+							clearCanvas(ctx, canvas);
+						}}
+						class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
+					>
+						<ArrowRight class="h-4 w-4" />
+					</button>
+				{:else}
+					<button
+						on:click|preventDefault={() => {
+							clearCanvas(ctx, canvas);
+							index = 0;
+						}}
+						class="previousLetter h-fit w-fit rounded-full border bg-white px-3 py-1 shadow-sm transition-all"
+					>
+						1
+					</button>
+				{/if}
 			</div>
 		{/if}
 	</div>

@@ -12,7 +12,6 @@
 	import { clickOutside } from '$lib/utils/clickOutside';
 	import { spring } from 'svelte/motion';
 	import { getRandomNumber } from '$lib/utils/actions';
-	import { onMount } from 'svelte';
 	import { createSlider, melt } from '@melt-ui/svelte';
 	import { afterNavigate } from '$app/navigation';
 
@@ -46,12 +45,6 @@
 		}
 	});
 
-	onMount(() => {
-		$progress = getRandomNumber(1, getAlphabetLength());
-
-		$value = [$progress];
-	});
-
 	afterNavigate(() => {
 		$showProgressSlider = false;
 
@@ -65,8 +58,6 @@
 	});
 
 	$: $value[0] = $progressSlider;
-
-	$: $max = $currentAlphabet === 'kanji' ? $kanjiLength : $hiraganaStore.length;
 </script>
 
 {#if $showProgressSlider}

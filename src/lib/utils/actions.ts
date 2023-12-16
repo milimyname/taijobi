@@ -47,7 +47,6 @@ export function getRandomNumber(min: number, max: number) {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-
 // Upload a resized profile image to a square
 
 export const uploadCroppedImage = async (
@@ -118,7 +117,7 @@ export function shuffleArray(array: any[]) {
 }
 
 // Function to convert a string to a ruby tag
-export function convertToRubyTag(input) {
+export function convertToRubyTag(input: string) {
 	// Split the input string by slashes first to get character-annotation pairs
 	const pairs = input.split('/').filter(Boolean);
 
