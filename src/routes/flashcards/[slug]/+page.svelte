@@ -81,15 +81,16 @@
 		} else console.error('Swiper instance is not defined or realIndex is unavailable');
 	}
 
+	$: flashcards = data.flashcards;
+
 	$: if (flashcards.length > 0) {
 		$currentFlashcard = flashcards.at(currentIndex).name;
 		currentFlashcardFurigana = flashcards.at(currentIndex).furigana;
 		currentFlashcardType = flashcards.at(currentIndex).type;
 	}
 
-	$: if (data.streamed.flashcards.length > 0) {
+	$: if (data.streamed.flashcards.length > 0)
 		flashcards = [...data.flashcards, ...data.streamed.flashcards];
-	}
 
 	$: if ($currentIndexStore && swiperInstance) swiperInstance.activeIndex = $currentIndexStore;
 </script>

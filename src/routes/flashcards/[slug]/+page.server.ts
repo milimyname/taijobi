@@ -45,7 +45,10 @@ export const load = async ({ locals, params }) => {
 		form,
 		flashcards: processeFirstTenFlashcards,
 		streamed: {
-			flashcards: await Promise.all(restOfFlashcards.map((card) => processFurigana(card)))
+			flashcards:
+				restOfFlashcards.length > 0
+					? await Promise.all(restOfFlashcards.map((card) => processFurigana(card)))
+					: []
 		}
 	};
 };
