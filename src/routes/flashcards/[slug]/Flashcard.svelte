@@ -50,8 +50,8 @@
 				goto(
 					`/flashcards/draw/${
 						currentFlashcardType === 'kanji'
-							? `kanji-${$page.url.pathname.split('/').at(-1)}-${currentIndex}`
-							: `word-${$page.url.pathname.split('/').at(-1)}-${currentIndex}`
+							? `kanji-${$page.url.pathname.split('/').at(2)}-${currentIndex}`
+							: `word-${$page.url.pathname.split('/').at(2)}-${currentIndex}`
 					}`
 				);
 			}}
