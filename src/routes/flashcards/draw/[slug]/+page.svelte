@@ -62,75 +62,74 @@
 
 <section class="mb-24 flex flex-1 flex-col justify-center gap-2 sm:justify-center sm:gap-5">
 	<div class="relative">
-		<Canvas rotationY={$rotateYCard} {canvas} {ctx} />
-		<Letter rotationY={$rotateYCard} />
-
-		<button
-			class="{$rotateYCard > 5 && $rotateYCard < 175 ? 'hidden' : 'block'}
-				absolute bottom-3 right-2 z-30 rounded-full border bg-white p-2 shadow-sm transition-all sm:bottom-[4.5rem] sm:right-5"
-			on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
-		>
-			<RotateCcw class="h-4 w-4" />
-		</button>
-
-		<BacksideCard rotateYCard={$rotateYCard} />
-
-		<span
-			class="{$rotateYCard > 5 ? 'hidden' : 'block'} 
+		<div>
+			<span
+				class="{$rotateYCard > 5 ? 'hidden' : 'block'} 
 			absolute right-3 top-3 z-30 text-lg font-medium sm:right-5 sm:top-5"
-		>
-			{#each slicedFlashcard as letter, i}
-				<span class={`${i === index ? 'font-medium opacity-100' : 'opacity-50'}`}>
-					{letter}
-				</span>
-			{/each}
-		</span>
-
-		{#if $currentFlashcard.length > 1}
-			<div
-				style={`width: ${
-					$innerWidthStore > twSmallScreen
-						? canvasLgWidth
-						: $innerWidthStore < xmSmallScreen
-							? canvasSmWidth
-							: $innerWidthStore * 0.9
-				}px;`}
-				class="mt-5 flex items-center justify-between sm:mx-auto"
 			>
+				{#each slicedFlashcard as letter, i}
+					<span class={`${i === index ? 'font-medium opacity-100' : 'opacity-50'}`}>
+						{letter}
+					</span>
+				{/each}
+			</span>
+			<Canvas rotationY={$rotateYCard} {canvas} {ctx} />
+			<Letter rotationY={$rotateYCard} />
+
+			<button
+				class="{$rotateYCard > 5 && $rotateYCard < 175 ? 'hidden' : 'block'}
+				absolute bottom-3 right-2 z-30 rounded-full border bg-white p-2 shadow-sm transition-all sm:bottom-5 sm:right-5"
+				on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
+			>
+				<RotateCcw class="h-4 w-4" />
+			</button>
+			<BacksideCard rotateYCard={$rotateYCard} />
+		</div>
+	</div>
+
+	{#if $currentFlashcard.length > 1}
+		<div
+			style={`width: ${
+				$innerWidthStore > twSmallScreen
+					? canvasLgWidth
+					: $innerWidthStore < xmSmallScreen
+						? canvasSmWidth
+						: $innerWidthStore * 0.9
+			}px;`}
+			class="mt-5 flex items-center justify-between sm:mx-auto"
+		>
+			<button
+				on:click|preventDefault={() => {
+					index > 0 ? (index -= 1) : null;
+					clearCanvas(ctx, canvas);
+				}}
+				class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
+			>
+				<ArrowLeft class="h-4 w-4" />
+			</button>
+
+			{#if slicedFlashcard.length - 1 !== index}
 				<button
 					on:click|preventDefault={() => {
-						index > 0 ? (index -= 1) : null;
+						index < slicedFlashcard.length - 1 ? (index += 1) : null;
 						clearCanvas(ctx, canvas);
 					}}
 					class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
 				>
-					<ArrowLeft class="h-4 w-4" />
+					<ArrowRight class="h-4 w-4" />
 				</button>
-
-				{#if slicedFlashcard.length - 1 !== index}
-					<button
-						on:click|preventDefault={() => {
-							index < slicedFlashcard.length - 1 ? (index += 1) : null;
-							clearCanvas(ctx, canvas);
-						}}
-						class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
-					>
-						<ArrowRight class="h-4 w-4" />
-					</button>
-				{:else}
-					<button
-						on:click|preventDefault={() => {
-							clearCanvas(ctx, canvas);
-							index = 0;
-						}}
-						class="previousLetter h-fit w-fit rounded-full border bg-white px-3 py-1 shadow-sm transition-all"
-					>
-						1
-					</button>
-				{/if}
-			</div>
-		{/if}
-	</div>
-
+			{:else}
+				<button
+					on:click|preventDefault={() => {
+						clearCanvas(ctx, canvas);
+						index = 0;
+					}}
+					class="previousLetter h-fit w-fit rounded-full border bg-white px-3 py-1 shadow-sm transition-all"
+				>
+					1
+				</button>
+			{/if}
+		</div>
+	{/if}
 	<MobileNav />
 </section>
