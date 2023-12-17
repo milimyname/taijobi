@@ -42,6 +42,12 @@
 		},
 		onUpdated: () => {
 			if (!$errors.name) $clickedAddFlashcardCollection = false;
+
+			// Slide to the new created word
+			if (swiperInstance.slides.length + 1 === data.flashcards.length)
+				setTimeout(() => {
+					swiperInstance.slideTo(data.flashcards.length + 1);
+				}, 500);
 		}
 	});
 
@@ -146,7 +152,9 @@
 	.swiper-slide:not(.swiper-slide-active) {
 		opacity: 0.5;
 		transform: scale(0.8);
-		transition: transform 0.3s, opacity 0.3s;
+		transition:
+			transform 0.3s,
+			opacity 0.3s;
 	}
 
 	/* Styles for active slide */
