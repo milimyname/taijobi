@@ -13,11 +13,20 @@ let kuroshiroInitialized = false;
 
 /** @type {import('./$types').PageServerLoad} */
 export const load = async ({ locals, params }) => {
-	// Get all the flashcards
-	const flashcards = await locals.pb.collection('flashcard').getFullList({
+	// Get only 10 flashcards at a time
+
+	const firstTenFlashcards = await locals.pb.collection('flashcard').getList(1, 10, {
 		filter: `flashcardBox = "${params.slug}"`,
 		fields: `id, name, meaning, romanji, furigana, type, notes`
 	});
+
+	// Get the rest of the flashcards without the last
+	const restOfFlashcards = (
+		await locals.pb.collection('flashcard').getFullList({
+			filter: `flashcardBox = "${params.slug}"`,
+			fields: `id, name, meaning, romanji, furigana, type, notes`
+		})
+	).slice(10);
 
 	if (!kuroshiroInitialized) {
 		await kuroshiro.init(new KuromojiAnalyzer());
@@ -25,14 +34,19 @@ export const load = async ({ locals, params }) => {
 	}
 
 	// Process furigana in parallel
-	const processedFlashcards = await Promise.all(flashcards.map((card) => processFurigana(card)));
+	const processeFirstTenFlashcards = await Promise.all(
+		firstTenFlashcards.items.map((card) => processFurigana(card))
+	);
 
 	// Server API:
 	const form = await superValidate(flashcardSchema);
 
 	return {
 		form,
-		flashcards: processedFlashcards
+		flashcards: processeFirstTenFlashcards,
+		streamed: {
+			flashcards: await Promise.all(restOfFlashcards.map((card) => processFurigana(card)))
+		}
 	};
 };
 
@@ -82,7 +96,7 @@ export const actions = {
 		const form = await superValidate(request, flashcardSchema);
 
 		// Convenient validation check:
-		if (!form.valid) return fail(400, { form });
+		if (!form.valid || !form.data.id) return fail(400, { form });
 
 		try {
 			// Create user
@@ -97,11 +111,7 @@ export const actions = {
 		const form = await superValidate(request, flashcardSchema);
 
 		// Convenient validation check:
-		if (!form.valid) return fail(400, { form });
-
-		console.log({
-			data: form.data
-		});
+		if (!form.valid || !form.data.id) return fail(400, { form });
 
 		try {
 			// Create user

@@ -20,12 +20,14 @@
 
 	export let data;
 
+	let flashcards = data.flashcards;
+
 	// Get the alphabet store length
 	let currentFlashcardFurigana: string;
 	let currentFlashcardType: string;
 	let currentIndex: number = $currentIndexStore
 		? $currentIndexStore
-		: Math.floor(data.flashcards.length / 2);
+		: Math.floor(flashcards.length / 2);
 	let islocalBoxTypeOriginal = getLocalStorageItem('flashcardsBoxType') !== 'original';
 	let swiperInstance: Swiper;
 
@@ -44,9 +46,9 @@
 			if (!$errors.name) $clickedAddFlashcardCollection = false;
 
 			// Slide to the new created word
-			if (swiperInstance.slides.length + 1 === data.flashcards.length)
+			if (swiperInstance.slides.length + 1 === flashcards.length)
 				setTimeout(() => {
-					swiperInstance.slideTo(data.flashcards.length + 1);
+					swiperInstance.slideTo(flashcards.length + 1);
 				}, 500);
 		}
 	});
@@ -67,27 +69,29 @@
 		});
 
 		// Set the initial flashcard
-		swiperInstance.activeIndex = Math.floor(data.flashcards.length / 2);
+		swiperInstance.activeIndex = Math.floor(flashcards.length / 2);
 	});
 
 	function updateCurrentFlashcard() {
 		if (swiperInstance && typeof swiperInstance.realIndex !== 'undefined') {
 			let activeIndex = swiperInstance.activeIndex;
-			$currentFlashcard = data.flashcards[activeIndex].name;
+			$currentFlashcard = flashcards[activeIndex].name;
 			currentIndex = activeIndex;
 			$currentIndexStore = activeIndex;
 		} else console.error('Swiper instance is not defined or realIndex is unavailable');
 	}
 
-	$: if (data.flashcards.length > 0) {
-		$currentFlashcard = data.flashcards.at(currentIndex).name;
-		currentFlashcardFurigana = data.flashcards.at(currentIndex).furigana;
-		currentFlashcardType = data.flashcards.at(currentIndex).type;
+	$: if (flashcards.length > 0) {
+		$currentFlashcard = flashcards.at(currentIndex).name;
+		currentFlashcardFurigana = flashcards.at(currentIndex).furigana;
+		currentFlashcardType = flashcards.at(currentIndex).type;
 	}
 
-	$: if ($currentIndexStore && swiperInstance) {
-		swiperInstance.activeIndex = $currentIndexStore;
+	$: if (data.streamed.flashcards.length > 0) {
+		flashcards = [...data.flashcards, ...data.streamed.flashcards];
 	}
+
+	$: if ($currentIndexStore && swiperInstance) swiperInstance.activeIndex = $currentIndexStore;
 </script>
 
 {#if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin}
@@ -108,9 +112,9 @@
 		$form.furigana = '';
 	}}
 >
-	{#if data.flashcards.length > 0}
+	{#if flashcards.length > 0}
 		<Flashcard
-			flashcards={data.flashcards}
+			{flashcards}
 			{currentIndex}
 			longWord={$currentFlashcard.length > 8}
 			{currentFlashcardType}
@@ -122,7 +126,7 @@
 				<div
 					class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
 				>
-					<EditButton {form} flashcards={data.flashcards} {currentIndex} />
+					<EditButton {form} {flashcards} {currentIndex} />
 				</div>
 			{/if}
 		</div>
@@ -132,16 +136,33 @@
 		class="swiper-container -z-1 fixed bottom-5 flex cursor-ew-resize items-center justify-between gap-5 overflow-x-hidden sm:bottom-5"
 	>
 		<div class="swiper-wrapper mt-40">
-			{#each data.flashcards as flashcard, index}
-				<div
-					style="display: flex; justify-content: center; width: fit-content"
-					class="swiper-slide"
-				>
-					<button class="text-2xl sm:text-4xl" on:click={() => swiperInstance.slideTo(index)}>
-						{flashcard.name}
-					</button>
+			{#await data.streamed.flashcards}
+				{#each data.flashcards as flashcard, index}
+					<div
+						style="display: flex; justify-content: center; width: fit-content"
+						class="swiper-slide"
+					>
+						<button class="text-2xl sm:text-4xl" on:click={() => swiperInstance.slideTo(index)}>
+							{flashcard.name}
+						</button>
+					</div>
+				{/each}
+			{:then restOfFlashcards}
+				{#each [...data.flashcards, ...restOfFlashcards] as flashcard, index}
+					<div
+						style="display: flex; justify-content: center; width: fit-content"
+						class="swiper-slide"
+					>
+						<button class="text-2xl sm:text-4xl" on:click={() => swiperInstance.slideTo(index)}>
+							{flashcard.name}
+						</button>
+					</div>
+				{/each}
+			{:catch error}
+				<div class="swiper-slide">
+					{error.message}
 				</div>
-			{/each}
+			{/await}
 		</div>
 		<div class="swiper-pagination" />
 		<!-- Add navigation buttons if needed -->
