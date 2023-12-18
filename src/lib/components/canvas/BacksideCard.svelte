@@ -17,6 +17,7 @@
 	import { toRomaji } from 'wanakana';
 	import { kanji } from '$lib/static/kanji';
 	import { Dices } from 'lucide-svelte';
+	import { page } from '$app/stores';
 
 	export let rotateYCard: number;
 </script>
@@ -63,15 +64,17 @@
 				</div>
 			{/if}
 
-			<button
-				class="fixed bottom-3 left-3 z-30 rounded-full border bg-white p-2 shadow-sm transition-all sm:bottom-5 sm:left-5"
-				on:click={() => {
-					$clickedQuizForm = true;
-					$clickedKanjiForm = true;
-				}}
-			>
-				<Dices class="h-4 w-4" />
-			</button>
+			{#if $page.url.pathname.includes('alphabet')}
+				<button
+					class="fixed bottom-3 left-3 z-30 rounded-full border bg-white p-2 shadow-sm transition-all sm:bottom-5 sm:left-5"
+					on:click={() => {
+						$clickedQuizForm = true;
+						$clickedKanjiForm = true;
+					}}
+				>
+					<Dices class="h-4 w-4" />
+				</button>
+			{/if}
 		</div>
 	{:else}
 		<h2 class="text-center text-9xl font-medium">{toRomaji($currentLetter).toUpperCase()}</h2>

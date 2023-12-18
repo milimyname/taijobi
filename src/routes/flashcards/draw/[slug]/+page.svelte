@@ -67,10 +67,7 @@
 	else if (isKatakana(slicedFlashcard[index])) $currentAlphabet = 'katakana';
 	else $currentAlphabet = 'hiragana';
 
-	$: if ($currentLetter) {
-		$currentLetter = slicedFlashcard[index];
-		$currentIndexStore = index;
-	}
+	$: if ($currentLetter) $currentLetter = slicedFlashcard[index];
 </script>
 
 <section class="mb-24 flex flex-1 flex-col justify-center gap-2 sm:justify-center sm:gap-5">
