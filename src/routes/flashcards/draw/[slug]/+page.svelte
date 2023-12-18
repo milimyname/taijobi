@@ -19,6 +19,7 @@
 	import { clearCanvas } from '$lib/utils/actions';
 	import BacksideCard from '$lib/components/canvas/BacksideCard.svelte';
 	import { twSmallScreen, xmSmallScreen, canvasLgWidth, canvasSmWidth } from '$lib/utils/constants';
+	import { getLocalStorageItem } from '$lib/utils/localStorage';
 
 	const rotateYCard = tweened(0, {
 		duration: 2000,
@@ -27,13 +28,23 @@
 	// Get the alphabet store length
 	let canvas: HTMLCanvasElement;
 	let ctx: Ctx;
-	let slicedFlashcard: string[] = $currentFlashcard.split('').filter((char) => char !== ' ');
+	let slicedFlashcard: string[];
 	let index: number = 0;
+
+	let localStorageFlashcard = getLocalStorageItem('currentFlashcard');
+
+	if (localStorageFlashcard)
+		slicedFlashcard = localStorageFlashcard.split('').filter((char) => char !== ' ');
+	else if ($currentFlashcard)
+		slicedFlashcard = $currentFlashcard.split('').filter((char) => char !== ' ');
 
 	// Get canvas and context
 	onMount(() => {
 		canvas = document.querySelector('canvas') as HTMLCanvasElement;
 		ctx = canvas.getContext('2d') as Ctx;
+
+		// Set the current flashcard to the one in localStorage
+		localStorage.setItem('currentFlashcard', $currentFlashcard);
 
 		$currentLetter = slicedFlashcard[index];
 
