@@ -15,18 +15,11 @@ let kuroshiroInitialized = false;
 export const load = async ({ locals, params }) => {
 	// Get only 10 flashcards at a time
 
+	console.time('getFirstTenFlashcards');
 	const firstTenFlashcards = await locals.pb.collection('flashcard').getList(1, 10, {
 		filter: `flashcardBox = "${params.slug}"`,
 		fields: `id, name, meaning, romanji, furigana, type, notes`
 	});
-
-	// Get the rest of the flashcards without the last
-	const restOfFlashcards = (
-		await locals.pb.collection('flashcard').getFullList({
-			filter: `flashcardBox = "${params.slug}"`,
-			fields: `id, name, meaning, romanji, furigana, type, notes`
-		})
-	).slice(10);
 
 	if (!kuroshiroInitialized) {
 		await kuroshiro.init(new KuromojiAnalyzer());
@@ -41,13 +34,24 @@ export const load = async ({ locals, params }) => {
 	// Server API:
 	const form = await superValidate(flashcardSchema);
 
+	console.timeEnd('getFirstTenFlashcards');
+
 	return {
 		form,
 		flashcards: processeFirstTenFlashcards,
 		streamed: {
 			flashcards:
-				restOfFlashcards.length > 0
-					? await Promise.all(restOfFlashcards.map((card) => processFurigana(card)))
+				processeFirstTenFlashcards.length > 0
+					? await Promise.all(
+							(
+								await locals.pb.collection('flashcard').getFullList({
+									filter: `flashcardBox = "${params.slug}"`,
+									fields: `id, name, meaning, romanji, furigana, type, notes`
+								})
+							)
+								.slice(10)
+								.map((card) => processFurigana(card))
+						)
 					: []
 		}
 	};
