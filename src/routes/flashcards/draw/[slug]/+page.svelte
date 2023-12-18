@@ -51,11 +51,10 @@
 	}
 
 	// Set the current alphabet if the flashcard contains more than one character
-	$: if ($currentFlashcard.length > 1) {
+	$: {
 		if (isKanji(slicedFlashcard[index])) $currentAlphabet = 'kanji';
 		else if (isKatakana(slicedFlashcard[index])) $currentAlphabet = 'katakana';
 		else $currentAlphabet = 'hiragana';
-
 		$currentLetter = slicedFlashcard[index];
 	}
 </script>
