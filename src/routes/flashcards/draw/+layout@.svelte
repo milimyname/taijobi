@@ -25,6 +25,7 @@
 		<a
 			href={'/flashcards/' + $page.url.pathname.split('-').at(1)}
 			class="go-back-btn group flex items-center gap-2"
+			on:click={() => localStorage.removeItem('currentFlashcard')}
 			data-sveltekit-preload-data
 		>
 			<ArrowLeft

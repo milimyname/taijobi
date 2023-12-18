@@ -33,9 +33,10 @@
 
 	let localStorageFlashcard = getLocalStorageItem('currentFlashcard');
 
-	if (localStorageFlashcard)
+	if (localStorageFlashcard) {
+		$currentFlashcard = localStorageFlashcard;
 		slicedFlashcard = localStorageFlashcard.split('').filter((char) => char !== ' ');
-	else if ($currentFlashcard)
+	} else if ($currentFlashcard)
 		slicedFlashcard = $currentFlashcard.split('').filter((char) => char !== ' ');
 
 	// Get canvas and context
