@@ -61,7 +61,7 @@
 </script>
 
 <section class="mb-24 flex flex-1 flex-col justify-center gap-2 sm:justify-center sm:gap-5">
-	<div class="relative">
+	<div style="perspective: 3000px; position: relative; overflow: hidden;">
 		<div>
 			<span
 				class="{$rotateYCard > 5 ? 'hidden' : 'block'} 
@@ -73,7 +73,9 @@
 					</span>
 				{/each}
 			</span>
+
 			<Canvas rotationY={$rotateYCard} {canvas} {ctx} />
+
 			<Letter rotationY={$rotateYCard} />
 
 			<button
@@ -83,6 +85,7 @@
 			>
 				<RotateCcw class="h-4 w-4" />
 			</button>
+
 			<BacksideCard rotateYCard={$rotateYCard} />
 		</div>
 	</div>

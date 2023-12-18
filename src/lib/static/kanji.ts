@@ -17571,7 +17571,7 @@ const custom: KanjiDictionary = {
 		grade: 6,
 		meaning: 'age',
 		onyomi: ['サイ', 'セイ'],
-		kunyomi: ['']
+		kunyomi: []
 	},
 	来: {
 		ds: [

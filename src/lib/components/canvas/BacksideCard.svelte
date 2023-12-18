@@ -7,7 +7,13 @@
 		clickedQuizForm,
 		clickedKanjiForm
 	} from '$lib/utils/stores';
-	import { canvasLgHeight, twSmallScreen, xmSmallScreen } from '$lib/utils/constants';
+	import {
+		canvasLgHeight,
+		twSmallScreen,
+		canvasLgWidth,
+		canvasSmWidth,
+		xmSmallScreen
+	} from '$lib/utils/constants';
 	import { toRomaji } from 'wanakana';
 	import { kanji } from '$lib/static/kanji';
 	import { Dices } from 'lucide-svelte';
@@ -20,9 +26,16 @@
 		$innerWidthStore > twSmallScreen
 			? canvasLgHeight
 			: $innerWidthStore < xmSmallScreen
-			? $innerHeightStore * 0.6
-			: $innerHeightStore * 0.6
+				? $innerHeightStore * 0.6
+				: $innerHeightStore * 0.6
 	}px;
+	width: ${
+		$innerWidthStore > twSmallScreen
+			? canvasLgWidth
+			: $innerWidthStore < xmSmallScreen
+				? canvasSmWidth
+				: $innerWidthStore * 0.9
+	}px
 			`}
 	class="alphabet relative z-10 mx-auto
 				{rotateYCard > 90 ? 'block' : 'hidden'} 
@@ -43,7 +56,7 @@
 				<h4 class="text-lg tracking-widest">{kanji[$currentLetter].onyomi}</h4>
 				<p class=" text-sm text-gray-300">Onyomi</p>
 			</div>
-			{#if kanji[$currentLetter].kunyomi && kanji[$currentLetter].kunyomi.length > 0}
+			{#if kanji[$currentLetter].kunyomi.length > 0}
 				<div>
 					<h4 class="text-lg tracking-widest">{kanji[$currentLetter].kunyomi}</h4>
 					<p class="text-sm text-gray-300">Kunyomi</p>
