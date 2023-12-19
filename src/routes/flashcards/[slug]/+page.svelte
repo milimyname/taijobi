@@ -8,7 +8,6 @@
 		currentIndexStore
 	} from '$lib/utils/stores';
 	import { superForm } from 'sveltekit-superforms/client';
-	import { clickOutside } from '$lib/utils/clickOutside.js';
 	import FlashcardForm from '$lib/components/forms/FlashcardForm.svelte';
 	import { page } from '$app/stores';
 	import EditButton from './EditButton.svelte';
@@ -94,22 +93,7 @@
 	<FlashcardForm {currentFlashcardType} {constraints} {form} {errors} {enhance} />
 {/if}
 
-<section
-	class="mb-10 flex flex-1 flex-col items-center justify-center gap-2 sm:gap-5"
-	use:clickOutside={() => {
-		$clickedAddFlashcardCollection = false;
-		// Clear the form
-		if ($clickedEditFlashcard) {
-			$form.name = '';
-			$form.meaning = '';
-			$form.id = '';
-			$form.notes = '';
-			$form.type = '';
-			$form.romanji = '';
-			$form.furigana = '';
-		}
-	}}
->
+<section class="mb-10 flex flex-1 flex-col items-center justify-center gap-2 sm:gap-5">
 	{#if data.flashcards && data.flashcards.length > 0}
 		<Flashcard
 			flashcards={data.flashcards}

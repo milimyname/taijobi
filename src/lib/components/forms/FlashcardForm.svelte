@@ -16,6 +16,16 @@
 
 	if (currentFlashcardType) type = currentFlashcardType === 'word' ? 'word' : 'kanji';
 	else type = 'word';
+
+	$: if (!$clickedEditFlashcard) {
+		$form.name = '';
+		$form.meaning = '';
+		$form.id = '';
+		$form.notes = '';
+		$form.type = '';
+		$form.romanji = '';
+		$form.furigana = '';
+	}
 </script>
 
 {#if $clickedAddFlashcardCollection}
