@@ -15,31 +15,32 @@ let kuroshiroInitialized = false;
 export const load = async ({ locals, params }) => {
 	// Get only 10 flashcards at a time
 
-	console.time('getFirstTenFlashcards');
-	const firstTenFlashcards = await locals.pb.collection('flashcard').getFullList({
+	console.time('flashcards');
+	const flashcards = await locals.pb.collection('flashcard').getFullList({
 		filter: `flashcardBox = "${params.slug}"`,
 		fields: `id, name, meaning, romanji, furigana, type, notes`,
 		skipTotal: true,
 		batch: 20
 	});
-	console.timeEnd('getFirstTenFlashcards');
+	console.timeEnd('flashcards');
 
 	if (!kuroshiroInitialized) {
 		await kuroshiro.init(new KuromojiAnalyzer());
 		kuroshiroInitialized = true;
 	}
 
+	console.time('furigana');
+
 	// Process furigana in parallel
-	const processeFirstTenFlashcards = await Promise.all(
-		firstTenFlashcards.map((card) => processFurigana(card))
-	);
+	const processeFlashcards = await Promise.all(flashcards.map((card) => processFurigana(card)));
+	console.timeEnd('furigana');
 
 	// Server API:
 	const form = await superValidate(flashcardSchema);
 
 	return {
 		form,
-		flashcards: processeFirstTenFlashcards
+		flashcards: processeFlashcards
 	};
 };
 
