@@ -16,7 +16,7 @@ export const load = async ({ locals, params }) => {
 	// Get only 10 flashcards at a time
 
 	console.time('getFirstTenFlashcards');
-	const firstTenFlashcards = await locals.pb.collection('flashcard').getList(1, 10, {
+	const firstTenFlashcards = await locals.pb.collection('flashcard').getFullList({
 		filter: `flashcardBox = "${params.slug}"`,
 		fields: `id, name, meaning, romanji, furigana, type, notes`
 	});
@@ -28,7 +28,7 @@ export const load = async ({ locals, params }) => {
 
 	// Process furigana in parallel
 	const processeFirstTenFlashcards = await Promise.all(
-		firstTenFlashcards.items.map((card) => processFurigana(card))
+		firstTenFlashcards.map((card) => processFurigana(card))
 	);
 
 	// Server API:

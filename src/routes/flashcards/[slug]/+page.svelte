@@ -15,19 +15,16 @@
 	import { getLocalStorageItem } from '$lib/utils/localStorage';
 	import { onMount } from 'svelte';
 	import Swiper from 'swiper';
-	import { Navigation, Pagination } from 'swiper/modules';
 	import 'swiper/swiper-bundle.css';
 
 	export let data;
-
-	let flashcards = data.flashcards;
 
 	// Get the alphabet store length
 	let currentFlashcardFurigana: string;
 	let currentFlashcardType: string;
 	let currentIndex: number = $currentIndexStore
 		? $currentIndexStore
-		: Math.floor(flashcards.length / 2);
+		: Math.floor(data.flashcards.length / 2);
 	let islocalBoxTypeOriginal = getLocalStorageItem('flashcardsBoxType') !== 'original';
 	let swiperInstance: Swiper;
 
@@ -46,16 +43,15 @@
 			if (!$errors.name) $clickedAddFlashcardCollection = false;
 
 			// Slide to the new created word
-			if (swiperInstance.slides.length + 1 === flashcards.length)
+			if (swiperInstance.slides.length + 1 === data.flashcards.length)
 				setTimeout(() => {
-					swiperInstance.slideTo(flashcards.length + 1);
+					swiperInstance.slideTo(data.flashcards.length + 1);
 				}, 500);
 		}
 	});
 
 	onMount(() => {
 		swiperInstance = new Swiper('.swiper-container', {
-			modules: [Navigation, Pagination],
 			slidesPerView: 'auto',
 			centeredSlides: true,
 			spaceBetween: 30,
@@ -69,24 +65,22 @@
 		});
 
 		// Set the initial flashcard
-		swiperInstance.activeIndex = Math.floor(flashcards.length / 2);
+		swiperInstance.activeIndex = Math.floor(data.flashcards.length / 2);
 	});
 
 	function updateCurrentFlashcard() {
 		if (swiperInstance && typeof swiperInstance.realIndex !== 'undefined') {
 			let activeIndex = swiperInstance.activeIndex;
-			$currentFlashcard = flashcards[activeIndex].name;
+			$currentFlashcard = data.flashcards[activeIndex].name;
 			currentIndex = activeIndex;
 			$currentIndexStore = activeIndex;
 		} else console.error('Swiper instance is not defined or realIndex is unavailable');
 	}
 
-	$: flashcards = data.flashcards;
-
-	$: if (flashcards.length > 0) {
-		$currentFlashcard = flashcards.at(currentIndex).name;
-		currentFlashcardFurigana = flashcards.at(currentIndex).furigana;
-		currentFlashcardType = flashcards.at(currentIndex).type;
+	$: if (data.flashcards.length > 0) {
+		$currentFlashcard = data.flashcards.at(currentIndex).name;
+		currentFlashcardFurigana = data.flashcards.at(currentIndex).furigana;
+		currentFlashcardType = data.flashcards.at(currentIndex).type;
 	}
 
 	$: if ($currentIndexStore && swiperInstance) swiperInstance.activeIndex = $currentIndexStore;
@@ -110,9 +104,9 @@
 		$form.furigana = '';
 	}}
 >
-	{#if flashcards.length > 0}
+	{#if data.flashcards.length > 0}
 		<Flashcard
-			{flashcards}
+			flashcards={data.flashcards}
 			{currentIndex}
 			longWord={$currentFlashcard.length > 8}
 			{currentFlashcardType}
@@ -124,7 +118,7 @@
 				<div
 					class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
 				>
-					<EditButton {form} {flashcards} {currentIndex} />
+					<EditButton {form} flashcards={data.flashcards} {currentIndex} />
 				</div>
 			{/if}
 		</div>
@@ -145,8 +139,6 @@
 				</div>
 			{/each}
 		</div>
-		<div class="swiper-pagination" />
-		<!-- Add navigation buttons if needed -->
 	</div>
 </section>
 
