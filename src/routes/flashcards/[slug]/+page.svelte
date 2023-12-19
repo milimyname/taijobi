@@ -77,7 +77,7 @@
 		} else console.error('Swiper instance is not defined or realIndex is unavailable');
 	}
 
-	$: if (data.flashcards && data.flashcards.length > 0 && currentIndex < data.flashcards.length) {
+	$: if (data.flashcards.length > 0) {
 		$currentFlashcard = data.flashcards.at(currentIndex).name;
 		currentFlashcardFurigana = data.flashcards.at(currentIndex).furigana;
 		currentFlashcardType = data.flashcards.at(currentIndex).type;
