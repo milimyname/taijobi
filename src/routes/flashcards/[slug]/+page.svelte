@@ -133,9 +133,11 @@
 					style="display: flex; justify-content: center; width: fit-content"
 					class="swiper-slide"
 				>
-					<button class="text-2xl sm:text-4xl" on:click={() => swiperInstance.slideTo(index)}>
-						{flashcard.name}
-					</button>
+					{#if flashcard.name}
+						<button class="text-2xl sm:text-4xl" on:click={() => swiperInstance.slideTo(index)}>
+							{flashcard.name}
+						</button>
+					{/if}
 				</div>
 			{/each}
 		</div>

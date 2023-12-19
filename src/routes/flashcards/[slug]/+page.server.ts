@@ -18,7 +18,9 @@ export const load = async ({ locals, params }) => {
 	console.time('getFirstTenFlashcards');
 	const firstTenFlashcards = await locals.pb.collection('flashcard').getFullList({
 		filter: `flashcardBox = "${params.slug}"`,
-		fields: `id, name, meaning, romanji, furigana, type, notes`
+		fields: `id, name, meaning, romanji, furigana, type, notes`,
+		skipTotal: true,
+		batch: 20
 	});
 
 	if (!kuroshiroInitialized) {
