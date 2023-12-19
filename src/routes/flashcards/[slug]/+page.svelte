@@ -92,17 +92,7 @@
 
 <section
 	class="mb-10 flex flex-1 flex-col items-center justify-center gap-2 sm:gap-5"
-	use:clickOutside={() => {
-		$clickedAddFlashcardCollection = false;
-		// Clear the form
-		$form.name = '';
-		$form.meaning = '';
-		$form.id = '';
-		$form.notes = '';
-		$form.type = '';
-		$form.romanji = '';
-		$form.furigana = '';
-	}}
+	use:clickOutside={() => ($clickedAddFlashcardCollection = false)}
 >
 	{#if data.flashcards && data.flashcards.length > 0}
 		<Flashcard
