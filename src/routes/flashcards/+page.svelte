@@ -90,9 +90,7 @@
 	function isTouchScreen() {
 		if (typeof window === 'undefined') return false;
 
-		return (
-			'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.maxTouchPoints > 0
-		);
+		return 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.maxTouchPoints > 0;
 	}
 </script>
 
@@ -175,7 +173,7 @@
 			$showCollections = false;
 		}}
 		class="
-			  add-form-btn scrollable fixed bottom-0 left-1/2 z-[200] flex min-h-fit w-full -translate-x-1/2
+			  add-form-btn scrollable fixed bottom-0 left-1/2 z-[1001] flex min-h-fit w-full -translate-x-1/2
 			 items-center gap-2 overflow-auto rounded-t-2xl bg-white px-2 py-2 sm:bottom-0 md:max-w-4xl"
 		transition:fly={{
 			delay: 0,
