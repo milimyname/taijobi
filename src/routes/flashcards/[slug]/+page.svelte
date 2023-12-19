@@ -89,9 +89,6 @@
 		currentFlashcardType = flashcards.at(currentIndex).type;
 	}
 
-	$: if (data.streamed.flashcards.length > 0)
-		flashcards = [...data.flashcards, ...data.streamed.flashcards];
-
 	$: if ($currentIndexStore && swiperInstance) swiperInstance.activeIndex = $currentIndexStore;
 </script>
 
@@ -137,33 +134,16 @@
 		class="swiper-container -z-1 fixed bottom-5 flex cursor-ew-resize items-center justify-between gap-5 overflow-x-hidden sm:bottom-5"
 	>
 		<div class="swiper-wrapper mt-40">
-			{#await data.streamed.flashcards}
-				{#each data.flashcards as flashcard, index}
-					<div
-						style="display: flex; justify-content: center; width: fit-content"
-						class="swiper-slide"
-					>
-						<button class="text-2xl sm:text-4xl" on:click={() => swiperInstance.slideTo(index)}>
-							{flashcard.name}
-						</button>
-					</div>
-				{/each}
-			{:then restOfFlashcards}
-				{#each [...data.flashcards, ...restOfFlashcards] as flashcard, index}
-					<div
-						style="display: flex; justify-content: center; width: fit-content"
-						class="swiper-slide"
-					>
-						<button class="text-2xl sm:text-4xl" on:click={() => swiperInstance.slideTo(index)}>
-							{flashcard.name}
-						</button>
-					</div>
-				{/each}
-			{:catch error}
-				<div class="swiper-slide">
-					{error.message}
+			{#each data.flashcards as flashcard, index}
+				<div
+					style="display: flex; justify-content: center; width: fit-content"
+					class="swiper-slide"
+				>
+					<button class="text-2xl sm:text-4xl" on:click={() => swiperInstance.slideTo(index)}>
+						{flashcard.name}
+					</button>
 				</div>
-			{/await}
+			{/each}
 		</div>
 		<div class="swiper-pagination" />
 		<!-- Add navigation buttons if needed -->

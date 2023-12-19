@@ -38,22 +38,7 @@ export const load = async ({ locals, params }) => {
 
 	return {
 		form,
-		flashcards: processeFirstTenFlashcards,
-		streamed: {
-			flashcards:
-				processeFirstTenFlashcards.length > 0
-					? await Promise.all(
-							(
-								await locals.pb.collection('flashcard').getFullList({
-									filter: `flashcardBox = "${params.slug}"`,
-									fields: `id, name, meaning, romanji, furigana, type, notes`
-								})
-							)
-								.slice(10)
-								.map((card) => processFurigana(card))
-						)
-					: []
-		}
+		flashcards: processeFirstTenFlashcards
 	};
 };
 
