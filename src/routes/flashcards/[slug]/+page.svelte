@@ -69,7 +69,11 @@
 	});
 
 	function updateCurrentFlashcard() {
-		if (swiperInstance && typeof swiperInstance.realIndex !== 'undefined') {
+		if (
+			swiperInstance &&
+			typeof swiperInstance.activeIndex !== 'undefined' &&
+			typeof swiperInstance.realIndex !== 'undefined'
+		) {
 			let activeIndex = swiperInstance.activeIndex;
 			$currentFlashcard = data.flashcards[activeIndex].name;
 			currentIndex = activeIndex;
@@ -92,7 +96,19 @@
 
 <section
 	class="mb-10 flex flex-1 flex-col items-center justify-center gap-2 sm:gap-5"
-	use:clickOutside={() => ($clickedAddFlashcardCollection = false)}
+	use:clickOutside={() => {
+		$clickedAddFlashcardCollection = false;
+		// Clear the form
+		if ($clickedEditFlashcard) {
+			$form.name = '';
+			$form.meaning = '';
+			$form.id = '';
+			$form.notes = '';
+			$form.type = '';
+			$form.romanji = '';
+			$form.furigana = '';
+		}
+	}}
 >
 	{#if data.flashcards && data.flashcards.length > 0}
 		<Flashcard

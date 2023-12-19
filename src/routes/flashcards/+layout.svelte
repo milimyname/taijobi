@@ -35,7 +35,7 @@
 </svelte:head>
 
 {#if $showCollections || $clickedAddFlahcardBox || $clickedAddFlashcardCollection}
-	<div class="fixed top-0 z-[100] h-[100dvh] w-screen bg-black/50 backdrop-blur-md" />
+	<div class="fixed top-0 z-[1000] h-[100dvh] w-screen bg-black/50 backdrop-blur-md" />
 {/if}
 
 <main
