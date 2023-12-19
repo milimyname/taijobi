@@ -14,11 +14,11 @@
 	import { page } from '$app/stores';
 
 	let longPressTimer: NodeJS.Timeout;
-	let canvas: HTMLCanvasElement | null, ctx: Ctx;
+	let canvas: HTMLCanvasElement, ctx: Ctx;
 
 	// Get canvas and context
 	onMount(() => {
-		canvas = document.querySelector('canvas');
+		canvas = document.querySelector('canvas') as HTMLCanvasElement;
 		ctx = canvas.getContext('2d') as Ctx;
 	});
 
@@ -30,7 +30,7 @@
 	<nav
 		class=" {!$isLongPress
 			? 'w-[90%] px-10 py-4'
-			: 'ml-auto p-2'} fixed bottom-2 z-40 flex items-center justify-between rounded-full bg-black text-white transition-all sm:bottom-5 sm:w-auto sm:justify-center sm:gap-20 sm:px-10"
+			: 'ml-auto p-2'} fixed bottom-5 z-40 flex items-center justify-between rounded-full bg-black text-white transition-all sm:bottom-10 sm:w-auto sm:justify-center sm:gap-20 sm:px-10"
 	>
 		<button
 			on:click|preventDefault={handleUserIconClick}

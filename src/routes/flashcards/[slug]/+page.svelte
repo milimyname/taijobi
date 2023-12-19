@@ -125,7 +125,7 @@
 	{/if}
 
 	<div
-		class="swiper-container -z-1 fixed bottom-5 flex cursor-ew-resize items-center justify-between gap-5 overflow-x-hidden sm:bottom-5"
+		class="swiper-container -z-1 fixed bottom-5 flex cursor-ew-resize items-center justify-between gap-5 overflow-x-hidden sm:bottom-10"
 	>
 		<div class="swiper-wrapper mt-40">
 			{#each data.flashcards as flashcard, index}
