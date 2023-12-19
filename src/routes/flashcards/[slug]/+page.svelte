@@ -104,7 +104,7 @@
 		$form.furigana = '';
 	}}
 >
-	{#if data.flashcards.length > 0}
+	{#if data.flashcards && data.flashcards.length > 0}
 		<Flashcard
 			flashcards={data.flashcards}
 			{currentIndex}
@@ -129,16 +129,16 @@
 	>
 		<div class="swiper-wrapper mt-40">
 			{#each data.flashcards as flashcard, index}
-				<div
-					style="display: flex; justify-content: center; width: fit-content"
-					class="swiper-slide"
-				>
-					{#if flashcard.name}
+				{#if flashcard}
+					<div
+						style="display: flex; justify-content: center; width: fit-content"
+						class="swiper-slide"
+					>
 						<button class="text-2xl sm:text-4xl" on:click={() => swiperInstance.slideTo(index)}>
 							{flashcard.name}
 						</button>
-					{/if}
-				</div>
+					</div>
+				{/if}
 			{/each}
 		</div>
 	</div>

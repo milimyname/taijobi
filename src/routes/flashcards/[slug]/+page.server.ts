@@ -22,6 +22,7 @@ export const load = async ({ locals, params }) => {
 		skipTotal: true,
 		batch: 20
 	});
+	console.timeEnd('getFirstTenFlashcards');
 
 	if (!kuroshiroInitialized) {
 		await kuroshiro.init(new KuromojiAnalyzer());
@@ -35,8 +36,6 @@ export const load = async ({ locals, params }) => {
 
 	// Server API:
 	const form = await superValidate(flashcardSchema);
-
-	console.timeEnd('getFirstTenFlashcards');
 
 	return {
 		form,
