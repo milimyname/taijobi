@@ -7,7 +7,8 @@
 		showCollections,
 		clickedQuizForm,
 		flashcardsBoxType,
-		currentFlashcard
+		currentFlashcard,
+		currentIndexStore
 	} from '$lib/utils/stores';
 	import { page } from '$app/stores';
 	import { getLocalStorageItem } from '$lib/utils/localStorage';
@@ -46,7 +47,10 @@
 		<a
 			href={$page.route.id && $page.route.id.length < 12 ? '/' : '/flashcards'}
 			class="go-back-btn group flex items-center gap-2"
-			on:click={() => ($currentFlashcard = '')}
+			on:click={() => {
+				$currentIndexStore = 0;
+				$currentFlashcard = '';
+			}}
 			data-sveltekit-preload-data
 		>
 			<ArrowLeft

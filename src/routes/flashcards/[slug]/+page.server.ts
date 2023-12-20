@@ -20,8 +20,7 @@ export const load = async ({ locals, params }) => {
 		filter: `flashcardBox = "${params.slug}"`,
 		fields: `id, name, meaning, romanji, furigana, type, notes`,
 		skipTotal: true,
-		batch: 20,
-		cache: 'default'
+		batch: 20
 	});
 	console.timeEnd('flashcards');
 
