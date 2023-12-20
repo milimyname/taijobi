@@ -36,6 +36,8 @@ export const handleCancelPress = (longPressTimer: any) => {
 };
 
 export function clearCanvas(ctx: Ctx, canvas: HTMLCanvasElement) {
+	if (!canvas || !ctx) return;
+
 	// Clear the entire canvas
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 

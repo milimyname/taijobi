@@ -52,7 +52,7 @@
 
 		$max = getAlphabetLength();
 
-		$progressSlider = $progress;
+		$progressSlider = $progress > $max ? getRandomNumber(1, getAlphabetLength()) : $progress;
 
 		$selectedKanjiGrade = '0';
 	});
@@ -64,7 +64,7 @@
 	<div
 		use:clickOutside={() => ($showProgressSlider = false)}
 		use:melt={$root}
-		class="fixed bottom-2 z-40 mx-auto flex w-[90%] items-center rounded-full bg-black/40 sm:bottom-5 sm:w-[416px]"
+		class="fixed bottom-5 z-40 mx-auto flex w-[90%] items-center rounded-full bg-black/40 sm:bottom-10 lg:bottom-5 sm:w-[416px]"
 	>
 		<div class=" block h-[52px] cursor-ew-resize sm:h-[56px]">
 			<div use:melt={$range} class="h-[52px] rounded-l-full bg-[#0A6EBD] shadow-xl sm:h-[56px]" />
