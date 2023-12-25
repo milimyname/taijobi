@@ -25,6 +25,7 @@ export const selectedKanjiGrade = writable('0');
 export const maxFlashcards = writable('');
 export const currentFlashcard = writable('');
 export const currentIndexStore = writable<number>();
+export const showLetterDrawing = writable(false);
 
 export const hiraganaStore = writable([
 	'あ',

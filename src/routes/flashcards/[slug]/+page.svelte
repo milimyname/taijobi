@@ -5,7 +5,8 @@
 		clickedAddFlashcardCollection,
 		flashcardsBoxType,
 		currentFlashcard,
-		currentIndexStore
+		currentIndexStore,
+		showLetterDrawing
 	} from '$lib/utils/stores';
 	import { superForm } from 'sveltekit-superforms/client';
 	import FlashcardForm from '$lib/components/forms/FlashcardForm.svelte';
@@ -15,6 +16,7 @@
 	import { onMount } from 'svelte';
 	import Swiper from 'swiper';
 	import 'swiper/swiper-bundle.css';
+	import LetterDrawingFlashcard from './LetterDrawingFlashcard.svelte';
 
 	export let data;
 
@@ -97,7 +99,7 @@
 {/if}
 
 <section class="mb-10 flex flex-1 flex-col items-center justify-center gap-2 sm:gap-5">
-	{#if data.flashcards && data.flashcards.length > 0}
+	{#if data.flashcards && data.flashcards.length > 0 && !$showLetterDrawing}
 		<Flashcard
 			flashcards={data.flashcards}
 			{currentIndex}
@@ -115,6 +117,8 @@
 				</div>
 			{/if}
 		</div>
+	{:else}
+		<LetterDrawingFlashcard />
 	{/if}
 
 	<div

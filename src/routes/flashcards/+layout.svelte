@@ -8,7 +8,10 @@
 		clickedQuizForm,
 		flashcardsBoxType,
 		currentFlashcard,
-		currentIndexStore
+		currentIndexStore,
+		innerWidthStore,
+		innerHeightStore,
+		showLetterDrawing
 	} from '$lib/utils/stores';
 	import { page } from '$app/stores';
 	import { getLocalStorageItem } from '$lib/utils/localStorage';
@@ -28,6 +31,8 @@
 
 	let islocalBoxTypeOriginal = getLocalStorageItem('flashcardsBoxType') !== 'original';
 </script>
+
+<svelte:window bind:innerWidth={$innerWidthStore} bind:innerHeight={$innerHeightStore} />
 
 <svelte:head>
 	<title>Flashcards</title>
@@ -50,6 +55,7 @@
 			on:click={() => {
 				$currentIndexStore = 0;
 				$currentFlashcard = '';
+				$showLetterDrawing = false;
 			}}
 			data-sveltekit-preload-data
 		>

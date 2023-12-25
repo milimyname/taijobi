@@ -176,9 +176,7 @@
 			<button
 				class="{$rotateYCard > 5 && $rotateYCard < 175 ? 'hidden' : 'block'}
 				fixed bottom-3 right-2 z-30 rounded-full border bg-white p-2 shadow-sm transition-all sm:bottom-5 sm:right-5"
-				on:click={() => {
-					$rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0);
-				}}
+				on:click={() => ($rotateYCard < 40 ? ($rotateYCard = 180) : ($rotateYCard = 0))}
 			>
 				<RotateCcw class="h-4 w-4" />
 			</button>
@@ -192,8 +190,8 @@
 			$innerWidthStore > twSmallScreen
 				? canvasLgWidth
 				: $innerWidthStore < xmSmallScreen
-				? canvasSmWidth
-				: $innerWidthStore * 0.9
+					? canvasSmWidth
+					: $innerWidthStore * 0.9
 		}px;`}
 		class="flex items-center justify-between sm:mx-auto"
 	>

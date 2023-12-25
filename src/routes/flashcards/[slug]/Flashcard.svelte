@@ -2,12 +2,15 @@
 	import type { FlashcardType } from '$lib/utils/ambient.d.ts';
 	import { kanji } from '$lib/static/kanji';
 	import { fly } from 'svelte/transition';
-	import { currentAlphabet, currentFlashcard } from '$lib/utils/stores';
+	import {
+		currentAlphabet,
+		currentFlashcard,
+		showLetterDrawing,
+		showProgressSlider
+	} from '$lib/utils/stores';
 	import { quintOut, cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
 	import { RotateCcw, Scroll, PenTool } from 'lucide-svelte';
-	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
 
 	const rotateYCard = tweened(0, {
 		duration: 2000,
@@ -47,13 +50,8 @@
 			class="fixed bottom-5 left-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all
 				{showNotes && 'hidden'}"
 			on:click={() => {
-				goto(
-					`/flashcards/draw/${
-						currentFlashcardType === 'kanji'
-							? `kanji-${$page.url.pathname.split('/').at(2)}-${currentIndex}`
-							: `word-${$page.url.pathname.split('/').at(2)}-${currentIndex}`
-					}`
-				);
+				$showLetterDrawing = true;
+				$showProgressSlider = false;
 			}}
 		>
 			<PenTool class="h-4 w-4" />

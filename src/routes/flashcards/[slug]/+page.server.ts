@@ -14,7 +14,6 @@ let kuroshiroInitialized = false;
 /** @type {import('./$types').PageServerLoad} */
 export const load = async ({ locals, params }) => {
 	// Get only 10 flashcards at a time
-
 	console.time('flashcards');
 	const flashcards = await locals.pb.collection('flashcard').getFullList({
 		filter: `flashcardBox = "${params.slug}"`,
