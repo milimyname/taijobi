@@ -20,7 +20,6 @@
 	import { clearCanvas } from '$lib/utils/actions';
 	import BacksideCard from '$lib/components/canvas/BacksideCard.svelte';
 	import { twSmallScreen, xmSmallScreen, canvasLgWidth, canvasSmWidth } from '$lib/utils/constants';
-	import { getLocalStorageItem } from '$lib/utils/localStorage';
 
 	const rotateYCard = tweened(0, {
 		duration: 2000,
@@ -50,6 +49,9 @@
 		else $currentAlphabet = 'hiragana';
 
 		$currentLetter = $currentFlashcard;
+
+		index = 0;
+		clearCanvas(ctx, canvas);
 	}
 
 	// Set the current alphabet if the flashcard contains more than one character
@@ -59,7 +61,11 @@
 
 	$: if ($currentLetter) $currentLetter = slicedFlashcard[index];
 
-	$: slicedFlashcard = $currentFlashcard.split('').filter((char) => char !== ' ');
+	$: {
+		slicedFlashcard = $currentFlashcard.split('').filter((char) => char !== ' ');
+		index = 0;
+		clearCanvas(ctx, canvas);
+	}
 </script>
 
 <div
@@ -78,7 +84,7 @@
 
 	<button
 		class="{$rotateYCard > 5 && $rotateYCard < 175 ? 'hidden' : 'block'}
-		fixed bottom-5 left-5 z-40 rounded-full border bg-white p-2 shadow-sm transition-all"
+		absolute bottom-3 left-2 sm:bottom-5 sm:left-5 z-40 rounded-full border bg-white p-2 shadow-sm transition-all"
 		on:click={() => ($showLetterDrawing = false)}
 	>
 		<Undo class="h-4 w-4" />
