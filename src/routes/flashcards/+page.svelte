@@ -186,8 +186,7 @@
 		{#each data.flashcardCollections as collection}
 			{#if collection.id === $currentFlashcardCollectionId && collection.expand}
 				{#each collection.expand.flashcardBoxes as box}
-					<a
-						href={`/flashcards/${box.id}`}
+					<button
 						on:click={() => {
 							$showCollections = false;
 							// $clickedAddFlashcardCollection = false;
@@ -195,8 +194,9 @@
 
 							// Save the type to local storage
 							localStorage.setItem('flashcardsBoxType', collection.type);
+
+							goto(`/flashcards/${box.id}`);
 						}}
-						data-sveltekit-preload-data
 						class=" flex h-60 flex-none basis-1/2 flex-col items-center justify-between rounded-xl bg-blue-400 text-center text-xl font-bold text-white sm:h-80 sm:basis-1/3"
 					>
 						<span class="p-4">
@@ -239,7 +239,7 @@
 								</button>
 							{/if}
 						</div>
-					</a>
+					</button>
 				{/each}
 			{/if}
 		{/each}
