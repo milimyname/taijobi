@@ -17,6 +17,13 @@ export const load = async ({ locals }) => {
 	flashcardCollections.forEach((collection) => {
 		if (!collection.expand) return;
 
+		// Sort the flashcard boxes by updated
+		collection.expand.flashcardBoxes.sort((a: { updated: Date }, b: { updated: Date }) => {
+			if (a.updated > b.updated) return -1;
+			if (a.updated < b.updated) return 1;
+			return 0;
+		});
+
 		collection.expand.flashcardBoxes.forEach((box: { count: number; id: string }) => {
 			box.count = flashcards.filter((flashcard) => flashcard.id === box.id)[0].count;
 		});
