@@ -14,12 +14,22 @@
 	import { tweened } from 'svelte/motion';
 	import Letter from '$lib/components/canvas/Letter.svelte';
 	import Canvas from '$lib/components/canvas/Canvas.svelte';
-	import { page } from '$app/stores';
 	import { isKanji, isKatakana } from 'wanakana';
-	import { ArrowLeft, ArrowRight, RotateCcw, Undo, RefreshCcw, Eraser } from 'lucide-svelte';
+	import {
+		ArrowLeft,
+		ArrowRight,
+		RotateCcw,
+		Undo,
+		RefreshCcw,
+		Eraser,
+		ChevronLast
+	} from 'lucide-svelte';
 	import { clearCanvas } from '$lib/utils/actions';
 	import BacksideCard from '$lib/components/canvas/BacksideCard.svelte';
 	import { twSmallScreen, xmSmallScreen, canvasLgWidth, canvasSmWidth } from '$lib/utils/constants';
+	import Swiper from 'swiper';
+
+	export let swiperInstance: Swiper;
 
 	const rotateYCard = tweened(0, {
 		duration: 2000,
@@ -37,8 +47,6 @@
 		ctx = canvas.getContext('2d') as Ctx;
 
 		$currentLetter = slicedFlashcard[index];
-
-		$currentIndexStore = +($page.url.pathname?.split('-').at(-1) ?? 0);
 	});
 
 	$: if ($currentFlashcard.length === 1) {
@@ -160,11 +168,15 @@
 			<button
 				on:click|preventDefault={() => {
 					clearCanvas(ctx, canvas);
-					index = 0;
+
+					// Go to the next flashcard
+					$currentIndexStore += 1;
+					$showLetterDrawing = false;
+					swiperInstance.slideTo($currentIndexStore);
 				}}
-				class="previousLetter h-fit w-fit rounded-full border bg-white px-3 py-1 shadow-sm transition-all"
+				class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
 			>
-				1
+				<ChevronLast class="h-4 w-4" />
 			</button>
 		{/if}
 	{:else}

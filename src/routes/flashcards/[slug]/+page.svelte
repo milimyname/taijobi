@@ -70,6 +70,8 @@
 		swiperInstance.activeIndex = $currentIndexStore
 			? $currentIndexStore
 			: Math.floor(data.flashcards.length / 2);
+
+		$currentIndexStore = swiperInstance.activeIndex;
 	});
 
 	function updateCurrentFlashcard() {
@@ -85,7 +87,7 @@
 		} else console.error('Swiper instance is not defined or realIndex is unavailable');
 	}
 
-	$: if (data.flashcards.length > 0) {
+	$: {
 		$currentFlashcard = data.flashcards.at(currentIndex).name;
 		currentFlashcardFurigana = data.flashcards.at(currentIndex).furigana;
 		currentFlashcardType = data.flashcards.at(currentIndex).type;
@@ -118,7 +120,7 @@
 			{/if}
 		</div>
 	{:else}
-		<LetterDrawingFlashcard />
+		<LetterDrawingFlashcard {swiperInstance} />
 	{/if}
 
 	<div
