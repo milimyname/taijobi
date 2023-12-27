@@ -105,17 +105,18 @@
 	<BacksideCard rotateYCard={$rotateYCard} />
 </div>
 
-{#if $currentFlashcard.length > 1}
-	<div
-		style={`width: ${
-			$innerWidthStore > twSmallScreen
-				? canvasLgWidth
-				: $innerWidthStore < xmSmallScreen
-					? canvasSmWidth
-					: $innerWidthStore * 0.9
-		}px;`}
-		class="mt-5 flex items-center justify-between sm:mx-auto z-40"
-	>
+<div
+	style={`width: ${
+		$innerWidthStore > twSmallScreen
+			? canvasLgWidth
+			: $innerWidthStore < xmSmallScreen
+				? canvasSmWidth
+				: $innerWidthStore * 0.9
+	}px;`}
+	class="mt-5 flex items-center
+	{$currentFlashcard.length > 1 ? 'justify-between' : 'justify-center'} sm:mx-auto z-40"
+>
+	{#if $currentFlashcard.length > 1}
 		<button
 			on:click|preventDefault={() => {
 				index > 0 ? (index -= 1) : null;
@@ -166,5 +167,24 @@
 				1
 			</button>
 		{/if}
-	</div>
-{/if}
+	{:else}
+		<div class="flex items-center justify-center">
+			<div
+				class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
+			>
+				<button on:click|preventDefault={() => clearCanvas(ctx, canvas)}>
+					<Eraser class="h-4 w-4 " />
+				</button>
+				<button
+					on:click|preventDefault={() => {
+						$animateSVG = !$animateSVG;
+						// setTimeout(() => ($animateSVG = true), 250);
+					}}
+					class="transition-transform active:rotate-180"
+				>
+					<RefreshCcw class="h-4 w-4" />
+				</button>
+			</div>
+		</div>
+	{/if}
+</div>
