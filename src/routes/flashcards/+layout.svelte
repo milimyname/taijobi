@@ -54,7 +54,7 @@
 			class="go-back-btn group flex items-center gap-2"
 			on:click={() => {
 				$currentIndexStore = 0;
-				$currentFlashcard = '';
+				// $currentFlashcard = '';
 				$showLetterDrawing = false;
 			}}
 			data-sveltekit-preload-data
