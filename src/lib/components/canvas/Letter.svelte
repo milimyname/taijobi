@@ -18,6 +18,7 @@
 	import { hiragana } from '$lib/static/hiragana';
 	import { katakana } from '$lib/static/katakana';
 	import { kanji } from '$lib/static/kanji';
+	import { page } from '$app/stores';
 
 	type SavedLetter = {
 		[x: string]: any;
@@ -38,12 +39,13 @@
 		currentObject = object;
 	}
 
+
 	$: switch ($currentAlphabet) {
 		case 'katakana':
 			setCurrentLetterAndObject($katakanaStore, katakana);
 			break;
 		case 'kanji':
-			if ($currentFlashcard !== '') {
+			if ($currentFlashcard !== '' && $page.url.pathname.includes('flashcards')) {
 				currentObject = kanji;
 				// Find the kanji that matches the saved name
 				for (const kanjiChar in kanji) {
