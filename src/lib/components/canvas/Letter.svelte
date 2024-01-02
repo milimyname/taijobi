@@ -39,7 +39,6 @@
 		currentObject = object;
 	}
 
-
 	$: switch ($currentAlphabet) {
 		case 'katakana':
 			setCurrentLetterAndObject($katakanaStore, katakana);
@@ -55,7 +54,6 @@
 				const savedKanji: SavedLetter = {
 					name: ''
 				};
-
 				// Find all kanji that are saved in the saved array by its name
 				for (const kanjiChar in kanji) {
 					if (saved.find((k: { name: string }) => k.name === kanjiChar))

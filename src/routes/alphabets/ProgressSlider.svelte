@@ -58,6 +58,8 @@
 	});
 
 	$: $value[0] = $progressSlider;
+
+	$: $max = $kanjiLength;
 </script>
 
 {#if $showProgressSlider}

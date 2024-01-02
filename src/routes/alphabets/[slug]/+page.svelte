@@ -12,7 +12,8 @@
 		searchKanji,
 		innerWidthStore,
 		clickedQuizForm,
-		kanjiStore
+		kanjiStore,
+		kanjiLength
 	} from '$lib/utils/stores';
 	import { cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
@@ -212,6 +213,7 @@
 				id="kanji-grade"
 				class="border-hidden bg-none pr-3 text-center outline-none focus:border-transparent focus:ring-0"
 				bind:value={$selectedKanjiGrade}
+				on:change={() => ($progressSlider = Math.floor(Math.random() * $kanjiLength))}
 			>
 				<option value="0">All Grades</option>
 				<option value="1">Grade 1</option>
@@ -224,7 +226,7 @@
 			</select>
 		{/if}
 
-		{#if alphabetLength !== $progressSlider}
+		{#if alphabetLength !== $progressSlider && $kanjiLength !== $progressSlider}
 			<button
 				on:click|preventDefault={() => {
 					clearCanvas(ctx, canvas);
