@@ -20,6 +20,7 @@
 	import { clickOutside } from '$lib/utils/clickOutside';
 	import { Dices, Plus, FolderEdit } from 'lucide-svelte';
 	import { goto } from '$app/navigation';
+	import { isTouchScreen } from '$lib/utils/actions';
 
 	export let data;
 
@@ -66,31 +67,28 @@
 		}
 	});
 
+	// Reactive variable to keep track of visible cards
+	let visibleCardsCount =
+		data.flashcardCollections.length > 5 ? 5 : data.flashcardCollections.length;
+
 	// Function to handle card removal/swipe
 	function discardCard() {
-		if (data.flashcardCollections.length > 0) {
-			const lastCard = data.flashcardCollections[data.flashcardCollections.length - 1];
-			data.flashcardCollections = data.flashcardCollections.slice(
-				0,
-				data.flashcardCollections.length - 1
-			);
+		const lastCard = data.flashcardCollections[data.flashcardCollections.length - 1];
+		data.flashcardCollections = data.flashcardCollections.slice(
+			0,
+			data.flashcardCollections.length - 1
+		);
 
-			setTimeout(() => {
-				data.flashcardCollections = [lastCard, ...data.flashcardCollections];
-			}, 100);
-		}
+		setTimeout(() => {
+			data.flashcardCollections = [lastCard, ...data.flashcardCollections];
+			// Show one more card when discarding
+			if (visibleCardsCount < data.flashcardCollections.length) visibleCardsCount++;
+		}, 100);
 	}
 
 	$: if ($skippedFlashcard) {
 		setTimeout(() => discardCard(), 200);
 		$skippedFlashcard = false;
-	}
-
-	// Function to handle whether the device is touch screen
-	function isTouchScreen() {
-		if (typeof window === 'undefined') return false;
-
-		return 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.maxTouchPoints > 0;
 	}
 </script>
 
@@ -129,10 +127,7 @@
 	class="collection-container flex flex-1 cursor-pointer items-center justify-center pb-20"
 >
 	{#if !isTouchScreen()}
-		<!-- <button class="mr-60 h-full border-b-2 pb-4 text-4xl font-bold text-gray-300">
-			Next Card
-		</button> -->
-		{#each data.flashcardCollections as card, index}
+		{#each data.flashcardCollections.slice(0, visibleCardsCount) as card, index}
 			<FlashcardCollection
 				name={card.name}
 				id={card.id}
@@ -140,16 +135,12 @@
 				type={card.type}
 				{index}
 				{form}
-				totalCount={data.flashcardCollections.length}
+				totalCount={visibleCardsCount}
 			/>
 		{/each}
-		<!-- <button class="ml-60 h-full border-b-2 pb-4 text-4xl font-bold text-gray-300">Show Me </button> -->
 	{:else}
-		<!-- <button class="mr-60 h-full border-b-2 pb-4 text-4xl font-bold text-gray-300">
-			Next Card
-		</button> -->
 		<div class="flex cursor-pointer items-center justify-center">
-			{#each data.flashcardCollections as card, index}
+			{#each data.flashcardCollections.slice(0, visibleCardsCount) as card, index}
 				<FlashcardCollection
 					name={card.name}
 					id={card.id}
@@ -157,11 +148,10 @@
 					type={card.type}
 					{index}
 					{form}
-					totalCount={data.flashcardCollections.length}
+					totalCount={visibleCardsCount}
 				/>
 			{/each}
 		</div>
-		<!-- <button class="ml-60 h-full border-b-2 pb-4 text-4xl font-bold text-gray-300">Show Me </button> -->
 	{/if}
 </section>
 
@@ -172,8 +162,7 @@
 			$clickedAddFlahcardBox = false;
 			$showCollections = false;
 		}}
-		class="
-			  add-form-btn scrollable fixed bottom-0 left-1/2 z-[1001] flex min-h-fit w-full -translate-x-1/2
+		class="add-form-btn scrollable fixed bottom-0 left-1/2 z-[1001] flex min-h-fit w-full -translate-x-1/2
 			 items-center gap-2 overflow-auto rounded-t-2xl bg-white px-2 py-2 sm:bottom-0 md:max-w-4xl"
 		transition:fly={{
 			delay: 0,

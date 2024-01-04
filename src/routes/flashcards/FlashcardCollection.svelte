@@ -88,7 +88,7 @@
 
 		if ($rotateY > 15) {
 			$rotateY = 60;
-			$x = 1000;
+			$x = $innerWidthStore;
 
 			$showCollections = true;
 			$currentFlashcardCollectionId = id;
@@ -97,7 +97,8 @@
 
 		if ($rotateY < -15) {
 			$rotateY = -60;
-			$x = -1000;
+			$x = -$innerWidthStore;
+
 			$skippedFlashcard = true;
 		}
 	}
@@ -218,26 +219,23 @@
 	$: if (browser && cardElement) {
 		cardRight = cardElement.getBoundingClientRect().right;
 		cardLeft = cardElement.getBoundingClientRect().left;
-
-		if (index !== totalCount - 1) {
-			$rotate = 3 + 5 * index;
-			$scale = $innerWidthStore > twSmallScreen ? 1 - (totalCount - index - 1) * 0.1 : 1;
-			$x = 0;
-			$rotateY = 0;
-		}
 	}
 
-	$: if (cardElement && !$showCollections && index === totalCount - 1) {
-		$showCollections = false;
+	$: if (index !== totalCount - 1 && !$skippedFlashcard) {
+		// Adding up to 5 degrees of randomness
+		$rotate = 3 + 5 * index + Math.random() * -40;
+		$scale = $innerWidthStore > twSmallScreen ? 1 - (totalCount - index - 1) * 0.1 : 1;
 		$x = 0;
 		$rotateY = 0;
-		$rotate = 0;
-		$scale = 1;
-		$skewX = 0;
-		$scaleShadow = 0.8;
+
+		console.log(index, totalCount - 1);
 	}
 
-	$: if (cardElement && $clickedAddFlashcardCollection && index === totalCount - 1) {
+	$: if (
+		cardElement &&
+		(!$showCollections || $clickedAddFlashcardCollection) &&
+		index === totalCount - 1
+	) {
 		$showCollections = false;
 		$x = 0;
 		$rotateY = 0;
