@@ -64,7 +64,7 @@
 				$kanjiWidthMulitplier = 100 / $kanjiLength;
 
 				// Check if progressSlider is within valid range
-				const sliderIndex = Math.min($progressSlider - 1, $kanjiLength - 1);
+				const sliderIndex = Math.min($progressSlider, $kanjiLength - 1);
 				const kanjiKeys = Object.keys(savedKanji);
 
 				// Set the current letter based on sliderIndex
