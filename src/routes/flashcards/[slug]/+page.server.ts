@@ -1,4 +1,4 @@
-import { superValidate } from 'sveltekit-superforms/server';
+import { superValidate, setError } from 'sveltekit-superforms/server';
 import { fail } from '@sveltejs/kit';
 import { flashcardSchema } from '$lib/utils/zodSchema';
 import Kuroshiro from '@sglkc/kuroshiro';
@@ -79,8 +79,7 @@ export const actions = {
 				notes: form.data.notes
 			});
 		} catch (e) {
-			form.errors.name = ['Flashcard name is already taken.'];
-			console.log(e);
+			return setError(form, 'name', 'Flashcard name is already taken.');
 		}
 
 		return { form };
@@ -95,7 +94,7 @@ export const actions = {
 			// Create user
 			await locals.pb.collection('flashcard').delete(form.data.id);
 		} catch (_) {
-			form.errors.name = ['Flashcard name is already taken.'];
+			return setError(form, 'name', 'Flashcard cannot be deleted now.');
 		}
 
 		return { form };
@@ -117,7 +116,7 @@ export const actions = {
 				notes: form.data.notes || ''
 			});
 		} catch (_) {
-			form.errors.name = ['Flashcard name is already taken.'];
+			return setError(form, 'name', 'Flashcard cannot be edited now.');
 		}
 
 		return { form };

@@ -1,4 +1,4 @@
-import { superValidate } from 'sveltekit-superforms/server';
+import { superValidate, setError } from 'sveltekit-superforms/server';
 import { fail, redirect } from '@sveltejs/kit';
 import { flashcardCollectionSchema, quizSchema } from '$lib/utils/zodSchema';
 
@@ -65,12 +65,12 @@ export const actions = {
 					userId: locals?.pb.authStore.model?.id
 				});
 			} catch (_) {
-				form.errors.name = ['Name already exists'];
-				return { form };
+				return setError(form, 'name', 'Collection already exists');
 			}
 		} else {
 			try {
-				if (!form.data.flashcardCollection) throw new Error('No flashcard collection id provided');
+				if (!form.data.flashcardCollection)
+					return setError(form, 'name', 'No flashcard collection id provided');
 
 				// Create a new flashcard box
 				const flashcardBox = await locals.pb.collection('flashcardBoxes').create({
@@ -85,8 +85,7 @@ export const actions = {
 					'flashcardBoxes+': flashcardBox.id
 				});
 			} catch (_) {
-				form.errors.name = ['Name already exists'];
-				return { form };
+				return setError(form, 'name', 'Flashcardbox already exists');
 			}
 		}
 		return { form };
@@ -108,8 +107,7 @@ export const actions = {
 					description: form.data.description
 				});
 			} catch (_) {
-				form.errors.name = ['Name already exists'];
-				return { form };
+				return setError(form, 'name', 'Collection cannot be edited now.');
 			}
 		} else {
 			try {
@@ -119,8 +117,7 @@ export const actions = {
 					description: form.data.description
 				});
 			} catch (_) {
-				form.errors.name = ['Name already exists'];
-				return { form };
+				return setError(form, 'name', 'Flashcardbox cannot be edited now.');
 			}
 		}
 
@@ -140,16 +137,14 @@ export const actions = {
 				// Delete the flashcard
 				await locals.pb.collection('flashcardCollections').delete(form.data.id);
 			} catch (_) {
-				form.errors.name = ['Cannot delete flashcard'];
-				return { form };
+				return setError(form, 'name', 'Collection cannot be deleted now.');
 			}
 		} else {
 			try {
 				// Create a new flashcard box
 				await locals.pb.collection('flashcardBoxes').delete(form.data.id);
 			} catch (_) {
-				form.errors.name = ['Name already exists'];
-				return { form };
+				return setError(form, 'name', 'Flashcardbox cannot be deleted now.');
 			}
 		}
 
@@ -181,8 +176,7 @@ export const actions = {
 				flashcards: JSON.stringify(flashcards)
 			});
 		} catch (_) {
-			form.errors.name = ['No idea what happened'];
-			return { form };
+			return setError(form, 'name', 'Cannot create a quiz. Try again later.');
 		}
 
 		throw redirect(303, `/quizzes/${quiz.id}`);

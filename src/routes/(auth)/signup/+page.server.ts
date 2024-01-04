@@ -1,4 +1,4 @@
-import { superValidate } from 'sveltekit-superforms/server';
+import { superValidate, setError } from 'sveltekit-superforms/server';
 import { fail, redirect } from '@sveltejs/kit';
 import { signupSchema } from '$lib/utils/zodSchema';
 
@@ -22,10 +22,8 @@ export const actions = {
 		if (!form.valid) return fail(400, { form });
 
 		// Check if passwords match
-		if (form.data.password !== form.data.passwordConfirm) {
-			form.errors.passwordConfirm = ['Passwords do not match.'];
-			return { form };
-		}
+		if (form.data.password !== form.data.passwordConfirm)
+			return setError(form, 'passwordConfirm', 'Passwords do not match.');
 
 		try {
 			// Create user
@@ -37,8 +35,11 @@ export const actions = {
 			locals.pb.authStore.clear();
 			// Send verification email
 			await locals.pb.collection('users').requestVerification(form.data.email);
-			form.errors.email = ['Email is not verified. Check ur email inbox. Try to log in again.'];
-			return { form };
+			return setError(
+				form,
+				'email',
+				'Email is not verified. Check ur email inbox. Try to log in again.'
+			);
 		}
 
 		throw redirect(303, '/login');

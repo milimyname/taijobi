@@ -1,4 +1,4 @@
-import { superValidate } from 'sveltekit-superforms/server';
+import { superValidate, setError } from 'sveltekit-superforms/server';
 import { fail, redirect } from '@sveltejs/kit';
 import { loginSchema } from '$lib/utils/zodSchema';
 
@@ -27,14 +27,12 @@ export const actions = {
 		try {
 			await locals.pb.collection('users').authWithPassword(form.data.email, form.data.password);
 		} catch (_) {
-			form.errors.email = ['Invalid email or password.'];
-			return { form };
+			return setError(form, 'email', 'Invalid email or password.');
 		}
 
-		if (!locals.pb.authStore.model.role.includes('admin')) {
+		if (!locals.pb.authStore.model?.role.includes('admin')) {
 			locals.pb.authStore.clear();
-			form.errors.email = ['You are not an admin.'];
-			return { form };
+			return setError(form, 'email', 'You are not an admin.');
 		}
 
 		throw redirect(303, '/');

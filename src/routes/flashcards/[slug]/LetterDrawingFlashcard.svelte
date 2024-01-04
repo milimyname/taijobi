@@ -77,7 +77,7 @@
 </script>
 
 <div
-	style="perspective: 3000px; position: relative; overflow: hidden; transform: rotateY(${-$rotateYCard}deg); z-index: 100"
+	style="perspective: 3000px; position: relative; transform: rotateY(${-$rotateYCard}deg); z-index: 100"
 >
 	<span
 		class="{$rotateYCard > 5 ? 'hidden' : 'block'} 
@@ -115,14 +115,13 @@
 
 <div
 	style={`width: ${
-		$innerWidthStore > twSmallScreen
+		($innerWidthStore > twSmallScreen
 			? canvasLgWidth
 			: $innerWidthStore < xmSmallScreen
 				? canvasSmWidth
-				: $innerWidthStore * 0.9
+				: $innerWidthStore * 0.9) + 2
 	}px;`}
-	class="mt-5 flex items-center
-	{$currentFlashcard.length > 1 ? 'justify-between' : 'justify-center'} sm:mx-auto z-40"
+	class="mt-5 flex items-center justify-between sm:mx-auto z-40"
 >
 	{#if $currentFlashcard.length > 1}
 		<button
@@ -180,6 +179,11 @@
 			</button>
 		{/if}
 	{:else}
+		<button
+			class="previousLetter opacity-0 h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
+		>
+			<ArrowRight class="h-4 w-4" />
+		</button>
 		<div class="flex items-center justify-center">
 			<div
 				class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
@@ -198,5 +202,19 @@
 				</button>
 			</div>
 		</div>
+
+		<button
+			on:click|preventDefault={() => {
+				clearCanvas(ctx, canvas);
+
+				// Go to the next flashcard
+				$currentIndexStore += 1;
+				$showLetterDrawing = false;
+				swiperInstance.slideTo($currentIndexStore);
+			}}
+			class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
+		>
+			<ChevronLast class="h-4 w-4" />
+		</button>
 	{/if}
 </div>

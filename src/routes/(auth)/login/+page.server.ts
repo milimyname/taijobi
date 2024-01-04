@@ -1,4 +1,4 @@
-import { superValidate } from 'sveltekit-superforms/server';
+import { superValidate, setError } from 'sveltekit-superforms/server';
 import { fail, redirect } from '@sveltejs/kit';
 import { loginSchema } from '$lib/utils/zodSchema';
 
@@ -42,12 +42,10 @@ export const actions = {
 			await locals.pb.collection('users').authWithPassword(form.data.email, form.data.password);
 			if (!locals.pb.authStore.model?.verified) {
 				locals.pb.authStore.clear();
-				form.errors.email = ['Email is not verified. Check ur email inbox.'];
-				return { form };
+				return setError(form, 'email', 'Email is not verified. Check ur email inbox.');
 			}
 		} catch (_) {
-			form.errors.email = ['Invalid email or password.'];
-			return { form };
+			return setError(form, 'email', 'Invalid email or password.');
 		}
 
 		throw redirect(303, '/');
@@ -59,8 +57,7 @@ export const actions = {
 		try {
 			await locals.pb.collection('users').requestPasswordReset(form.data.email);
 		} catch (_) {
-			form.errors.email = ['Invalid email.'];
-			return { form };
+			return setError(form, 'email', 'Invalid email.');
 		}
 
 		throw redirect(303, '/');

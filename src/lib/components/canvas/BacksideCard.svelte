@@ -24,18 +24,18 @@
 
 <div
 	style={`transform: rotateY(${180 - rotateYCard}deg); backface-visibility: hidden; height: ${
-		$innerWidthStore > twSmallScreen
+		($innerWidthStore > twSmallScreen
 			? canvasLgHeight
 			: $innerWidthStore < xmSmallScreen
 				? $innerHeightStore * 0.6
-				: $innerHeightStore * 0.6
+				: $innerHeightStore * 0.6) + 2
 	}px;
 	width: ${
-		$innerWidthStore > twSmallScreen
+		($innerWidthStore > twSmallScreen
 			? canvasLgWidth
 			: $innerWidthStore < xmSmallScreen
 				? canvasSmWidth
-				: $innerWidthStore * 0.9
+				: $innerWidthStore * 0.9) + 2
 	}px
 			`}
 	class="alphabet relative z-10 mx-auto
