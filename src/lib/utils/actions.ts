@@ -5,11 +5,9 @@ import {
 	lastPoint,
 	uploadingProfilePic
 } from '$lib/utils/stores';
-import { maxWidthCard, minWidthCard } from '$lib/utils/constants';
 import { pocketbase } from './pocketbase';
 import type { CropperDetails } from '$lib/utils/ambient.d.ts';
 import type { Ctx } from '$lib/utils/ambient.d.ts';
-import { isHiragana } from 'wanakana';
 
 export function handleUserIconClick() {
 	let longPress;
@@ -133,4 +131,11 @@ export function convertToRubyTag(input: string) {
 	}
 
 	return rubyTag;
+}
+
+// Function to handle whether the device is touch screen
+export function isTouchScreen() {
+	if (typeof window === 'undefined') return false;
+
+	return 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.maxTouchPoints > 0;
 }
