@@ -5,12 +5,16 @@
 		clickedKanjiForm,
 		kanjiLength,
 		progressSlider,
-		currentAlphabet
+		currentAlphabet,
+		selectQuizItemsForm,
+		selectedQuizItems
 	} from '$lib/utils/stores';
 	import { fly, slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 	import { createSwitch, melt } from '@melt-ui/svelte';
 	import { clickOutside } from '$lib/utils/clickOutside';
+	import { Grid2X2 } from 'lucide-svelte';
+	import SelectQuizItems from './SelectQuizItems.svelte';
 
 	const {
 		elements: { root, input }
@@ -25,20 +29,29 @@
 		$form.timeLimit = $input.checked;
 		$form.startCount = $progressSlider === $kanjiLength ? 1 : $progressSlider;
 	}
+
+	$: if ($selectQuizItemsForm) $form.selectedQuizItems = $selectedQuizItems;
 </script>
 
 {#if $clickedQuizForm}
 	<div class="fixed top-0 z-[100] h-screen w-full bg-black opacity-50 transition-all" />
 {/if}
 
+{#if $selectQuizItemsForm}
+	<SelectQuizItems flashcardBox={$form.flashcardBox} />
+{/if}
+
 {#if $clickedQuizForm}
 	<form
 		use:enhance
-		use:clickOutside={() => ($clickedQuizForm = false)}
+		use:clickOutside={() => {
+			$clickedQuizForm = false;
+			$selectedQuizItems = [];
+		}}
 		method="POST"
-		class="quiz-form fixed -bottom-5 z-[1000] flex {$clickedKanjiForm
-			? ' h-[80dvh] sm:h-5/6'
-			: ' h-[80dvh] sm:h-3/4'} w-full flex-col gap-5 overflow-scroll rounded-t-2xl bg-white px-5 py-10 sm:bottom-0 md:max-w-4xl"
+		class="quiz-form fixed -bottom-5 z-[1000] flex
+		{$clickedKanjiForm ? 'h-11/12 sm:h-5/6' : ' h-[80dvh] sm:h-3/4'} 
+		w-full flex-col gap-5 overflow-scroll rounded-t-2xl bg-white px-5 py-10 sm:bottom-0 md:max-w-4xl"
 		transition:fly={{
 			delay: 0,
 			duration: 1000,
@@ -109,16 +122,62 @@
 					>
 				{/if}
 			</fieldset>
-			{#if $clickedKanjiForm}
-				<fieldset class=" flex w-full flex-col gap-2">
-					<label for="startCount">Start:</label>
+
+			<button
+				type="button"
+				class="flex gap-2 bg-slate-200 justify-start px-3 py-2 items-center rounded-md w-fit"
+				on:click={() => ($selectQuizItemsForm = true)}
+				transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
+			>
+				<Grid2X2 />
+				Custom Quiz Items
+			</button>
+
+			{#if $selectedQuizItems.length === 0}
+				{#if $clickedKanjiForm}
+					<fieldset
+						class=" flex w-full flex-col gap-2"
+						transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
+					>
+						<label for="startCount">Start:</label>
+						<input
+							name="startCount"
+							type="number"
+							id="startCount"
+							placeholder="Start"
+							min={1}
+							max={$kanjiLength - 20}
+							class="
+                    block
+                    rounded-md
+                    border-gray-300
+                    shadow-sm
+                    focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
+                  "
+							aria-invalid={$errors.startCount ? 'true' : undefined}
+							bind:value={$form.startCount}
+							{...$constraints.startCount}
+						/>
+						{#if $errors.startCount}
+							<span
+								transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
+								class="mt-1 select-none text-sm text-red-400">{$errors.maxCount}</span
+							>
+						{/if}
+					</fieldset>
+				{/if}
+				<fieldset
+					class="flex w-full flex-col gap-2"
+					transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
+				>
+					<label for="maxCount">Amount of Flashcards</label>
 					<input
-						name="startCount"
+						name="maxCount"
 						type="number"
-						id="startCount"
-						placeholder="Start"
-						min={1}
-						max={$kanjiLength - 20}
+						id="maxCount"
+						placeholder="Max Count"
+						min="20"
+						max={$maxFlashcards}
 						class="
                     block
                     rounded-md
@@ -126,11 +185,11 @@
                     shadow-sm
                     focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
                   "
-						aria-invalid={$errors.startCount ? 'true' : undefined}
-						bind:value={$form.startCount}
-						{...$constraints.startCount}
+						aria-invalid={$errors.maxCount ? 'true' : undefined}
+						bind:value={$form.maxCount}
+						{...$constraints.maxCount}
 					/>
-					{#if $errors.startCount}
+					{#if $errors.maxCount}
 						<span
 							transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
 							class="mt-1 select-none text-sm text-red-400">{$errors.maxCount}</span
@@ -138,33 +197,6 @@
 					{/if}
 				</fieldset>
 			{/if}
-			<fieldset class="flex w-full flex-col gap-2">
-				<label for="maxCount">Amount of Flashcards</label>
-				<input
-					name="maxCount"
-					type="number"
-					id="maxCount"
-					placeholder="Max Count"
-					min="20"
-					max={$maxFlashcards}
-					class="
-                    block
-                    rounded-md
-                    border-gray-300
-                    shadow-sm
-                    focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
-                  "
-					aria-invalid={$errors.maxCount ? 'true' : undefined}
-					bind:value={$form.maxCount}
-					{...$constraints.maxCount}
-				/>
-				{#if $errors.maxCount}
-					<span
-						transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
-						class="mt-1 select-none text-sm text-red-400">{$errors.maxCount}</span
-					>
-				{/if}
-			</fieldset>
 
 			<div class="flex items-center justify-between">
 				<label for="timeLimit" id="time-limit-label"> Time limit (WIP) </label>
@@ -178,8 +210,16 @@
 				</button>
 				<input use:melt={$input} type="checkbox" name="timeLimit" bind:value={$form.timeLimit} />
 			</div>
+
+			{#if $errors.timeLimit && $selectedQuizItems.length !== 0}
+				<span
+					transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
+					class="mt-1 select-none text-sm text-red-400">{$errors.timeLimit}</span
+				>
+			{/if}
 			<input type="hidden" name="flashcardBox" bind:value={$form.flashcardBox} />
 			<input type="hidden" name="name" bind:value={$form.name} />
+			<input type="hidden" name="selectedQuizItems" bind:value={$form.selectedQuizItems} />
 		</div>
 
 		<div class="flex w-full justify-between">

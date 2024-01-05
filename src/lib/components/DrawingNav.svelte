@@ -30,7 +30,7 @@
 	<nav
 		class=" {!$isLongPress
 			? 'w-[90%] px-10 py-4'
-			: 'ml-auto p-2'} fixed bottom-5 z-40 flex items-center justify-between rounded-full bg-black text-white transition-all sm:bottom-10 lg:bottom-5 sm:w-auto sm:justify-center sm:gap-20 sm:px-10"
+			: 'ml-auto p-2'} fixed bottom-5 select-none z-40 flex items-center justify-between rounded-full bg-black text-white transition-all sm:bottom-10 lg:bottom-5 sm:w-auto sm:justify-center sm:gap-20 sm:px-10"
 	>
 		<button
 			on:click|preventDefault={handleUserIconClick}

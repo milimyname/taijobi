@@ -1,4 +1,4 @@
-import { superValidate } from 'sveltekit-superforms/server';
+import { superValidate, setError } from 'sveltekit-superforms/server';
 import { fail, redirect } from '@sveltejs/kit';
 import { quizSchema } from '$lib/utils/zodSchema';
 import { kanji } from '$lib/static/kanji.js';
@@ -59,22 +59,49 @@ export const actions = {
 		// Set the form userId to the current user
 		const userId = locals.pb.authStore.model?.id;
 
-		let quiz;
-
 		// Get the kanji collection from
-		const arrKanji = Object.entries(kanji).map(([key, value]) => {
-			return {
-				name: key,
-				meaning: value.meaning,
-				kunyomi: value.kunyomi.join(', '),
-				onyomi: value.onyomi.join(', ')
-			};
-		});
+		const kanjiId = await getOrCreateKanjiId(locals.pb, userId);
 
-		const flashcards = arrKanji.slice(
-			form.data.startCount - 1,
-			form.data.startCount + form.data.maxCount
-		);
+		// Check if user selected custom flashcards
+		const selectedQuizItems = form.data.selectedQuizItems?.split(',');
+
+		// Create the flashcards
+		let flashcards: {
+			name: string;
+			meaning: string;
+			kunyomi: string;
+			onyomi: string;
+		}[] = [];
+
+		if (selectedQuizItems && form.data.startCount === 1) {
+			// Find all the flashcards
+			selectedQuizItems.forEach((item) => {
+				flashcards.push({
+					name: item,
+					meaning: kanji[item].meaning,
+					kunyomi: kanji[item].kunyomi.join(', '),
+					onyomi: kanji[item].onyomi.join(', ')
+				});
+			});
+		} else {
+			// Get the kanji collection from
+			const arrKanji = Object.entries(kanji).map(([key, value]) => {
+				return {
+					name: key,
+					meaning: value.meaning,
+					kunyomi: value.kunyomi.join(', '),
+					onyomi: value.onyomi.join(', ')
+				};
+			});
+
+			flashcards = arrKanji.slice(
+				form.data.startCount - 1,
+				form.data.startCount + form.data.maxCount
+			);
+		}
+
+		// Quiz Model
+		let quiz;
 
 		try {
 			quiz = await locals.pb.collection('quizzes').create({
@@ -83,14 +110,13 @@ export const actions = {
 				type: form.data.type,
 				userId,
 				maxCount: form.data.maxCount,
-				startCount: 2,
+				startCount: form.data.startCount,
 				flashcardBox: kanjiId,
 				timeLimit: form.data.timeLimit,
 				flashcards: JSON.stringify(flashcards)
 			});
 		} catch (_) {
-			form.errors.name = ['No idea what happened'];
-			return { form };
+			return setError(form, 'name', `Error creating quiz. Please try again.`);
 		}
 
 		throw redirect(303, `/quizzes/${quiz.id}`);

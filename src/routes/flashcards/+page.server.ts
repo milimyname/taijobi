@@ -156,13 +156,36 @@ export const actions = {
 		// Convenient validation check:
 		if (!form.valid) return fail(400, { form });
 
-		let quiz;
+		// Check if user selected custom flashcards
+		const selectedQuizItems = form.data.selectedQuizItems?.split('---');
 
-		// Get the current flashcards
-		const flashcards = await locals.pb.collection('flashcard').getFullList({
-			filter: `flashcardBox = "${form.data.flashcardBox}"`,
-			fields: 'name,meaning'
-		});
+		// Create the flashcards
+		let flashcards: {
+			name: string;
+			meaning: string;
+		}[] = [];
+
+		// Remove the first item from selectedQuizItems if it is empty
+		if (selectedQuizItems && selectedQuizItems[0] === '') selectedQuizItems.shift();
+
+		if (selectedQuizItems && form.data.startCount === 1) {
+			// Find all the flashcards
+			selectedQuizItems.forEach((item) => {
+				const splitted = item.split('=');
+				flashcards.push({
+					name: splitted[0],
+					meaning: splitted[1].slice(0, -1)
+				});
+			});
+		} else {
+			// Fetch the flashcards from the server
+			flashcards = await locals.pb.collection('flashcard').getFullList({
+				filter: `flashcardBox = "${form.data.flashcardBox}"`,
+				fields: 'name,meaning'
+			});
+		}
+
+		let quiz;
 
 		try {
 			quiz = await locals.pb.collection('quizzes').create({

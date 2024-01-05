@@ -26,6 +26,8 @@ export const maxFlashcards = writable('');
 export const currentFlashcard = writable('');
 export const currentIndexStore = writable<number>();
 export const showLetterDrawing = writable(false);
+export const selectQuizItemsForm = writable(false);
+export const selectedQuizItems = writable<string[]>([]);
 
 export const hiraganaStore = writable([
 	'あ',

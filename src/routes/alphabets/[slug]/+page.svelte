@@ -112,7 +112,7 @@
 		applyAction: true,
 		onSubmit: () => ($clickedQuizForm = false),
 		onUpdated: () => {
-			if ($quizErrors.maxCount) $clickedQuizForm = true;
+			if ($quizErrors.timeLimit || $quizErrors.maxCount) $clickedQuizForm = true;
 		}
 	});
 </script>

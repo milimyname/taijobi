@@ -100,7 +100,7 @@
 	<FlashcardForm {currentFlashcardType} {constraints} {form} {errors} {enhance} />
 {/if}
 
-<section class="mb-10 flex flex-1 flex-col items-center justify-center gap-2 sm:gap-5">
+<section class="mb-10 sm:mb-20 flex flex-1 flex-col items-center justify-center">
 	{#if data.flashcards && data.flashcards.length > 0 && !$showLetterDrawing}
 		<Flashcard
 			flashcards={data.flashcards}

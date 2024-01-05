@@ -54,7 +54,8 @@ export const quizSchema = z.object({
 	userId: z.string(),
 	timeLimit: z.boolean().default(false),
 	id: z.string().optional(),
-	flashcards: z.string().optional()
+	flashcards: z.string().optional(),
+	selectedQuizItems: z.string().optional()
 });
 
 export const quizProgressSchema = z.object({

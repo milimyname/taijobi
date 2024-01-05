@@ -10,7 +10,8 @@
 		clickedQuizForm,
 		flashcardsBoxType,
 		skippedFlashcard,
-		showCollections
+		showCollections,
+		selectedQuizItems
 	} from '$lib/utils/stores.js';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { innerWidthStore } from '$lib/utils/stores';
@@ -45,7 +46,10 @@
 		taintedMessage: null,
 		resetForm: true,
 		applyAction: true,
-		onSubmit: () => ($clickedQuizForm = false),
+		onSubmit: () => {
+			$clickedQuizForm = false;
+			$selectedQuizItems = [];
+		},
 		onUpdated: () => {
 			if ($errors.name || $errors.description) $clickedQuizForm = true;
 		}

@@ -10,7 +10,8 @@
 		clickedQuizForm,
 		skippedFlashcard,
 		showCollections,
-		clickedEditFlashcard
+		clickedEditFlashcard,
+		clickedKanjiForm
 	} from '$lib/utils/stores';
 	import { twSmallScreen } from '$lib/utils/constants';
 	import { FolderEdit } from 'lucide-svelte';
@@ -148,7 +149,7 @@
 		)
 			event.preventDefault();
 
-		if ((!isDragging && index !== totalCount - 1) || $showCollections) return;
+		if ((!isDragging && index !== totalCount - 1) || $showCollections || $clickedQuizForm) return;
 
 		const touch = event.touches[0];
 
@@ -183,6 +184,7 @@
 			!$clickedAddFlahcardBox
 		)
 			event.preventDefault();
+
 		isDragging = false;
 
 		if (!isDragging && index !== totalCount - 1) return;
@@ -227,8 +229,6 @@
 		$scale = $innerWidthStore > twSmallScreen ? 1 - (totalCount - index - 1) * 0.1 : 1;
 		$x = 0;
 		$rotateY = 0;
-
-		console.log(index, totalCount - 1);
 	}
 
 	$: if (
