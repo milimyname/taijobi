@@ -44,10 +44,10 @@
 				 {$currentAlphabet === 'kanji' ? 'gap-1' : ' gap-2 sm:gap-5'}
 				 justify-center overflow-hidden rounded-xl border p-3 shadow-sm xm:p-5 sm:p-10"
 >
-	{#if $currentAlphabet === 'kanji' && kanji[$currentLetter]}
-		<div
-			class=" grid-rows-[max-content max-content] xm:grid-rows-[max-content 1fr] grid h-full grid-cols-2 xm:grid-cols-none xm:gap-0"
-		>
+	<div
+		class=" grid-rows-[max-content max-content] xm:grid-rows-[max-content 1fr] grid h-full grid-cols-2 xm:grid-cols-none xm:gap-0"
+	>
+		{#if $currentAlphabet === 'kanji' && kanji[$currentLetter]}
 			<h2 class="col-span-2 text-center text-6xl xm:text-9xl">{$currentLetter}</h2>
 			<div>
 				<h2 class="text-lg font-medium">{kanji[$currentLetter].meaning}</h2>
@@ -75,9 +75,12 @@
 					<Dices class="h-4 w-4" />
 				</button>
 			{/if}
-		</div>
-	{:else}
-		<h2 class="text-center text-9xl font-medium">{toRomaji($currentLetter).toUpperCase()}</h2>
-		<p class="text-center text-lg">Romanji</p>
-	{/if}
+		{:else}
+			<h2 class="col-span-2 text-center text-6xl xm:text-9xl">{$currentLetter}</h2>
+			<div>
+				<h2 class="text-lg font-medium">{toRomaji($currentLetter)}</h2>
+				<p class=" text-sm text-gray-300 sm:text-sm">Romanji</p>
+			</div>
+		{/if}
+	</div>
 </div>

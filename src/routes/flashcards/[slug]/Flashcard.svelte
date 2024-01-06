@@ -46,6 +46,10 @@
 			</p>
 		{/if}
 
+		<span class="fixed top-5 left-5 z-30 text-sm">
+			{currentIndex + 1}
+		</span>
+
 		<button
 			class="fixed bottom-5 left-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all
 				{showNotes && 'hidden'}"
