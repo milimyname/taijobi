@@ -6,8 +6,17 @@
 		currentAlphabet,
 		currentFlashcard,
 		showLetterDrawing,
-		showProgressSlider
+		showProgressSlider,
+		innerHeightStore,
+		innerWidthStore
 	} from '$lib/utils/stores';
+	import {
+		canvasLgHeight,
+		twSmallScreen,
+		canvasLgWidth,
+		canvasSmWidth,
+		xmSmallScreen
+	} from '$lib/utils/constants';
 	import { quintOut, cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
 	import { RotateCcw, Scroll, PenTool } from 'lucide-svelte';
@@ -30,11 +39,24 @@
 
 <div style="perspective: 3000px; position: relative; z-index: 100">
 	<div
-		style={`transform: rotateY(${-$rotateYCard}deg); transform-style: preserve-3d; backface-visibility: hidden; `}
+		style={`transform: rotateY(${-$rotateYCard}deg); transform-style: preserve-3d; backface-visibility: hidden; height: ${
+			($innerWidthStore > twSmallScreen
+				? canvasLgHeight
+				: $innerWidthStore < xmSmallScreen
+					? $innerHeightStore * 0.6
+					: $innerHeightStore * 0.6) + 2
+		}px;
+	width: ${
+		($innerWidthStore > twSmallScreen
+			? canvasLgWidth
+			: $innerWidthStore < xmSmallScreen
+				? canvasSmWidth
+				: $innerWidthStore * 0.9) + 2
+	}px `}
 		class="relative z-10 cursor-pointer
-				{$rotateYCard > 90 ? 'hidden' : 'block'} h-[60dvh] w-[300px] rounded-xl xm:h-[474px] xm:w-[354px]
+				{$rotateYCard > 90 ? 'hidden' : 'block'}  rounded-xl
 				{longWord ? 'py-10 sm:py-32 text-4xl' : 'text-5xl'} flex items-center justify-center border
-				shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200 sm:h-[32rem] sm:w-[32rem]"
+				shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200"
 	>
 		{#if currentFlashcardType === 'kanji'}
 			<span class="text-9xl sm:text-[14rem]">
@@ -71,12 +93,25 @@
 	</div>
 
 	<div
-		style={`transform: rotateY(${180 - $rotateYCard}deg); backface-visibility: hidden;`}
+		style={`transform: rotateY(${180 - $rotateYCard}deg); backface-visibility: hidden; height: ${
+			($innerWidthStore > twSmallScreen
+				? canvasLgHeight
+				: $innerWidthStore < xmSmallScreen
+					? $innerHeightStore * 0.6
+					: $innerHeightStore * 0.6) + 2
+		}px;
+	width: ${
+		($innerWidthStore > twSmallScreen
+			? canvasLgWidth
+			: $innerWidthStore < xmSmallScreen
+				? canvasSmWidth
+				: $innerWidthStore * 0.9) + 2
+	}px `}
 		class="relative z-10 mx-auto
 				{$rotateYCard > 90 ? 'block' : 'hidden'} 
 				 flex flex-col
 				 {$currentAlphabet === 'kanji' ? 'gap-1' : 'gap-5'}  
-				 h-[300px] w-[240px] justify-center overflow-hidden rounded-xl border p-5 shadow-sm xm:h-[474px] xm:w-[354px] sm:h-[32rem] sm:w-[32rem] sm:p-10"
+				justify-center overflow-hidden rounded-xl border p-5 shadow-sm sm:p-10"
 	>
 		{#if currentFlashcardType === 'kanji'}
 			<div
