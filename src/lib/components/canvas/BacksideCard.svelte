@@ -53,10 +53,12 @@
 				<h2 class="text-lg font-medium">{kanji[$currentLetter].meaning}</h2>
 				<p class=" text-sm text-gray-300 sm:text-sm">Meaning</p>
 			</div>
-			<div>
-				<h4 class="text-lg tracking-widest">{kanji[$currentLetter].onyomi}</h4>
-				<p class=" text-sm text-gray-300">Onyomi</p>
-			</div>
+			{#if kanji[$currentLetter].onyomi.length > 0}
+				<div>
+					<h4 class="text-lg tracking-widest">{kanji[$currentLetter].onyomi}</h4>
+					<p class=" text-sm text-gray-300">Onyomi</p>
+				</div>
+			{/if}
 			{#if kanji[$currentLetter].kunyomi.length > 0}
 				<div>
 					<h4 class="text-lg tracking-widest">{kanji[$currentLetter].kunyomi}</h4>

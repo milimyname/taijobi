@@ -33,7 +33,7 @@
 		style={`transform: rotateY(${-$rotateYCard}deg); transform-style: preserve-3d; backface-visibility: hidden; `}
 		class="relative z-10 cursor-pointer
 				{$rotateYCard > 90 ? 'hidden' : 'block'} h-[60dvh] w-[300px] rounded-xl xm:h-[474px] xm:w-[354px]
-				{longWord ? 'py-32 text-4xl' : 'text-5xl'} flex items-center justify-center border
+				{longWord ? 'py-10 sm:py-32 text-4xl' : 'text-5xl'} flex items-center justify-center border
 				shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200 sm:h-[32rem] sm:w-[32rem]"
 	>
 		{#if currentFlashcardType === 'kanji'}
@@ -46,12 +46,12 @@
 			</p>
 		{/if}
 
-		<span class="fixed top-5 left-5 z-30 text-sm">
+		<span class="fixed top-3 xm:top-5 left-2 xm:left-5 z-30 text-sm">
 			{currentIndex + 1}
 		</span>
 
 		<button
-			class="fixed bottom-5 left-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all
+			class="absolute bottom-3 xm:bottom-5 left-2 xm:left-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all
 				{showNotes && 'hidden'}"
 			on:click={() => {
 				$showLetterDrawing = true;
@@ -63,7 +63,7 @@
 
 		<button
 			class="{showNotes && 'hidden'} 
-						fixed bottom-5 right-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all"
+						absolute z-30 bottom-3 xm:bottom-5 right-2 xm:right-5 rounded-full border bg-white p-2 shadow-sm transition-all"
 			on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
 		>
 			<RotateCcw class="h-4 w-4" />
