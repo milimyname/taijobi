@@ -1,46 +1,104 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { hiraganaStore, currentAlphabet, kanjiLength, progressSlider } from '$lib/utils/stores';
-	import { spring } from 'svelte/motion';
-	import { createSlider, melt } from '@melt-ui/svelte';
-	import { getRandomNumber } from '$lib/utils/actions';
+	import { createSelect, melt } from '@melt-ui/svelte';
+	import { Check, ChevronDown } from 'lucide-svelte';
 
-	let progress = spring(0, { stiffness: 0.1, damping: 0.5 });
+	const options = {
+		sweet: ['Caramel', 'Chocolate', 'Strawberry', 'Cookies & Cream'],
+		savory: ['Basil', 'Bacon', 'Rosemary']
+	};
 
 	const {
-		elements: { root, range, thumb },
-		states: { value }
-	} = createSlider({
-		min: 0,
-		max: $currentAlphabet === 'kanji' ? $kanjiLength : $hiraganaStore.length,
-		step: 1,
-		onValueChange: (value) => {
-			$progress = value.curr[0];
-			return value.next;
+		elements: { trigger, menu, option, group, groupLabel, label },
+		states: { selectedLabel, open, selected },
+		helpers: { isSelected }
+	} = createSelect({
+		forceVisible: true,
+		positioning: {
+			placement: 'bottom',
+			fitViewport: true,
+			sameWidth: true
 		}
-	});
-
-	onMount(async () => {
-		console.log('dsad');
-
-		let initialValue;
-		if ($currentAlphabet !== 'kanji') initialValue = getRandomNumber(1, 46);
-		else initialValue = getRandomNumber(1, $kanjiLength);
-
-		$progress = initialValue;
-		$value = [$progress];
-		$progress = $value[0];
 	});
 </script>
 
-<h1>{Math.floor($progress)}</h1>
+<div class="flex flex-col gap-1">
+	<!-- svelte-ignore a11y-label-has-associated-control - $label contains the 'for' attribute -->
+	<label class="block text-magnum-900" use:melt={$label}>Favorite Flavor</label>
+	<button
+		class="flex h-10 min-w-[220px] items-center justify-between rounded-lg bg-white px-3 py-2
+  text-magnum-700 shadow transition-opacity hover:opacity-90"
+		use:melt={$trigger}
+		on:m-keydown={(e) => {
+			e.preventDefault(); // Cancel default builder behabiour
+			e.detail.originalEvent.preventDefault(); // Cancel page scroll
 
-<span use:melt={$root} class="relative flex h-[20px] w-[200px] items-center">
-	<span class="block h-[67px] w-full cursor-ew-resize overflow-hidden rounded-full bg-black/40">
-		<span use:melt={$range} class="bar relative h-[67px] rounded-l-full bg-[#0A6EBD] shadow-xl" />
-	</span>
-	<span
-		use:melt={$thumb()}
-		class=" block h-[67px] w-2 rounded-full bg-white focus:ring-4 focus:ring-black/40"
-	/>
-</span>
+			const { key } = e.detail.originalEvent;
+
+			if (!['ArrowDown', 'ArrowUp', 'Space', 'Enter'].includes(key)) return;
+
+			const allOptions = Object.values(options).flat();
+			const index = allOptions.indexOf(`${$selectedLabel}`);
+
+			if (key === 'ArrowDown') {
+				const nextIndex = index + 1;
+				const nextOption = allOptions[nextIndex] || allOptions[0];
+				selected.set({ value: nextOption, label: nextOption });
+			} else if (key === 'ArrowUp') {
+				const prevIndex = index - 1;
+				const prevOption = allOptions[prevIndex] || allOptions[allOptions.length - 1];
+				selected.set({ value: prevOption, label: prevOption });
+			} else {
+				open.set(true);
+			}
+		}}
+		aria-label="Food"
+	>
+		{$selectedLabel || 'Select a flavor'}
+		<ChevronDown class="square-5" />
+	</button>
+	{#if $open}
+		<div
+			class="z-10 flex max-h-[300px] flex-col
+    overflow-y-auto rounded-lg bg-white p-1
+    shadow focus:!ring-0"
+			use:melt={$menu}
+		>
+			{#each Object.entries(options) as [key, arr]}
+				<div use:melt={$group(key)}>
+					<div
+						class="py-1 pl-4 pr-4 font-semibold capitalize text-neutral-800"
+						use:melt={$groupLabel(key)}
+					>
+						{key}
+					</div>
+					{#each arr as item}
+						<div
+							class="relative cursor-pointer rounded-lg py-1 pl-8 pr-4 text-neutral-800
+              focus:z-10 focus:text-white
+            data-[highlighted]:bg-primary data-[selected]:bg-primary
+            data-[highlighted]:text-white data-[selected]:text-white"
+							use:melt={$option({ value: item, label: item })}
+						>
+							<div class="check {$isSelected(item) ? 'block' : 'hidden'}">
+								<Check class="square-4" />
+							</div>
+
+							{item}
+						</div>
+					{/each}
+				</div>
+			{/each}
+		</div>
+	{/if}
+</div>
+
+<style lang="postcss">
+	.check {
+		position: absolute;
+		left: theme(spacing.2);
+		top: 50%;
+		z-index: theme(zIndex.20);
+		translate: 0 calc(-50% + 1px);
+		color: theme(colors.magnum.500);
+	}
+</style>
