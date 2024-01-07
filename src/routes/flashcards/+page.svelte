@@ -115,6 +115,8 @@
 		setTimeout(() => discardCard(), 200);
 		$skippedFlashcard = false;
 	}
+
+	$: if (data.flashcardCollections.length < 5) visibleCardsCount = data.flashcardCollections.length;
 </script>
 
 <svelte:window bind:innerWidth={$innerWidthStore} />
