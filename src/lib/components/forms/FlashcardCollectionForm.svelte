@@ -5,7 +5,8 @@
 		clickedAddFlahcardBox,
 		currentFlashcardCollectionId,
 		swapFlashcards,
-		maxFlashcards
+		maxFlashcards,
+		flashcardBoxes
 	} from '$lib/utils/stores';
 	import { fly, slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
@@ -118,7 +119,7 @@
 					</button>
 				</div>
 				<div class="flex gap-5">
-					{#if !$clickedAddFlashcardCollection && $maxFlashcards !== '0'}
+					{#if !$clickedAddFlashcardCollection && $maxFlashcards !== '0' && $flashcardBoxes.length > 1}
 						<button
 							type="button"
 							class="flex gap-2 bg-slate-200 justify-start px-3 py-2 items-center rounded-md w-fit"

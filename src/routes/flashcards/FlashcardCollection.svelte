@@ -209,17 +209,25 @@
 		if (!isDragging && index !== totalCount - 1) return;
 
 		if ($rotateY > 10) {
+			isClicked = true;
 			$rotateY = 60;
 			$x = 1000;
 			$showCollections = true;
 			$currentFlashcardCollectionId = id;
 			$flashcardsBoxType = type;
+
+			localStorage.setItem('currentFlashcardCollectionId', id);
+
+			isClicked = true;
 		}
 
 		if ($rotateY < -5) {
+			isClicked = true;
 			$rotateY = -60;
 			$x = -1000;
 			$skippedFlashcard = true;
+
+			localStorage.setItem('currentFlashcardCollectionId', id);
 		}
 	}
 
