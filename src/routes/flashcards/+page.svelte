@@ -22,6 +22,7 @@
 	import { Dices, Plus, FolderEdit } from 'lucide-svelte';
 	import { goto } from '$app/navigation';
 	import { isTouchScreen } from '$lib/utils/actions';
+	import { onMount } from 'svelte';
 
 	export let data;
 
@@ -89,6 +90,25 @@
 			if (visibleCardsCount < data.flashcardCollections.length) visibleCardsCount++;
 		}, 100);
 	}
+
+	onMount(() => {
+		const savedId = localStorage.getItem('currentFlashcardCollectionId');
+		if (savedId !== null) $currentFlashcardCollectionId = savedId;
+
+		// Reorder data flashcard collections based on the current flashcard collection id or local storage
+		if ($currentFlashcardCollectionId) {
+			const currentFlashcardCollectionIndex = data.flashcardCollections.findIndex(
+				(collection: { id: string }) => collection.id === $currentFlashcardCollectionId
+			);
+
+			const currentFlashcardCollection = data.flashcardCollections.splice(
+				currentFlashcardCollectionIndex,
+				1
+			);
+
+			data.flashcardCollections = [...data.flashcardCollections, ...currentFlashcardCollection];
+		}
+	});
 
 	$: if ($skippedFlashcard) {
 		setTimeout(() => discardCard(), 200);
@@ -199,12 +219,14 @@
 						<div class="flex w-full justify-around rounded-t-xl bg-blue-500 p-4">
 							{#if $flashcardsBoxType !== 'original' || data.isAdmin}
 								<button
+									class="w-full flex justify-center"
 									on:click|stopPropagation={() => {
 										$clickedEditFlashcard = true;
 										$clickedAddFlahcardBox = true;
 										$showCollections = false;
 										$clickedAddFlashcardCollection = false;
 										$flashcardsBoxType = collection.type;
+										$maxFlashcards = box.count;
 
 										// Fill in the form with the current flashcard data
 										$boxForm.name = box.name;
@@ -218,6 +240,7 @@
 
 							{#if box.count > 20}
 								<button
+									class="w-full flex justify-center"
 									on:click|stopPropagation={() => {
 										$quizForm.flashcardBox = box.id;
 										$maxFlashcards = box.count;

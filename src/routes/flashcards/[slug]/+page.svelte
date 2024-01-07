@@ -17,6 +17,7 @@
 	import Swiper from 'swiper';
 	import 'swiper/swiper-bundle.css';
 	import LetterDrawingFlashcard from './LetterDrawingFlashcard.svelte';
+	import { Plus } from 'lucide-svelte';
 
 	export let data;
 
@@ -87,7 +88,7 @@
 		} else console.error('Swiper instance is not defined or realIndex is unavailable');
 	}
 
-	$: {
+	$: if (data.flashcards.length > 0) {
 		$currentFlashcard = data.flashcards.at(currentIndex).name;
 		currentFlashcardFurigana = data.flashcards.at(currentIndex).furigana;
 		currentFlashcardType = data.flashcards.at(currentIndex).type;
@@ -102,45 +103,54 @@
 
 <section
 	class="mb-10 sm:mb-20
-	{!$showLetterDrawing && 'gap-5'} flex flex-1 flex-col items-center justify-center"
+	{!$showLetterDrawing && 'gap-5'} 
+	{data.flashcards.length > 0 ? 'items-center' : 'w-full max-w-md'} 
+	flex flex-1 flex-col justify-center"
 >
-	{#if data.flashcards && data.flashcards.length > 0 && !$showLetterDrawing}
-		<Flashcard
-			flashcards={data.flashcards}
-			{currentIndex}
-			longWord={$currentFlashcard.length > 8}
-			{currentFlashcardType}
-			{currentFlashcardFurigana}
-		/>
+	{#if data.flashcards.length > 0}
+		{#if !$showLetterDrawing}
+			<Flashcard
+				flashcards={data.flashcards}
+				{currentIndex}
+				longWord={$currentFlashcard.length > 8}
+				{currentFlashcardType}
+				{currentFlashcardFurigana}
+			/>
 
-		<div class="flex items-center justify-center sm:mx-auto sm:w-[600px]">
-			{#if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin}
-				<div
-					class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
-				>
-					<EditButton {form} flashcards={data.flashcards} {currentIndex} />
-				</div>
-			{/if}
-		</div>
+			<div class="flex items-center justify-center sm:mx-auto sm:w-[600px]">
+				{#if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin}
+					<div
+						class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
+					>
+						<EditButton {form} flashcards={data.flashcards} {currentIndex} />
+					</div>
+				{/if}
+			</div>
+		{:else}
+			<LetterDrawingFlashcard {swiperInstance} />
+		{/if}
 	{:else}
-		<LetterDrawingFlashcard {swiperInstance} />
+		<button
+			class="flex add-form-btn items-center justify-center rounded-xl border-4 border-blue-400 text-center text-xl font-bold text-blue-500 hover:border-blue-500 h-80"
+			on:click={() => ($clickedAddFlashcardCollection = true)}
+		>
+			<Plus class="h-10 w-10" />
+		</button>
 	{/if}
 
 	<div
-		class="swiper-container overflow-hidden -z-1 fixed bottom-5 flex cursor-ew-resize items-center justify-between gap-5 overflow-x-hidden sm:bottom-10 lg:bottom-5"
+		class="swiper-container h-12 fixed bottom-5 flex cursor-ew-resize items-center justify-between gap-5 sm:bottom-10 lg:bottom-5"
 	>
-		<div class="swiper-wrapper mt-40">
+		<div class="swiper-wrapper">
 			{#each data.flashcards as flashcard, index}
-				{#if flashcard}
-					<div
-						style="display: flex; justify-content: center; width: fit-content"
-						class="swiper-slide"
-					>
-						<button class="text-2xl sm:text-4xl" on:click={() => swiperInstance.slideTo(index)}>
-							{flashcard.name}
-						</button>
-					</div>
-				{/if}
+				<div
+					style="display: flex; justify-content: center; width: fit-content"
+					class="swiper-slide"
+				>
+					<button class="text-2xl sm:text-4xl" on:click={() => swiperInstance.slideTo(index)}>
+						{flashcard.name}
+					</button>
+				</div>
 			{/each}
 		</div>
 	</div>

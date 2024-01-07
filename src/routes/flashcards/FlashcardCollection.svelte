@@ -10,8 +10,7 @@
 		clickedQuizForm,
 		skippedFlashcard,
 		showCollections,
-		clickedEditFlashcard,
-		clickedKanjiForm
+		clickedEditFlashcard
 	} from '$lib/utils/stores';
 	import { twSmallScreen } from '$lib/utils/constants';
 	import { FolderEdit } from 'lucide-svelte';
@@ -23,7 +22,7 @@
 	export let description: string;
 	export let type: string;
 	export let index: number;
-	export let id: number;
+	export let id: string;
 	export let totalCount: number;
 	export let form;
 
@@ -40,6 +39,7 @@
 
 	let isDragging = false;
 	let cardElement: HTMLButtonElement;
+	let isClicked = false;
 
 	function onMouseMove(event: { clientX: number; clientY: number }) {
 		if (
@@ -47,7 +47,8 @@
 			$showCollections ||
 			$clickedAddFlashcardCollection ||
 			$clickedAddFlahcardBox ||
-			$clickedQuizForm
+			$clickedQuizForm ||
+			isClicked
 		)
 			return;
 
@@ -88,20 +89,38 @@
 			return;
 
 		if ($rotateY > 15) {
+			isClicked = true;
+
 			$rotateY = 60;
 			$x = $innerWidthStore;
 
 			$showCollections = true;
 			$currentFlashcardCollectionId = id;
+
+			localStorage.setItem('currentFlashcardCollectionId', id);
+
 			$flashcardsBoxType = type;
+
+			isClicked = false;
 		}
 
 		if ($rotateY < -15) {
+			isClicked = true;
+
 			$rotateY = -60;
-			$x = -$innerWidthStore;
+
+			localStorage.setItem('currentFlashcardCollectionId', id);
+
+			setTimeout(() => {
+				$x = -$innerWidthStore;
+			}, 100);
 
 			$skippedFlashcard = true;
 		}
+	}
+
+	function onMouseUp() {
+		isClicked = false;
 	}
 
 	function onTouchStart(event: TouchEvent) {
@@ -246,7 +265,7 @@
 	}
 </script>
 
-<svelte:window on:click={onClick} on:mousemove={onMouseMove} />
+<svelte:window on:click={onClick} on:mousemove={onMouseMove} on:mouseup={onMouseUp} />
 
 <button
 	bind:this={cardElement}
@@ -269,9 +288,9 @@
 	{/if}
 	<h2>{name}</h2>
 	<div class="flex h-40 w-full flex-col justify-between rounded-xl bg-blue-400 p-4">
-		<span>
+		<p>
 			{description}
-		</span>
+		</p>
 
 		{#if type !== 'original' || $page.data.isAdmin}
 			<button

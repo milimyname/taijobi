@@ -10,7 +10,7 @@ export const innerWidthStore = writable(0);
 export const innerHeightStore = writable(0);
 export const lastPoint = writable({ x: 0, y: 0 });
 export const clickedAddFlashcardCollection = writable(false);
-export const currentFlashcardCollectionId = writable(0);
+export const currentFlashcardCollectionId = writable('');
 export const clickedEditFlashcard = writable(false);
 export const clickedAddFlahcardBox = writable(false);
 export const clickedFeedback = writable(false);
@@ -27,6 +27,7 @@ export const currentFlashcard = writable('');
 export const currentIndexStore = writable<number>();
 export const showLetterDrawing = writable(false);
 export const selectQuizItemsForm = writable(false);
+export const swapFlashcards = writable(false);
 export const selectedQuizItems = writable<string[]>([]);
 
 export const hiraganaStore = writable([
