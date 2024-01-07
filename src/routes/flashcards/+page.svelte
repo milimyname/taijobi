@@ -11,7 +11,8 @@
 		flashcardsBoxType,
 		skippedFlashcard,
 		showCollections,
-		selectedQuizItems
+		selectedQuizItems,
+		flashcardBoxes
 	} from '$lib/utils/stores.js';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { innerWidthStore } from '$lib/utils/stores';
@@ -118,18 +119,12 @@
 
 <svelte:window bind:innerWidth={$innerWidthStore} />
 
-{#if $clickedAddFlashcardCollection}
-	<FlashcardCollectionForm {enhance} {errors} {form} {constraints} />
-{/if}
-
-{#if $clickedAddFlahcardBox}
-	<FlashcardCollectionForm
-		errors={boxErrors}
-		enhance={boxEnhance}
-		form={boxForm}
-		constraints={boxConstraints}
-	/>
-{/if}
+<FlashcardCollectionForm
+	errors={$clickedAddFlahcardBox ? boxErrors : quizErrors}
+	enhance={$clickedAddFlahcardBox ? boxEnhance : enhance}
+	form={$clickedAddFlahcardBox ? boxForm : form}
+	constraints={$clickedAddFlahcardBox ? boxConstraints : constraints}
+/>
 
 <TextQuizForm
 	errors={quizErrors}
@@ -226,7 +221,20 @@
 										$showCollections = false;
 										$clickedAddFlashcardCollection = false;
 										$flashcardsBoxType = collection.type;
-										$maxFlashcards = box.count;
+										$maxFlashcards = '' + box.count;
+
+										$flashcardBoxes = [];
+
+										// Save flashcard boxes to store for swapping flashcards later
+										collection.expand.flashcardBoxes.forEach((box) => {
+											$flashcardBoxes = [
+												...$flashcardBoxes,
+												{
+													id: box.id,
+													name: box.name
+												}
+											];
+										});
 
 										// Fill in the form with the current flashcard data
 										$boxForm.name = box.name;

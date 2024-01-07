@@ -135,18 +135,18 @@
 		if (!isDragging && index !== totalCount - 1) return;
 
 		// If the user clicks on the add button, don't move the card
-		if (event.target?.closest('.add-btn')) {
+		if ((event.target as Element).closest('.add-btn')) {
 			$clickedAddFlashcardCollection = !$clickedAddFlashcardCollection;
 			return;
 		}
 		// If the user clicks on the add button, don't move the card
-		if (event.target?.closest('.go-back-btn')) {
+		if ((event.target as Element).closest('.go-back-btn')) {
 			$page.route.id && goto('/');
 			return;
 		}
 
 		// If the user clicks on the add button, don't move the card
-		if (event.target?.closest('.edit-collection-btn')) {
+		if ((event.target as Element).closest('.edit-collection-btn')) {
 			$clickedAddFlashcardCollection = true;
 			$clickedEditFlashcard = true;
 			// Fill in the form with the current flashcard data

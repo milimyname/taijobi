@@ -29,6 +29,12 @@ export const showLetterDrawing = writable(false);
 export const selectQuizItemsForm = writable(false);
 export const swapFlashcards = writable(false);
 export const selectedQuizItems = writable<string[]>([]);
+export const flashcardBoxes = writable<
+	{
+		id: string;
+		name: string;
+	}[]
+>([]);
 
 export const hiraganaStore = writable([
 	'あ',
