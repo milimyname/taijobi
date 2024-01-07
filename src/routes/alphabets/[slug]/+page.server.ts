@@ -105,7 +105,7 @@ export const actions = {
 
 		try {
 			quiz = await locals.pb.collection('quizzes').create({
-				name: '漢字',
+				name: form.data.name,
 				choice: form.data.choice,
 				type: form.data.type,
 				userId,

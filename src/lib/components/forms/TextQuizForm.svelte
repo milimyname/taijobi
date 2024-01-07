@@ -60,8 +60,36 @@
 			easing: quintOut
 		}}
 	>
-		<h4 class="text-2xl">Create a {$form.name} quiz</h4>
+		<h4 class="text-2xl">Create a quiz</h4>
+
 		<div class="mb-auto flex flex-col gap-5">
+			<fieldset
+				class=" flex w-full flex-col gap-2"
+				transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
+			>
+				<label for="name">Quiz name</label>
+				<input
+					name="name"
+					type="text"
+					id="name"
+					class="
+                    block
+                    rounded-md
+                    border-gray-300
+                    shadow-sm
+                    focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
+                  "
+					aria-invalid={$errors.name ? 'true' : undefined}
+					bind:value={$form.name}
+					{...$constraints.name}
+				/>
+				{#if $errors.name}
+					<span
+						transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
+						class="mt-1 select-none text-sm text-red-400">{$errors.name}</span
+					>
+				{/if}
+			</fieldset>
 			<fieldset class=" flex w-full flex-col gap-2">
 				<label for="choice">Multi Choice Number</label>
 				<select
