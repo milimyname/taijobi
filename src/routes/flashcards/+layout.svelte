@@ -7,7 +7,6 @@
 		showCollections,
 		clickedQuizForm,
 		flashcardsBoxType,
-		currentFlashcard,
 		currentIndexStore,
 		innerWidthStore,
 		innerHeightStore,
@@ -54,7 +53,6 @@
 			class="go-back-btn group flex items-center gap-2"
 			on:click={() => {
 				$currentIndexStore = 0;
-				// $currentFlashcard = '';
 				$showLetterDrawing = false;
 			}}
 			data-sveltekit-preload-data

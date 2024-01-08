@@ -72,7 +72,11 @@
 			? $currentIndexStore
 			: Math.floor(data.flashcards.length / 2);
 
-		$currentIndexStore = swiperInstance.activeIndex;
+		const savedIndex = localStorage.getItem('swiperActiveIndex');
+		if (savedIndex !== null) {
+			$currentIndexStore = +savedIndex;
+			swiperInstance.slideTo($currentIndexStore);
+		} else $currentIndexStore = swiperInstance.activeIndex;
 	});
 
 	function updateCurrentFlashcard() {
@@ -94,7 +98,12 @@
 		currentFlashcardType = data.flashcards.at(currentIndex).type;
 	}
 
-	$: if ($currentIndexStore && swiperInstance) swiperInstance.activeIndex = $currentIndexStore;
+	$: if ($currentIndexStore && swiperInstance) {
+		swiperInstance.activeIndex = $currentIndexStore;
+
+		// Set to local storage
+		localStorage.setItem('swiperActiveIndex', '' + $currentIndexStore);
+	}
 </script>
 
 {#if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin}
