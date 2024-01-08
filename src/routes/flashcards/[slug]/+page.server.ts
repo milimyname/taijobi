@@ -17,10 +17,9 @@ export const load = async ({ locals, params }) => {
 	console.time('flashcards');
 	const flashcards = await locals.pb.collection('flashcard').getFullList({
 		filter: `flashcardBox = "${params.slug}"`,
-		fields: `id, name, meaning, romanji, furigana, type, notes`,
-		skipTotal: true,
-		batch: 20
+		fields: `id, name, meaning, romanji, furigana, type, notes`
 	});
+
 	console.timeEnd('flashcards');
 
 	if (!kuroshiroInitialized) {
@@ -28,18 +27,17 @@ export const load = async ({ locals, params }) => {
 		kuroshiroInitialized = true;
 	}
 
-	console.time('furigana');
-
+	// console.time('furigana');
 	// Process furigana in parallel
-	const processeFlashcards = await Promise.all(flashcards.map((card) => processFurigana(card)));
-	console.timeEnd('furigana');
+	// const processeFlashcards = await Promise.all(flashcards.map((card) => processFurigana(card)));
+	// console.timeEnd('furigana');
 
 	// Server API:
 	const form = await superValidate(flashcardSchema);
 
 	return {
 		form,
-		flashcards: processeFlashcards
+		flashcards: await Promise.all(flashcards.map((card) => processFurigana(card)))
 	};
 };
 

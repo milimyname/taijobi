@@ -18,7 +18,9 @@ export async function handle({ event, resolve }) {
 		event.locals.pb.authStore.clear();
 	}
 
+	console.time('resolve');
 	const response = await resolve(event);
+	console.timeEnd('resolve');
 
 	// send back the default 'pb_auth' cookie to the client with the latest store state
 	response.headers.set(
