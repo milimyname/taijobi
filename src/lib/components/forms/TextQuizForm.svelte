@@ -11,24 +11,17 @@
 	} from '$lib/utils/stores';
 	import { fly, slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
-	import { createSwitch, melt } from '@melt-ui/svelte';
 	import { clickOutside } from '$lib/utils/clickOutside';
 	import { Grid2X2 } from 'lucide-svelte';
 	import SelectQuizItems from './SelectQuizItems.svelte';
-
-	const {
-		elements: { root, input }
-	} = createSwitch();
+	import { Switch } from '$lib/components/ui/switch';
 
 	export let enhance: any;
 	export let errors;
 	export let form;
 	export let constraints;
 
-	$: {
-		$form.timeLimit = $input.checked;
-		$form.startCount = $progressSlider === $kanjiLength ? 1 : $progressSlider;
-	}
+	$: $form.startCount = $progressSlider === $kanjiLength ? 1 : $progressSlider;
 
 	$: if ($selectQuizItemsForm) $form.selectedQuizItems = $selectedQuizItems;
 </script>
@@ -227,16 +220,8 @@
 			{/if}
 
 			<div class="flex items-center justify-between">
-				<label for="timeLimit" id="time-limit-label"> Time limit (WIP) </label>
-				<button
-					use:melt={$root}
-					class="switch relative h-6 w-full cursor-default rounded-full bg-slate-400 transition-colors data-[state=checked]:bg-primary"
-					id="timeLimit"
-					aria-labelledby="time-limit-label"
-				>
-					<span class="thumb block rounded-full bg-white transition" />
-				</button>
-				<input use:melt={$input} type="checkbox" name="timeLimit" bind:value={$form.timeLimit} />
+				<label for="timeLimit" id="time-limit-label"> Time limit (🚧) </label>
+				<Switch bind:checked={$form.timeLimit} />
 			</div>
 
 			{#if $errors.timeLimit && $selectedQuizItems.length !== 0}
@@ -266,22 +251,3 @@
 		</div>
 	</form>
 {/if}
-
-<style>
-	.switch {
-		--w: 2.75rem;
-		--padding: 0.125rem;
-		width: var(--w);
-	}
-
-	.thumb {
-		--size: 1.25rem;
-		width: var(--size);
-		height: var(--size);
-		transform: translateX(var(--padding));
-	}
-
-	:global([data-state='checked']) .thumb {
-		transform: translateX(calc(var(--w) - var(--size) - var(--padding)));
-	}
-</style>

@@ -23,6 +23,12 @@ dependencies:
   apexcharts:
     specifier: 3.43.2-0
     version: 3.43.2-0
+  bits-ui:
+    specifier: ^0.13.6
+    version: 0.13.6(svelte@4.2.8)
+  clsx:
+    specifier: ^2.1.0
+    version: 2.1.0
   kuroshiro-analyzer-kuromoji:
     specifier: ^1.1.0
     version: 1.1.0
@@ -38,6 +44,12 @@ dependencies:
   swiper:
     specifier: ^11.0.5
     version: 11.0.5
+  tailwind-merge:
+    specifier: ^2.2.0
+    version: 2.2.0
+  tailwind-variants:
+    specifier: ^0.1.20
+    version: 0.1.20(tailwindcss@3.4.1)
   wanakana:
     specifier: ^5.3.1
     version: 5.3.1
@@ -503,6 +515,20 @@ packages:
       focus-trap: 7.5.4
       nanoid: 4.0.2
       svelte: 4.2.8
+
+  /@melt-ui/svelte@0.67.0(svelte@4.2.8):
+    resolution: {integrity: sha512-fd9PsDE6sKbeyExagqH0nOpZEnDqyr2efbkjfmCRRYXVW5vlDEOPaSB+mg4Tjch121102sFH1Od+MlXwmeHy3A==}
+    peerDependencies:
+      svelte: '>=3 <5'
+    dependencies:
+      '@floating-ui/core': 1.5.3
+      '@floating-ui/dom': 1.5.4
+      '@internationalized/date': 3.5.1
+      dequal: 2.0.3
+      focus-trap: 7.5.4
+      nanoid: 4.0.2
+      svelte: 4.2.8
+    dev: false
 
   /@nodelib/fs.scandir@2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -1174,6 +1200,17 @@ packages:
       file-uri-to-path: 1.0.0
     dev: true
 
+  /bits-ui@0.13.6(svelte@4.2.8):
+    resolution: {integrity: sha512-LmbWgtriqfotontFi1lC6tEB56HOLP4YpwVKX3qrHxEMfMAyc/NFQgtGOHizTGMmUUkdVtCE37PA1Wnk6gsUZg==}
+    peerDependencies:
+      svelte: ^4.0.0
+    dependencies:
+      '@internationalized/date': 3.5.1
+      '@melt-ui/svelte': 0.67.0(svelte@4.2.8)
+      nanoid: 5.0.4
+      svelte: 4.2.8
+    dev: false
+
   /brace-expansion@1.1.11:
     resolution: {integrity: sha512-iCuPHDFgrHX7H2vEI/5xpz07zSHB00TpugqhmYtVmMO6518mCuRMoOYFldEBl0g187ufozdaHgWKcYFb61qGiA==}
     dependencies:
@@ -1251,6 +1288,11 @@ packages:
     resolution: {integrity: sha512-bIomtDF5KGpdogkLd9VspvFzk9KfpyyGlS8YFVZl7TGPBHL5snIOnxeshwVgPteQ9b4Eydl+pVbIyE1DcvCWgQ==}
     engines: {node: '>=10'}
     dev: true
+
+  /clsx@2.1.0:
+    resolution: {integrity: sha512-m3iNNWpd9rl3jvvcBnu70ylMdrXt8Vlq4HYadnU5fwcOtvkSQWPmj7amUcDT2qYI7risszBjI5AUIUox9D16pg==}
+    engines: {node: '>=6'}
+    dev: false
 
   /code-red@1.0.4:
     resolution: {integrity: sha512-7qJWqItLA8/VPVlKJlFXU+NBlo/qyfs39aJcuMT/2ere32ZqvF5OSxgdM5xOfJJ7O429gg2HM47y8v9P+9wrNw==}
@@ -2172,6 +2214,12 @@ packages:
     engines: {node: ^14 || ^16 || >=18}
     hasBin: true
 
+  /nanoid@5.0.4:
+    resolution: {integrity: sha512-vAjmBf13gsmhXSgBrtIclinISzFFy22WwCYoyilZlsrRXNIHSwgFQ1bEdjRwMT3aoadeIF6HMuDRlOxzfXV8ig==}
+    engines: {node: ^18 || >=20}
+    hasBin: true
+    dev: false
+
   /natural-compare-lite@1.4.0:
     resolution: {integrity: sha512-Tj+HTDSJJKaZnfiuw+iaF9skdPpTo2GtEly5JHnWV/hfv2Qj/9RKsGISQtLh2ox3l5EAGw487hnBee0sIJ6v2g==}
     dev: true
@@ -2982,6 +3030,26 @@ packages:
 
   /tabbable@6.2.0:
     resolution: {integrity: sha512-Cat63mxsVJlzYvN51JmVXIgNoUokrIaT2zLclCXjRd8boZ0004U4KCs/sToJ75C6sdlByWxpYnb5Boif1VSFew==}
+
+  /tailwind-merge@1.14.0:
+    resolution: {integrity: sha512-3mFKyCo/MBcgyOTlrY8T7odzZFx+w+qKSMAmdFzRvqBfLlSigU6TZnlFHK0lkMwj9Bj8OYU+9yW9lmGuS0QEnQ==}
+    dev: false
+
+  /tailwind-merge@2.2.0:
+    resolution: {integrity: sha512-SqqhhaL0T06SW59+JVNfAqKdqLs0497esifRrZ7jOaefP3o64fdFNDMrAQWZFMxTLJPiHVjRLUywT8uFz1xNWQ==}
+    dependencies:
+      '@babel/runtime': 7.23.7
+    dev: false
+
+  /tailwind-variants@0.1.20(tailwindcss@3.4.1):
+    resolution: {integrity: sha512-AMh7x313t/V+eTySKB0Dal08RHY7ggYK0MSn/ad8wKWOrDUIzyiWNayRUm2PIJ4VRkvRnfNuyRuKbLV3EN+ewQ==}
+    engines: {node: '>=16.x', pnpm: '>=7.x'}
+    peerDependencies:
+      tailwindcss: '*'
+    dependencies:
+      tailwind-merge: 1.14.0
+      tailwindcss: 3.4.1
+    dev: false
 
   /tailwindcss-dotted-background@1.1.0(tailwindcss@3.4.1):
     resolution: {integrity: sha512-uFzCW5Bpyn8XgppTkyzqdHecH7XCDaS/eXvegDrOCYE6PxTm7dRrD9cuUcZe6mxQFVfkLu9rDmHJdqbjz9FdLA==}

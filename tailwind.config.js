@@ -1,39 +1,69 @@
+import { fontFamily } from 'tailwindcss/defaultTheme';
 import plugin from 'tailwindcss/plugin';
 import typography from '@tailwindcss/typography';
 import forms from '@tailwindcss/forms';
 import dottedBackground from 'tailwindcss-dotted-background';
 import queries from '@tailwindcss/container-queries';
-import typography from '@tailwindcss/typography';
 
 /** @type {import('tailwindcss').Config} */
-export default {
+const config = {
+	darkMode: ['class'],
 	content: ['./src/**/*.{html,js,svelte,ts}'],
+	safelist: ['dark'],
 	theme: {
 		container: {
 			center: true,
 			padding: '2rem',
 			screens: {
-				'2xl': '1440px'
+				'2xl': '1400px'
 			}
 		},
 		extend: {
 			colors: {
-				primary: '#0A6EBD',
+				border: 'hsl(var(--border) / <alpha-value>)',
+				input: 'hsl(var(--input) / <alpha-value>)',
+				ring: 'hsl(var(--ring) / <alpha-value>)',
+				background: 'hsl(var(--background) / <alpha-value>)',
+				foreground: 'hsl(var(--foreground) / <alpha-value>)',
+				primary: {
+					DEFAULT: 'hsl(var(--primary) / <alpha-value>)',
+					foreground: 'hsl(var(--primary-foreground) / <alpha-value>)'
+				},
+				secondary: {
+					DEFAULT: 'hsl(var(--secondary) / <alpha-value>)',
+					foreground: 'hsl(var(--secondary-foreground) / <alpha-value>)'
+				},
+				destructive: {
+					DEFAULT: 'hsl(var(--destructive) / <alpha-value>)',
+					foreground: 'hsl(var(--destructive-foreground) / <alpha-value>)'
+				},
+				muted: {
+					DEFAULT: 'hsl(var(--muted) / <alpha-value>)',
+					foreground: 'hsl(var(--muted-foreground) / <alpha-value>)'
+				},
+				accent: {
+					DEFAULT: 'hsl(var(--accent) / <alpha-value>)',
+					foreground: 'hsl(var(--accent-foreground) / <alpha-value>)'
+				},
+				popover: {
+					DEFAULT: 'hsl(var(--popover) / <alpha-value>)',
+					foreground: 'hsl(var(--popover-foreground) / <alpha-value>)'
+				},
+				card: {
+					DEFAULT: 'hsl(var(--card) / <alpha-value>)',
+					foreground: 'hsl(var(--card-foreground) / <alpha-value>)'
+				},
 				success: '#47A992',
-				error: '#D80032',
-				magnum: {
-					50: '#fff9ed',
-					100: '#fef2d6',
-					200: '#fce0ac',
-					300: '#f9c978',
-					400: '#f7b155',
-					500: '#f38d1c',
-					600: '#e47312',
-					700: '#bd5711',
-					800: '#964516',
-					900: '#793a15',
-					950: '#411c09'
-				}
+				error: '#D80032'
+			},
+			borderRadius: {
+				'4xl': 'calc(var(--radius) + 2rem)',
+				lg: 'var(--radius)',
+				md: 'calc(var(--radius) - 2px)',
+				sm: 'calc(var(--radius) - 4px)'
+			},
+			fontFamily: {
+				sans: [...fontFamily.sans]
 			},
 			backgroundImage: {
 				alphabetGreen:
@@ -43,9 +73,6 @@ export default {
 				xm: '400px',
 				xmm: '350px'
 			},
-			borderRadius: {
-				'4xl': '2.5rem'
-			},
 			boxShadow: {
 				profile: '0px -18px 10px 0px rgba(64, 168, 240, 0.10)',
 				pricing: ' 0px -18px 10px 0px rgba(130, 197, 247x, 0.10)',
@@ -53,45 +80,7 @@ export default {
 			},
 			height: {
 				17: '17rem'
-			},
-			fontFamily: {
-				sans: [
-					'-apple-system',
-					'BlinkMacSystemFont',
-					'Segoe UI',
-					'Roboto',
-					'Oxygen',
-					'Ubuntu',
-					'Cantarell',
-					'Fira Sans',
-					'Droid Sans',
-					'Helvetica Neue',
-					'Arial',
-					'sans-serif',
-					'Apple Color Emoji',
-					'Segoe UI Emoji',
-					'Segoe UI Symbol'
-				],
-				mono: [
-					'ui-monospace',
-					'SFMono-Regular',
-					'SF Mono',
-					'Menlo',
-					'Consolas',
-					'Liberation Mono',
-					'monospace'
-				]
-			},
-			typography: (theme) => ({
-				DEFAULT: {
-					css: {
-						code: {
-							position: 'relative',
-							borderRadius: theme('borderRadius.md')
-						}
-					}
-				}
-			})
+			}
 		}
 	},
 	plugins: [
@@ -104,3 +93,5 @@ export default {
 		})
 	]
 };
+
+export default config;
