@@ -73,7 +73,7 @@
 			: Math.floor(data.flashcards.length / 2);
 
 		const savedIndex = localStorage.getItem('swiperActiveIndex');
-		if (savedIndex !== null) {
+		if (savedIndex !== null && data.flashcards.length > 0) {
 			$currentIndexStore = +savedIndex;
 			swiperInstance.slideTo($currentIndexStore);
 		} else $currentIndexStore = swiperInstance.activeIndex;
