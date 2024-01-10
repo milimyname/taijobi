@@ -130,7 +130,8 @@
 			!$showCollections &&
 			!$clickedQuizForm &&
 			!$clickedAddFlashcardCollection &&
-			!$clickedAddFlahcardBox
+			!$clickedAddFlahcardBox &&
+			!$clickedFeedback
 		)
 			event.preventDefault();
 
@@ -162,7 +163,6 @@
 		if ((event.target as Element).closest('.feedback-btn')) {
 			$clickedFeedback = true;
 
-			// console.log('clicked', $clickedFeedback);
 			return;
 		}
 
@@ -174,17 +174,12 @@
 			!$showCollections &&
 			!$clickedQuizForm &&
 			!$clickedAddFlashcardCollection &&
-			!$clickedAddFlahcardBox
+			!$clickedAddFlahcardBox &&
+			!$clickedFeedback
 		)
 			event.preventDefault();
 
-		if (
-			(!isDragging && index !== totalCount - 1) ||
-			$showCollections ||
-			$clickedQuizForm ||
-			$clickedFeedback
-		)
-			return;
+		if ((!isDragging && index !== totalCount - 1) || $showCollections || $clickedQuizForm) return;
 
 		const touch = event.touches[0];
 
@@ -216,7 +211,8 @@
 			!$showCollections &&
 			!$clickedQuizForm &&
 			!$clickedAddFlashcardCollection &&
-			!$clickedAddFlahcardBox
+			!$clickedAddFlahcardBox &&
+			!$clickedFeedback
 		)
 			event.preventDefault();
 
@@ -256,9 +252,9 @@
 	onDestroy(() => {
 		if (!browser) return;
 
-		window.removeEventListener('touchmove', onTouchMove);
-		window.removeEventListener('touchstart', onTouchStart);
-		window.removeEventListener('touchend', onTouchEnd);
+		window.removeEventListener('touchmove', onTouchMove, false);
+		window.removeEventListener('touchstart', onTouchStart, false);
+		window.removeEventListener('touchend', onTouchEnd, false);
 	});
 
 	$: if (browser && cardElement) {

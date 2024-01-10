@@ -7,6 +7,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { isDesktop } from '$lib/utils';
+	import { beforeNavigate } from '$app/navigation';
 
 	let animationText = '';
 	let isReversing = false;
@@ -29,7 +30,7 @@
 		}
 	}
 
-	function clickOutsideDrawer(e: MouseEvent) {
+	function onOutsideClickDrawer(e: MouseEvent) {
 		//  If the user clicks on the leave button, don't move the card
 		if (
 			$page.url.pathname.endsWith('flashcards') &&
@@ -39,6 +40,19 @@
 
 		if ($page.url.pathname.slice(1) === 'flashcards') $clickedFeedback = false;
 	}
+
+	function onCloseDrawer() {
+		if ($page.url.pathname.slice(1) === 'flashcards') $clickedFeedback = false;
+
+		if (!$isDesktop) document.body.style.background = 'white';
+	}
+
+	beforeNavigate(() => {
+		// Set body background to white if the user is not on the desktop
+		if (!$isDesktop) document.body.style.backgroundColor = 'white';
+
+		$clickedFeedback = false;
+	});
 
 	onMount(() => performAnimation());
 
@@ -82,23 +96,26 @@
 	</Dialog.Root>
 {:else}
 	<Drawer.Root
+		onClose={onCloseDrawer}
 		open={$page.url.pathname.endsWith('flashcards') && $clickedFeedback}
-		onOutsideClick={clickOutsideDrawer}
+		onOutsideClick={onOutsideClickDrawer}
 		shouldScaleBackground={!$page.url.pathname.endsWith('flashcards')}
 	>
 		<Drawer.Trigger asChild let:builder>
-			<Button
-				variant="outline"
-				builders={[builder]}
-				on:click={() => ($clickedFeedback = true)}
-				class="feedback-btn absolute left-1/2 top-10 z-20 w-28 -translate-y-1/2 -translate-x-1/2 rounded-full border px-4 py-2"
-			>
-				{animationText}
-			</Button>
+			{#if !hideFeedbackButton}
+				<Button
+					variant="outline"
+					builders={[builder]}
+					on:click={() => ($clickedFeedback = true)}
+					class="feedback-btn absolute left-1/2 top-10 z-20 w-28 -translate-y-1/2 -translate-x-1/2 rounded-full border px-4 py-2"
+				>
+					{animationText}
+				</Button>
+			{/if}
 		</Drawer.Trigger>
 		<Drawer.Portal>
 			<Drawer.Overlay class="fixed inset-0 -z-10 bg-black bg-opacity-30" />
-			<Drawer.Content class="z-[200]">
+			<Drawer.Content>
 				<Drawer.Header class="text-left">
 					<Drawer.Title>Leave a feedback or report a bug!</Drawer.Title>
 					<Drawer.Description>

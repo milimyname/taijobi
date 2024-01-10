@@ -38,16 +38,15 @@
 
 <form
 	on:submit|preventDefault={handleSubmit}
-	class="feedback-form flex w-full flex-col gap-5 z-20 rounded-t-2xl bg-white
+	class="feedback-form flex w-full flex-col gap-5 z-100 rounded-t-2xl bg-white
             {!$isDesktop && 'px-4'}"
 >
-	<div class="flex flex-col gap-5">
+	<div class=" flex flex-col gap-5">
 		<fieldset class=" flex w-full flex-col">
-			<label for="name" class="hidden">Feedback Name</label>
+			<label for="name">Feedback name</label>
 			<input
 				type="text"
 				name="name"
-				placeholder="Feedback Name"
 				bind:value={formData.name}
 				class="
 									block
@@ -59,10 +58,9 @@
 			/>
 		</fieldset>
 		<fieldset class=" flex w-full flex-col">
-			<label for="description" class="hidden">Description</label>
+			<label for="description">Description</label>
 			<textarea
 				name="description"
-				placeholder="Description"
 				bind:value={formData.description}
 				maxlength="1000"
 				class="
@@ -76,12 +74,11 @@
 			/>
 		</fieldset>
 		<fieldset class=" flex w-full flex-col">
-			<label for="model" class="hidden">Device Model</label>
+			<label for="model">Device model</label>
 			<input
 				type="text"
 				name="model"
 				bind:value={formData.device}
-				placeholder="Device Model"
 				class="
 									block
 									rounded-md
@@ -104,7 +101,7 @@
 		/>
 	</div>
 	<button
-		class="w-full rounded-md bg-black py-2 text-lg font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm"
+		class="w-full mt-auto rounded-md bg-black py-2 text-lg font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm"
 	>
 		Add
 	</button>
