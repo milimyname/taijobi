@@ -22,11 +22,11 @@
 	import Canvas from '$lib/components/canvas/Canvas.svelte';
 	import { kanji } from '$lib/static/kanji';
 	import { pocketbase } from '$lib/utils/pocketbase';
-	import { twSmallScreen, xmSmallScreen, canvasLgWidth, canvasSmWidth } from '$lib/utils/constants';
 	import TextQuizForm from '$lib/components/forms/TextQuizForm.svelte';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { page } from '$app/stores';
 	import BacksideCard from '$lib/components/canvas/BacksideCard.svelte';
+	import { getFlashcardWidth } from '$lib/utils';
 
 	export let data;
 
@@ -112,7 +112,8 @@
 		applyAction: true,
 		onSubmit: () => ($clickedQuizForm = false),
 		onUpdated: () => {
-			if ($quizErrors.timeLimit || $quizErrors.maxCount || $quizErrors.name) $clickedQuizForm = true;
+			if ($quizErrors.timeLimit || $quizErrors.maxCount || $quizErrors.name)
+				$clickedQuizForm = true;
 		}
 	});
 </script>
@@ -187,13 +188,7 @@
 	</div>
 
 	<div
-		style={`width: ${
-			$innerWidthStore > twSmallScreen
-				? canvasLgWidth
-				: $innerWidthStore < xmSmallScreen
-					? canvasSmWidth
-					: $innerWidthStore * 0.9
-		}px;`}
+		style={`width: ${getFlashcardWidth($innerWidthStore)}px;`}
 		class="flex items-center justify-between sm:mx-auto"
 	>
 		<button

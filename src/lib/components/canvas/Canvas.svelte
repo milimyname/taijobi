@@ -1,14 +1,9 @@
 <script lang="ts">
-	import {
-		canvasLgHeight,
-		canvasLgWidth,
-		canvasSmWidth,
-		canvasSmHeight
-	} from '$lib/utils/constants';
 	import type { Ctx } from '$lib/utils/ambient.d.ts';
-	import { twSmallScreen, xmSmallScreen } from '$lib/utils/constants';
+	import { IS_DESKTOP } from '$lib/utils/constants';
 	import { innerWidthStore, lastPoint, strokeColor, innerHeightStore } from '$lib/utils/stores';
 	import { onMount } from 'svelte';
+	import { getFlashcardHeight, getFlashcardWidth } from '$lib/utils';
 
 	export let rotationY: number;
 	export let canvas: HTMLCanvasElement;
@@ -56,13 +51,13 @@
 	}
 	onMount(() => {
 		ctx = canvas.getContext('2d') as Ctx;
-		ctx.lineWidth = $innerWidthStore > twSmallScreen ? 12 : 10;
+		ctx.lineWidth = $innerWidthStore > IS_DESKTOP ? 12 : 10;
 		ctx.lineJoin = 'round'; // Set the line join property
 		ctx.lineCap = 'round'; // Set the line cap property
 	});
 
 	$: if (ctx) {
-		ctx.lineWidth = $innerWidthStore > twSmallScreen ? 12 : 10;
+		ctx.lineWidth = $innerWidthStore > IS_DESKTOP ? 12 : 10;
 		ctx.lineJoin = 'round';
 		ctx.lineCap = 'round';
 	}
@@ -78,16 +73,8 @@
 	on:touchend={stopDrawing}
 	on:touchmove|preventDefault={drawOnCanvas}
 	on:touchcancel={stopDrawing}
-	width={$innerWidthStore > twSmallScreen
-		? canvasLgWidth
-		: $innerWidthStore < xmSmallScreen
-		? canvasSmWidth
-		: $innerWidthStore * 0.9}
-	height={$innerWidthStore > twSmallScreen
-		? canvasLgHeight
-		: $innerWidthStore < xmSmallScreen
-		? $innerHeightStore * 0.6
-		: $innerHeightStore * 0.6}
+	width={getFlashcardWidth($innerWidthStore)}
+	height={getFlashcardHeight($innerWidthStore, $innerHeightStore)}
 	style={`transform: rotateY(${-rotationY}deg); transform-style: preserve-3d; backface-visibility: hidden;`}
 	class="relative z-10 mx-auto cursor-pointer
 				{rotationY > 90 ? 'hidden' : 'block'} 

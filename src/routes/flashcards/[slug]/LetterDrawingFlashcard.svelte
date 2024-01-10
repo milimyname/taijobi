@@ -26,8 +26,8 @@
 	} from 'lucide-svelte';
 	import { clearCanvas } from '$lib/utils/actions';
 	import BacksideCard from '$lib/components/canvas/BacksideCard.svelte';
-	import { twSmallScreen, xmSmallScreen, canvasLgWidth, canvasSmWidth } from '$lib/utils/constants';
 	import Swiper from 'swiper';
+	import { getFlashcardWidth } from '$lib/utils';
 
 	export let swiperInstance: Swiper;
 
@@ -114,13 +114,7 @@
 </div>
 
 <div
-	style={`width: ${
-		($innerWidthStore > twSmallScreen
-			? canvasLgWidth
-			: $innerWidthStore < xmSmallScreen
-				? canvasSmWidth
-				: $innerWidthStore * 0.9) + 2
-	}px;`}
+	style={`width: ${getFlashcardWidth($innerWidthStore)}px;`}
 	class="mt-5 flex items-center justify-between sm:mx-auto z-40"
 >
 	{#if $currentFlashcard.length > 1}

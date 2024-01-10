@@ -3,12 +3,27 @@ import { twMerge } from 'tailwind-merge';
 import { cubicOut } from 'svelte/easing';
 import type { TransitionConfig } from 'svelte/transition';
 import { mediaQuery } from 'svelte-legos';
+import {
+	IS_DESKTOP,
+	XM_SMALL_SCREEN,
+	CANVAS_LG_HEIGHT,
+	CANVAS_LG_WIDTH,
+	CANVAS_SM_WIDTH
+} from '$lib/utils/constants';
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
 
 export const isDesktop = mediaQuery('(min-width: 768px)');
+
+export const getFlashcardHeight = (width: number, height: number) =>
+	(width > IS_DESKTOP ? CANVAS_LG_HEIGHT : width < XM_SMALL_SCREEN ? height * 0.6 : height * 0.6) +
+	2;
+
+export const getFlashcardWidth = (width: number) =>
+	(width > IS_DESKTOP ? CANVAS_LG_WIDTH : width < XM_SMALL_SCREEN ? CANVAS_SM_WIDTH : width * 0.9) +
+	2;
 
 type FlyAndScaleParams = {
 	y?: number;

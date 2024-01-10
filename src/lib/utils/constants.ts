@@ -1,16 +1,9 @@
-export const twSmallScreen = 640;
-export const xmSmallScreen = 400;
-export const hiraganaWidthMulitplier = 2.17;
-export const kanjiWidthMulitplier = 0.227;
-export const minWidthCard = 250;
-export const maxWidthCard = 350;
+export const IS_DESKTOP = 768;
+export const XM_SMALL_SCREEN = 400;
 
-export const canvasLgWidth = 500;
-export const canvasSmWidth = 300;
-export const canvasLgHeight = 500;
-export const canvasSmHeight = 300;
-
-
+export const CANVAS_LG_WIDTH = 500;
+export const CANVAS_SM_WIDTH = 300;
+export const CANVAS_LG_HEIGHT = 500;
 
 export const months = [
 	'Jan',

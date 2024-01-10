@@ -7,37 +7,19 @@
 		clickedQuizForm,
 		clickedKanjiForm
 	} from '$lib/utils/stores';
-	import {
-		canvasLgHeight,
-		twSmallScreen,
-		canvasLgWidth,
-		canvasSmWidth,
-		xmSmallScreen
-	} from '$lib/utils/constants';
 	import { toRomaji } from 'wanakana';
 	import { kanji } from '$lib/static/kanji';
 	import { Dices } from 'lucide-svelte';
 	import { page } from '$app/stores';
+	import { getFlashcardHeight, getFlashcardWidth } from '$lib/utils';
 
 	export let rotateYCard: number;
 </script>
 
 <div
-	style={`transform: rotateY(${180 - rotateYCard}deg); backface-visibility: hidden; height: ${
-		($innerWidthStore > twSmallScreen
-			? canvasLgHeight
-			: $innerWidthStore < xmSmallScreen
-				? $innerHeightStore * 0.6
-				: $innerHeightStore * 0.6) + 2
-	}px;
-	width: ${
-		($innerWidthStore > twSmallScreen
-			? canvasLgWidth
-			: $innerWidthStore < xmSmallScreen
-				? canvasSmWidth
-				: $innerWidthStore * 0.9) + 2
-	}px
-			`}
+	style={`transform: rotateY(${180 - rotateYCard}deg); backface-visibility: hidden; 
+			height: ${getFlashcardHeight($innerWidthStore, $innerHeightStore)}px;
+			width: ${getFlashcardWidth($innerWidthStore)}px `}
 	class="alphabet relative z-10 mx-auto
 				{rotateYCard > 90 ? 'block' : 'hidden'} 
 				 flex flex-col

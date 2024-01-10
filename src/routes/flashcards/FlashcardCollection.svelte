@@ -13,7 +13,7 @@
 		clickedEditFlashcard,
 		clickedFeedback
 	} from '$lib/utils/stores';
-	import { twSmallScreen } from '$lib/utils/constants';
+	import { IS_DESKTOP } from '$lib/utils/constants';
 	import { FolderEdit } from 'lucide-svelte';
 	import { spring } from 'svelte/motion';
 	import { goto } from '$app/navigation';
@@ -269,7 +269,7 @@
 	$: if (index !== totalCount - 1 && !$skippedFlashcard) {
 		// Adding up to 5 degrees of randomness
 		$rotate = 3 + 5 * index + Math.random() * -40;
-		$scale = $innerWidthStore > twSmallScreen ? 1 - (totalCount - index - 1) * 0.1 : 1;
+		$scale = $innerWidthStore > IS_DESKTOP ? 1 - (totalCount - index - 1) * 0.1 : 1;
 		$x = 0;
 		$rotateY = 0;
 	}
@@ -307,7 +307,7 @@
 			style="
 			transform: translateZ(-20rem) translateX(10px) skewX({$skewX}deg) scale({$scaleShadow})"
 			class="absolute z-[-1] h-full w-full rounded-xl bg-black/5 blur-xl
-			{$innerWidthStore > twSmallScreen && 'opacity-50'}"
+			{$innerWidthStore > IS_DESKTOP && 'opacity-50'}"
 		/>
 	{/if}
 	<h2>{name}</h2>

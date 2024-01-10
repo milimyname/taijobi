@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { twSmallScreen } from '$lib/utils/constants';
+	import { IS_DESKTOP } from '$lib/utils/constants';
 	import { fly } from 'svelte/transition';
 	import { sineIn } from 'svelte/easing';
 	import MobileNav from '$lib/components/MobileNav.svelte';
@@ -48,8 +48,8 @@
 	});
 
 	$: {
-		$innerWidthStore > twSmallScreen && ($showNav = false);
-		$innerWidthStore > twSmallScreen && ($showAppNav = false);
+		$innerWidthStore > IS_DESKTOP && ($showNav = false);
+		$innerWidthStore > IS_DESKTOP && ($showAppNav = false);
 	}
 </script>
 
@@ -63,7 +63,7 @@
 			? 'w-[90%] p-4'
 			: 'right-5 p-2'}  fixed bottom-5 z-40 flex items-center justify-between rounded-full bg-primary p-2 text-white transition-all xm:p-2 sm:relative sm:bottom-0 sm:h-full sm:w-24 sm:flex-col sm:justify-center sm:gap-10 sm:p-5"
 	>
-		{#if $innerWidthStore > twSmallScreen}
+		{#if $innerWidthStore > IS_DESKTOP}
 			<a href="/" class="mb-auto">
 				<img
 					src="/taijobi.png"

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import ProgressSlider from './ProgressSlider.svelte';
-	import { twSmallScreen } from '$lib/utils/constants';
+	import { IS_DESKTOP } from '$lib/utils/constants';
 	import {
 		showNav,
 		innerWidthStore,
@@ -12,7 +12,7 @@
 	import DrawingNav from '$lib/components/DrawingNav.svelte';
 	import { ArrowLeft, Search } from 'lucide-svelte';
 
-	$: $innerWidthStore > twSmallScreen && ($showNav = false);
+	$: $innerWidthStore > IS_DESKTOP && ($showNav = false);
 
 	function handleInput(e: Event) {
 		const target = e.target as HTMLInputElement;
