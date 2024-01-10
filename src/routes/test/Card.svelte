@@ -3,7 +3,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { innerWidthStore } from '$lib/utils/stores';
 	import type { Writable } from 'svelte/store';
-	import { twSmallScreen } from '$lib/utils/constants';
+	import { IS_DESKTOP } from '$lib/utils/constants';
 
 	import { spring } from 'svelte/motion';
 
@@ -157,7 +157,7 @@
 
 		if (index !== totalCount - 1) {
 			$rotate = 3 + 5 * index;
-			$scale = $innerWidthStore > twSmallScreen ? 1 - (totalCount - index - 1) * 0.1 : 1;
+			$scale = $innerWidthStore > IS_DESKTOP ? 1 - (totalCount - index - 1) * 0.1 : 1;
 			$x = 0;
 			$rotateY = 0;
 		}
@@ -192,7 +192,7 @@
 			style="
 			transform: translateZ(-20rem) translateX(10px) skewX({$skewX}deg) scale({$scaleShadow})"
 			class="absolute z-[-1] h-full w-full rounded-xl bg-black/5 blur-xl
-			{$innerWidthStore > twSmallScreen && 'opacity-50'}"
+			{$innerWidthStore > IS_DESKTOP && 'opacity-50'}"
 		/>
 	{/if}
 	<h2>{value}</h2>

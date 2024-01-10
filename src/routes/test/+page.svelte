@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { twSmallScreen } from '$lib/utils/constants';
+	import { IS_DESKTOP } from '$lib/utils/constants';
 	import { innerWidthStore } from '$lib/utils/stores';
 	import Card from './Card.svelte';
 	import { quintOut } from 'svelte/easing';
@@ -50,7 +50,7 @@
 
 <svelte:window bind:innerWidth={$innerWidthStore} />
 
-{#if $innerWidthStore > twSmallScreen}
+{#if $innerWidthStore > IS_DESKTOP}
 	<div class="card-container t flex flex-1 cursor-pointer items-center justify-center">
 		<button class="mr-60 h-full border-b-2 pb-4 text-4xl font-bold text-gray-300">
 			Next Card
