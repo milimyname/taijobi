@@ -10,7 +10,8 @@
 		clickedQuizForm,
 		skippedFlashcard,
 		showCollections,
-		clickedEditFlashcard
+		clickedEditFlashcard,
+		clickedFeedback
 	} from '$lib/utils/stores';
 	import { twSmallScreen } from '$lib/utils/constants';
 	import { FolderEdit } from 'lucide-svelte';
@@ -48,7 +49,8 @@
 			$clickedAddFlashcardCollection ||
 			$clickedAddFlahcardBox ||
 			$clickedQuizForm ||
-			isClicked
+			isClicked ||
+			$clickedFeedback
 		)
 			return;
 
@@ -156,6 +158,14 @@
 			return;
 		}
 
+		//  If the user clicks on the leave button, don't move the card
+		if ((event.target as Element).closest('.feedback-btn')) {
+			$clickedFeedback = true;
+
+			// console.log('clicked', $clickedFeedback);
+			return;
+		}
+
 		isDragging = true;
 	}
 
@@ -168,7 +178,13 @@
 		)
 			event.preventDefault();
 
-		if ((!isDragging && index !== totalCount - 1) || $showCollections || $clickedQuizForm) return;
+		if (
+			(!isDragging && index !== totalCount - 1) ||
+			$showCollections ||
+			$clickedQuizForm ||
+			$clickedFeedback
+		)
+			return;
 
 		const touch = event.touches[0];
 

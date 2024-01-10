@@ -16,7 +16,7 @@ export function clickOutside(node: Node, callback: () => void) {
 			e.target.closest('.add-collection-btn') ||
 			e.target.closest('.add-form-btn') ||
 			e.target.closest('.kanji-search') ||
-			e.target.closest('.leave-feedback') ||
+			e.target.closest('.feedback-btn') ||
 			e.target.closest('.edit-feedback') ||
 			e.target.closest('.quiz-form') ||
 			e.target.closest('.alphabet')
@@ -37,7 +37,7 @@ export function clickOutside(node: Node, callback: () => void) {
 			e.target.closest('.add-collection-btn') ||
 			e.target.closest('.add-form-btn') ||
 			e.target.closest('.kanji-search') ||
-			e.target.closest('.leave-feedback') ||
+			e.target.closest('.feedback-btn') ||
 			e.target.closest('.edit-feedback') ||
 			e.target.closest('.quiz-form') ||
 			e.target.closest('.alphabet')

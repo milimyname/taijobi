@@ -1,3 +1,7 @@
+<script>
+	import { dev } from '$app/environment';
+</script>
+
 <section
 	class="boder-t-0 mb-auto flex w-full flex-col gap-6 rounded-br-4xl border border-t-0 border-[#EEEEEE] px-10 py-10 sm:w-1/2 sm:rounded-l-4xl sm:border-t-2 sm:px-16"
 >
@@ -21,6 +25,15 @@
 		>
 			漢字
 		</a>
+
+		{#if dev}
+			<a
+				href="/test/progress"
+				class="w-full rounded-lg border-2 border-black bg-alphabetGreen p-4 text-center text-xl sm:p-10 sm:text-4xl"
+			>
+				Test
+			</a>
+		{/if}
 	</div>
 </section>
 
