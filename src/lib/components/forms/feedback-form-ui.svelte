@@ -72,7 +72,7 @@
 					variant="outline"
 					builders={[builder]}
 					on:click={() => ($clickedFeedback = true)}
-					class="feedback-btn absolute left-1/2 top-10 z-20 w-28 -translate-y-1/2 -translate-x-1/2 rounded-full border px-4 py-2"
+					class="feedback-btn absolute left-1/2 top-10 z-20 w-12 -translate-y-1/2 -translate-x-1/2 rounded-full border px-4 py-2"
 				>
 					{animationText}
 				</Button>
@@ -107,14 +107,13 @@
 					variant="outline"
 					builders={[builder]}
 					on:click={() => ($clickedFeedback = true)}
-					class="feedback-btn absolute left-1/2 top-10 z-20 w-28 -translate-y-1/2 -translate-x-1/2 rounded-full border px-4 py-2"
+					class="feedback-btn absolute left-1/2 top-10 z-20 w-12 -translate-y-1/2 -translate-x-1/2 rounded-full border px-4 py-2"
 				>
 					{animationText}
 				</Button>
 			{/if}
 		</Drawer.Trigger>
 		<Drawer.Portal>
-			<Drawer.Overlay class="fixed inset-0 -z-10 bg-black bg-opacity-30" />
 			<Drawer.Content>
 				<Drawer.Header class="text-left">
 					<Drawer.Title>Leave a feedback or report a bug!</Drawer.Title>

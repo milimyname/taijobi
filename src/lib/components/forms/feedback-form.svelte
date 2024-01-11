@@ -1,6 +1,8 @@
 <script>
-	import { clickedFeedback } from '$lib/utils/stores';
 	import { isDesktop } from '$lib/utils';
+	import * as Drawer from '$lib/components/ui/drawer';
+	import { clickedFeedback } from '$lib/utils/stores';
+	import { goto, invalidateAll } from '$app/navigation';
 
 	let formData = {
 		name: '',
@@ -10,7 +12,7 @@
 	};
 
 	async function handleSubmit() {
-		$clickedFeedback = false;
+		if ($isDesktop) $clickedFeedback = false;
 		const data = new FormData();
 		data.append('name', formData.name);
 		data.append('description', formData.description);
@@ -33,6 +35,10 @@
 			device: '',
 			image: null
 		};
+
+		invalidateAll();
+
+		goto('/feedbacks');
 	}
 </script>
 
@@ -100,9 +106,20 @@
 			accept="image/*"
 		/>
 	</div>
-	<button
-		class="w-full mt-auto rounded-md bg-black py-2 text-lg font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm"
-	>
-		Add
-	</button>
+
+	{#if $isDesktop}
+		<button
+			class="w-full mt-auto rounded-md bg-black py-2 text-lg font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm"
+		>
+			Add
+		</button>
+	{:else}
+		<Drawer.Close>
+			<button
+				class="w-full mt-auto rounded-md bg-black py-2 text-lg font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm"
+			>
+				Add
+			</button>
+		</Drawer.Close>
+	{/if}
 </form>

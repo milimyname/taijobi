@@ -36,11 +36,13 @@ export const flashcardCollectionSchema = z.object({
 	flashcardCollection: z.string().optional()
 });
 
-export const feedbacksSchema = z.object({
+export const feedbackSchema = z.object({
 	name: z.string(),
 	description: z.string().max(1000),
-	device: z.string(),
-	userId: z.string()
+	device: z.string().optional(),
+	userId: z.string(),
+	image: z.string().optional(),
+	id: z.string().optional()
 });
 
 export const quizSchema = z.object({

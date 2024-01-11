@@ -1,57 +1,44 @@
 <script lang="ts">
-	import { goto, invalidateAll } from '$app/navigation';
+	import { goto } from '$app/navigation';
 	import { clickedReport } from '$lib/utils/stores';
-	import { quintOut } from 'svelte/easing';
-	import { fly } from 'svelte/transition';
-	import { pocketbase } from '$lib/utils/pocketbase.js';
 	import { ArrowLeft } from 'lucide-svelte';
+	import { superForm } from 'sveltekit-superforms/client';
+	import { pocketbase } from '$lib/utils/pocketbase';
+	import * as Drawer from '$lib/components/ui/drawer';
+	import { Button } from '$lib/components/ui/button';
+	import * as Dialog from '$lib/components/ui/dialog';
+	import { isDesktop } from '$lib/utils';
+	import Form from './form.svelte';
 
 	export let data;
 
-	let formData: {
-		name: string;
-		description: string;
-		device: string;
-		image: string;
-		userId: string;
-		id: string;
-	} = {
-		name: '',
-		description: '',
-		device: '',
-		image: '',
-		userId: '',
-		id: ''
-	};
 	let showImage = false;
 
-	const handleSubmit = async () => {
-		if (!formData.id) return;
-
-		try {
-			await pocketbase.collection('feedbacks').update(formData.id, {
-				name: formData.name,
-				description: formData.description,
-				device: formData.device
-			});
-
-			$clickedReport = false;
-
-			invalidateAll();
-		} catch (error) {
-			console.log(error);
+	const { form, errors, constraints, enhance } = superForm(data.form, {
+		taintedMessage: null,
+		resetForm: true,
+		applyAction: true,
+		onSubmit: () => {
+			if ($isDesktop) $clickedReport = false;
+		},
+		onUpdated: () => {
+			if ($errors.name || $errors.description) $clickedReport = true;
 		}
-	};
+	});
+
+	function onCloseDrawer() {
+		$form.name = '';
+		$form.description = '';
+		$form.device = '';
+		$form.id = '';
+		$form.image = '';
+	}
 </script>
 
-{#if $clickedReport}
-	<div class="fixed top-0 z-[100] h-screen w-full bg-black opacity-50 transition-all" />
-{/if}
-
-{#if showImage}
+{#if showImage && $form.image !== ''}
 	<div class="fixed top-0 z-[1010] h-screen w-full bg-black opacity-50 transition-all" />
 	<img
-		src={formData.image}
+		src={$form.image}
 		alt="Feedback Preview"
 		class="absolute left-1/2 top-1/2 z-[2000] -translate-x-1/2 -translate-y-1/2"
 	/>
@@ -59,134 +46,12 @@
 		on:click={() => (showImage = false)}
 		class="absolute left-1/2 top-[80%] z-[2010] -translate-x-1/2 -translate-y-1/2 bg-black px-4 py-2 font-bold text-white"
 	>
-		Close</button
-	>
-{/if}
-
-{#if $clickedReport}
-	<form
-		on:submit|preventDefault={handleSubmit}
-		class="edit-feedback fixed -bottom-5 z-[1000] flex h-[90%] w-full flex-col gap-5 overflow-hidden rounded-t-2xl bg-white px-5 py-10 sm:bottom-0"
-		transition:fly={{
-			delay: 0,
-			duration: 1000,
-			opacity: 0,
-			y: 1000,
-			easing: quintOut
-		}}
-	>
-		<h4 class="text-2xl">Feedback</h4>
-
-		<div class="mb-auto flex h-full flex-col gap-5">
-			<fieldset class=" flex w-full flex-col md:w-2/3">
-				<label for="name" class="hidden">Feedback Name</label>
-				<input
-					type="text"
-					name="name"
-					placeholder="Feedback Name"
-					bind:value={formData.name}
-					class="
-                    block
-                    rounded-md
-                    border-gray-300
-                    shadow-sm
-                    focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
-                  "
-				/>
-			</fieldset>
-			<fieldset class=" flex w-full flex-col md:w-2/3">
-				<label for="description" class="hidden">Description</label>
-				<textarea
-					name="description"
-					placeholder="Description"
-					bind:value={formData.description}
-					maxlength="1000"
-					class="
-                    block
-                    rounded-md
-                    border-gray-300
-                    shadow-sm
-                    focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
-                  "
-					rows="3"
-				/>
-			</fieldset>
-			<fieldset class=" flex w-full flex-col md:w-2/3">
-				<label for="model" class="hidden">Device Model</label>
-				<input
-					type="text"
-					name="model"
-					bind:value={formData.device}
-					placeholder="Device Model"
-					class="
-                    block
-                    rounded-md
-                    border-gray-300
-                    shadow-sm
-                    focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
-                  "
-				/>
-			</fieldset>
-			<div>
-				<button type="button" on:click={() => (showImage = true)} class="underline">
-					Show Image
-				</button>
-				<p class="text-sm">Create a new report to change the image</p>
-			</div>
-		</div>
-		<div class="flex justify-between">
-			<button
-				type="button"
-				on:click={async () => {
-					if (!formData.id) return;
-
-					try {
-						await pocketbase.collection('feedbacks').delete(formData.id);
-
-						$clickedReport = false;
-
-						formData.name = '';
-						formData.description = '';
-						formData.device = '';
-						formData.image = '';
-					} catch (error) {
-						console.log(error);
-					}
-
-					// reload page after 2 seconds
-					setTimeout(() => {
-						location.reload();
-					}, 250);
-				}}
-				class="rounded-md bg-red-400 px-4 py-2 text-lg font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-red-500 active:translate-y-1 active:shadow-sm lg:w-2/3"
-				>Delete
-			</button>
-			<div class="flex gap-5">
-				<button
-					type="button"
-					on:click={() => {
-						$clickedReport = false;
-
-						formData.name = '';
-						formData.description = '';
-						formData.device = '';
-						formData.id = '';
-						formData.image = '';
-					}}
-					class="rounded-md border px-4 py-2 text-lg font-medium shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-200 active:translate-y-1 active:shadow-sm lg:w-2/3"
-					>Cancel
-				</button>
-				<button
-					class="rounded-md bg-black px-4 py-2 text-lg font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm lg:w-2/3"
-					>Edit Feedback
-				</button>
-			</div>
-		</div>
-	</form>
+		Close
+	</button>
 {/if}
 
 <main
-	class="flex h-full select-none flex-col items-center gap-10 overflow-hidden bg-white px-3 py-11 transition-all"
+	class="flex h-screen overflow-y-scroll select-none flex-col items-center gap-10 overflow-hidden bg-white px-3 py-11 transition-all"
 >
 	<nav class="z-[99] flex w-full justify-between">
 		<button on:click|preventDefault={() => goto('/')} class="flex items-center gap-2">
@@ -194,20 +59,20 @@
 			<span>Back</span>
 		</button>
 	</nav>
-	<section class=" flex w-full flex-col gap-2 text-white">
+	<section class="flex w-full flex-col gap-2 text-white">
 		{#each data.feedbacks as feedback}
 			<button
 				class="flex w-full flex-col gap-5 rounded-lg bg-black p-4"
 				on:click={() => {
 					$clickedReport = true;
 
-					formData.name = feedback.name;
-					formData.description = feedback.description;
-					formData.device = feedback.device;
-					formData.id = feedback.id;
-					formData.userId = feedback.userId;
+					$form.name = feedback.name;
+					$form.description = feedback.description;
+					$form.device = feedback.device;
+					$form.id = feedback.id;
+					$form.userId = feedback.userId;
 
-					formData.image = pocketbase.files.getUrl(feedback, feedback.image);
+					$form.image = pocketbase.files.getUrl(feedback, feedback.image);
 				}}
 			>
 				<div class="flex w-full justify-between">
@@ -219,3 +84,54 @@
 		{/each}
 	</section>
 </main>
+
+{#if $isDesktop}
+	<Dialog.Root bind:open={$clickedReport}>
+		<Dialog.Overlay class="fixed inset-0 bg-black bg-opacity-30" />
+		<Dialog.Content class="sm:max-w-[425px] z-[1000]">
+			<Dialog.Header>
+				<Dialog.Title>Feedback</Dialog.Title>
+				<Dialog.Description>
+					<p class="text-sm">
+						You can see them here
+						<a href="/feedbacks" on:click={() => ($clickedReport = false)} class="underline">
+							My Feedbacks
+						</a>
+					</p>
+				</Dialog.Description>
+			</Dialog.Header>
+			<Form {enhance} {errors} {constraints} {form} {showImage} />
+		</Dialog.Content>
+	</Dialog.Root>
+{:else}
+	<Drawer.Root bind:open={$clickedReport} shouldScaleBackground>
+		<Drawer.Portal>
+			<Drawer.Overlay class="fixed inset-0 -z-10 bg-black bg-opacity-30" />
+			<Drawer.Content class="z-[100]">
+				<Drawer.Header class="text-left">
+					<Drawer.Title>Feedback</Drawer.Title>
+					<Drawer.Description>
+						<p class="text-sm">
+							You can see them here
+							<a href="/feedbacks" on:click={() => ($clickedReport = false)} class="underline">
+								My Feedbacks
+							</a>
+						</p>
+					</Drawer.Description>
+				</Drawer.Header>
+				<Form {enhance} {errors} {constraints} {form} {showImage} />
+				<Drawer.Footer>
+					<Drawer.Close asChild let:builder>
+						<Button builders={[builder]} variant="outline" on:click={onCloseDrawer}>Cancel</Button>
+					</Drawer.Close>
+				</Drawer.Footer>
+			</Drawer.Content>
+		</Drawer.Portal>
+	</Drawer.Root>
+{/if}
+
+<style>
+	.disable-pointer-events {
+		pointer-events: none;
+	}
+</style>
