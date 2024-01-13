@@ -12,9 +12,7 @@ export const load = async ({ locals }) => {
 
 	if (user?.role.includes('admin'))
 		// Get all the flashcards
-		feedbacks = await locals.pb.collection('feedbacks').getFullList({
-			fields: 'id,name,description,device'
-		});
+		feedbacks = await locals.pb.collection('feedbacks').getFullList();
 	// Get all the flashcards
 	else
 		feedbacks = await locals.pb

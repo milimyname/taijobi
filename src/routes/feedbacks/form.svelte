@@ -9,7 +9,7 @@
 	import type { AnyZodObject } from 'zod';
 	import type { Writable } from 'svelte/store';
 
-	export let showImage: boolean;
+	let showImage = false;
 	export let form: Writable<SuperValidated<any, any>['data']>;
 	export let errors: Writable<SuperValidated<any, any>['errors']> & {
 		clear: () => void;
@@ -19,6 +19,20 @@
 		destroy() {}
 	});
 </script>
+
+{#if showImage}
+	<img
+		src={$form.image}
+		alt="Feedback Preview"
+		class="absolute left-1/2 top-1/2 z-[2000] -translate-x-1/2 -translate-y-1/2"
+	/>
+	<button
+		on:click={() => (showImage = false)}
+		class="absolute left-1/2 top-[80%] z-[2010] -translate-x-1/2 -translate-y-1/2 bg-black px-4 py-2 font-bold text-white"
+	>
+		Close
+	</button>
+{/if}
 
 <form
 	method="POST"
@@ -98,12 +112,14 @@
 				</span>
 			{/if}
 		</fieldset>
-		<div>
-			<button type="button" on:click={() => (showImage = true)} class="underline">
-				Show Image
-			</button>
-			<p class="text-sm">Create a new report to change the image</p>
-		</div>
+		{#if $form.image !== ''}
+			<div>
+				<button type="button" on:click={() => (showImage = true)} class="underline">
+					Show Image
+				</button>
+				<p class="text-sm">Create a new report to change the image</p>
+			</div>
+		{/if}
 	</div>
 	<div class="flex justify-between flex-col gap-2">
 		{#if $isDesktop}
