@@ -37,6 +37,7 @@
 
 	let cardRight = 0;
 	let cardLeft = 0;
+	let initialTouchX: number;
 
 	let isDragging = false;
 	let cardElement: HTMLButtonElement;
@@ -189,7 +190,12 @@
 
 		const touch = event.touches[0];
 
-		if (touch.clientX < cardRight - 200) {
+		if (initialTouchX === undefined) {
+			initialTouchX = touch.clientX; // Set the initial touch position when the touch starts
+		}
+
+		if (touch.clientX < initialTouchX) {
+			// If the current touch position is less than the initial position, the user is dragging to the left
 			$x = -150;
 			$rotateY = -35;
 			$rotate = Math.max(-35, touch.clientX - cardRight);
@@ -200,7 +206,8 @@
 			return;
 		}
 
-		if (touch.clientX > cardLeft + 200) {
+		if (touch.clientX > initialTouchX) {
+			// If the current touch position is greater than the initial position, the user is dragging to the right
 			$x = 150;
 			$rotateY = 35;
 			$rotate = Math.min(35, touch.clientX - cardLeft);
