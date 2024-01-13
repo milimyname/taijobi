@@ -1,49 +1,16 @@
-<script>
+<script lang="ts">
 	import { isDesktop } from '$lib/utils';
 	import * as Drawer from '$lib/components/ui/drawer';
 	import { clickedFeedback } from '$lib/utils/stores';
-	import { goto, invalidateAll } from '$app/navigation';
-
-	let formData = {
-		name: '',
-		description: '',
-		device: '',
-		image: null
-	};
-
-	async function handleSubmit() {
-		if ($isDesktop) $clickedFeedback = false;
-		const data = new FormData();
-		data.append('name', formData.name);
-		data.append('description', formData.description);
-		data.append('device', formData.device);
-		if (formData.image) data.append('image', formData.image[0]);
-
-		const response = await fetch('/api/feedback', {
-			method: 'POST',
-			body: data
-		});
-
-		if (!response.ok) {
-			console.error('Error sending data', await response.text());
-			return;
-		}
-
-		formData = {
-			name: '',
-			description: '',
-			device: '',
-			image: null
-		};
-
-		invalidateAll();
-
-		goto('/feedbacks');
-	}
+	import { enhance } from '$app/forms';
 </script>
 
 <form
-	on:submit|preventDefault={handleSubmit}
+	method="POST"
+	use:enhance
+	on:submit|preventDefault={() => $isDesktop && ($clickedFeedback = false)}
+	enctype="multipart/form-data"
+	action="/feedbacks?/create"
 	class="feedback-form flex w-full flex-col gap-5 z-100 rounded-t-2xl bg-white
             {!$isDesktop && 'px-4'}"
 >
@@ -53,7 +20,6 @@
 			<input
 				type="text"
 				name="name"
-				bind:value={formData.name}
 				class="
 									block
 									rounded-md
@@ -67,7 +33,6 @@
 			<label for="description">Description</label>
 			<textarea
 				name="description"
-				bind:value={formData.description}
 				maxlength="1000"
 				class="
 									block
@@ -83,8 +48,7 @@
 			<label for="model">Device model</label>
 			<input
 				type="text"
-				name="model"
-				bind:value={formData.device}
+				name="device"
 				class="
 									block
 									rounded-md
@@ -96,7 +60,7 @@
 		</fieldset>
 		<input
 			type="file"
-			bind:files={formData.image}
+			name="image"
 			class="block w-full cursor-pointer text-sm text-slate-500 transition-all
 									file:mr-4 file:rounded-full file:border-0
 									file:bg-[#e9f5ff] file:px-4

@@ -1,5 +1,5 @@
 import { superValidate, setError } from 'sveltekit-superforms/server';
-import { fail } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import { feedbackSchema } from '$lib/utils/zodSchema';
 
 export const load = async ({ locals }) => {
@@ -26,26 +26,18 @@ export const load = async ({ locals }) => {
 
 export const actions = {
 	create: async ({ request, locals }) => {
-		const form = await superValidate(request, feedbackSchema);
+		const data = await request.formData();
 
-		// Convenient validation check:
-		if (!form.valid)
-			// Again, always return { form } and things will just work.
-			return fail(400, { form });
+		// Add userId to the data
+		data.append('userId', locals.pb.authStore.model?.id);
 
-		// Auth with pb
 		try {
-			await locals.pb.collection('feedbacks').create({
-				name: form.data.name,
-				description: form.data.description,
-				device: form.data.device,
-				userId: locals.pb.authStore.model?.id
-			});
-		} catch (_) {
-			return setError(form, 'name', 'Something went wrong. Please try again later.');
+			await locals.pb.collection('feedbacks').create(data);
+		} catch (e) {
+			console.log(e);
 		}
 
-		return { form };
+		throw redirect(303, '/feedbacks');
 	},
 	update: async ({ request, locals }) => {
 		const form = await superValidate(request, feedbackSchema);
@@ -55,11 +47,6 @@ export const actions = {
 			// Again, always return { form } and things will just work.
 			return fail(400, { form });
 
-		console.log({
-			da: form.data
-		});
-
-		// Auth with pb
 		try {
 			await locals.pb.collection('feedbacks').update(form.data.id, {
 				name: form.data.name,
@@ -80,9 +67,7 @@ export const actions = {
 			// Again, always return { form } and things will just work.
 			return fail(400, { form });
 
-		// Auth with pb
 		try {
-			console.log('deleted');
 			await locals.pb.collection('feedbacks').delete(form.data.id);
 		} catch (_) {
 			return setError(form, 'name', 'Something went wrong. Please try again later.');
