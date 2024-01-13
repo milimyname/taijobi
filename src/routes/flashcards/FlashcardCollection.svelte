@@ -135,6 +135,9 @@
 		)
 			event.preventDefault();
 
+		// Freeze cards when drawer is open
+		if ($clickedFeedback) return;
+
 		if (!isDragging && index !== totalCount - 1) return;
 
 		// If the user clicks on the add button, don't move the card
@@ -179,6 +182,9 @@
 		)
 			event.preventDefault();
 
+		// Freeze cards when drawer is open
+		if ($clickedFeedback) return;
+
 		if ((!isDragging && index !== totalCount - 1) || $showCollections || $clickedQuizForm) return;
 
 		const touch = event.touches[0];
@@ -215,6 +221,9 @@
 			!$clickedFeedback
 		)
 			event.preventDefault();
+
+		// Freeze cards when drawer is open
+		if ($clickedFeedback) return;
 
 		isDragging = false;
 

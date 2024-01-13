@@ -1,14 +1,18 @@
 <script lang="ts">
 	import { isDesktop } from '$lib/utils';
-	import * as Drawer from '$lib/components/ui/drawer';
 	import { clickedFeedback } from '$lib/utils/stores';
 	import { enhance } from '$app/forms';
+
+	function handleSubmit(event: SubmitEvent) {
+		event.preventDefault();
+		$clickedFeedback = false;
+	}
 </script>
 
 <form
 	method="POST"
 	use:enhance
-	on:submit|preventDefault={() => $isDesktop && ($clickedFeedback = false)}
+	on:submit={handleSubmit}
 	enctype="multipart/form-data"
 	action="/feedbacks?/create"
 	class="feedback-form flex w-full flex-col gap-5 z-100 rounded-t-2xl bg-white
@@ -27,6 +31,7 @@
 									shadow-sm
 									focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
 								"
+				required
 			/>
 		</fieldset>
 		<fieldset class=" flex w-full flex-col">
@@ -42,6 +47,7 @@
 									focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
 								"
 				rows="3"
+				required
 			/>
 		</fieldset>
 		<fieldset class=" flex w-full flex-col">
@@ -78,12 +84,10 @@
 			Add
 		</button>
 	{:else}
-		<Drawer.Close>
-			<button
-				class="w-full mt-auto rounded-md bg-black py-2 text-lg font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm"
-			>
-				Add
-			</button>
-		</Drawer.Close>
+		<button
+			class="w-full mt-auto rounded-md bg-black py-2 text-lg font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm"
+		>
+			Add
+		</button>
 	{/if}
 </form>

@@ -88,7 +88,6 @@
 {:else}
 	<Drawer.Root bind:open={$clickedReport}>
 		<Drawer.Portal>
-			<Drawer.Overlay class="fixed inset-0 -z-10 bg-black bg-opacity-30" />
 			<Drawer.Content class="z-[100]">
 				<Drawer.Header class="text-left">
 					<Drawer.Title>Feedback</Drawer.Title>
