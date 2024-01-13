@@ -4,12 +4,20 @@
 	import { slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 	import * as Drawer from '$lib/components/ui/drawer';
+	import type { SuperForm } from 'sveltekit-superforms/client';
+	import type { ZodValidation, SuperValidated } from 'sveltekit-superforms';
+	import type { AnyZodObject } from 'zod';
+	import type { Writable } from 'svelte/store';
 
 	export let showImage: boolean;
-	export let form: any;
-	export let errors: any;
-	export let constraints: any;
-	export let enhance: any;
+	export let form: Writable<SuperValidated<any, any>['data']>;
+	export let errors: Writable<SuperValidated<any, any>['errors']> & {
+		clear: () => void;
+	};
+	export let constraints: any; // Replace 'any' with the appropriate type
+	export let enhance: SuperForm<ZodValidation<AnyZodObject>>['enhance'] = (el, events) => ({
+		destroy() {}
+	});
 </script>
 
 <form
