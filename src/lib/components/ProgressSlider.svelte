@@ -66,7 +66,7 @@
 	<div
 		use:clickOutside={() => ($showProgressSlider = false)}
 		use:melt={$root}
-		class="select-none relative z-40 mx-auto flex mt-5 items-center rounded-full bg-black/40 lg:bottom-5 w-full"
+		class=" noselect relative z-40 mx-auto flex mt-auto mb-4 items-center rounded-full bg-black/40 w-full"
 	>
 		<div class=" block h-[52px] cursor-ew-resize sm:h-[56px]">
 			<div use:melt={$range} class="h-[52px] rounded-l-full bg-[#0A6EBD] shadow-xl sm:h-[56px]" />
@@ -77,3 +77,15 @@
 		/>
 	</div>
 {/if}
+
+<style>
+	.noselect {
+		-webkit-touch-callout: none; /* iOS Safari */
+		-webkit-user-select: none; /* Safari */
+		-khtml-user-select: none; /* Konqueror HTML */
+		-moz-user-select: none; /* Old versions of Firefox */
+		-ms-user-select: none; /* Internet Explorer/Edge */
+		user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+	}
+</style>

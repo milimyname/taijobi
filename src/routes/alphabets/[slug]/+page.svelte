@@ -128,7 +128,7 @@
 	constraints={quizConstraints}
 />
 
-<section class="mb-10 flex flex-1 flex-col justify-center gap-2 sm:justify-center sm:gap-5">
+<section class=" flex flex-1 flex-col justify-center gap-2 sm:justify-center sm:gap-5">
 	<div style="perspective: 3000px; position: relative; overflow: hidden;">
 		<div>
 			<Canvas rotationY={$rotateYCard} {canvas} {ctx} />
