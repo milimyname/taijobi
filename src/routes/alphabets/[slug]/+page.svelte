@@ -26,6 +26,9 @@
 	import { superForm } from 'sveltekit-superforms/client';
 	import { page } from '$app/stores';
 	import BacksideCard from '$lib/components/canvas/BacksideCard.svelte';
+	import DrawingNav from '$lib/components/DrawingNav.svelte';
+	import ProgressSlider from '$lib/components/ProgressSlider.svelte';
+
 	import { getFlashcardWidth } from '$lib/utils';
 
 	export let data;
@@ -245,4 +248,7 @@
 			</button>
 		{/if}
 	</div>
+
+	<DrawingNav />
+	<ProgressSlider />
 </section>

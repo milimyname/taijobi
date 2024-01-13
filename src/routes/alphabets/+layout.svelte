@@ -1,5 +1,4 @@
 <script lang="ts">
-	import ProgressSlider from './ProgressSlider.svelte';
 	import { IS_DESKTOP } from '$lib/utils/constants';
 	import {
 		showNav,
@@ -9,7 +8,6 @@
 		searchKanji,
 		currentFlashcard
 	} from '$lib/utils/stores';
-	import DrawingNav from '$lib/components/DrawingNav.svelte';
 	import { ArrowLeft, Search } from 'lucide-svelte';
 
 	$: $innerWidthStore > IS_DESKTOP && ($showNav = false);
@@ -52,7 +50,5 @@
 		{/if}
 	</nav>
 
-	<DrawingNav />
-	<ProgressSlider />
 	<slot />
 </main>
