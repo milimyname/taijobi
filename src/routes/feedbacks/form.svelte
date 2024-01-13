@@ -18,6 +18,11 @@
 	export let enhance: SuperForm<ZodValidation<AnyZodObject>>['enhance'] = (el, events) => ({
 		destroy() {}
 	});
+
+	// $: console.log({
+	// 	d: $form.image,
+	// 	showImage
+	// });
 </script>
 
 {#if showImage}

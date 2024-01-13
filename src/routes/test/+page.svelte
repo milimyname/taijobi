@@ -1,129 +1,97 @@
 <script lang="ts">
-	import { IS_DESKTOP } from '$lib/utils/constants';
-	import { innerWidthStore } from '$lib/utils/stores';
-	import Card from './Card.svelte';
-	import { quintOut } from 'svelte/easing';
-	import { fly } from 'svelte/transition';
-	import { clickOutside } from '$lib/utils/clickOutside';
+	import { Drawer } from 'vaul-svelte';
 
-	import { writable } from 'svelte/store';
-	const skippedFlashcard = writable(false);
-	const showCollections = writable(false);
-
-	let cards = [
-		{
-			id: 0,
-			value: 0
-		},
-		{
-			id: 1,
-
-			value: 1
-		},
-		{
-			id: 2,
-			value: 2
-		},
-		{
-			id: 3,
-			value: 3
-		}
-	];
-
-	// Function to handle card removal/swipe
-	function discardCard() {
-		if (cards.length > 0) {
-			const lastCard = cards[cards.length - 1];
-			cards = cards.slice(0, cards.length - 1);
-
-			setTimeout(() => {
-				cards = [lastCard, ...cards];
-			}, 100);
-		}
-	}
-
-	$: if ($skippedFlashcard) {
-		setTimeout(() => discardCard(), 200);
-		$skippedFlashcard = false;
-	}
+	let open = false;
 </script>
 
-<svelte:window bind:innerWidth={$innerWidthStore} />
+<!-- <button on:click={() => (open = true)}> Open Drawer </button> -->
 
-{#if $innerWidthStore > IS_DESKTOP}
-	<div class="card-container t flex flex-1 cursor-pointer items-center justify-center">
-		<button class="mr-60 h-full border-b-2 pb-4 text-4xl font-bold text-gray-300">
-			Next Card
-		</button>
-		{#each cards as card, index}
-			<Card
-				value={card.value}
-				{skippedFlashcard}
-				{showCollections}
-				{index}
-				totalCount={cards.length}
-			/>
-		{/each}
-		<button class="ml-60 h-full border-b-2 pb-4 text-4xl font-bold text-gray-300">Show Me </button>
-	</div>
-{:else}
-	<div class="card-container flex flex-1 cursor-pointer items-center justify-center">
-		<button class="mr-60 h-full border-b-2 pb-4 text-4xl font-bold text-gray-300">
-			Next Card
-		</button>
-		<div class="flex cursor-pointer items-center justify-center">
-			{#each cards as card, index}
-				<Card
-					value={card.value}
-					{skippedFlashcard}
-					{showCollections}
-					{index}
-					totalCount={cards.length}
-				/>
-			{/each}
-		</div>
-		<button class="ml-60 h-full border-b-2 pb-4 text-4xl font-bold text-gray-300">Show Me </button>
-	</div>
-{/if}
-
-{#if $showCollections}
-	<div class="fixed top-0 z-[100] h-screen w-screen bg-black/50 backdrop-blur-md" />
-{/if}
-
-{#if $showCollections}
-	<div
-		use:clickOutside={() => ($showCollections = false)}
-		on:scroll|preventDefault
-		class="
-			  add-form-btn scrollable fixed bottom-0 left-1/2 z-[200] flex h-[40dvh] w-full -translate-x-1/2
-			  items-center gap-2 overflow-auto rounded-t-2xl bg-white px-2 sm:bottom-0 sm:pb-0 md:max-w-4xl"
-		transition:fly={{
-			delay: 0,
-			duration: 500,
-			opacity: 0,
-			y: 1000,
-			easing: quintOut
-		}}
-	>
-		{#each cards as d}
-			<a
-				href="/daasd"
-				class=" h-60 flex-none basis-1/2 rounded-xl bg-blue-400 p-4 text-center text-white sm:h-80 sm:basis-1/3"
+<div data-vaul-drawer-wrapper class="min-h-[100vh] bg-white">
+	<Drawer.Root bind:open shouldScaleBackground>
+		<Drawer.Trigger>Open Drawer</Drawer.Trigger>
+		<Drawer.Portal>
+			<Drawer.Overlay class="fixed inset-0 bg-black/40" />
+			<Drawer.Content
+				class="fixed bottom-0 left-0 right-0 mt-24 flex h-[96%] flex-col rounded-t-[10px] bg-zinc-100"
 			>
-				<p class="text-xl font-bold">Flashcards</p>
-			</a>
-		{/each}
-	</div>
-{/if}
-
-<style>
-	.card-container {
-		perspective: 1000px;
-		height: 100dvh;
-	}
-
-	.scrollable {
-		overflow-y: scroll; /* or 'auto' */
-		-webkit-overflow-scrolling: touch;
-	}
-</style>
+				<div class="flex-1 rounded-t-[10px] bg-white p-4">
+					<div class="mx-auto mb-8 h-1.5 w-12 flex-shrink-0 rounded-full bg-zinc-300" />
+					<div class="mx-auto max-w-md">
+						<Drawer.Title class="mb-4 font-medium">Unstyled drawer for Svelte.</Drawer.Title>
+						<p class="mb-2 text-zinc-600">
+							This component can be used as a replacement for a Dialog on mobile and tablet devices.
+						</p>
+						<p class="mb-8 text-zinc-600">
+							It uses
+							<a
+								href="https://www.bits-ui.com/docs/components/dialog"
+								class="underline"
+								target="_blank"
+							>
+								Bits' Dialog primitive
+							</a>
+							under the hood and is inspired by
+							<a
+								href="https://twitter.com/devongovett/status/1674470185783402496"
+								class="underline"
+								target="_blank"
+							>
+								this tweet.
+							</a>
+						</p>
+					</div>
+				</div>
+				<div class="mt-auto border-t border-zinc-200 bg-zinc-100 p-4">
+					<div class="mx-auto flex max-w-md justify-end gap-6">
+						<a
+							class="gap-0.25 flex items-center text-xs text-zinc-600"
+							href="https://github.com/huntabyte/vaul-svelte"
+							target="_blank"
+						>
+							GitHub
+							<svg
+								fill="none"
+								height="16"
+								stroke="currentColor"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								viewBox="0 0 24 24"
+								width="16"
+								aria-hidden="true"
+								class="ml-1 h-3 w-3"
+							>
+								<path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
+								<path d="M15 3h6v6"></path>
+								<path d="M10 14L21 3"></path>
+							</svg>
+						</a>
+						<a
+							class="gap-0.25 flex items-center text-xs text-zinc-600"
+							href="https://twitter.com/huntabyte"
+							target="_blank"
+						>
+							Twitter
+							<svg
+								fill="none"
+								height="16"
+								stroke="currentColor"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								viewBox="0 0 24 24"
+								width="16"
+								aria-hidden="true"
+								class="ml-1 h-3 w-3"
+							>
+								<path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
+								<path d="M15 3h6v6"></path>
+								<path d="M10 14L21 3"></path>
+							</svg>
+						</a>
+					</div>
+				</div>
+			</Drawer.Content>
+		</Drawer.Portal>
+	</Drawer.Root>
+</div>
