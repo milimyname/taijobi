@@ -28,7 +28,7 @@
 	export let currentIndex: number;
 	export let longWord: boolean;
 
-	let flashcard = kanji[$currentFlashcard as keyof typeof kanji];
+	$: flashcard = kanji[$currentFlashcard as keyof typeof kanji];
 </script>
 
 <div style="perspective: 3000px; position: relative; z-index: 100">
