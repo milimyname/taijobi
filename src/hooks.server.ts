@@ -5,6 +5,9 @@ import PocketBase from 'pocketbase';
 export async function handle({ event, resolve }) {
 	const prod = process.env.NODE_ENV === 'production' ? true : false;
 
+	// Don't authenticate for /test
+	if (event.url.pathname.startsWith('/test')) return resolve(event);
+
 	event.locals.pb = new PocketBase(import.meta.env.VITE_POCKETBASE_URL);
 
 	// load the store data from the request cookie string
