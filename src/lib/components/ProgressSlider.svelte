@@ -14,6 +14,8 @@
 	import { getRandomNumber } from '$lib/utils/actions';
 	import { afterNavigate } from '$app/navigation';
 	import { Slider } from '$lib/components/ui/slider';
+	import { onMount } from 'svelte';
+
 	let progress = spring(1, { stiffness: 0.1, damping: 0.5 });
 	let max: number;
 	let value: number;
@@ -41,13 +43,21 @@
 		$selectedKanjiGrade = '0';
 	});
 
+	onMount(() => {
+		// find div  by id svelte-announcer and remove
+		const announcer = document.getElementById('svelte-announcer');
+		if (announcer) {
+			announcer.remove();
+		}
+	});
+
 	$: value = $progressSlider;
 
 	$: max = $kanjiLength;
 </script>
 
 {#if $showProgressSlider}
-	<div use:clickOutside={() => ($showProgressSlider = false)} class="mt-auto mb-4">
+	<div use:clickOutside={() => ($showProgressSlider = false)} class="mb-4 mt-auto">
 		<Slider
 			value={[value]}
 			onValueChange={(v) => {

@@ -59,7 +59,8 @@
 	$: hideFeedbackButton =
 		$page.url.pathname.slice(1) === 'login' ||
 		$page.url.pathname.slice(1) === 'signup' ||
-		$page.url.pathname.slice(1) === 'admin';
+		$page.url.pathname.slice(1) === 'admin' ||
+		$page.url.pathname.startsWith('/test');
 
 	$: if ($page.url.pathname.slice(1) === 'flashcards') $clickedFeedback = false;
 </script>
@@ -72,14 +73,14 @@
 					variant="outline"
 					builders={[builder]}
 					on:click={() => ($clickedFeedback = true)}
-					class="feedback-btn absolute left-1/2 top-10 z-20 w-12 -translate-y-1/2 -translate-x-1/2 rounded-full border px-4 py-2"
+					class="feedback-btn absolute left-1/2 top-10 z-20 w-12 -translate-x-1/2 -translate-y-1/2 rounded-full border px-4 py-2"
 				>
 					{animationText}
 				</Button>
 			{/if}
 		</Dialog.Trigger>
 		<Dialog.Overlay class="fixed inset-0 bg-black bg-opacity-30" />
-		<Dialog.Content class="sm:max-w-[425px] z-[100]">
+		<Dialog.Content class="z-[100] sm:max-w-[425px]">
 			<Dialog.Header>
 				<Dialog.Title>Leave a feedback or report a bug!</Dialog.Title>
 				<Dialog.Description>
@@ -107,7 +108,7 @@
 					variant="outline"
 					builders={[builder]}
 					on:click={() => ($clickedFeedback = true)}
-					class="feedback-btn absolute left-1/2 top-10 z-20 w-12 -translate-y-1/2 -translate-x-1/2 rounded-full border px-4 py-2"
+					class="feedback-btn absolute left-1/2 top-10 z-20 w-12 -translate-x-1/2 -translate-y-1/2 rounded-full border px-4 py-2"
 				>
 					{animationText}
 				</Button>
