@@ -11,6 +11,11 @@ const kuroshiro = new Kuroshiro();
 
 let kuroshiroInitialized = false;
 
+if (!kuroshiroInitialized) {
+	await kuroshiro.init(new KuromojiAnalyzer());
+	kuroshiroInitialized = true;
+}
+
 /** @type {import('./$types').PageServerLoad} */
 export const load = async ({ locals, params }) => {
 	// Get only 10 flashcards at a time
@@ -22,22 +27,15 @@ export const load = async ({ locals, params }) => {
 
 	console.timeEnd('flashcards');
 
-	if (!kuroshiroInitialized) {
-		await kuroshiro.init(new KuromojiAnalyzer());
-		kuroshiroInitialized = true;
-	}
-
-	// console.time('furigana');
 	// Process furigana in parallel
-	// const processeFlashcards = await Promise.all(flashcards.map((card) => processFurigana(card)));
-	// console.timeEnd('furigana');
+	const processeFlashcards = await Promise.all(flashcards.map((card) => processFurigana(card)));
 
 	// Server API:
 	const form = await superValidate(flashcardSchema);
 
 	return {
 		form,
-		flashcards: await Promise.all(flashcards.map((card) => processFurigana(card)))
+		flashcards: processeFlashcards
 	};
 };
 
