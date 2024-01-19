@@ -3,6 +3,8 @@
 		selectQuizItemsForm,
 		clickedKanjiForm,
 		selectedQuizItems,
+		clickedEditFlashcard,
+		clickedAddFlahcardBox,
 		swapFlashcards,
 		flashcardBoxes
 	} from '$lib/utils/stores';
@@ -10,6 +12,7 @@
 	import { page } from '$app/stores';
 	import { pocketbase } from '$lib/utils/pocketbase';
 	import { invalidateAll } from '$app/navigation';
+	import { Button } from '$lib/components/ui/button';
 
 	export let flashcardBox: string;
 
@@ -26,8 +29,6 @@
 			filter: `flashcardBox = "${flashcardBox}"`,
 			fields: 'name,meaning,id'
 		});
-
-		// console.log(flashcards, $selectQuizItemsForm);
 	}
 
 	async function onSwapFlashcards() {
@@ -41,6 +42,9 @@
 
 		// Close the form
 		$swapFlashcards = false;
+		$selectQuizItemsForm = false;
+		$clickedAddFlahcardBox = false;
+		$clickedEditFlashcard = false;
 		$selectedQuizItems = [];
 
 		invalidateAll();
@@ -50,7 +54,7 @@
 		getFlashcards();
 </script>
 
-<div class="select-quiz-data overflow-y-auto">
+<div class="select-quiz-data flex flex-1 flex-col overflow-y-auto">
 	<h4 class="px-5 py-2 text-2xl">
 		{$swapFlashcards ? 'Swap Flashcards' : 'Select Quiz Items'}
 	</h4>
@@ -136,26 +140,19 @@
 					</select>
 					<span>box</span>
 				</div>
-				<button
-					on:click={onSwapFlashcards}
-					class="text-md rounded-md bg-black px-4 py-2 font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm"
-				>
-					Submit
-				</button>
+				<Button on:click={onSwapFlashcards}>Submit</Button>
 			</div>
 		{:else}
-			<button
+			<Button
 				disabled={$selectedQuizItems.length < 20}
 				on:click={() => ($selectQuizItemsForm = false)}
-				class="text-md rounded-md bg-black px-4 py-2 {$selectedQuizItems.length < 20 &&
-					'bg-black/50'} font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm"
 			>
 				{#if $selectedQuizItems.length < 20}
 					Not yet
 				{:else}
 					Select
 				{/if}
-			</button>
+			</Button>
 		{/if}
 	</div>
 </div>

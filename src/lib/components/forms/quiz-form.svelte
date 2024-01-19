@@ -214,5 +214,5 @@
 		<input type="hidden" name="selectedQuizItems" bind:value={$form.selectedQuizItems} />
 	</div>
 
-	<Button variant="default" type="submit" class="w-full" formaction="?/addQuiz">Add</Button>
+	<Button type="submit" class="w-full" formaction="?/addQuiz">Add</Button>
 </form>

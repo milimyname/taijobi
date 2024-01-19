@@ -3,8 +3,6 @@
 		clickedAddFlashcardCollection,
 		clickedAddFlahcardBox,
 		clickedEditFlashcard,
-		showCollections,
-		clickedQuizForm,
 		flashcardsBoxType,
 		currentIndexStore,
 		innerWidthStore,
@@ -25,13 +23,8 @@
 	<meta name="description" content="Flashcards" />
 </svelte:head>
 
-{#if $showCollections || $clickedAddFlahcardBox || $clickedAddFlashcardCollection}
-	<div class="fixed top-0 z-[1000] h-[100dvh] w-screen bg-black/50 backdrop-blur-md" />
-{/if}
-
 <main
-	class="flex h-[100dvh] select-none flex-col items-center overflow-hidden bg-white p-2 transition-all sm:px-3 sm:py-5 {$clickedAddFlashcardCollection &&
-		'mt-5 rounded-t-2xl py-14'} {$clickedQuizForm && 'mt-5 rounded-t-2xl py-14'}"
+	class="flex h-[100dvh] select-none flex-col items-center overflow-hidden bg-white p-2 transition-all sm:px-3 sm:py-5"
 >
 	<nav class="flex w-full justify-between px-2 py-3 xm:p-5">
 		<a

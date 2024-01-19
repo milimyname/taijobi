@@ -26,11 +26,6 @@
 		destroy() {}
 	});
 
-	function onCloseDrawer() {
-		if (!$isDesktop) document.body.style.background = 'white';
-		$clickedQuizForm = false;
-	}
-
 	$: selectedItems = $selectedQuizItems.length;
 </script>
 
@@ -50,7 +45,7 @@
 						<Grid2X2 />
 						Quiz Items ({selectedItems})
 					</Dialog.Trigger>
-					<Dialog.Content class="z-[101]  h-screen p-0 sm:max-w-2xl">
+					<Dialog.Content class="swap-items z-[101] h-full max-h-[96%] max-w-2xl p-0">
 						<QuizItems flashcardBox={$form.flashcardBox}>
 							<Dialog.Close asChild let:builder>
 								<Button
@@ -72,7 +67,11 @@
 		</Dialog.Content>
 	</Dialog.Root>
 {:else}
-	<Drawer.Root onClose={onCloseDrawer} open={$clickedQuizForm} shouldScaleBackground>
+	<Drawer.Root
+		onClose={() => ($clickedQuizForm = false)}
+		open={$clickedQuizForm}
+		shouldScaleBackground
+	>
 		<Drawer.Portal>
 			<Drawer.Content>
 				<Drawer.Header class="text-left">

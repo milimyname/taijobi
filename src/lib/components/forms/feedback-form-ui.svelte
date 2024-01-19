@@ -32,10 +32,7 @@
 
 	function onOutsideClickDrawer(e: MouseEvent) {
 		//  If the user clicks on the leave button, don't move the card
-		if (
-			$page.url.pathname.endsWith('flashcards') &&
-			(e.target as Element).classList.contains('feedback-btn')
-		)
+		if ($page.url.pathname.includes('flashcards') && (e.target as Element).closest('.feedback-btn'))
 			return;
 
 		if ($page.url.pathname.slice(1) === 'flashcards') $clickedFeedback = false;
@@ -66,7 +63,7 @@
 </script>
 
 {#if $isDesktop}
-	<Dialog.Root bind:open={$clickedFeedback} onOutsideClick={() => ($clickedFeedback = false)}>
+	<Dialog.Root bind:open={$clickedFeedback} onOutsideClick={onOutsideClickDrawer}>
 		<Dialog.Trigger asChild let:builder>
 			{#if !hideFeedbackButton}
 				<Button

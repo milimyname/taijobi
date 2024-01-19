@@ -1,6 +1,6 @@
 <script lang="ts">
 	import QuizForm from '$lib/components/forms/quiz-form-ui.svelte';
-	import FlashcardCollectionForm from '$lib/components/forms/FlashcardCollectionForm.svelte';
+	import FlashcardCollectionForm from '$lib/components/forms/flashcard-collection-form-ui.svelte';
 	import {
 		clickedAddFlashcardCollection,
 		maxFlashcards,
@@ -130,18 +130,7 @@
 
 <QuizForm errors={quizErrors} enhance={quizEnhance} form={quizForm} constraints={quizConstraints} />
 
-<section
-	use:clickOutside={() => {
-		$clickedAddFlashcardCollection = false;
-		$clickedEditFlashcard = false;
-
-		// Clear the form
-		$form.name = '';
-		$form.description = '';
-		$form.id = '';
-	}}
-	class="collection-container flex flex-1 cursor-pointer items-center justify-center pb-20"
->
+<section class="collection-container flex flex-1 cursor-pointer items-center justify-center pb-20">
 	{#if !isTouchScreen()}
 		{#each data.flashcardCollections.slice(0, visibleCardsCount) as card, index}
 			<FlashcardCollection
@@ -172,13 +161,17 @@
 </section>
 
 {#if $showCollections}
+	<div class="fixed top-0 z-[60] h-[100dvh] w-screen bg-black/50 backdrop-blur-md" />
+{/if}
+
+{#if $showCollections}
 	<div
 		use:clickOutside={() => {
 			$clickedAddFlashcardCollection = false;
 			$clickedAddFlahcardBox = false;
 			$showCollections = false;
 		}}
-		class="add-form-btn scrollable fixed bottom-0 left-1/2 z-[1001] flex min-h-fit w-full -translate-x-1/2
+		class="add-form-btn scrollable fixed bottom-0 left-1/2 z-[101] flex min-h-fit w-full -translate-x-1/2
 			 items-center gap-2 overflow-auto rounded-t-2xl bg-white px-2 py-2 sm:bottom-0 md:max-w-4xl"
 		transition:fly={{
 			delay: 0,

@@ -137,7 +137,7 @@
 			event.preventDefault();
 
 		// Freeze cards when drawer is open
-		if ($clickedFeedback) return;
+		if ($clickedFeedback || $clickedAddFlahcardBox || $clickedAddFlashcardCollection) return;
 
 		if (!isDragging && index !== totalCount - 1) return;
 
@@ -184,7 +184,7 @@
 			event.preventDefault();
 
 		// Freeze cards when drawer is open
-		if ($clickedFeedback) return;
+		if ($clickedFeedback || $clickedAddFlahcardBox || $clickedAddFlashcardCollection) return;
 
 		if ((!isDragging && index !== totalCount - 1) || $showCollections || $clickedQuizForm) return;
 
@@ -230,7 +230,7 @@
 			event.preventDefault();
 
 		// Freeze cards when drawer is open
-		if ($clickedFeedback) return;
+		if ($clickedFeedback || $clickedAddFlahcardBox || $clickedAddFlashcardCollection) return;
 
 		isDragging = false;
 
