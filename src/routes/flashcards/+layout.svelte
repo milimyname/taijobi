@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount, afterUpdate } from 'svelte';
 	import {
 		clickedAddFlashcardCollection,
 		clickedAddFlahcardBox,
@@ -16,18 +15,6 @@
 	import { getLocalStorageItem } from '$lib/utils/localStorage';
 	import { ArrowLeft, FolderPlus } from 'lucide-svelte';
 
-	onMount(() => {
-		if ($clickedAddFlashcardCollection) document.body.style.backgroundColor = 'rgb(0,0,0)';
-		else if ($clickedQuizForm) document.body.style.backgroundColor = 'rgb(0,0,0)';
-		else document.body.style.backgroundColor = 'rgb(255,255,255)';
-	});
-
-	afterUpdate(() => {
-		if ($clickedAddFlashcardCollection) document.body.style.backgroundColor = 'rgb(0,0,0)';
-		else if ($clickedQuizForm) document.body.style.backgroundColor = 'rgb(0,0,0)';
-		else document.body.style.backgroundColor = 'rgb(255,255,255)';
-	});
-
 	let islocalBoxTypeOriginal = getLocalStorageItem('flashcardsBoxType') !== 'original';
 </script>
 
@@ -36,7 +23,6 @@
 <svelte:head>
 	<title>Flashcards</title>
 	<meta name="description" content="Flashcards" />
-	<!-- <meta name="theme-color" content="rgb(0,0,0)" /> -->
 </svelte:head>
 
 {#if $showCollections || $clickedAddFlahcardBox || $clickedAddFlashcardCollection}

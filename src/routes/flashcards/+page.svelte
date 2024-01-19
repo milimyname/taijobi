@@ -1,5 +1,5 @@
 <script lang="ts">
-	import TextQuizForm from '$lib/components/forms/TextQuizForm.svelte';
+	import QuizForm from '$lib/components/forms/quiz-form-ui.svelte';
 	import FlashcardCollectionForm from '$lib/components/forms/FlashcardCollectionForm.svelte';
 	import {
 		clickedAddFlashcardCollection,
@@ -128,12 +128,7 @@
 	constraints={$clickedAddFlahcardBox ? boxConstraints : constraints}
 />
 
-<TextQuizForm
-	errors={quizErrors}
-	enhance={quizEnhance}
-	form={quizForm}
-	constraints={quizConstraints}
-/>
+<QuizForm errors={quizErrors} enhance={quizEnhance} form={quizForm} constraints={quizConstraints} />
 
 <section
 	use:clickOutside={() => {
@@ -216,7 +211,7 @@
 						<div class="flex w-full justify-around rounded-t-xl bg-blue-500 p-4">
 							{#if $flashcardsBoxType !== 'original' || data.isAdmin}
 								<button
-									class="w-full flex justify-center"
+									class="flex w-full justify-center"
 									on:click|stopPropagation={() => {
 										$clickedEditFlashcard = true;
 										$clickedAddFlahcardBox = true;
@@ -250,7 +245,7 @@
 
 							{#if box.count > 20}
 								<button
-									class="w-full flex justify-center"
+									class="flex w-full justify-center"
 									on:click|stopPropagation={() => {
 										$quizForm.flashcardBox = box.id;
 										$maxFlashcards = box.count;

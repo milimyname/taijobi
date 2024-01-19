@@ -22,7 +22,7 @@
 	import Canvas from '$lib/components/canvas/Canvas.svelte';
 	import { kanji } from '$lib/static/kanji';
 	import { pocketbase } from '$lib/utils/pocketbase';
-	import TextQuizForm from '$lib/components/forms/TextQuizForm.svelte';
+	import QuizForm from '$lib/components/forms/quiz-form-ui.svelte';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { page } from '$app/stores';
 	import BacksideCard from '$lib/components/canvas/BacksideCard.svelte';
@@ -121,7 +121,7 @@
 	});
 </script>
 
-<TextQuizForm
+<QuizForm
 	errors={quizErrors}
 	enhance={quizEnhance}
 	form={quizForm}

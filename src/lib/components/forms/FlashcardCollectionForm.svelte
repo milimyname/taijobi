@@ -11,7 +11,7 @@
 	import { fly, slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 	import { clickOutside } from '$lib/utils/clickOutside';
-	import SelectQuizItems from './SelectQuizItems.svelte';
+	import QuizItems from './quiz-items.svelte';
 
 	export let enhance: any;
 	export let errors;
@@ -20,7 +20,7 @@
 </script>
 
 {#if $swapFlashcards}
-	<SelectQuizItems flashcardBox={$form.id} />
+	<QuizItems flashcardBox={$form.id} />
 {/if}
 
 {#if $clickedAddFlashcardCollection || $clickedAddFlahcardBox}
@@ -122,7 +122,7 @@
 					{#if !$clickedAddFlashcardCollection && $maxFlashcards !== '0' && $flashcardBoxes.length > 1}
 						<button
 							type="button"
-							class="flex gap-2 bg-slate-200 justify-start px-3 py-2 items-center rounded-md w-fit"
+							class="flex w-fit items-center justify-start gap-2 rounded-md bg-slate-200 px-3 py-2"
 							on:click={() => ($swapFlashcards = true)}
 						>
 							Swap Flashcards

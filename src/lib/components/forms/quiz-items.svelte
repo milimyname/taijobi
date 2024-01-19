@@ -6,9 +6,6 @@
 		swapFlashcards,
 		flashcardBoxes
 	} from '$lib/utils/stores';
-	import { fly } from 'svelte/transition';
-	import { quintOut } from 'svelte/easing';
-	import { clickOutside } from '$lib/utils/clickOutside';
 	import { kanji } from '$lib/static/kanji';
 	import { page } from '$app/stores';
 	import { pocketbase } from '$lib/utils/pocketbase';
@@ -29,6 +26,8 @@
 			filter: `flashcardBox = "${flashcardBox}"`,
 			fields: 'name,meaning,id'
 		});
+
+		// console.log(flashcards, $selectQuizItemsForm);
 	}
 
 	async function onSwapFlashcards() {
@@ -51,37 +50,20 @@
 		getFlashcards();
 </script>
 
-<div
-	use:clickOutside={() => {
-		$selectQuizItemsForm = false;
-		$swapFlashcards = false;
-
-		$selectedQuizItems = [];
-	}}
-	class="add-form-btn fixed -bottom-5 z-[1020] flex
-     {$clickedKanjiForm ? 'h-[90dvh] sm:h-5/6' : 'h-[80dvh] sm:h-3/4'} 
-    w-full flex-col gap-4 overflow-y-scroll rounded-t-2xl bg-white sm:bottom-0 md:max-w-4xl"
-	transition:fly={{
-		delay: 0,
-		duration: 1000,
-		opacity: 0,
-		y: 1000,
-		easing: quintOut
-	}}
->
-	<h4 class="text-2xl px-5 pt-5">
+<div class="select-quiz-data overflow-y-auto">
+	<h4 class="px-5 py-2 text-2xl">
 		{$swapFlashcards ? 'Swap Flashcards' : 'Select Quiz Items'}
 	</h4>
 
 	{#if $clickedKanjiForm && $page.url.pathname.includes('kanji')}
-		<ul class="grid grid-cols-2 xm:grid-cols-4 sm:grid-cols-8 gap-3 px-5">
+		<ul class="grid grid-cols-2 gap-3 px-5 xm:grid-cols-4 sm:grid-cols-8">
 			{#each Object.keys(kanji) as letter, i}
 				<li class="flex flex-col justify-between">
 					<button
 						class=" {$selectedQuizItems.includes(letter)
 							? 'bg-black text-white hover:bg-gray-700 '
-							: 'bg-white  text-black border-2 border-black hover:bg-gray-200  '}
-                         rounded-md px-4 py-2 relative font-medium shadow-lg transition duration-200 visited:-translate-x-4 active:translate-y-1 active:shadow-sm"
+							: 'border-2  border-black bg-white text-black hover:bg-gray-200  '}
+                         relative rounded-md px-4 py-2 font-medium shadow-lg transition duration-200 visited:-translate-x-4 active:translate-y-1 active:shadow-sm"
 						on:click|preventDefault={() => {
 							// Remove the letter if it's already selected
 							if ($selectedQuizItems.includes(letter)) {
@@ -99,17 +81,17 @@
 			{/each}
 		</ul>
 	{:else}
-		<ul class="grid grid-cols-2 xm:grid-cols-4 sm:grid-cols-8 gap-3 px-5 mb-auto">
+		<ul class="mb-auto grid grid-cols-2 gap-3 px-5 xm:grid-cols-4 sm:grid-cols-8">
 			{#each flashcards as flashcard, i}
 				{@const formattedItem = $swapFlashcards
 					? flashcard.id + '=' + flashcard.meaning
 					: '---' + flashcard.name + '=' + flashcard.meaning}
-				<li class="self-stretch flex flex-col justify-between">
+				<li class="flex flex-col justify-between self-stretch">
 					<button
 						class=" {$selectedQuizItems.includes(formattedItem)
 							? 'bg-black text-white hover:bg-gray-700 '
-							: 'bg-white  text-black border-2  border-black hover:bg-gray-200  '}
-                         rounded-md px-4 py-2 relative grow font-medium shadow-lg transition duration-200 visited:-translate-x-4 active:translate-y-1 active:shadow-sm"
+							: 'border-2  border-black bg-white  text-black hover:bg-gray-200  '}
+                         relative grow rounded-md px-4 py-2 font-medium shadow-lg transition duration-200 visited:-translate-x-4 active:translate-y-1 active:shadow-sm"
 						on:click|preventDefault={() => {
 							// Remove the letter if it's already selected
 							if ($selectedQuizItems.includes(formattedItem)) {
@@ -128,18 +110,10 @@
 		</ul>
 	{/if}
 	<div
-		class="sticky bottom-5 sm:bottom-0 z-40 flex gap-2 w-full bg-white justify-between items-center shadow-profile p-5"
+		class="sticky bottom-0 z-40 flex w-full items-center justify-between gap-2 bg-white p-5 shadow-profile sm:bottom-0"
 	>
-		<button
-			on:click={() => {
-				$selectQuizItemsForm = false;
-				$swapFlashcards = false;
-				$selectedQuizItems = [];
-			}}
-			class="text-md rounded-md border-2 border-black px-4 py-2 font-medium text-black shadow-lg transition duration-200 visited:-translate-x-4 active:translate-y-1 active:shadow-sm"
-		>
-			Cancel
-		</button>
+		<slot />
+
 		{#if $selectedQuizItems.length < 20 && $selectedQuizItems.length > 0 && !$swapFlashcards}
 			<p class="px-5 text-sm font-bold text-red-400">
 				At least 20 items ({$selectedQuizItems.length})
@@ -152,7 +126,7 @@
 					<span>Move to</span>
 					<select
 						bind:value={selectedFlashcardBox}
-						class="border-hidden font-bold bg-none pr-3 text-center outline-none focus:border-transparent focus:ring-0"
+						class="border-hidden bg-none pr-3 text-center font-bold outline-none focus:border-transparent focus:ring-0"
 					>
 						{#each $flashcardBoxes as box}
 							{#if box.id !== flashcardBox}
