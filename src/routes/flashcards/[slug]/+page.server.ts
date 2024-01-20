@@ -6,6 +6,7 @@ import KuromojiAnalyzer from '@sglkc/kuroshiro-analyzer-kuromoji';
 import { convertToRubyTag } from '$lib/utils/actions.js';
 import { isHiragana } from 'wanakana';
 import type { RecordModel } from 'pocketbase';
+import { isKanji } from 'wanakana';
 
 const kuroshiro = new Kuroshiro();
 
@@ -28,7 +29,9 @@ export const load = async ({ locals, params }) => {
 	console.timeEnd('flashcards');
 
 	// Process furigana in parallel
-	const processeFlashcards = await Promise.all(flashcards.map((card) => processFurigana(card)));
+	const processeFlashcards = await Promise.all(
+		flashcards.map((card: RecordModel) => processFurigana(card))
+	);
 
 	// Server API:
 	const form = await superValidate(flashcardSchema);
@@ -63,6 +66,16 @@ export const actions = {
 		// Convenient validation check:
 		if (!form.valid) return fail(400, { form });
 
+		if (form.data.type === 'kanji') {
+			// Check if name is only kanji
+			if (!isKanji(form.data.name) && form.data.name.length !== 1)
+				return setError(form, 'name', 'Flashcard name must be only one kanji.');
+
+			// Check if name is only one kanji letter
+			if (form.data.name.length !== 1)
+				return setError(form, 'name', 'Flashcard name must be one kanji.');
+		}
+
 		try {
 			// Create user
 			await locals.pb.collection('flashcard').create({
@@ -95,11 +108,20 @@ export const actions = {
 
 		return { form };
 	},
-	edit: async ({ request, locals }) => {
+	update: async ({ request, locals }) => {
 		const form = await superValidate(request, flashcardSchema);
 
 		// Convenient validation check:
 		if (!form.valid || !form.data.id) return fail(400, { form });
+
+		if (form.data.type === 'kanji') {
+			// Check if name is only kanji
+			if (!isKanji(form.data.name)) return setError(form, 'name', 'Flashcard name must be kanji.');
+
+			// Check if name is only one kanji letter
+			if (form.data.name.length !== 1)
+				return setError(form, 'name', 'Flashcard name must be one kanji.');
+		}
 
 		try {
 			// Create user

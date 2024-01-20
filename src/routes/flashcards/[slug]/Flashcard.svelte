@@ -8,7 +8,8 @@
 		showLetterDrawing,
 		showProgressSlider,
 		innerHeightStore,
-		innerWidthStore
+		innerWidthStore,
+		currentFlashcardTypeStore
 	} from '$lib/utils/stores';
 	import { quintOut, cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
@@ -24,24 +25,23 @@
 
 	export let flashcards: FlashcardType[];
 	export let currentFlashcardFurigana: string;
-	export let currentFlashcardType: string;
 	export let currentIndex: number;
 	export let longWord: boolean;
 
 	$: flashcard = kanji[$currentFlashcard as keyof typeof kanji];
 </script>
 
-<div style="perspective: 3000px; position: relative; z-index: 100">
+<div style="perspective: 3000px; position: relative;">
 	<div
 		style={`transform: rotateY(${-$rotateYCard}deg); transform-style: preserve-3d; backface-visibility: hidden; 
 				height: ${getFlashcardHeight($innerWidthStore, $innerHeightStore)}px;
 				width: ${getFlashcardWidth($innerWidthStore)}px `}
 		class="relative z-10 cursor-pointer
 				{$rotateYCard > 90 ? 'hidden' : 'block'}  rounded-xl
-				{longWord ? 'py-10 sm:py-32 text-4xl' : 'text-5xl'} flex items-center justify-center border
+				{longWord ? 'py-10 text-4xl sm:py-32' : 'text-5xl'} flex items-center justify-center border
 				shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200"
 	>
-		{#if currentFlashcardType === 'kanji'}
+		{#if $currentFlashcardTypeStore === 'kanji'}
 			<span class="text-9xl sm:text-[14rem]">
 				{$currentFlashcard}
 			</span>
@@ -51,12 +51,12 @@
 			</p>
 		{/if}
 
-		<span class="fixed top-3 xm:top-5 left-2 xm:left-5 z-30 text-sm">
+		<span class="fixed left-2 top-3 z-30 text-sm xm:left-5 xm:top-5">
 			{currentIndex + 1}
 		</span>
 
 		<button
-			class="absolute bottom-3 xm:bottom-5 left-2 xm:left-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all
+			class="absolute bottom-3 left-2 z-30 rounded-full border bg-white p-2 shadow-sm transition-all xm:bottom-5 xm:left-5
 				{showNotes && 'hidden'}"
 			on:click={() => {
 				$showLetterDrawing = true;
@@ -68,7 +68,7 @@
 
 		<button
 			class="{showNotes && 'hidden'} 
-						absolute z-30 bottom-3 xm:bottom-5 right-2 xm:right-5 rounded-full border bg-white p-2 shadow-sm transition-all"
+						absolute bottom-3 right-2 z-30 rounded-full border bg-white p-2 shadow-sm transition-all xm:bottom-5 xm:right-5"
 			on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
 		>
 			<RotateCcw class="h-4 w-4" />
@@ -85,19 +85,21 @@
 				 {$currentAlphabet === 'kanji' ? 'gap-1' : 'gap-5'}  
 				justify-center overflow-hidden rounded-xl border p-5 shadow-sm sm:p-10"
 	>
-		{#if currentFlashcardType === 'kanji'}
+		{#if $currentFlashcardTypeStore === 'kanji'}
 			<div
 				class="grid-rows-[max-content max-content] sm:grid-rows-[max-content 1fr] grid h-full grid-cols-2 sm:gap-0"
 			>
 				<h2 class="col-span-2 text-center text-6xl sm:text-9xl">{$currentFlashcard}</h2>
-				<div>
-					<h2 class="text-lg font-medium">{flashcard.meaning}</h2>
-					<p class="text-sm text-gray-300">Meaning</p>
-				</div>
-				<div>
-					<h4 class="text-lg tracking-widest">{flashcard.onyomi}</h4>
-					<p class="text-sm text-gray-300">Onyomi</p>
-				</div>
+
+				<h2 class="text-lg font-medium">{flashcard.meaning}</h2>
+
+				{#if flashcard.onyomi.length > 0}
+					<div>
+						<h4 class="text-lg tracking-widest">{flashcard.onyomi}</h4>
+						<p class="text-sm text-gray-300">Onyomi</p>
+					</div>
+				{/if}
+
 				{#if flashcard.kunyomi.length > 0}
 					<div>
 						<h4 class="text-lg tracking-widest">{flashcard.kunyomi}</h4>

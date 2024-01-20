@@ -77,7 +77,7 @@
 				</div>
 				<div slot="update">
 					<Dialog.Close asChild let:builder>
-						<Button builders={[builder]} variant="outline">Update</Button>
+						<Button builders={[builder]}>Update</Button>
 					</Dialog.Close>
 				</div>
 				<div slot="add">

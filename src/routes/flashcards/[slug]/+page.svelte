@@ -6,10 +6,11 @@
 		flashcardsBoxType,
 		currentFlashcard,
 		currentIndexStore,
-		showLetterDrawing
+		showLetterDrawing,
+		currentFlashcardTypeStore
 	} from '$lib/utils/stores';
 	import { superForm } from 'sveltekit-superforms/client';
-	import FlashcardForm from '$lib/components/forms/FlashcardForm.svelte';
+	import FlashcardForm from '$lib/components/forms/flashcard-form-ui.svelte';
 	import { page } from '$app/stores';
 	import EditButton from './EditButton.svelte';
 	import { getLocalStorageItem } from '$lib/utils/localStorage';
@@ -23,7 +24,6 @@
 
 	// Get the alphabet store length
 	let currentFlashcardFurigana: string;
-	let currentFlashcardType: string;
 	let currentIndex: number = $currentIndexStore
 		? $currentIndexStore
 		: Math.floor(data.flashcards.length / 2);
@@ -37,13 +37,13 @@
 		resetForm: true,
 		applyAction: true,
 		onSubmit: async (form) => {
-			$clickedEditFlashcard = false;
+			// $clickedEditFlashcard = false;
 			$clickedAddFlashcardCollection = false;
 
 			if (form.action.search.endsWith('delete')) currentIndex = 0;
 		},
 		onUpdated: () => {
-			if (!$errors.name) $clickedAddFlashcardCollection = false;
+			if ($errors.name) return ($clickedAddFlashcardCollection = true);
 
 			// Slide to the new created word
 			if (swiperInstance.slides.length + 1 === data.flashcards.length)
@@ -95,8 +95,8 @@
 	$: if (data.flashcards.length > 0) {
 		$currentFlashcard = data.flashcards.at(currentIndex).name;
 		currentFlashcardFurigana = data.flashcards.at(currentIndex).furigana;
-		currentFlashcardType = data.flashcards.at(currentIndex).type;
-	}
+		$currentFlashcardTypeStore = data.flashcards.at(currentIndex).type;
+	} else $currentFlashcardTypeStore = 'word';
 
 	$: if ($currentIndexStore && swiperInstance) {
 		swiperInstance.activeIndex = $currentIndexStore;
@@ -107,7 +107,7 @@
 </script>
 
 {#if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin}
-	<FlashcardForm {currentFlashcardType} {constraints} {form} {errors} {enhance} />
+	<FlashcardForm {constraints} {form} {errors} {enhance} />
 {/if}
 
 <section
@@ -122,7 +122,6 @@
 				flashcards={data.flashcards}
 				{currentIndex}
 				longWord={$currentFlashcard.length > 8}
-				{currentFlashcardType}
 				{currentFlashcardFurigana}
 			/>
 
@@ -140,7 +139,7 @@
 		{/if}
 	{:else}
 		<button
-			class="flex add-form-btn items-center justify-center rounded-xl border-4 border-blue-400 text-center text-xl font-bold text-blue-500 hover:border-blue-500 h-80"
+			class="add-form-btn flex h-80 items-center justify-center rounded-xl border-4 border-blue-400 text-center text-xl font-bold text-blue-500 hover:border-blue-500"
 			on:click={() => ($clickedAddFlashcardCollection = true)}
 		>
 			<Plus class="h-10 w-10" />
@@ -148,7 +147,7 @@
 	{/if}
 
 	<div
-		class="swiper-container h-12 fixed bottom-5 flex cursor-ew-resize items-center justify-between gap-5 sm:bottom-10 lg:bottom-5"
+		class="swiper-container fixed bottom-5 flex h-12 cursor-ew-resize items-center justify-between gap-5 sm:bottom-10 lg:bottom-5"
 	>
 		<div class="swiper-wrapper">
 			{#each data.flashcards as flashcard, index}

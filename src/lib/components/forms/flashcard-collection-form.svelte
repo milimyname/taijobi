@@ -82,13 +82,13 @@
 	</div>
 	{#if $clickedEditFlashcard}
 		<div class="flex w-full {!$isDesktop && 'flex-col gap-2'} justify-between">
-			<button formaction="?/update">
-				<slot name="update" />
-			</button>
+			<button formaction="?/delete"><slot name="delete" /></button>
 
 			<slot name="swap" />
 
-			<button formaction="?/delete"><slot name="delete" /></button>
+			<button formaction="?/update">
+				<slot name="update" />
+			</button>
 		</div>
 	{:else}
 		<button formaction="?/add"><slot name="add" /></button>

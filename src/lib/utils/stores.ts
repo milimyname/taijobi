@@ -35,6 +35,7 @@ export const flashcardBoxes = writable<
 		name: string;
 	}[]
 >([]);
+export const currentFlashcardTypeStore = writable('');
 
 export const hiraganaStore = writable([
 	'あ',
