@@ -35,7 +35,9 @@
 		//  If the user clicks on the leave button, don't move the card
 		if (
 			$page.url.pathname.includes('flashcards') &&
-			((e.target as Element).closest('.add-btn') || (e.target as Element).closest('.swap-items'))
+			((e.target as Element).closest('.add-btn') ||
+				(e.target as Element).closest('.swap-items') ||
+				(e.target as Element).closest('.edit-collection-btn'))
 		)
 			return;
 
