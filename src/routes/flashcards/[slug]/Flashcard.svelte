@@ -23,12 +23,12 @@
 
 	let showNotes: boolean = false;
 
-	export let flashcards: FlashcardType[];
+	export let wordFlashcard: FlashcardType;
 	export let currentFlashcardFurigana: string;
 	export let currentIndex: number;
 	export let longWord: boolean;
 
-	$: flashcard = kanji[$currentFlashcard as keyof typeof kanji];
+	$: kanjiFlashcard = kanji[$currentFlashcard as keyof typeof kanji];
 </script>
 
 <div style="perspective: 3000px; position: relative;">
@@ -91,22 +91,22 @@
 			>
 				<h2 class="col-span-2 text-center text-6xl sm:text-9xl">{$currentFlashcard}</h2>
 
-				<h2 class="text-lg font-medium">{flashcard.meaning}</h2>
+				<h2 class="text-lg font-medium">{kanjiFlashcard.meaning}</h2>
 
-				{#if flashcard.onyomi.length > 0}
+				{#if kanjiFlashcard.onyomi.length > 0}
 					<div>
-						<h4 class="text-lg tracking-widest">{flashcard.onyomi}</h4>
+						<h4 class="text-lg tracking-widest">{kanjiFlashcard.onyomi}</h4>
 						<p class="text-sm text-gray-300">Onyomi</p>
 					</div>
 				{/if}
 
-				{#if flashcard.kunyomi.length > 0}
+				{#if kanjiFlashcard.kunyomi.length > 0}
 					<div>
-						<h4 class="text-lg tracking-widest">{flashcard.kunyomi}</h4>
+						<h4 class="text-lg tracking-widest">{kanjiFlashcard.kunyomi}</h4>
 						<p class=" text-sm text-gray-300">Kunyomi</p>
 					</div>
 				{/if}
-				{#if flashcards.at(currentIndex) && flashcards.at(currentIndex).notes && flashcards.at(currentIndex).notes.length > 0}
+				{#if wordFlashcard.notes && wordFlashcard.notes.length > 0}
 					<button
 						class="fixed bottom-0 left-0 z-10 rounded-tr-xl {showNotes
 							? 'bg-white text-black'
@@ -127,7 +127,7 @@
 							}}
 							class="z-4 absolute bottom-0 left-0 h-5/6 w-full rounded-xl bg-primary p-4 text-sm text-white"
 						>
-							{flashcards.at(currentIndex).notes}
+							{wordFlashcard.notes}
 						</p>
 					{/if}
 				{/if}
@@ -146,23 +146,23 @@
 				<h2 class="col-span-2 text-center text-4xl">{$currentFlashcard}</h2>
 				<div>
 					<h2 class="text-xl font-medium">
-						{flashcards.at(currentIndex) && flashcards.at(currentIndex).meaning}
+						{wordFlashcard && wordFlashcard.meaning}
 					</h2>
 					<p class=" text-sm text-gray-300">Meaning</p>
 				</div>
-				{#if flashcards.at(currentIndex) && flashcards.at(currentIndex).customFurigana}
+				{#if wordFlashcard.customFurigana}
 					<div>
-						<h2 class="text-xl font-medium">{flashcards.at(currentIndex).customFurigana}</h2>
+						<h2 class="text-xl font-medium">{wordFlashcard.customFurigana}</h2>
 						<p class=" text-sm text-gray-300">Furigana</p>
 					</div>
 				{/if}
-				{#if flashcards.at(currentIndex) && flashcards.at(currentIndex).romanji}
+				{#if wordFlashcard.romanji}
 					<div>
-						<h2 class="text-xl font-medium">{flashcards.at(currentIndex).romanji}</h2>
+						<h2 class="text-xl font-medium">{wordFlashcard.romanji}</h2>
 						<p class=" text-sm text-gray-300">Romanji/Furigana</p>
 					</div>
 				{/if}
-				{#if flashcards.at(currentIndex) && flashcards.at(currentIndex)?.notes.length > 0}
+				{#if wordFlashcard.notes && wordFlashcard.notes.length > 0}
 					<button
 						class="fixed bottom-0 left-0 z-10 rounded-tr-xl {showNotes
 							? 'bg-white text-black'
@@ -183,7 +183,7 @@
 							}}
 							class="z-4 absolute bottom-0 left-0 h-5/6 w-full rounded-xl bg-primary p-4 text-sm text-white"
 						>
-							{flashcards.at(currentIndex).notes}
+							{wordFlashcard.notes}
 						</p>
 					{/if}
 				{/if}

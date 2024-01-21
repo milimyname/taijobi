@@ -37,7 +37,7 @@
 		resetForm: true,
 		applyAction: true,
 		onSubmit: async (form) => {
-			// $clickedEditFlashcard = false;
+			$clickedEditFlashcard = false;
 			$clickedAddFlashcardCollection = false;
 
 			if (form.action.search.endsWith('delete')) currentIndex = 0;
@@ -119,7 +119,7 @@
 	{#if data.flashcards.length > 0}
 		{#if !$showLetterDrawing}
 			<Flashcard
-				flashcards={data.flashcards}
+				wordFlashcard={data.flashcards.at(currentIndex)}
 				{currentIndex}
 				longWord={$currentFlashcard.length > 8}
 				{currentFlashcardFurigana}
