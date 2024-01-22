@@ -7,7 +7,8 @@
 		currentIndexStore,
 		innerWidthStore,
 		innerHeightStore,
-		showLetterDrawing
+		showLetterDrawing,
+		selectedQuizItems
 	} from '$lib/utils/stores';
 	import { page } from '$app/stores';
 	import { getLocalStorageItem } from '$lib/utils/localStorage';
@@ -33,6 +34,7 @@
 			on:click={() => {
 				$currentIndexStore = 0;
 				$showLetterDrawing = false;
+				$selectedQuizItems = [];
 			}}
 			data-sveltekit-preload-data
 		>
