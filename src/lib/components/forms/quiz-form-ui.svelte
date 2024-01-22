@@ -37,7 +37,7 @@
 				<Dialog.Title>Create a quiz</Dialog.Title>
 			</Dialog.Header>
 			<Form {enhance} {errors} {form} {constraints}>
-				<Dialog.Root>
+				<Dialog.Root bind:open={$selectQuizItemsForm}>
 					<Dialog.Trigger
 						class="mb-2 flex w-fit items-center gap-2 rounded-md bg-gray-900 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
 						on:click={() => ($selectQuizItemsForm = true)}
@@ -78,7 +78,7 @@
 					<Drawer.Title>Create a quiz</Drawer.Title>
 				</Drawer.Header>
 				<Form {enhance} {errors} {form} {constraints}>
-					<Drawer.Nested>
+					<Drawer.Nested bind:open={$selectQuizItemsForm}>
 						<Drawer.Trigger
 							class=" mb-2 flex w-fit items-center gap-2 rounded-md bg-gray-900 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
 							on:click={() => ($selectQuizItemsForm = true)}
