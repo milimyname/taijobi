@@ -28,6 +28,7 @@
 	import BacksideCard from '$lib/components/canvas/BacksideCard.svelte';
 	import DrawingNav from '$lib/components/DrawingNav.svelte';
 	import ProgressSlider from '$lib/components/ProgressSlider.svelte';
+	import * as Select from '$lib/components/ui/select';
 
 	import { getFlashcardWidth } from '$lib/utils';
 
@@ -121,12 +122,7 @@
 	});
 </script>
 
-<QuizForm
-	errors={quizErrors}
-	enhance={quizEnhance}
-	form={quizForm}
-	constraints={quizConstraints}
-/>
+<QuizForm errors={quizErrors} enhance={quizEnhance} form={quizForm} constraints={quizConstraints} />
 
 <section class=" flex flex-1 flex-col justify-center gap-2 sm:justify-center sm:gap-5">
 	<div style="perspective: 3000px; position: relative; overflow: hidden;">
@@ -206,22 +202,27 @@
 		</button>
 
 		{#if $currentAlphabet === 'kanji'}
-			<select
+			<Select.Root
 				name="kanji-grade"
-				id="kanji-grade"
-				class="border-hidden bg-none pr-3 text-center outline-none focus:border-transparent focus:ring-0"
-				bind:value={$selectedKanjiGrade}
-				on:change={() => ($progressSlider = Math.floor(Math.random() * $kanjiLength))}
+				onSelectedChange={(selected) => {
+					if (selected) $selectedKanjiGrade = '' + selected.value;
+					$progressSlider = Math.floor(Math.random() * $kanjiLength);
+				}}
 			>
-				<option value="0">All Grades</option>
-				<option value="1">Grade 1</option>
-				<option value="2">Grade 2</option>
-				<option value="3">Grade 3</option>
-				<option value="4">Grade 4</option>
-				<option value="5">Grade 5</option>
-				<option value="6">Grade 6</option>
-				<option value="saved">My Saved</option>
-			</select>
+				<Select.Trigger class="w-32 border-0 focus:ring-0 focus:ring-offset-0">
+					<Select.Value placeholder={$selectedKanjiGrade} class="w-full" />
+				</Select.Trigger>
+				<Select.Content>
+					<Select.Item value="0">All Grades</Select.Item>
+					<Select.Item value="1">Grade 1</Select.Item>
+					<Select.Item value="2">Grade 2</Select.Item>
+					<Select.Item value="3">Grade 3</Select.Item>
+					<Select.Item value="4">Grade 4</Select.Item>
+					<Select.Item value="5">Grade 5</Select.Item>
+					<Select.Item value="6">Grade 6</Select.Item>
+					<Select.Item value="saved">My Saved</Select.Item>
+				</Select.Content>
+			</Select.Root>
 		{/if}
 
 		{#if alphabetLength !== $progressSlider && $kanjiLength !== $progressSlider}

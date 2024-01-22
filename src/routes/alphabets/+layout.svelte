@@ -6,7 +6,8 @@
 		innerHeightStore,
 		currentAlphabet,
 		searchKanji,
-		currentFlashcard
+		currentFlashcard,
+		selectedQuizItems
 	} from '$lib/utils/stores';
 	import { ArrowLeft, Search } from 'lucide-svelte';
 
@@ -25,7 +26,10 @@
 		<a
 			href="/"
 			class="go-back-btn group group flex items-center gap-2"
-			on:click={() => ($currentFlashcard = '')}
+			on:click={() => {
+				$currentFlashcard = '';
+				$selectedQuizItems = [];
+			}}
 		>
 			<ArrowLeft
 				class="h-4 w-4 transition-transform group-hover:-translate-x-2 group-active:-translate-x-2"
