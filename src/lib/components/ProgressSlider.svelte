@@ -46,9 +46,7 @@
 	onMount(() => {
 		// find div  by id svelte-announcer and remove
 		const announcer = document.getElementById('svelte-announcer');
-		if (announcer) {
-			announcer.remove();
-		}
+		if (announcer) announcer.remove();
 	});
 
 	$: value = $progressSlider;
