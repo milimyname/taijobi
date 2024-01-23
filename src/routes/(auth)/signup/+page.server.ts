@@ -15,15 +15,15 @@ export const load = async ({ locals }) => {
 
 /** @type {import('./$types').Actions} */
 export const actions = {
-	signUp: async ({ request, locals }) => {
+	default: async ({ request, locals }) => {
 		const form = await superValidate(request, signupSchema);
 
 		// Convenient validation check:
 		if (!form.valid) return fail(400, { form });
 
 		// Check if passwords match
-		if (form.data.password !== form.data.passwordConfirm)
-			return setError(form, 'passwordConfirm', 'Passwords do not match.');
+		if (form.data.password !== form.data.confirmPassword)
+			return setError(form, 'confirmPassword', 'Passwords do not match.');
 
 		try {
 			// Create user

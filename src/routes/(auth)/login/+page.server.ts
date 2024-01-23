@@ -7,7 +7,7 @@ export const load = async ({ locals, url }) => {
 	// Redirect if already logged in
 	if (locals.pb.authStore.isValid) throw redirect(303, '/');
 	// Server API:
-	const form = await superValidate(loginSchema);
+	// const form = await superValidate(loginSchema);
 
 	const authMethods = await locals.pb?.collection('users').listAuthMethods();
 	if (!authMethods) {
@@ -24,12 +24,17 @@ export const load = async ({ locals, url }) => {
 	const codeVerifier = googleAuthProvider.codeVerifier;
 
 	// Always return { form } in load and form actions.
-	return { form, authProviderRedirect, authProviderState: state, codeVerifier };
+	return {
+		form: await superValidate(loginSchema),
+		authProviderRedirect,
+		authProviderState: state,
+		codeVerifier
+	};
 };
 
 /** @type {import('./$types').Actions} */
 export const actions = {
-	login: async ({ request, locals }) => {
+	default: async ({ request, locals }) => {
 		const form = await superValidate(request, loginSchema);
 
 		// Convenient validation check:
@@ -46,18 +51,6 @@ export const actions = {
 			}
 		} catch (_) {
 			return setError(form, 'email', 'Invalid email or password.');
-		}
-
-		throw redirect(303, '/');
-	},
-	requestPasswordReset: async ({ request, locals }) => {
-		const form = await superValidate(request, loginSchema);
-
-		// Send password reset email
-		try {
-			await locals.pb.collection('users').requestPasswordReset(form.data.email);
-		} catch (_) {
-			return setError(form, 'email', 'Invalid email.');
 		}
 
 		throw redirect(303, '/');

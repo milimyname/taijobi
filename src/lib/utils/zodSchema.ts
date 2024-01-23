@@ -5,17 +5,29 @@ export const loginSchema = z.object({
 	password: z.string().min(8).max(32)
 });
 
+export type LoginSchema = typeof loginSchema;
+
 export const signupSchema = z.object({
 	email: z.string().email(),
 	password: z.string().min(8).max(32),
-	passwordConfirm: z.string().min(8).max(32)
+	confirmPassword: z.string().min(8).max(32)
 });
+
+export type SignupSchema = typeof signupSchema;
+
+export const resetPasswordSchema = z.object({
+	email: z.string().min(3).max(32)
+});
+
+export type ResetPasswordSchema = typeof resetPasswordSchema;
 
 export const profileData = z.object({
 	username: z.string().min(3).max(32).optional(),
 	email: z.string().email().optional(),
 	avatar: z.string().url().optional()
 });
+
+export type ProfileData = typeof profileData;
 
 export const flashcardSchema = z.object({
 	name: z.string(),
@@ -28,6 +40,8 @@ export const flashcardSchema = z.object({
 	id: z.string().optional()
 });
 
+export type FlashcardSchema = typeof flashcardSchema;
+
 export const flashcardCollectionSchema = z.object({
 	name: z.string().max(25),
 	description: z.string().max(100).optional(),
@@ -35,6 +49,8 @@ export const flashcardCollectionSchema = z.object({
 	id: z.string().optional(),
 	flashcardCollection: z.string().optional()
 });
+
+export type FlashcardCollectionSchema = typeof flashcardCollectionSchema;
 
 export const feedbackSchema = z.object({
 	name: z.string(),
@@ -44,6 +60,8 @@ export const feedbackSchema = z.object({
 	image: z.string().optional(),
 	id: z.string().optional()
 });
+
+export type FeedbackSchema = typeof feedbackSchema;
 
 export const quizSchema = z.object({
 	name: z.string(),
@@ -60,8 +78,12 @@ export const quizSchema = z.object({
 	selectedQuizItems: z.string().optional()
 });
 
+export type QuizSchema = typeof quizSchema;
+
 export const quizProgressSchema = z.object({
 	progressData: z.string(),
 	quizId: z.string(),
 	userId: z.string()
 });
+
+export type QuizProgressSchema = typeof quizProgressSchema;
