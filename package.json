@@ -51,6 +51,7 @@
 		"@tailwindcss/container-queries": "^0.1.1",
 		"bits-ui": "^0.14.0",
 		"clsx": "^2.1.0",
+		"formsnap": "^0.4.2",
 		"kuroshiro-analyzer-kuromoji": "^1.1.0",
 		"lucide-svelte": "^0.294.0",
 		"pocketbase": "^0.20.3",
