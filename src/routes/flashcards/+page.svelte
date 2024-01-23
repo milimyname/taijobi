@@ -12,7 +12,8 @@
 		skippedFlashcard,
 		showCollections,
 		selectedQuizItems,
-		flashcardBoxes
+		flashcardBoxes,
+		currentAlphabet
 	} from '$lib/utils/stores.js';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { innerWidthStore } from '$lib/utils/stores';
@@ -247,6 +248,7 @@
 										$clickedAddFlashcardCollection = false;
 										$clickedAddFlahcardBox = false;
 										$flashcardsBoxType = collection.type;
+										$currentAlphabet = '';
 									}}
 								>
 									<Dices />
