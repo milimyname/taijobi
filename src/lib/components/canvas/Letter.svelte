@@ -22,7 +22,7 @@
 
 	type SavedLetter = {
 		[x: string]: any;
-		name: string;
+		name?: string;
 	};
 
 	export let rotationY: number;
@@ -77,9 +77,7 @@
 					$currentLetter = $searchKanji;
 			} else if (+$selectedKanjiGrade !== 0) {
 				// Filter the kanji objects based on the selected grade
-				const filteredKanji: SavedLetter = {
-					name: ''
-				};
+				const filteredKanji: SavedLetter = {};
 
 				for (const kanjiChar in kanji) {
 					if (kanji[kanjiChar].grade === +$selectedKanjiGrade)

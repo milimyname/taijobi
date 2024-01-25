@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { ArrowLeft } from 'lucide-svelte';
 </script>
@@ -11,7 +10,7 @@
 </svelte:head>
 
 <main class="flex h-[100dvh] select-none flex-col items-center overflow-hidden bg-white px-3 py-5">
-	<nav class="z-[99] flex w-full p-5">
+	<nav class="flex w-full p-5">
 		<a
 			href={$page.route.id && $page.route.id.length < 12 ? '/' : '/quizzes'}
 			class="group flex items-center gap-2"

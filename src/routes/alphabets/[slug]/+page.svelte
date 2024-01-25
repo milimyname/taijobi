@@ -210,7 +210,10 @@
 				}}
 			>
 				<Select.Trigger class="w-32 border-0 focus:ring-0 focus:ring-offset-0">
-					<Select.Value placeholder={$selectedKanjiGrade} class="w-full" />
+					<Select.Value
+						placeholder={$selectedKanjiGrade === '0' ? 'All Grades' : $selectedKanjiGrade}
+						class="w-full"
+					/>
 				</Select.Trigger>
 				<Select.Content>
 					<Select.Item value="0">All Grades</Select.Item>
