@@ -2,28 +2,32 @@
 	import { clickedEditFlashcard, clickedAddFlashcardCollection } from '$lib/utils/stores';
 	import { ArrowUpCircle } from 'lucide-svelte';
 	import type { FlashcardType } from '$lib/utils/ambient.d.ts';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import { type FlashcardSchema } from '$lib/utils/zodSchema';
 
-	export let form;
-	export let flashcards: FlashcardType[];
-	export let currentIndex: number;
+	export let form: SuperValidated<FlashcardSchema>;
+
+	export let currentFlashcard: FlashcardType;
 </script>
 
 <button
 	class="z-40"
-	on:click|stopPropagation={() => {
+	on:click={() => {
 		$clickedAddFlashcardCollection = true;
 		$clickedEditFlashcard = true;
-		const fetchedFlashcard = flashcards[currentIndex];
 
 		// Fill out the form with the current card data
-		if (fetchedFlashcard.customFurigana) $form.name = fetchedFlashcard.customFurigana;
-		else $form.name = fetchedFlashcard.name;
-
-		$form.meaning = fetchedFlashcard.meaning;
-		$form.id = fetchedFlashcard.id;
-		$form.notes = fetchedFlashcard.notes;
-		$form.type = fetchedFlashcard.type;
-		$form.romanji = fetchedFlashcard.romanji;
+		form.data = {
+			...form.data,
+			name: currentFlashcard.customFurigana
+				? currentFlashcard.customFurigana
+				: currentFlashcard.name,
+			meaning: currentFlashcard.meaning,
+			id: currentFlashcard.id,
+			notes: currentFlashcard.notes,
+			type: currentFlashcard.type ?? '',
+			romanji: currentFlashcard.romanji
+		};
 	}}
 >
 	<ArrowUpCircle class="h-5 w-5" />

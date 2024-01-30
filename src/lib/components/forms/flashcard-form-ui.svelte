@@ -7,25 +7,19 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Drawer from '$lib/components/ui/drawer';
 	import { Button } from '$lib/components/ui/button';
-	import Form from '$lib/components/forms/flashcard-form.svelte';
+	import FlashcardForm from '$lib/components/forms/flashcard-form.svelte';
 	import { isDesktop } from '$lib/utils';
-	import type { SuperForm } from 'sveltekit-superforms/client';
-	import type { ZodValidation, SuperValidated } from 'sveltekit-superforms';
-	import type { AnyZodObject } from 'zod';
-	import type { Writable } from 'svelte/store';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import { type FlashcardSchema } from '$lib/utils/zodSchema';
+	import { invalidateAll } from '$app/navigation';
 
-	export let form: Writable<SuperValidated<any, any>['data']>;
-	export let errors: Writable<SuperValidated<any, any>['errors']> & {
-		clear: () => void;
-	};
-	export let constraints: any; // Replace 'any' with the appropriate type
-	export let enhance: SuperForm<ZodValidation<AnyZodObject>>['enhance'] = (el, events) => ({
-		destroy() {}
-	});
+	export let form: SuperValidated<FlashcardSchema>;
 
-	function onOutsideClick() {
+	const onOutsideClick = () => {
 		$clickedAddFlashcardCollection = false;
-	}
+
+		invalidateAll();
+	};
 
 	$: if ($clickedFeedback) {
 		$clickedAddFlashcardCollection = false;
@@ -35,7 +29,7 @@
 
 {#if $isDesktop}
 	<Dialog.Root bind:open={$clickedAddFlashcardCollection} {onOutsideClick}>
-		<Dialog.Content class=" sm:max-w-[425px]">
+		<Dialog.Content class="sm:max-w-[425px]">
 			<Dialog.Header>
 				<Dialog.Title>
 					{#if $clickedEditFlashcard}
@@ -45,7 +39,7 @@
 					{/if}
 				</Dialog.Title>
 			</Dialog.Header>
-			<Form {enhance} {errors} {form} {constraints}>
+			<FlashcardForm {form}>
 				<div slot="delete">
 					<Dialog.Close asChild let:builder>
 						<Button builders={[builder]} variant="destructive">Delete</Button>
@@ -57,9 +51,11 @@
 					</Dialog.Close>
 				</div>
 				<div slot="add">
-					<Button class="w-full">Add</Button>
+					<Dialog.Close asChild let:builder>
+						<Button builders={[builder]} class="w-full">Add</Button>
+					</Dialog.Close>
 				</div>
-			</Form>
+			</FlashcardForm>
 		</Dialog.Content>
 	</Dialog.Root>
 {:else}
@@ -67,6 +63,8 @@
 		onClose={() => {
 			$clickedAddFlashcardCollection = false;
 			$clickedEditFlashcard = false;
+
+			invalidateAll();
 		}}
 		open={$clickedAddFlashcardCollection}
 		shouldScaleBackground
@@ -82,11 +80,11 @@
 						{/if}
 					</Drawer.Title>
 				</Drawer.Header>
-				<Form {enhance} {errors} {form} {constraints}>
+				<FlashcardForm {form}>
 					<Button variant="destructive" slot="delete" class="w-full">Delete</Button>
 					<Button slot="update" class="w-full">Update</Button>
 					<Button slot="add" class="w-full">Add</Button>
-				</Form>
+				</FlashcardForm>
 				<Drawer.Footer>
 					<Drawer.Close asChild let:builder>
 						<Button builders={[builder]} variant="outline">Cancel</Button>

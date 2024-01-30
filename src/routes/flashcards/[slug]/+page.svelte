@@ -19,6 +19,7 @@
 	import 'swiper/swiper-bundle.css';
 	import LetterDrawingFlashcard from './LetterDrawingFlashcard.svelte';
 	import { Plus } from 'lucide-svelte';
+	import { flashcardSchema } from '$lib/utils/zodSchema';
 
 	export let data;
 
@@ -32,26 +33,26 @@
 	let swiperInstance: Swiper;
 
 	// Client API:
-	const { form, errors, constraints, enhance } = superForm(data.form, {
-		taintedMessage: null,
-		resetForm: true,
-		applyAction: true,
-		onSubmit: async (form) => {
-			$clickedEditFlashcard = false;
-			$clickedAddFlashcardCollection = false;
+	// const { form, errors, constraints, enhance } = superForm(data.form, {
+	// 	taintedMessage: null,
+	// 	resetForm: true,
+	// 	applyAction: true,
+	// 	onSubmit: async (form) => {
+	// 		$clickedEditFlashcard = false;
+	// 		$clickedAddFlashcardCollection = false;
 
-			if (form.action.search.endsWith('delete')) currentIndex = 0;
-		},
-		onUpdated: () => {
-			if ($errors.name) return ($clickedAddFlashcardCollection = true);
+	// 		if (form.action.search.endsWith('delete')) currentIndex = 0;
+	// 	},
+	// 	onUpdated: () => {
+	// 		if ($errors.name) return ($clickedAddFlashcardCollection = true);
 
-			// Slide to the new created word
-			if (swiperInstance.slides.length + 1 === data.flashcards.length)
-				setTimeout(() => {
-					swiperInstance.slideTo(data.flashcards.length + 1);
-				}, 500);
-		}
-	});
+	// 		// Slide to the new created word
+	// 		if (swiperInstance.slides.length + 1 === data.flashcards.length)
+	// 			setTimeout(() => {
+	// 				swiperInstance.slideTo(data.flashcards.length + 1);
+	// 			}, 500);
+	// 	}
+	// });
 
 	onMount(() => {
 		swiperInstance = new Swiper('.swiper-container', {
@@ -107,7 +108,7 @@
 </script>
 
 {#if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin}
-	<FlashcardForm {constraints} {form} {errors} {enhance} />
+	<FlashcardForm form={data.form} />
 {/if}
 
 <section
@@ -130,7 +131,7 @@
 					<div
 						class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
 					>
-						<EditButton {form} flashcards={data.flashcards} {currentIndex} />
+						<EditButton form={data.form} currentFlashcard={data.flashcards[currentIndex]} />
 					</div>
 				{/if}
 			</div>

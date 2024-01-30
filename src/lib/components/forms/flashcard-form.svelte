@@ -1,22 +1,14 @@
 <script lang="ts">
 	import { clickedEditFlashcard, currentFlashcardTypeStore } from '$lib/utils/stores';
-	import { slide, fly } from 'svelte/transition';
+	import { fly } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 	import { HelpCircle } from 'lucide-svelte';
 	import { isDesktop } from '$lib/utils';
-	import type { SuperForm } from 'sveltekit-superforms/client';
-	import type { ZodValidation, SuperValidated } from 'sveltekit-superforms';
-	import type { AnyZodObject } from 'zod';
-	import type { Writable } from 'svelte/store';
+	import * as Form from '$lib/components/ui/form';
+	import { flashcardSchema, type FlashcardSchema } from '$lib/utils/zodSchema';
+	import type { SuperValidated } from 'sveltekit-superforms';
 
-	export let form: Writable<SuperValidated<any, any>['data']>;
-	export let errors: Writable<SuperValidated<any, any>['errors']> & {
-		clear: () => void;
-	};
-	export let constraints: any; // Replace 'any' with the appropriate type
-	export let enhance: SuperForm<ZodValidation<AnyZodObject>>['enhance'] = (el, events) => ({
-		destroy() {}
-	});
+	export let form: SuperValidated<FlashcardSchema>;
 
 	let showInfo = false;
 	let type: string;
@@ -24,21 +16,125 @@
 	$: if ($currentFlashcardTypeStore)
 		type = $currentFlashcardTypeStore === 'word' ? 'word' : 'kanji';
 	else type = 'word';
-
-
-	
-	$: if (!$clickedEditFlashcard) {
-		$form.name = '';
-		$form.meaning = '';
-		$form.id = '';
-		$form.notes = '';
-		$form.type = '';
-		$form.romanji = '';
-		$form.furigana = '';
-	}
 </script>
 
-<form
+<Form.Root
+	method="POST"
+	{form}
+	schema={flashcardSchema}
+	let:config
+	class="quiz-form z-[1000] flex w-full flex-col gap-5 rounded-t-2xl bg-white
+        {!$isDesktop && 'px-4'}"
+>
+	<div class="mb-auto flex flex-col gap-5">
+		<Form.Field {config} name="name">
+			<Form.Item>
+				<Form.Label class="mb-2 flex items-center gap-2">
+					Flashcard
+					<button
+						type="button"
+						on:click={() => (showInfo = true)}
+						on:mouseenter={() => (showInfo = true)}
+						on:mouseleave={() => (showInfo = false)}
+						class="relative hover:fill-black/50"
+					>
+						<HelpCircle class="h-4 w-4 transition-transform hover:scale-125" />
+					</button>
+
+					{#if showInfo}
+						<div
+							transition:fly={{
+								delay: 0,
+								duration: 1000,
+								opacity: 0,
+								y: 1000,
+								easing: quintOut
+							}}
+							class="z-2 absolute bottom-0 left-0 h-2/3 w-full rounded-md bg-blue-200 p-4 text-black"
+						>
+							<p>If you wanna use custom furigana, please use the following format:</p>
+							<ul class="my-2 text-xl">
+								<li>
+									<code class="text-black">漢字/かんじ/</code>
+								</li>
+								<li>
+									<code class="text-black">読/よ/み物/もの/</code>
+								</li>
+							</ul>
+							<p>
+								Mostly, u won't need to use it but sometimes, there is a typo in the auto furigana
+								and u can overwrite it with this. Just use slashes for hiragana after the last kanji
+								one and don't forget to close it with a slash
+							</p>
+						</div>
+					{/if}
+				</Form.Label>
+				<Form.Input />
+				<Form.Validation />
+			</Form.Item>
+		</Form.Field>
+
+		<Form.Field {config} name="meaning">
+			<Form.Item>
+				<Form.Label>Meaning</Form.Label>
+				<Form.Input />
+				<Form.Validation />
+			</Form.Item>
+		</Form.Field>
+
+		{#if $currentFlashcardTypeStore !== 'kanji'}
+			<Form.Field {config} name="romanji">
+				<Form.Item>
+					<Form.Label>Romanji/Furigana</Form.Label>
+					<Form.Input />
+					<Form.Validation />
+				</Form.Item>
+			</Form.Field>
+		{/if}
+
+		<Form.Field {config} name="type">
+			<Form.Item>
+				<Form.Label>Type</Form.Label>
+
+				<Form.Select>
+					<Form.SelectTrigger />
+					<Form.SelectContent>
+						<Form.SelectItem value={type}>{type}</Form.SelectItem>
+					</Form.SelectContent>
+				</Form.Select>
+				<Form.Validation />
+			</Form.Item>
+		</Form.Field>
+
+		<Form.Field {config} name="notes">
+			<Form.Item>
+				<Form.Label>Notes</Form.Label>
+				<Form.Textarea class="resize-none" />
+				<Form.Validation />
+			</Form.Item>
+		</Form.Field>
+
+		<input type="hidden" name="id" bind:value={form.data.id} />
+	</div>
+
+	{#if $clickedEditFlashcard}
+		<div class="flex w-full {!$isDesktop && 'flex-col gap-2'} justify-between">
+			<button formaction="?/delete">
+				<slot name="delete" />
+			</button>
+
+			<button formaction="?/update">
+				<slot name="update" />
+			</button>
+		</div>
+	{:else}
+		<button formaction="?/add">
+			<slot name="add" />
+		</button>
+	{/if}
+</Form.Root>
+
+<!-- <form
 	use:enhance
 	method="POST"
 	class="quiz-form z-[1000] flex w-full flex-col gap-5 rounded-t-2xl bg-white
@@ -97,7 +193,7 @@
                     focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
                   "
 				aria-invalid={$errors.name ? 'true' : undefined}
-				bind:value={$form.name}
+				bind:value={form.data.name}
 				{...$constraints.name}
 			/>
 			{#if $errors.name}
@@ -122,7 +218,7 @@
                     focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
                   "
 				aria-invalid={$errors.meaning ? 'true' : undefined}
-				bind:value={$form.meaning}
+				bind:value={form.data.meaning}
 				{...$constraints.meaning}
 			/>
 			{#if $errors.meaning}
@@ -146,7 +242,7 @@
                     focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
                   "
 					aria-invalid={$errors.romanji ? 'true' : undefined}
-					bind:value={$form.romanji}
+					bind:value={form.data.romanji}
 					{...$constraints.romanji}
 				/>
 				{#if $errors.romanji}
@@ -194,7 +290,7 @@
                     focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
                   "
 				aria-invalid={$errors.notes ? 'true' : undefined}
-				bind:value={$form.notes}
+				bind:value={form.data.notes}
 				{...$constraints.notes}
 				rows="3"
 			/>
@@ -205,7 +301,7 @@
 				>
 			{/if}
 		</fieldset>
-		<input type="hidden" name="id" bind:value={$form.id} />
+		<input type="hidden" name="id" bind:value={form.data.id} />
 	</div>
 
 	{#if $clickedEditFlashcard}
@@ -219,4 +315,4 @@
 	{:else}
 		<button formaction="?/add"><slot name="add" /></button>
 	{/if}
-</form>
+</form> -->
