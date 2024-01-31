@@ -2,6 +2,10 @@
 	import { isDesktop } from '$lib/utils';
 	import { clickedFeedback } from '$lib/utils/stores';
 	import { enhance } from '$app/forms';
+	import { Label } from '$lib/components/ui/label';
+	import { Input } from '$lib/components/ui/input';
+	import { Textarea } from '$lib/components/ui/textarea';
+	import { Button } from '$lib/components/ui/button';
 
 	function handleSubmit(event: SubmitEvent) {
 		event.preventDefault();
@@ -15,54 +19,21 @@
 	on:submit={handleSubmit}
 	enctype="multipart/form-data"
 	action="/feedbacks?/create"
-	class="feedback-form flex w-full flex-col gap-5 z-100 rounded-t-2xl bg-white
+	class="feedback-form z-100 flex w-full flex-col gap-5 rounded-t-2xl bg-white
             {!$isDesktop && 'px-4'}"
 >
 	<div class=" flex flex-col gap-5">
-		<fieldset class=" flex w-full flex-col">
-			<label for="name">Feedback name</label>
-			<input
-				type="text"
-				name="name"
-				class="
-									block
-									rounded-md
-									border-gray-300
-									shadow-sm
-									focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
-								"
-				required
-			/>
+		<fieldset class=" flex w-full flex-col gap-2">
+			<Label for="name">Feedback name</Label>
+			<Input type="text" name="name" required />
 		</fieldset>
-		<fieldset class=" flex w-full flex-col">
-			<label for="description">Description</label>
-			<textarea
-				name="description"
-				maxlength="1000"
-				class="
-									block
-									rounded-md
-									border-gray-300
-									shadow-sm
-									focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
-								"
-				rows="3"
-				required
-			/>
+		<fieldset class=" flex w-full flex-col gap-2">
+			<Label for="description">Description</Label>
+			<Textarea name="description" maxlength={1000} rows={3} required />
 		</fieldset>
-		<fieldset class=" flex w-full flex-col">
-			<label for="model">Device model</label>
-			<input
-				type="text"
-				name="device"
-				class="
-									block
-									rounded-md
-									border-gray-300
-									shadow-sm
-									focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
-								"
-			/>
+		<fieldset class=" flex w-full flex-col gap-2">
+			<Label for="device">Device model</Label>
+			<Input name="device" />
 		</fieldset>
 		<input
 			type="file"
@@ -77,17 +48,5 @@
 		/>
 	</div>
 
-	{#if $isDesktop}
-		<button
-			class="w-full mt-auto rounded-md bg-black py-2 text-lg font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm"
-		>
-			Add
-		</button>
-	{:else}
-		<button
-			class="w-full mt-auto rounded-md bg-black py-2 text-lg font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm"
-		>
-			Add
-		</button>
-	{/if}
+	<Button type="submit">Add</Button>
 </form>
