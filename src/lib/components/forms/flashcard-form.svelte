@@ -14,6 +14,8 @@
 	let showInfo = false;
 	let type: string;
 
+	let dataForm = form.form;
+
 	$: if ($currentFlashcardTypeStore)
 		type = $currentFlashcardTypeStore === 'word' ? 'word' : 'kanji';
 	else type = 'word';

@@ -66,7 +66,6 @@
 			form.reset();
 		}}
 		open={$clickedAddFlashcardCollection}
-		shouldScaleBackground
 	>
 		<Drawer.Portal>
 			<Drawer.Content>
