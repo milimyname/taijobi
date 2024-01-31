@@ -33,11 +33,8 @@ export const load = async ({ locals, params }) => {
 		flashcards.map((card: RecordModel) => processFurigana(card))
 	);
 
-	// Server API:
-	const form = await superValidate(flashcardSchema);
-
 	return {
-		form,
+		form: await superValidate(flashcardSchema),
 		flashcards: processeFlashcards
 	};
 };

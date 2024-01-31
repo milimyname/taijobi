@@ -54,7 +54,7 @@
 		<Form.Field {config} name="password">
 			<Form.Item class="flex w-full flex-col md:w-2/3">
 				<Form.Label>Password</Form.Label>
-				<Form.Input />
+				<Form.Input type="password" />
 				<Form.Validation />
 			</Form.Item>
 		</Form.Field>
