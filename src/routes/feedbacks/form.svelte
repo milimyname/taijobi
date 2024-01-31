@@ -1,118 +1,67 @@
 <script lang="ts">
-	// Will be refactored later
 	import { isDesktop } from '$lib/utils';
-	import { slide } from 'svelte/transition';
-	import { quintOut } from 'svelte/easing';
-	import * as Drawer from '$lib/components/ui/drawer';
-	import type { SuperForm } from 'sveltekit-superforms/client';
-	import type { ZodValidation, SuperValidated } from 'sveltekit-superforms';
-	import type { AnyZodObject } from 'zod';
-	import type { Writable } from 'svelte/store';
+	import * as Form from '$lib/components/ui/form';
+	import { feedbackSchema, type FeedbackSchema } from '$lib/utils/zodSchema';
+	import { Button } from '$lib/components/ui/button';
+	import { type SuperForm } from 'sveltekit-superforms/client';
+
+	export let form: SuperForm<FeedbackSchema>;
+
+	let formData = form.form;
 
 	let showImage = false;
-	export let form: Writable<SuperValidated<any, any>['data']>;
-	export let errors: Writable<SuperValidated<any, any>['errors']> & {
-		clear: () => void;
-	};
-	export let constraints: any; // Replace 'any' with the appropriate type
-	export let enhance: SuperForm<ZodValidation<AnyZodObject>>['enhance'] = (el, events) => ({
-		destroy() {}
-	});
 </script>
 
 {#if showImage}
 	<img
-		src={$form.image}
+		src={$formData.image}
 		alt="Feedback Preview"
 		class="absolute left-1/2 top-1/2 z-[2000] -translate-x-1/2 -translate-y-1/2"
 	/>
-	<button
+	<Button
 		on:click={() => (showImage = false)}
 		class="absolute left-1/2 top-[80%] z-[2010] -translate-x-1/2 -translate-y-1/2 bg-black px-4 py-2 font-bold text-white"
 	>
 		Close
-	</button>
+	</Button>
 {/if}
 
-<form
+<Form.Root
 	method="POST"
-	use:enhance
+	{form}
+	controlled
+	schema={feedbackSchema}
 	action="?/update"
-	class="edit-form flex w-full flex-col gap-5 z-[1000] rounded-t-2xl bg-white
+	let:config
+	class="edit-form z-[1000] flex w-full flex-col gap-5 rounded-t-2xl bg-white
            			 {!$isDesktop && 'px-4'}"
 >
-	<input type="text" name="id" bind:value={$form.id} class="hidden" />
-	<div class="mb-auto flex h-full flex-col gap-5">
-		<fieldset class=" flex w-full flex-col">
-			<label for="name">Name</label>
-			<input
-				type="text"
-				name="name"
-				bind:value={$form.name}
-				class="
-								block
-								rounded-md
-								border-gray-300
-								shadow-sm
-								focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
-							"
-				{...$constraints.name}
-			/>
-			{#if $errors.name}
-				<span
-					transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
-					class="mt-1 select-none text-sm text-red-400">{$errors.name}</span
-				>
-			{/if}
-		</fieldset>
-		<fieldset class=" flex w-full flex-col">
-			<label for="description">Description</label>
-			<textarea
-				name="description"
-				bind:value={$form.description}
-				maxlength="1000"
-				class="block
-									rounded-md
-									border-gray-300
-									shadow-sm
-									focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
-								"
-				rows="3"
-				{...$constraints.description}
-			/>
-			{#if $errors.description}
-				<span
-					transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
-					class="mt-1 select-none text-sm text-red-400"
-				>
-					{$errors.description}
-				</span>
-			{/if}
-		</fieldset>
-		<fieldset class=" flex w-full flex-col">
-			<label for="model">Device model</label>
-			<input
-				type="text"
-				name="model"
-				bind:value={$form.device}
-				class="block
-									rounded-md
-									border-gray-300
-									shadow-sm
-									focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
-								"
-				{...$constraints.device}
-			/>
-			{#if $errors.device}
-				<span
-					transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
-					class="mt-1 select-none text-sm text-red-400"
-				>
-					{$errors.device}
-				</span>
-			{/if}
-		</fieldset>
-		{#if $form.image !== ''}
+	<div class=" flex flex-col gap-5">
+		<Form.Field {config} name="name">
+			<Form.Item>
+				<Form.Label>Name</Form.Label>
+				<Form.Input />
+				<Form.Validation />
+			</Form.Item>
+		</Form.Field>
+
+		<Form.Field {config} name="description">
+			<Form.Item>
+				<Form.Label>Description</Form.Label>
+				<Form.Textarea maxlength={1000} rows={3} />
+				<Form.Validation />
+			</Form.Item>
+		</Form.Field>
+
+		<Form.Field {config} name="device">
+			<Form.Item>
+				<Form.Label>Device Model</Form.Label>
+				<Form.Input />
+				<Form.Validation />
+			</Form.Item>
+		</Form.Field>
+
+		{#if $formData.image !== ''}
 			<div>
 				<button type="button" on:click={() => (showImage = true)} class="underline">
 					Show Image
@@ -120,37 +69,19 @@
 				<p class="text-sm">Create a new report to change the image</p>
 			</div>
 		{/if}
-	</div>
-	<div class="flex justify-between flex-col gap-2">
-		{#if $isDesktop}
-			<button
-				formaction="?/delete"
-				class="rounded-md bg-red-400 px-4 py-2 text-lg font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-red-500 active:translate-y-1 active:shadow-sm"
-			>
-				Delete
-			</button>
-			<button
-				class="rounded-md bg-black px-4 py-2 text-lg font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm"
-			>
-				Update
-			</button>
-		{:else}
-			<Drawer.Close>
-				<button
-					class="rounded-md w-full bg-black px-4 py-2 text-lg font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm"
-				>
-					Update
-				</button>
-			</Drawer.Close>
 
-			<Drawer.Close>
-				<button
-					formaction="?/delete"
-					class="rounded-md w-full bg-red-400 px-4 py-2 text-lg font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-red-500 active:translate-y-1 active:shadow-sm"
-				>
-					Delete
-				</button>
-			</Drawer.Close>
-		{/if}
+		<Form.Field {config} name="id">
+			<Form.Item>
+				<Form.Input type="hidden" />
+			</Form.Item>
+		</Form.Field>
+
+		<div class="flex w-full {!$isDesktop && 'flex-col gap-2'} justify-between">
+			<Form.Button variant="destructive" formaction="?/delete"><slot name="delete" /></Form.Button>
+
+			<Form.Button formaction="?/update">
+				<slot name="update" />
+			</Form.Button>
+		</div>
 	</div>
-</form>
+</Form.Root>
