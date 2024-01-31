@@ -27,10 +27,10 @@
 	controlled
 	schema={flashcardSchema}
 	let:config
-	class="quiz-form z-[1000] flex w-full flex-col gap-5 rounded-t-2xl bg-white
+	class="quiz-form z-[1000] flex w-full flex-col rounded-t-2xl 
         {!$isDesktop && 'px-4'}"
 >
-	<div class="mb-auto flex flex-col gap-5">
+	<div class="mb-auto flex flex-col gap-2">
 		<Form.Field {config} name="name">
 			<Form.Item>
 				<Form.Label class="mb-2 flex items-center gap-2">
