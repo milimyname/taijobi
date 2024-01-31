@@ -33,27 +33,6 @@
 	let swiperInstance: Swiper;
 
 	// Client API:
-	// const { form, errors, constraints, enhance } = superForm(data.form, {
-	// 	taintedMessage: null,
-	// 	resetForm: true,
-	// 	applyAction: true,
-	// 	onSubmit: async (form) => {
-	// 		$clickedEditFlashcard = false;
-	// 		$clickedAddFlashcardCollection = false;
-
-	// 		if (form.action.search.endsWith('delete')) currentIndex = 0;
-	// 	},
-	// 	onUpdated: () => {
-	// 		if ($errors.name) return ($clickedAddFlashcardCollection = true);
-
-	// 		// Slide to the new created word
-	// 		if (swiperInstance.slides.length + 1 === data.flashcards.length)
-	// 			setTimeout(() => {
-	// 				swiperInstance.slideTo(data.flashcards.length + 1);
-	// 			}, 500);
-	// 	}
-	// });
-
 	const superFrm = superForm(data.form, {
 		validators: flashcardSchema,
 		taintedMessage: null,

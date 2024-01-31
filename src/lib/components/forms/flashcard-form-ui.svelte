@@ -9,9 +9,10 @@
 	import { Button } from '$lib/components/ui/button';
 	import FlashcardForm from '$lib/components/forms/flashcard-form.svelte';
 	import { isDesktop } from '$lib/utils';
-	import { invalidateAll } from '$app/navigation';
+	import { type FlashcardSchema } from '$lib/utils/zodSchema';
+	import { type SuperForm } from 'sveltekit-superforms/client';
 
-	export let form: any;
+	export let form: SuperForm<FlashcardSchema>;
 
 	const onOutsideClick = () => {
 		$clickedAddFlashcardCollection = false;
@@ -65,7 +66,6 @@
 			form.reset();
 		}}
 		open={$clickedAddFlashcardCollection}
-		shouldScaleBackground
 	>
 		<Drawer.Portal>
 			<Drawer.Content>

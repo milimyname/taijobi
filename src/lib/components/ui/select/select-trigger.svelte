@@ -3,6 +3,7 @@
 	import { ChevronDown } from 'lucide-svelte';
 	import { cn } from '$lib/utils';
 	import { clickedQuizForm } from '$lib/utils/stores';
+	import { page } from '$app/stores';
 
 	type $$Props = SelectPrimitive.TriggerProps;
 	type $$Events = SelectPrimitive.TriggerEvents;
@@ -22,7 +23,7 @@
 	on:keydown
 >
 	<slot {builder} />
-	{#if $clickedQuizForm}
+	{#if $clickedQuizForm || $page.url.pathname.includes('/flashcards')}
 		<div>
 			<ChevronDown class="h-4 w-4 opacity-50" />
 		</div>
