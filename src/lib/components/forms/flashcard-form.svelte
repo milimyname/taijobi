@@ -6,10 +6,10 @@
 	import { isDesktop } from '$lib/utils';
 	import * as Form from '$lib/components/ui/form';
 	import { flashcardSchema } from '$lib/utils/zodSchema';
+	import { type FlashcardSchema } from '$lib/utils/zodSchema';
 	import { type SuperForm } from 'sveltekit-superforms/client';
-	import { ZodObject } from 'zod';
 
-	export let form: any;
+	export let form: SuperForm<FlashcardSchema>;
 
 	let showInfo = false;
 	let type: string;
