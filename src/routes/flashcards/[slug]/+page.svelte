@@ -54,6 +54,26 @@
 	// 	}
 	// });
 
+	const superFrm = superForm(data.form, {
+		validators: flashcardSchema,
+		taintedMessage: null,
+		resetForm: true,
+		applyAction: true,
+		onSubmit: async (form) => {
+			$clickedEditFlashcard = false;
+			$clickedAddFlashcardCollection = false;
+
+			if (form.action.search.endsWith('delete')) currentIndex = 0;
+		},
+		onUpdated: () => {
+			// Slide to the new created word
+			if (swiperInstance.slides.length + 1 === data.flashcards.length)
+				setTimeout(() => {
+					swiperInstance.slideTo(data.flashcards.length + 1);
+				}, 500);
+		}
+	});
+
 	onMount(() => {
 		swiperInstance = new Swiper('.swiper-container', {
 			slidesPerView: 'auto',
@@ -108,7 +128,7 @@
 </script>
 
 {#if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin}
-	<FlashcardForm form={data.form} />
+	<FlashcardForm form={superFrm} />
 {/if}
 
 <section
@@ -131,7 +151,7 @@
 					<div
 						class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
 					>
-						<EditButton form={data.form} currentFlashcard={data.flashcards[currentIndex]} />
+						<EditButton form={superFrm.form} currentFlashcard={data.flashcards[currentIndex]} />
 					</div>
 				{/if}
 			</div>

@@ -2,10 +2,8 @@
 	import { clickedEditFlashcard, clickedAddFlashcardCollection } from '$lib/utils/stores';
 	import { ArrowUpCircle } from 'lucide-svelte';
 	import type { FlashcardType } from '$lib/utils/ambient.d.ts';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import { type FlashcardSchema } from '$lib/utils/zodSchema';
 
-	export let form: SuperValidated<FlashcardSchema>;
+	export let form: any;
 
 	export let currentFlashcard: FlashcardType;
 </script>
@@ -17,7 +15,7 @@
 		$clickedEditFlashcard = true;
 
 		// Fill out the form with the current card data
-		form.data = {
+		$form = {
 			...form.data,
 			name: currentFlashcard.customFurigana
 				? currentFlashcard.customFurigana

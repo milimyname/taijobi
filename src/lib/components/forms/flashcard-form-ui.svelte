@@ -9,16 +9,14 @@
 	import { Button } from '$lib/components/ui/button';
 	import FlashcardForm from '$lib/components/forms/flashcard-form.svelte';
 	import { isDesktop } from '$lib/utils';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import { type FlashcardSchema } from '$lib/utils/zodSchema';
 	import { invalidateAll } from '$app/navigation';
 
-	export let form: SuperValidated<FlashcardSchema>;
+	export let form: any;
 
 	const onOutsideClick = () => {
 		$clickedAddFlashcardCollection = false;
 
-		invalidateAll();
+		form.reset();
 	};
 
 	$: if ($clickedFeedback) {
@@ -64,7 +62,7 @@
 			$clickedAddFlashcardCollection = false;
 			$clickedEditFlashcard = false;
 
-			invalidateAll();
+			form.reset();
 		}}
 		open={$clickedAddFlashcardCollection}
 		shouldScaleBackground

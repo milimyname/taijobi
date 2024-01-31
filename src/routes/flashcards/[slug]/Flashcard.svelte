@@ -181,7 +181,7 @@
 								y: 400,
 								easing: quintOut
 							}}
-							class="z-4 absolute bottom-0 left-0 h-5/6 w-full rounded-xl bg-primary p-4 text-sm text-white"
+							class="z-4 absolute bottom-0 left-0 h-5/6 w-full rounded-xl bg-primary p-4 text-xl text-white"
 						>
 							{wordFlashcard.notes}
 						</p>
