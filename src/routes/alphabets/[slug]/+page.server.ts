@@ -14,9 +14,11 @@ export const load = async ({ locals }) => {
 			fields: 'name'
 		});
 
-		const quizForm = await superValidate(quizSchema);
-
-		return { flashcard: structuredClone(flashcard), kanjiId, quizForm };
+		return {
+			flashcard: structuredClone(flashcard),
+			kanjiId,
+			quizForm: await superValidate(quizSchema)
+		};
 	} catch (e) {
 		console.error(e);
 		return fail(500, { message: 'Something went wrong' });

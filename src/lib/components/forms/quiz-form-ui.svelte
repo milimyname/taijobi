@@ -11,20 +11,13 @@
 	import { Button } from '$lib/components/ui/button';
 	import Form from '$lib/components/forms/quiz-form.svelte';
 	import { isDesktop } from '$lib/utils';
-	import type { SuperForm } from 'sveltekit-superforms/client';
-	import type { ZodValidation, SuperValidated } from 'sveltekit-superforms';
-	import type { AnyZodObject } from 'zod';
-	import type { Writable } from 'svelte/store';
 	import { Grid2X2 } from 'lucide-svelte';
+	import { type QuizSchema } from '$lib/utils/zodSchema';
+	import { type SuperForm } from 'sveltekit-superforms/client';
 
-	export let form: Writable<SuperValidated<any, any>['data']>;
-	export let errors: Writable<SuperValidated<any, any>['errors']> & {
-		clear: () => void;
-	};
-	export let constraints: any; // Replace 'any' with the appropriate type
-	export let enhance: SuperForm<ZodValidation<AnyZodObject>>['enhance'] = (el, events) => ({
-		destroy() {}
-	});
+	export let form: SuperForm<QuizSchema>;
+
+	let formData = form.form;
 
 	$: selectedItems = $selectedQuizItems.length;
 </script>
@@ -36,7 +29,7 @@
 			<Dialog.Header>
 				<Dialog.Title>Create a quiz</Dialog.Title>
 			</Dialog.Header>
-			<Form {enhance} {errors} {form} {constraints}>
+			<Form {form}>
 				<Dialog.Root bind:open={$selectQuizItemsForm}>
 					<Dialog.Trigger
 						class="mb-2 flex w-fit items-center gap-2 rounded-md bg-gray-900 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
@@ -46,7 +39,7 @@
 						Quiz Items ({selectedItems})
 					</Dialog.Trigger>
 					<Dialog.Content class="swap-items z-[101] h-full max-h-[96%] max-w-2xl p-0">
-						<QuizItems flashcardBox={$form.flashcardBox}>
+						<QuizItems flashcardBox={$formData.flashcardBox}>
 							<Dialog.Close asChild let:builder>
 								<Button
 									builders={[builder]}
@@ -77,7 +70,7 @@
 				<Drawer.Header class="text-left">
 					<Drawer.Title>Create a quiz</Drawer.Title>
 				</Drawer.Header>
-				<Form {enhance} {errors} {form} {constraints}>
+				<Form {form}>
 					<Drawer.Nested bind:open={$selectQuizItemsForm}>
 						<Drawer.Trigger
 							class=" mb-2 flex w-fit items-center gap-2 rounded-md bg-gray-900 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
@@ -90,7 +83,7 @@
 							<Drawer.Content
 								class="select-quiz fixed bottom-0 left-0 right-0 mt-24 flex h-full max-h-[94%] flex-col rounded-t-[10px] bg-gray-100"
 							>
-								<QuizItems flashcardBox={$form.flashcardBox}>
+								<QuizItems flashcardBox={$formData.flashcardBox}>
 									<Drawer.Close asChild let:builder>
 										<Button
 											builders={[builder]}

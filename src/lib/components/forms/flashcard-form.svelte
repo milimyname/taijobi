@@ -5,8 +5,7 @@
 	import { HelpCircle } from 'lucide-svelte';
 	import { isDesktop } from '$lib/utils';
 	import * as Form from '$lib/components/ui/form';
-	import { flashcardSchema } from '$lib/utils/zodSchema';
-	import { type FlashcardSchema } from '$lib/utils/zodSchema';
+	import { flashcardSchema, type FlashcardSchema } from '$lib/utils/zodSchema';
 	import { type SuperForm } from 'sveltekit-superforms/client';
 
 	export let form: SuperForm<FlashcardSchema>;
