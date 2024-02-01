@@ -126,8 +126,14 @@ export function convertToRubyTag(input: string) {
 
 	// Process each pair in steps of 2 (character and its annotation)
 	for (let i = 0; i < pairs.length; i += 2) {
-		// Create a ruby annotation for each pair
-		rubyTag += '<ruby>' + pairs[i] + '<rt>' + pairs[i + 1] + '</rt></ruby>';
+		// Check if the annotation exists
+		if (pairs[i + 1]) {
+			// Create a ruby annotation for each pair
+			rubyTag += '<ruby>' + pairs[i] + '<rt>' + pairs[i + 1] + '</rt></ruby>';
+		} else {
+			// If the annotation doesn't exist, just add the character
+			rubyTag += pairs[i];
+		}
 	}
 
 	return rubyTag;
