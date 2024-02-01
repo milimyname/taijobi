@@ -96,8 +96,7 @@
 		<Form.Field {config} name="type">
 			<Form.Item>
 				<Form.Label>Type</Form.Label>
-
-				<Form.Select>
+				<Form.Select selected={{ value: type, label: type }}>
 					<Form.SelectTrigger />
 					<Form.SelectContent>
 						<Form.SelectItem value={type}>{type}</Form.SelectItem>
