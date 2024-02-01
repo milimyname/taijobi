@@ -153,7 +153,7 @@
 				{#if wordFlashcard.customFurigana}
 					<div>
 						<h2 class="text-xl font-medium">{wordFlashcard.customFurigana}</h2>
-						<p class=" text-sm text-gray-300">Furigana</p>
+						<p class=" text-sm text-gray-300">Custom furigana</p>
 					</div>
 				{/if}
 				{#if wordFlashcard.romanji}
