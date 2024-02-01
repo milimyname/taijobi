@@ -11,6 +11,7 @@ export const innerHeightStore = writable(0);
 export const lastPoint = writable({ x: 0, y: 0 });
 export const clickedAddFlashcardCollection = writable(false);
 export const currentFlashcardCollectionId = writable('');
+export const currentBoxId = writable('');
 export const clickedEditFlashcard = writable(false);
 export const clickedAddFlahcardBox = writable(false);
 export const clickedFeedback = writable(false);

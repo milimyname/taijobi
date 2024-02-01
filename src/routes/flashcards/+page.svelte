@@ -13,7 +13,8 @@
 		showCollections,
 		selectedQuizItems,
 		flashcardBoxes,
-		currentAlphabet
+		currentAlphabet,
+		currentBoxId
 	} from '$lib/utils/stores.js';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { innerWidthStore } from '$lib/utils/stores';
@@ -25,21 +26,21 @@
 	import { goto } from '$app/navigation';
 	import { isTouchScreen } from '$lib/utils/actions';
 	import { onMount } from 'svelte';
-	import { quizSchema } from '$lib/utils/zodSchema';
+	import { quizSchema, flashcardCollectionSchema } from '$lib/utils/zodSchema';
 
 	export let data;
 
 	// Flashcard collection form:
-	const { form, errors, constraints, enhance } = superForm(data.form, {
+	const superFrmCollection = superForm(data.form, {
+		validators: flashcardCollectionSchema,
 		taintedMessage: null,
 		resetForm: true,
 		applyAction: true,
 		onSubmit: () => ($clickedAddFlashcardCollection = false),
-		onUpdated: () => {
-			if ($errors.name || $errors.description) $clickedAddFlashcardCollection = true;
-		}
+		onError: () => ($clickedAddFlashcardCollection = true)
 	});
 
+	// Quiz form:
 	const superFrmQuiz = superForm(data.quizForm, {
 		validators: quizSchema,
 		taintedMessage: null,
@@ -55,20 +56,17 @@
 	let quizFormData = superFrmQuiz.form;
 
 	// Box form:
-	const {
-		form: boxForm,
-		errors: boxErrors,
-		constraints: boxConstraints,
-		enhance: boxEnhance
-	} = superForm(data.boxForm, {
+
+	const superFrmBox = superForm(data.boxForm, {
+		validators: flashcardCollectionSchema,
 		taintedMessage: null,
 		resetForm: true,
 		applyAction: true,
 		onSubmit: () => ($clickedAddFlahcardBox = false),
-		onUpdated: () => {
-			if ($errors.name || $errors.description) $clickedQuizForm = true;
-		}
+		onError: () => ($clickedQuizForm = true)
 	});
+
+	let boxFormData = superFrmBox.form;
 
 	// Reactive variable to keep track of visible cards
 	let visibleCardsCount =
@@ -118,12 +116,7 @@
 
 <svelte:window bind:innerWidth={$innerWidthStore} />
 
-<FlashcardCollectionForm
-	errors={$clickedAddFlahcardBox ? boxErrors : errors}
-	enhance={$clickedAddFlahcardBox ? boxEnhance : enhance}
-	form={$clickedAddFlahcardBox ? boxForm : form}
-	constraints={$clickedAddFlahcardBox ? boxConstraints : constraints}
-/>
+<FlashcardCollectionForm form={$clickedAddFlahcardBox ? superFrmBox : superFrmCollection} />
 
 <QuizForm form={superFrmQuiz} />
 
@@ -136,7 +129,7 @@
 				description={card.description}
 				type={card.type}
 				{index}
-				{form}
+				form={superFrmCollection.form}
 				totalCount={visibleCardsCount}
 			/>
 		{/each}
@@ -149,7 +142,7 @@
 					description={card.description}
 					type={card.type}
 					{index}
-					{form}
+					form={superFrmCollection.form}
 					totalCount={visibleCardsCount}
 				/>
 			{/each}
@@ -224,9 +217,10 @@
 										});
 
 										// Fill in the form with the current flashcard data
-										$boxForm.name = box.name;
-										$boxForm.description = box.description;
-										$boxForm.id = box.id;
+										$boxFormData.name = box.name;
+										$boxFormData.description = box.description;
+										$boxFormData.id = box.id;
+										$currentBoxId = box.id;
 									}}
 								>
 									<FolderEdit />
