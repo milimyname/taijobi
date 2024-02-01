@@ -51,9 +51,6 @@ export const actions = {
 		// Convenient validation check:
 		if (!form.valid) return fail(400, { form });
 
-		console.log('added');
-		console.log(form.data);
-
 		if (form.id === 'collection') {
 			try {
 				// Create a new collection of flashcards
@@ -93,8 +90,6 @@ export const actions = {
 
 		// Convenient validation check:
 		if (!form.valid) return fail(400, { form });
-
-		console.log(form.data);
 
 		// Check if the id is provided
 		if (!form.data.id) return fail(400, { form });

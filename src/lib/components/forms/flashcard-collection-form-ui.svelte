@@ -8,7 +8,8 @@
 		flashcardBoxes,
 		swapFlashcards,
 		selectQuizItemsForm,
-		selectedQuizItems
+		selectedQuizItems,
+		currentBoxId
 	} from '$lib/utils/stores';
 	import QuizItems from './quiz-items.svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
@@ -16,20 +17,13 @@
 	import { Button } from '$lib/components/ui/button';
 	import Form from '$lib/components/forms/flashcard-collection-form.svelte';
 	import { isDesktop } from '$lib/utils';
-	import type { SuperForm } from 'sveltekit-superforms/client';
-	import type { ZodValidation, SuperValidated } from 'sveltekit-superforms';
-	import type { AnyZodObject } from 'zod';
-	import type { Writable } from 'svelte/store';
 	import { page } from '$app/stores';
+	import { type FlashcardCollectionSchema } from '$lib/utils/zodSchema';
+	import { type SuperForm } from 'sveltekit-superforms/client';
 
-	export let form: Writable<SuperValidated<any, any>['data']>;
-	export let errors: Writable<SuperValidated<any, any>['errors']> & {
-		clear: () => void;
-	};
-	export let constraints: any; // Replace 'any' with the appropriate type
-	export let enhance: SuperForm<ZodValidation<AnyZodObject>>['enhance'] = (el, events) => ({
-		destroy() {}
-	});
+	export let form: SuperForm<FlashcardCollectionSchema>;
+
+	let formData = form.form;
 
 	function onOutsideClick(e: MouseEvent) {
 		//  If the user clicks on the leave button, don't move the card
@@ -45,9 +39,7 @@
 		$clickedAddFlahcardBox = false;
 		$clickedEditFlashcard = false;
 		$selectedQuizItems = [];
-		$form.name = '';
-		$form.description = '';
-		$form.id = '';
+		form.reset();
 	}
 
 	$: open = $clickedAddFlashcardCollection || $clickedAddFlahcardBox;
@@ -71,7 +63,7 @@
 					{/if}
 				</Dialog.Title>
 			</Dialog.Header>
-			<Form {enhance} {errors} {form} {constraints}>
+			<Form {form}>
 				<div slot="delete">
 					<Dialog.Close asChild let:builder>
 						<Button builders={[builder]} variant="destructive">Delete</Button>
@@ -99,7 +91,7 @@
 							</Dialog.Trigger>
 						{/if}
 						<Dialog.Content class="swap-items z-[101] h-full max-h-[96%] max-w-2xl p-0">
-							<QuizItems flashcardBox={$form.id}>
+							<QuizItems flashcardBox={$currentBoxId}>
 								<Dialog.Close asChild let:builder>
 									<Button
 										builders={[builder]}
@@ -126,9 +118,7 @@
 			$clickedAddFlashcardCollection = false;
 			$clickedAddFlahcardBox = false;
 			$clickedEditFlashcard = false;
-			$form.name = '';
-			$form.description = '';
-			$form.id = '';
+			form.reset();
 		}}
 		{open}
 		shouldScaleBackground
@@ -144,7 +134,7 @@
 						{/if}
 					</Drawer.Title>
 				</Drawer.Header>
-				<Form {enhance} {errors} {form} {constraints}>
+				<Form {form}>
 					<Button variant="destructive" slot="delete" class="w-full">Delete</Button>
 					<Button slot="update" class="w-full">Update</Button>
 					<Button slot="add" class="w-full">Add</Button>
@@ -163,7 +153,7 @@
 								<Drawer.Content
 									class="select-quiz fixed bottom-0 left-0 right-0 mt-24 flex h-full max-h-[94%] flex-col rounded-t-[10px] bg-gray-100"
 								>
-									<QuizItems flashcardBox={$form.id}>
+									<QuizItems flashcardBox={$currentBoxId}>
 										<Drawer.Close asChild let:builder>
 											<Button
 												builders={[builder]}
