@@ -25,6 +25,7 @@
 	import { goto } from '$app/navigation';
 	import { isTouchScreen } from '$lib/utils/actions';
 	import { onMount } from 'svelte';
+	import { quizSchema } from '$lib/utils/zodSchema';
 
 	export let data;
 
@@ -39,13 +40,8 @@
 		}
 	});
 
-	// Quiz form:
-	const {
-		form: quizForm,
-		errors: quizErrors,
-		constraints: quizConstraints,
-		enhance: quizEnhance
-	} = superForm(data.quizForm, {
+	const superFrmQuiz = superForm(data.quizForm, {
+		validators: quizSchema,
 		taintedMessage: null,
 		resetForm: true,
 		applyAction: true,
@@ -53,10 +49,10 @@
 			$clickedQuizForm = false;
 			$selectedQuizItems = [];
 		},
-		onUpdated: () => {
-			if ($errors.name || $errors.description) $clickedQuizForm = true;
-		}
+		onError: () => ($clickedQuizForm = true)
 	});
+
+	let quizFormData = superFrmQuiz.form;
 
 	// Box form:
 	const {
@@ -123,13 +119,13 @@
 <svelte:window bind:innerWidth={$innerWidthStore} />
 
 <FlashcardCollectionForm
-	errors={$clickedAddFlahcardBox ? boxErrors : quizErrors}
+	errors={$clickedAddFlahcardBox ? boxErrors : errors}
 	enhance={$clickedAddFlahcardBox ? boxEnhance : enhance}
 	form={$clickedAddFlahcardBox ? boxForm : form}
 	constraints={$clickedAddFlahcardBox ? boxConstraints : constraints}
 />
 
-<QuizForm errors={quizErrors} enhance={quizEnhance} form={quizForm} constraints={quizConstraints} />
+<QuizForm form={superFrmQuiz} />
 
 <section class="collection-container flex flex-1 cursor-pointer items-center justify-center pb-20">
 	{#if !isTouchScreen()}
@@ -241,7 +237,7 @@
 								<button
 									class="flex w-full justify-center"
 									on:click|stopPropagation={() => {
-										$quizForm.flashcardBox = box.id;
+										$quizFormData.flashcardBox = box.id;
 										$maxFlashcards = box.count;
 										$clickedQuizForm = true;
 										$showCollections = false;

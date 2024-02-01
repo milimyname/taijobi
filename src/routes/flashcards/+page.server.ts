@@ -29,22 +29,17 @@ export const load = async ({ locals }) => {
 		});
 	});
 
-	// Server API:
-	const form = await superValidate(flashcardCollectionSchema, {
-		id: 'collection'
-	});
-	const boxForm = await superValidate(flashcardCollectionSchema, {
-		id: 'box'
-	});
-	const quizForm = await superValidate(quizSchema, {
-		id: 'quiz'
-	});
-
 	return {
-		form,
-		quizForm: quizForm,
-		flashcardCollections,
-		boxForm
+		form: await superValidate(flashcardCollectionSchema, {
+			id: 'collection'
+		}),
+		quizForm: await superValidate(quizSchema, {
+			id: 'quiz'
+		}),
+		boxForm: await superValidate(flashcardCollectionSchema, {
+			id: 'box'
+		}),
+		flashcardCollections
 	};
 };
 

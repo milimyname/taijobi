@@ -7,126 +7,76 @@
 		selectQuizItemsForm,
 		selectedQuizItems
 	} from '$lib/utils/stores';
-	import { slide } from 'svelte/transition';
-	import { quintOut } from 'svelte/easing';
-	import { Switch } from '$lib/components/ui/switch';
-	import type { SuperForm } from 'sveltekit-superforms/client';
-	import type { ZodValidation, SuperValidated } from 'sveltekit-superforms';
-	import type { AnyZodObject } from 'zod';
-	import type { Writable } from 'svelte/store';
 	import { isDesktop } from '$lib/utils';
 	import * as Tabs from '$lib/components/ui/tabs';
-	import { Button } from '$lib/components/ui/button';
 	import { page } from '$app/stores';
+	import { quizSchema, type QuizSchema } from '$lib/utils/zodSchema';
+	import { type SuperForm } from 'sveltekit-superforms/client';
+	import * as Form from '$lib/components/ui/form';
 
-	export let form: Writable<SuperValidated<any, any>['data']>;
-	export let errors: Writable<SuperValidated<any, any>['errors']> & {
-		clear: () => void;
-	};
-	export let constraints: any; // Replace 'any' with the appropriate type
-	export let enhance: SuperForm<ZodValidation<AnyZodObject>>['enhance'] = (el, events) => ({
-		destroy() {}
-	});
+	export let form: SuperForm<QuizSchema>;
+
+	let formData = form.form;
 
 	$: if ($page.url.pathname.includes('kanji')) {
-		$form.startCount = $progressSlider === $kanjiLength ? 1 : $progressSlider;
+		$formData.startCount = $progressSlider === $kanjiLength ? 1 : $progressSlider;
 		$maxFlashcards = '' + $kanjiLength;
-	} else $form.startCount = Math.floor(Math.random() * (+$maxFlashcards - 20)) + 1;
+	} else $formData.startCount = Math.floor(Math.random() * (+$maxFlashcards - 20)) + 1;
 
-	$: if ($selectQuizItemsForm) $form.selectedQuizItems = $selectedQuizItems;
+	$: if ($selectQuizItemsForm) $formData.selectedQuizItems = $selectedQuizItems.join(',');
 </script>
 
-<form
-	use:enhance
+<Form.Root
 	method="POST"
+	{form}
+	controlled
+	schema={quizSchema}
+	let:config
 	class="quiz-form z-[1000] flex w-full flex-col gap-5 rounded-t-2xl bg-white
         {!$isDesktop && 'px-4'}"
 >
-	<div class="mb-auto flex flex-col gap-5">
-		<fieldset class=" flex w-full flex-col gap-2">
-			<label for="name">Name</label>
-			<input
-				name="name"
-				type="text"
-				id="name"
-				class="
-                    block
-                    rounded-md
-                    border-gray-300
-                    shadow-sm
-                    focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
-                  "
-				aria-invalid={$errors.name ? 'true' : undefined}
-				bind:value={$form.name}
-				{...$constraints.name}
-			/>
-			{#if $errors.name}
-				<span
-					transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
-					class="mt-1 select-none text-sm text-red-400">{$errors.name}</span
-				>
-			{/if}
-		</fieldset>
-		<fieldset class=" flex w-full flex-col gap-2">
-			<label for="choice">Multi Choice Number</label>
-			<select
-				name="choice"
-				id="choice"
-				class="
-                    block
-                    rounded-md
-                    border-gray-300
-                    shadow-sm
-                    focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
-                  "
-				aria-invalid={$errors.choice ? 'true' : undefined}
-				bind:value={$form.choice}
-				{...$constraints.choice}
-			>
-				<option value="2" selected>2</option>
-				{#if $maxFlashcards > '20'}
-					<option value="4">4</option>
-				{/if}
-			</select>
+	<div class="mb-auto flex flex-col gap-2">
+		<Form.Field {config} name="name">
+			<Form.Item>
+				<Form.Label>Name</Form.Label>
+				<Form.Input />
+				<Form.Validation />
+			</Form.Item>
+		</Form.Field>
 
-			{#if $errors.choice}
-				<span
-					transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
-					class="mt-1 select-none text-sm text-red-400">{$errors.type}</span
-				>
-			{/if}
-		</fieldset>
-		<fieldset class=" flex w-full flex-col gap-2">
-			<label for="type">Type</label>
-			<select
-				name="type"
-				id="type"
-				class="
-                    block
-                    rounded-md
-                    border-gray-300
-                    shadow-sm
-                    focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
-                  "
-				aria-invalid={$errors.type ? 'true' : undefined}
-				bind:value={$form.type}
-				{...$constraints.type}
-			>
-				<option value="name" selected>name</option>
-				<option value="meaning">meaning</option>
-				{#if $currentAlphabet === 'kanji'}
-					<option value="onyomi">onyomi</option>
-					<option value="kunyomi">kunyomi</option>
-				{/if}
-			</select>
+		<Form.Field {config} name="choice">
+			<Form.Item>
+				<Form.Label>Multi Choice Number</Form.Label>
+				<Form.Select>
+					<Form.SelectTrigger />
+					<Form.SelectContent>
+						<Form.SelectItem value="2">2</Form.SelectItem>
+						{#if $maxFlashcards > '20'}
+							<Form.SelectItem value="4">4</Form.SelectItem>
+						{/if}
+					</Form.SelectContent>
+				</Form.Select>
+				<Form.Validation />
+			</Form.Item>
+		</Form.Field>
 
-			{#if $errors.type}
-				<span
-					transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
-					class="mt-1 select-none text-sm text-red-400">{$errors.type}</span
-				>
-			{/if}
-		</fieldset>
+		<Form.Field {config} name="type">
+			<Form.Item>
+				<Form.Label>Type</Form.Label>
+				<Form.Select>
+					<Form.SelectTrigger />
+					<Form.SelectContent>
+						<Form.SelectItem value="name">name</Form.SelectItem>
+						<Form.SelectItem value="meaning">meaning</Form.SelectItem>
+						{#if $currentAlphabet === 'kanji'}
+							<Form.SelectItem value="onyomi">onyomi</Form.SelectItem>
+							<Form.SelectItem value="kunyomi">kunyomi</Form.SelectItem>
+						{/if}
+					</Form.SelectContent>
+				</Form.Select>
+				<Form.Validation />
+			</Form.Item>
+		</Form.Field>
 
 		<Tabs.Root value="custom">
 			<Tabs.List class="flex flex-1">
@@ -139,80 +89,49 @@
 				<slot />
 			</Tabs.Content>
 			<Tabs.Content value="range">
-				<div class="flex gap-2">
-					<fieldset class=" flex w-full flex-col gap-2">
-						<label for="startCount">Start</label>
-						<input
-							name="startCount"
-							type="number"
-							id="startCount"
-							placeholder="Start"
-							min={1}
-							max={+$maxFlashcards - 20}
-							class="
-									block
-									rounded-md
-									border-gray-300
-									shadow-sm
-									focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
-								"
-							aria-invalid={$errors.startCount ? 'true' : undefined}
-							bind:value={$form.startCount}
-							{...$constraints.startCount}
-						/>
-						{#if $errors.startCount}
-							<span
-								transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
-								class="mt-1 select-none text-sm text-red-400">{$errors.maxCount}</span
-							>
-						{/if}
-					</fieldset>
-					<fieldset class="flex w-full flex-col gap-2">
-						<label for="maxCount">Amount of Flashcards</label>
-						<input
-							name="maxCount"
-							type="number"
-							id="maxCount"
-							placeholder="Max Count"
-							min="20"
-							max={$maxFlashcards}
-							class="
-								block
-								rounded-md
-								border-gray-300
-								shadow-sm
-								focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
-							"
-							aria-invalid={$errors.maxCount ? 'true' : undefined}
-							bind:value={$form.maxCount}
-							{...$constraints.maxCount}
-						/>
-						{#if $errors.maxCount}
-							<span
-								transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
-								class="mt-1 select-none text-sm text-red-400">{$errors.maxCount}</span
-							>
-						{/if}
-					</fieldset>
+				<div class="flex justify-between gap-2">
+					<Form.Field {config} name="startCount">
+						<Form.Item class="flex-1">
+							<Form.Label>Start</Form.Label>
+							<Form.Input type="number" min={1} max={+$maxFlashcards - 20} />
+							<Form.Validation />
+						</Form.Item>
+					</Form.Field>
+					<Form.Field {config} name="maxCount">
+						<Form.Item>
+							<Form.Label>Max Amount of Flashcards</Form.Label>
+							<Form.Input type="number" min="20" max={$maxFlashcards} />
+							<Form.Validation />
+						</Form.Item>
+					</Form.Field>
 				</div>
 			</Tabs.Content>
 		</Tabs.Root>
 
-		<div class="flex items-center justify-between">
-			<label for="timeLimit" id="time-limit-label"> Time limit (🚧) </label>
-			<Switch bind:checked={$form.timeLimit} />
-		</div>
+		<Form.Field {config} name="timeLimit">
+			<Form.Item class="flex items-center justify-between">
+				<Form.Label class="flex-1">Time limit (🚧)</Form.Label>
+				<Form.Switch />
+				<Form.Validation />
+			</Form.Item>
+		</Form.Field>
 
-		{#if $errors.timeLimit && $selectedQuizItems.length !== 0}
-			<span
-				transition:slide={{ delay: 0, duration: 300, easing: quintOut, axis: 'y' }}
-				class="mt-1 select-none text-sm text-red-400">{$errors.timeLimit}</span
-			>
-		{/if}
-		<input type="hidden" name="flashcardBox" bind:value={$form.flashcardBox} />
-		<input type="hidden" name="name" bind:value={$form.name} />
-		<input type="hidden" name="selectedQuizItems" bind:value={$form.selectedQuizItems} />
+		<Form.Field {config} name="id">
+			<Form.Item>
+				<Form.Input type="hidden" />
+			</Form.Item>
+		</Form.Field>
+		<Form.Field {config} name="flashcardBox">
+			<Form.Item>
+				<Form.Input type="hidden" />
+			</Form.Item>
+		</Form.Field>
+		<Form.Field {config} name="selectedQuizItems">
+			<Form.Item>
+				<Form.Input type="hidden" />
+			</Form.Item>
+		</Form.Field>
 	</div>
 
-	<Button type="submit" class="w-full" formaction="?/addQuiz">Add</Button>
-</form>
+	<Form.Button formaction="?/addQuiz">Add</Form.Button>
+</Form.Root>

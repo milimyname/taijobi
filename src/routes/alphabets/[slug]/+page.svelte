@@ -29,8 +29,8 @@
 	import DrawingNav from '$lib/components/DrawingNav.svelte';
 	import ProgressSlider from '$lib/components/ProgressSlider.svelte';
 	import * as Select from '$lib/components/ui/select';
-
 	import { getFlashcardWidth } from '$lib/utils';
+	import { quizSchema } from '$lib/utils/zodSchema';
 
 	export let data;
 
@@ -105,24 +105,17 @@
 	$: $currentAlphabet = $page.url.pathname.split('/')[2] as 'hiragana' | 'katakana' | 'kanji';
 
 	// Client API:
-	const {
-		form: quizForm,
-		errors: quizErrors,
-		constraints: quizConstraints,
-		enhance: quizEnhance
-	} = superForm(data.quizForm, {
+	const superFrmQuiz = superForm(data.quizForm, {
+		validators: quizSchema,
 		taintedMessage: null,
 		resetForm: true,
 		applyAction: true,
 		onSubmit: () => ($clickedQuizForm = false),
-		onUpdated: () => {
-			if ($quizErrors.timeLimit || $quizErrors.maxCount || $quizErrors.name)
-				$clickedQuizForm = true;
-		}
+		onError: () => ($clickedQuizForm = true)
 	});
 </script>
 
-<QuizForm errors={quizErrors} enhance={quizEnhance} form={quizForm} constraints={quizConstraints} />
+<QuizForm form={superFrmQuiz} />
 
 <section class=" flex flex-1 flex-col justify-center gap-2 sm:justify-center sm:gap-5">
 	<div style="perspective: 3000px; position: relative; overflow: hidden;">
