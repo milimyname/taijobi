@@ -27,7 +27,7 @@
 				 justify-center overflow-hidden rounded-xl border p-3 shadow-sm xm:p-5 sm:p-10"
 >
 	<div
-		class=" grid-rows-[max-content max-content] xm:grid-rows-[max-content 1fr] grid h-full grid-cols-2 xm:grid-cols-none xm:gap-0"
+		class="grid-rows-[max-content max-content] xm:grid-rows-[max-content 1fr] grid h-full grid-cols-2 xm:grid-cols-none xm:gap-4"
 	>
 		{#if $currentAlphabet === 'kanji' && kanji[$currentLetter]}
 			<h2 class="col-span-2 text-center text-6xl xm:text-9xl">{$currentLetter}</h2>
