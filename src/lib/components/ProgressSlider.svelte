@@ -55,7 +55,7 @@
 </script>
 
 {#if $showProgressSlider}
-	<div use:clickOutside={() => ($showProgressSlider = false)} class="mb-4 mt-auto">
+	<div use:clickOutside={() => ($showProgressSlider = false)} class="mb-4 mt-auto sm:my-0">
 		<Slider
 			value={[value]}
 			onValueChange={(v) => {
