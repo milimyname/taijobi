@@ -42,7 +42,7 @@
 			setTimeout(() => {
 				$clickedEditFlashcard = false;
 				$clickedAddFlashcardCollection = false;
-			}, 100);
+			}, 200);
 
 			if (form.action.search.endsWith('delete')) currentIndex = 0;
 		},

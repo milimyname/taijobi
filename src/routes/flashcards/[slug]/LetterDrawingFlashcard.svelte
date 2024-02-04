@@ -75,7 +75,13 @@
 		slicedFlashcard = $currentFlashcard
 			.split('')
 			.filter(
-				(char) => char !== ' ' && char !== '?' && char !== '。' && char !== '~' && char !== '、'
+				(char) =>
+					char !== ' ' &&
+					char !== '?' &&
+					char !== '。' &&
+					char !== '~' &&
+					char !== '、' &&
+					char !== '-'
 			);
 		index = 0;
 		clearCanvas(ctx, canvas);
