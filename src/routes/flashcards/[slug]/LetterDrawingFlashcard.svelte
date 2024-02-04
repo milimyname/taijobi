@@ -22,7 +22,9 @@
 		Undo,
 		RefreshCcw,
 		Eraser,
-		ChevronLast
+		ChevronLast,
+		ChevronFirst,
+		FileText
 	} from 'lucide-svelte';
 	import { clearCanvas } from '$lib/utils/actions';
 	import BacksideCard from '$lib/components/canvas/BacksideCard.svelte';
@@ -92,10 +94,10 @@
 
 	<button
 		class="{$rotateYCard > 5 && $rotateYCard < 175 ? 'hidden' : 'block'}
-		absolute bottom-3 left-2 sm:bottom-5 sm:left-5 z-40 rounded-full border bg-white p-2 shadow-sm transition-all"
+		absolute bottom-3 left-2 z-40 rounded-full border bg-white p-2 shadow-sm transition-all sm:bottom-5 sm:left-5"
 		on:click={() => ($showLetterDrawing = false)}
 	>
-		<Undo class="h-4 w-4" />
+		<FileText class="h-4 w-4" />
 	</button>
 
 	<Canvas rotationY={$rotateYCard} {canvas} {ctx} />
@@ -115,18 +117,34 @@
 
 <div
 	style={`width: ${getFlashcardWidth($innerWidthStore)}px;`}
-	class="mt-5 flex items-center justify-between sm:mx-auto z-40"
+	class="z-40 mt-5 flex items-center justify-between sm:mx-auto"
 >
 	{#if $currentFlashcard.length > 1}
-		<button
-			on:click|preventDefault={() => {
-				index > 0 ? (index -= 1) : null;
-				clearCanvas(ctx, canvas);
-			}}
-			class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
-		>
-			<ArrowLeft class="h-4 w-4" />
-		</button>
+		{#if index === 0}
+			<button
+				on:click|preventDefault={() => {
+					clearCanvas(ctx, canvas);
+
+					// Go to the previous flashcard
+					$currentIndexStore -= 1;
+					$showLetterDrawing = false;
+					swiperInstance.slideTo($currentIndexStore);
+				}}
+				class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
+			>
+				<ChevronFirst class="h-4 w-4" />
+			</button>
+		{:else}
+			<button
+				on:click|preventDefault={() => {
+					index > 0 ? (index -= 1) : null;
+					clearCanvas(ctx, canvas);
+				}}
+				class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
+			>
+				<ArrowLeft class="h-4 w-4" />
+			</button>
+		{/if}
 
 		<div class="flex items-center justify-center">
 			<div
@@ -167,14 +185,20 @@
 					$showLetterDrawing = false;
 					swiperInstance.slideTo($currentIndexStore);
 				}}
-				class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
+				class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all
+				{index === slicedFlashcard.length - 1 ? 'pointer-events-none opacity-0' : 'opacity-100'}"
 			>
 				<ChevronLast class="h-4 w-4" />
 			</button>
+			<!-- <button
+				class="previousLetter h-fit w-fit rounded-full border bg-white p-2 opacity-0 shadow-sm transition-all"
+			>
+				<ChevronLast class="h-4 w-4" />
+			</button> -->
 		{/if}
 	{:else}
 		<button
-			class="previousLetter opacity-0 h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
+			class="previousLetter h-fit w-fit rounded-full border bg-white p-2 opacity-0 shadow-sm transition-all"
 		>
 			<ArrowRight class="h-4 w-4" />
 		</button>

@@ -15,9 +15,10 @@
 	export let form: SuperForm<FlashcardSchema>;
 
 	const onOutsideClick = () => {
-		$clickedAddFlashcardCollection = false;
-
-		form.reset();
+		setTimeout(() => {
+			$clickedAddFlashcardCollection = false;
+			form.reset();
+		}, 100);
 	};
 
 	$: if ($clickedFeedback) {
@@ -28,7 +29,7 @@
 
 {#if $isDesktop}
 	<Dialog.Root bind:open={$clickedAddFlashcardCollection} {onOutsideClick}>
-		<Dialog.Content class="sm:max-w-[425px]">
+		<Dialog.Content class="z-[100] sm:max-w-[425px]">
 			<Dialog.Header>
 				<Dialog.Title>
 					{#if $clickedEditFlashcard}

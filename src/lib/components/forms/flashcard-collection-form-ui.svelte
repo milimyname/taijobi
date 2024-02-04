@@ -35,11 +35,13 @@
 		)
 			return;
 
-		$clickedAddFlashcardCollection = false;
-		$clickedAddFlahcardBox = false;
-		$clickedEditFlashcard = false;
-		$selectedQuizItems = [];
-		form.reset();
+		setTimeout(() => {
+			$clickedAddFlashcardCollection = false;
+			$clickedAddFlahcardBox = false;
+			$clickedEditFlashcard = false;
+			$selectedQuizItems = [];
+			form.reset();
+		}, 100);
 	}
 
 	$: open = $clickedAddFlashcardCollection || $clickedAddFlahcardBox;

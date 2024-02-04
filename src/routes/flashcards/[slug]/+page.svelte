@@ -46,10 +46,14 @@
 		},
 		onUpdated: () => {
 			// Slide to the new created word
-			if (swiperInstance.slides.length + 1 === data.flashcards.length)
+			if (swiperInstance.slides.length + 1 === data.flashcards.length) {
+				// Update slides
+				swiperInstance.update();
+
 				setTimeout(() => {
 					swiperInstance.slideTo(data.flashcards.length + 1);
-				}, 500);
+				}, 10);
+			}
 		}
 	});
 
