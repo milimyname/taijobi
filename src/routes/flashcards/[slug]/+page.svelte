@@ -39,8 +39,10 @@
 		resetForm: true,
 		applyAction: true,
 		onSubmit: async (form) => {
-			$clickedEditFlashcard = false;
-			$clickedAddFlashcardCollection = false;
+			setTimeout(() => {
+				$clickedEditFlashcard = false;
+				$clickedAddFlashcardCollection = false;
+			}, 100);
 
 			if (form.action.search.endsWith('delete')) currentIndex = 0;
 		},
