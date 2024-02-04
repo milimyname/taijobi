@@ -87,7 +87,7 @@
 	>
 		{#if $currentFlashcardTypeStore === 'kanji'}
 			<div
-				class="grid-rows-[max-content max-content] sm:grid-rows-[max-content 1fr] grid h-full grid-cols-2 sm:gap-0"
+				class="grid-rows-[max-content max-content] sm:grid-rows-[max-content 1fr] grid h-full grid-cols-2 sm:gap-4"
 			>
 				<h2 class="col-span-2 text-center text-6xl sm:text-9xl">{$currentFlashcard}</h2>
 
@@ -141,7 +141,7 @@
 			</div>
 		{:else}
 			<div
-				class="grid-rows-[max-content max-content] sm:grid-rows-[max-content 1fr] grid h-full grid-cols-2 sm:gap-0"
+				class="grid-rows-[max-content max-content] sm:grid-rows-[max-content 1fr] grid h-full grid-cols-2 sm:gap-4"
 			>
 				<h2 class="col-span-2 text-center text-4xl">{$currentFlashcard}</h2>
 				<div>
