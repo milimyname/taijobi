@@ -65,8 +65,9 @@
 			slideToClickedSlide: true,
 			grabCursor: true,
 			on: {
-				slideChange: () => {
-					updateCurrentFlashcard();
+				slideChange: (swiper) => {
+					currentIndex = swiper.activeIndex;
+					$currentIndexStore = swiper.activeIndex;
 				}
 			}
 		});
@@ -83,19 +84,6 @@
 		} else $currentIndexStore = swiperInstance.activeIndex;
 	});
 
-	function updateCurrentFlashcard() {
-		if (
-			swiperInstance &&
-			typeof swiperInstance.activeIndex !== 'undefined' &&
-			typeof swiperInstance.realIndex !== 'undefined'
-		) {
-			let activeIndex = swiperInstance.activeIndex;
-			$currentFlashcard = data.flashcards[activeIndex].name;
-			currentIndex = activeIndex;
-			$currentIndexStore = activeIndex;
-		} else console.error('Swiper instance is not defined or realIndex is unavailable');
-	}
-
 	$: if (data.flashcards.length > 0) {
 		$currentFlashcard = data.flashcards.at(currentIndex).name;
 		currentFlashcardFurigana = data.flashcards.at(currentIndex).furigana;
@@ -104,7 +92,6 @@
 
 	$: if ($currentIndexStore && swiperInstance) {
 		swiperInstance.activeIndex = $currentIndexStore;
-
 		// Set to local storage
 		localStorage.setItem('swiperActiveIndex', '' + $currentIndexStore);
 	}

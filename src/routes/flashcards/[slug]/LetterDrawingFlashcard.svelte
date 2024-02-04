@@ -72,7 +72,11 @@
 	$: if ($currentLetter) $currentLetter = slicedFlashcard[index];
 
 	$: {
-		slicedFlashcard = $currentFlashcard.split('').filter((char) => char !== ' ');
+		slicedFlashcard = $currentFlashcard
+			.split('')
+			.filter(
+				(char) => char !== ' ' && char !== '?' && char !== '。' && char !== '~' && char !== '、'
+			);
 		index = 0;
 		clearCanvas(ctx, canvas);
 	}

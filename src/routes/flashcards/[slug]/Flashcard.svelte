@@ -38,15 +38,19 @@
 				width: ${getFlashcardWidth($innerWidthStore)}px `}
 		class="relative z-10 cursor-pointer
 				{$rotateYCard > 90 ? 'hidden' : 'block'}  rounded-xl
-				{longWord ? 'py-10 text-4xl sm:py-32' : 'text-5xl'} flex items-center justify-center border
+				{longWord && 'py-10 sm:py-32'} flex items-center justify-center border
 				shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200"
 	>
 		{#if $currentFlashcardTypeStore === 'kanji'}
 			<span class="text-9xl sm:text-[14rem]">
 				{$currentFlashcard}
 			</span>
+		{:else if $currentFlashcardTypeStore === 'phrase'}
+			<p class="text-balance px-10 text-center text-5xl leading-normal tracking-widest">
+				{@html currentFlashcardFurigana}
+			</p>
 		{:else}
-			<p class="vertical text-5xl leading-normal tracking-widest">
+			<p class="vertical text-balance text-5xl leading-normal tracking-widest">
 				{@html currentFlashcardFurigana}
 			</p>
 		{/if}

@@ -8,17 +8,17 @@ import { isHiragana } from 'wanakana';
 import type { RecordModel } from 'pocketbase';
 import { isKanji } from 'wanakana';
 
-const kuroshiro = new Kuroshiro();
-
-let kuroshiroInitialized = false;
-
-if (!kuroshiroInitialized) {
-	await kuroshiro.init(new KuromojiAnalyzer());
-	kuroshiroInitialized = true;
-}
-
 /** @type {import('./$types').PageServerLoad} */
 export const load = async ({ locals, params }) => {
+	const kuroshiro = new Kuroshiro();
+
+	let kuroshiroInitialized = false;
+
+	if (!kuroshiroInitialized) {
+		await kuroshiro.init(new KuromojiAnalyzer());
+		kuroshiroInitialized = true;
+	}
+
 	// Get only 10 flashcards at a time
 	console.time('flashcards');
 	const flashcards = await locals.pb.collection('flashcard').getFullList({
@@ -30,7 +30,7 @@ export const load = async ({ locals, params }) => {
 
 	// Process furigana in parallel
 	const processeFlashcards = await Promise.all(
-		flashcards.map((card: RecordModel) => processFurigana(card))
+		flashcards.map((card: RecordModel) => processFurigana(card, kuroshiro))
 	);
 
 	return {
@@ -39,7 +39,7 @@ export const load = async ({ locals, params }) => {
 	};
 };
 
-async function processFurigana(card: RecordModel) {
+async function processFurigana(card: RecordModel, kuroshiro: Kuroshiro) {
 	// Custom furigana processing
 	if (card.furigana.includes('/') && isHiragana(card.furigana[card.furigana.indexOf('/') + 1])) {
 		card.customFurigana = card.furigana;

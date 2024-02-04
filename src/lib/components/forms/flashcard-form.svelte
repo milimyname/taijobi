@@ -11,11 +11,6 @@
 	export let form: SuperForm<FlashcardSchema>;
 
 	let showInfo = false;
-	let type: string;
-
-	$: if ($currentFlashcardTypeStore)
-		type = $currentFlashcardTypeStore === 'word' ? 'word' : 'kanji';
-	else type = 'word';
 </script>
 
 <Form.Root
@@ -96,10 +91,19 @@
 		<Form.Field {config} name="type">
 			<Form.Item>
 				<Form.Label>Type</Form.Label>
-				<Form.Select selected={{ value: type, label: type }}>
+				<Form.Select
+					selected={{ value: $currentFlashcardTypeStore, label: $currentFlashcardTypeStore }}
+				>
 					<Form.SelectTrigger />
 					<Form.SelectContent>
-						<Form.SelectItem value={type}>{type}</Form.SelectItem>
+						{#if $currentFlashcardTypeStore === 'kanji'}
+							<Form.SelectItem value={$currentFlashcardTypeStore}
+								>{$currentFlashcardTypeStore}</Form.SelectItem
+							>
+						{:else}
+							<Form.SelectItem value="word">word</Form.SelectItem>
+							<Form.SelectItem value="phrase">phrase</Form.SelectItem>
+						{/if}
 					</Form.SelectContent>
 				</Form.Select>
 				<Form.Validation />
