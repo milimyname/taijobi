@@ -186,15 +186,12 @@
 					swiperInstance.slideTo($currentIndexStore);
 				}}
 				class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all
-				{index === slicedFlashcard.length - 1 ? 'pointer-events-none opacity-0' : 'opacity-100'}"
+				{$currentIndexStore + 1 === swiperInstance.slides.length
+					? 'pointer-events-none opacity-0'
+					: 'opacity-100'}"
 			>
 				<ChevronLast class="h-4 w-4" />
 			</button>
-			<!-- <button
-				class="previousLetter h-fit w-fit rounded-full border bg-white p-2 opacity-0 shadow-sm transition-all"
-			>
-				<ChevronLast class="h-4 w-4" />
-			</button> -->
 		{/if}
 	{:else}
 		<button
