@@ -5,8 +5,15 @@ import { kanji } from '$lib/static/kanji.js';
 import type Pocketbase from 'pocketbase';
 
 /** @type {import('./$types').PageServerLoad} */
-export const load = async ({ locals }) => {
+export const load = async ({ locals, parent }) => {
 	try {
+		const { isLoggedIn } = await parent();
+
+		if (!isLoggedIn)
+			return {
+				quizForm: await superValidate(quizSchema)
+			};
+
 		const kanjiId = await getOrCreateKanjiId(locals.pb, locals.pb.authStore.model?.id);
 
 		const flashcard = await locals.pb.collection('flashcard').getFullList({

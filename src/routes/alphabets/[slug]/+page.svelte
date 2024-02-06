@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Ctx } from '$lib/utils/ambient.d.ts';
 	import { onMount } from 'svelte';
-	import { ArrowRight, ArrowLeft, RotateCcw } from 'lucide-svelte';
+	import { ArrowRight, ArrowLeft, RotateCcw, Heart } from 'lucide-svelte';
 	import {
 		progressSlider,
 		currentLetter,
@@ -31,6 +31,7 @@
 	import * as Select from '$lib/components/ui/select';
 	import { getFlashcardWidth } from '$lib/utils';
 	import { quizSchema } from '$lib/utils/zodSchema';
+	import { goto } from '$app/navigation';
 
 	export let data;
 
@@ -45,7 +46,7 @@
 
 	let savedKanji: boolean = false;
 
-	$: {
+	$: if (data.isLoggedIn) {
 		switch ($currentAlphabet) {
 			case 'katakana':
 				alphabetLength = $katakanaStore.length;
@@ -128,27 +129,17 @@
 			{#if $currentAlphabet === 'kanji'}
 				<button
 					on:click={() => {
+						if (!$page.data.isLoggedIn) return goto('/login');
 						handleSavedKanji();
 						savedKanji = !savedKanji;
 					}}
 					class="{$rotateYCard > 5 ? 'hidden' : 'text-black'} 
 				fixed left-3 top-3 z-30 text-lg font-medium sm:left-5 sm:top-5"
 				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke-width="1.5"
-						stroke="currentColor"
+					<Heart
 						class="h-6 w-6 transition-all {savedKanji &&
 							'fill-black'} hover:scale-110 active:scale-110"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-						/>
-					</svg>
+					/>
 				</button>
 			{/if}
 
@@ -216,7 +207,9 @@
 					<Select.Item value="4">Grade 4</Select.Item>
 					<Select.Item value="5">Grade 5</Select.Item>
 					<Select.Item value="6">Grade 6</Select.Item>
-					<Select.Item value="saved">My Saved</Select.Item>
+					{#if $page.data.isLoggedIn}
+						<Select.Item value="saved">My Saved</Select.Item>
+					{/if}
 				</Select.Content>
 			</Select.Root>
 		{/if}

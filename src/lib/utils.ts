@@ -25,6 +25,15 @@ export const getFlashcardWidth = (width: number) =>
 	(width > IS_DESKTOP ? CANVAS_LG_WIDTH : width < XM_SMALL_SCREEN ? CANVAS_SM_WIDTH : width * 0.9) +
 	2;
 
+export const replaceStateWithQuery = (values: Record<string, string>) => {
+	const url = new URL(window.location.toString());
+	for (const [k, v] of Object.entries(values)) {
+		if (!!v) url.searchParams.set(k, v);
+		else url.searchParams.delete(k);
+	}
+	history.replaceState(history.state, '', url);
+};
+
 type FlyAndScaleParams = {
 	y?: number;
 	x?: number;

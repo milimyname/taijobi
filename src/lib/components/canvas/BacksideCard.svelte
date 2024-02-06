@@ -12,8 +12,24 @@
 	import { Dices } from 'lucide-svelte';
 	import { page } from '$app/stores';
 	import { getFlashcardHeight, getFlashcardWidth } from '$lib/utils';
+	import { goto } from '$app/navigation';
+	import { browser } from '$app/environment';
+	import { replaceStateWithQuery } from '$lib/utils';
 
 	export let rotateYCard: number;
+
+	$: if (browser && $currentAlphabet === 'kanji')
+		replaceStateWithQuery({
+			letter: $currentLetter,
+			meaning: kanji[$currentLetter].meaning,
+			onyomi: kanji[$currentLetter].onyomi.join(', '),
+			kunyomi: kanji[$currentLetter].kunyomi.join(', ')
+		});
+	else if (browser && $currentAlphabet !== 'kanji')
+		replaceStateWithQuery({
+			letter: $currentLetter,
+			romanji: toRomaji($currentLetter)
+		});
 </script>
 
 <div
@@ -52,6 +68,8 @@
 				<button
 					class="fixed bottom-3 left-3 z-30 rounded-full border bg-white p-2 shadow-sm transition-all sm:bottom-5 sm:left-5"
 					on:click={() => {
+						if (!$page.data.isLoggedIn) return goto('/login');
+
 						$clickedQuizForm = true;
 						$clickedKanjiForm = true;
 					}}

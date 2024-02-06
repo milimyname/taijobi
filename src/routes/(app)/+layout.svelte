@@ -42,8 +42,10 @@
 	}
 
 	onMount(() => {
-		if (data.user.oauth2ImageUrl) imageSrc = data.user.oauth2ImageUrl;
-		else if (data.user.avatar) imageSrc = pocketbase.files.getUrl(data.user, data.user.avatar);
+		if (!data.isLoggedIn) return (imageSrc = image);
+		else if (data.user && data.user.oauth2ImageUrl) imageSrc = data.user.oauth2ImageUrl;
+		else if (data.user && data.user.avatar && data.user)
+			imageSrc = pocketbase.files.getUrl(data.user, data.user.avatar);
 		else imageSrc = image;
 	});
 
