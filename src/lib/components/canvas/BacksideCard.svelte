@@ -5,7 +5,8 @@
 		innerWidthStore,
 		innerHeightStore,
 		clickedQuizForm,
-		clickedKanjiForm
+		clickedKanjiForm,
+		showProgressSlider
 	} from '$lib/utils/stores';
 	import { toRomaji } from 'wanakana';
 	import { kanji } from '$lib/static/kanji';
@@ -18,14 +19,24 @@
 
 	export let rotateYCard: number;
 
-	$: if (browser && $currentAlphabet === 'kanji' && $page.url.pathname.includes('alphabet'))
+	$: if (
+		browser &&
+		$currentAlphabet === 'kanji' &&
+		$page.url.pathname.includes('alphabet') &&
+		!$showProgressSlider
+	)
 		replaceStateWithQuery({
 			letter: $currentLetter,
 			meaning: kanji[$currentLetter].meaning,
 			onyomi: kanji[$currentLetter].onyomi.join(', '),
 			kunyomi: kanji[$currentLetter].kunyomi.join(', ')
 		});
-	else if (browser && $currentAlphabet !== 'kanji' && $page.url.pathname.includes('alphabet'))
+	else if (
+		browser &&
+		$currentAlphabet !== 'kanji' &&
+		$page.url.pathname.includes('alphabet') &&
+		!$showProgressSlider
+	)
 		replaceStateWithQuery({
 			letter: $currentLetter,
 			romanji: toRomaji($currentLetter)

@@ -46,18 +46,18 @@
 
 	let savedKanji: boolean = false;
 
-	$: if (data.isLoggedIn) {
-		switch ($currentAlphabet) {
-			case 'katakana':
-				alphabetLength = $katakanaStore.length;
-				break;
-			case 'kanji':
-				alphabetLength = $kanjiStore.length;
-				break;
-			default:
-				alphabetLength = $hiraganaStore.length;
-		}
+	$: switch ($currentAlphabet) {
+		case 'katakana':
+			alphabetLength = $katakanaStore.length;
+			break;
+		case 'kanji':
+			alphabetLength = $kanjiStore.length;
+			break;
+		default:
+			alphabetLength = $hiraganaStore.length;
+	}
 
+	$: if (data.isLoggedIn) {
 		// Check whether the current letter is saved in the db
 		savedKanji = false;
 		data.flashcard.forEach((flashcard: { name: string }) => {
