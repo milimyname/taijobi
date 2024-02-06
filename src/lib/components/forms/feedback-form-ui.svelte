@@ -57,7 +57,8 @@
 		$page.url.pathname.slice(1) === 'login' ||
 		$page.url.pathname.slice(1) === 'signup' ||
 		$page.url.pathname.slice(1) === 'admin' ||
-		$page.url.pathname.startsWith('/test');
+		$page.url.pathname.startsWith('/test') ||
+		!$page.data.isLoggedIn;
 
 	$: if ($page.url.pathname.slice(1) === 'flashcards') $clickedFeedback = false;
 </script>
