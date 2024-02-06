@@ -5,6 +5,8 @@
 	import { shuffleArray } from '$lib/utils/actions.js';
 	import { pocketbase } from '$lib/utils/pocketbase.js';
 	import { onMount } from 'svelte';
+	import { browser } from '$app/environment';
+	import { replaceStateWithQuery } from '$lib/utils';
 
 	export let data;
 
@@ -15,6 +17,13 @@
 	let shuffledOptions: string[] = [];
 	let correctAnswers = 0;
 	let flashcards: any[];
+
+	$: if (browser && currentFlashcard && !data.isKanjiQuiz)
+		replaceStateWithQuery({
+			game: 'quiz',
+			alphabet: $page.params.slug,
+			letter: currentFlashcard.name
+		});
 
 	const generateShuffledOptions = (options: FlashcardType[]): string[] => {
 		const otherOptions = options.filter((opt) => opt.name !== currentFlashcard.name);
@@ -117,14 +126,14 @@
 						total: data.flashcards.length,
 						completed: true
 					});
+
+					// Update the quiz's score
+					await pocketbase.collection('quizzes').update($page.params.slug, {
+						score: data.quiz.score + 1
+					});
 				} catch (error) {
 					console.log(error);
 				}
-
-				// Update the quiz's score
-				await pocketbase.collection('quizzes').update($page.params.slug, {
-					score: data.quiz.score + 1
-				});
 			}
 
 			// Reset the quiz

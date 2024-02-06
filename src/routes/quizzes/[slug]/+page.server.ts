@@ -28,8 +28,9 @@ export const load = async ({ params, locals }) => {
 				type: 'name',
 				userId: locals.pb.authStore.model?.id
 			},
+			isKanjiQuiz: false,
 			flashcards,
-			userId: locals.pb.authStore.model?.id
+			userId: locals.pb.authStore.model?.id || '-'
 		};
 	}
 
@@ -49,5 +50,5 @@ export const load = async ({ params, locals }) => {
 	// Remove the first `removedCount` elements from the shuffled array
 	items.splice(0, removedCount);
 
-	return { quiz, flashcards: items, userId: locals.pb.authStore.model?.id };
+	return { quiz, flashcards: items, userId: locals.pb.authStore.model?.id, isKanjiQuiz: true };
 };

@@ -2,7 +2,8 @@
 export const load = async ({ locals }) => {
 	if (!locals.pb.authStore.isValid)
 		return {
-			isLoggedIn: false
+			isLoggedIn: false,
+			isAdmin: false
 		};
 
 	const user = structuredClone(locals.pb.authStore.model);

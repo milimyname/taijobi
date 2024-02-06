@@ -1,12 +1,14 @@
-import { redirect } from '@sveltejs/kit';
-
 /** @type {import('./$types').LayoutServerLoad} */
 export const load = async ({ locals }) => {
-	// Redirect if already logged in
-	if (!locals.pb.authStore.isValid) throw redirect(303, '/login');
+	if (!locals.pb.authStore.isValid)
+		return {
+			isLoggedIn: false,
+			isAdmin: false
+		};
 
 	const user = structuredClone(locals.pb.authStore.model);
 	return {
-		isAdmin: user?.role.includes('admin')
+		isAdmin: user?.role.includes('admin'),
+		isLoggedIn: true
 	};
 };

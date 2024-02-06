@@ -1,15 +1,6 @@
-/** @type {import('./$types').PageServerLoad} */
-export const load = async ({ locals }) => {
-	// Get user id from authStore
-	const { id } = locals.pb.authStore.model as { id: string };
-	// Get a quiz
-	let quizzes = await locals.pb.collection('quizzes').getFullList({
-		filter: `userId = "${id}"`,
-		fields: 'name,type,maxCount,id'
-	});
-
-	// Add hiragana and katakana quizzes
-	const fakeData = {
+// Create fake data for hiragana and katakana quizzes
+function createFakeData() {
+	return {
 		collectionId: '-',
 		collectionName: '-',
 		created: '-',
@@ -23,17 +14,48 @@ export const load = async ({ locals }) => {
 		updated: '2',
 		userId: '-'
 	};
+}
+
+/** @type {import('./$types').PageServerLoad} */
+export const load = async ({ locals, parent }) => {
+	const { isLoggedIn } = await parent();
+
+	if (!isLoggedIn)
+		return {
+			quizzes: [
+				{
+					name: 'ひらがな',
+					id: 'hiragana',
+					...createFakeData()
+				},
+				{
+					name: 'カタカナ',
+					id: 'katakana',
+					...createFakeData()
+				}
+			]
+		};
+
+	// Get user id from authStore
+	const { id } = locals.pb.authStore.model as { id: string };
+	// Get a quiz
+	let quizzes = await locals.pb.collection('quizzes').getFullList({
+		filter: `userId = "${id}"`,
+		fields: 'name,type,maxCount,id'
+	});
+
+	// Add hiragana and katakana quizzes
 
 	quizzes = [
 		{
 			name: 'ひらがな',
 			id: 'hiragana',
-			...fakeData
+			...createFakeData()
 		},
 		{
 			name: 'カタカナ',
 			id: 'katakana',
-			...fakeData
+			...createFakeData()
 		},
 		...quizzes
 	];
