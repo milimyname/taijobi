@@ -8,11 +8,13 @@
 		innerWidthStore,
 		innerHeightStore,
 		showLetterDrawing,
-		selectedQuizItems,
+		selectedQuizItems
 	} from '$lib/utils/stores';
 	import { page } from '$app/stores';
 	import { getLocalStorageItem } from '$lib/utils/localStorage';
 	import { ArrowLeft, FolderPlus } from 'lucide-svelte';
+
+	export let data;
 
 	let islocalBoxTypeOriginal = getLocalStorageItem('flashcardsBoxType') !== 'original';
 </script>
@@ -44,28 +46,30 @@
 			<span>Back</span>
 		</a>
 
-		{#if $page.route.id && $page.route.id.length < 12}
-			<button
-				on:click={() => {
-					$clickedAddFlahcardBox = false;
-					$clickedAddFlashcardCollection = true;
-					$clickedEditFlashcard = false;
-				}}
-				class="add-btn transition-all hover:scale-110 active:scale-110"
-			>
-				<FolderPlus />
-			</button>
-		{:else if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin}
-			<button
-				on:click={() => {
-					$clickedAddFlahcardBox = false;
-					$clickedAddFlashcardCollection = true;
-					$clickedEditFlashcard = false;
-				}}
-				class="add-btn transition-all hover:scale-110 active:scale-110"
-			>
-				<FolderPlus />
-			</button>
+		{#if data.isLoggedIn}
+			{#if $page.route.id && $page.route.id.length < 12}
+				<button
+					on:click={() => {
+						$clickedAddFlahcardBox = false;
+						$clickedAddFlashcardCollection = true;
+						$clickedEditFlashcard = false;
+					}}
+					class="add-btn transition-all hover:scale-110 active:scale-110"
+				>
+					<FolderPlus />
+				</button>
+			{:else if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin}
+				<button
+					on:click={() => {
+						$clickedAddFlahcardBox = false;
+						$clickedAddFlashcardCollection = true;
+						$clickedEditFlashcard = false;
+					}}
+					class="add-btn transition-all hover:scale-110 active:scale-110"
+				>
+					<FolderPlus />
+				</button>
+			{/if}
 		{/if}
 	</nav>
 

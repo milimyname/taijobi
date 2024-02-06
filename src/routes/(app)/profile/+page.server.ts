@@ -1,9 +1,12 @@
 import { superValidate, setError } from 'sveltekit-superforms/server';
-import { fail } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import { profileData } from '$lib/utils/zodSchema';
 
 /** @type {import('./$types').PageServerLoad} */
-export const load = async () => {
+export const load = async ({ parent }) => {
+	const { isLoggedIn } = await parent();
+	if (!isLoggedIn) redirect(303, '/login');
+
 	const form = await superValidate(profileData);
 
 	return { form };

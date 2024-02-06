@@ -15,6 +15,8 @@
 	import { tweened } from 'svelte/motion';
 	import { RotateCcw, Scroll, PenTool } from 'lucide-svelte';
 	import { getFlashcardHeight, getFlashcardWidth } from '$lib/utils';
+	import { browser } from '$app/environment';
+	import { replaceStateWithQuery } from '$lib/utils';
 
 	const rotateYCard = tweened(0, {
 		duration: 2000,
@@ -29,6 +31,12 @@
 	export let longWord: boolean;
 
 	$: kanjiFlashcard = kanji[$currentFlashcard as keyof typeof kanji];
+
+	$: if (browser && wordFlashcard)
+		replaceStateWithQuery({
+			flashcardName: wordFlashcard.name,
+			meaning: wordFlashcard.meaning
+		});
 </script>
 
 <div style="perspective: 3000px; position: relative;">

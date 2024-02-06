@@ -3,8 +3,49 @@ import { fail, redirect } from '@sveltejs/kit';
 import { flashcardCollectionSchema, quizSchema } from '$lib/utils/zodSchema';
 
 /** @type {import('./$types').PageServerLoad} */
-export const load = async ({ locals }) => {
+export const load = async ({ locals, parent }) => {
 	// Get all the flashcards collection
+
+	const { isLoggedIn } = await parent();
+	if (!isLoggedIn) {
+		const flashcardCollections = await locals.pb.collection('flashcardCollections').getFullList({
+			filter: `type = "original"`
+		});
+
+		// Get collection ids
+		const flashcardCollectionsIds = flashcardCollections.map((collection) => collection.id);
+
+		const conditions = flashcardCollectionsIds.map((id) => {
+			return `flashcardCollection = "${id}"`;
+		});
+
+		// Get all flashboxes from the flashcard collection ids
+		const flashcardBoxes = await locals.pb.collection('flashcardBoxes').getFullList({
+			filter: conditions.join('||'),
+			sort: '-created'
+		});
+
+		// Add the flashcardBoxes to the flashcardCollections object
+		flashcardCollections.forEach((collection) => {
+			collection.expand = {
+				flashcardBoxes: flashcardBoxes.filter((box) => box.flashcardCollection === collection.id)
+			};
+		});
+
+		return {
+			form: await superValidate(flashcardCollectionSchema, {
+				id: 'collection'
+			}),
+			quizForm: await superValidate(quizSchema, {
+				id: 'quiz'
+			}),
+			boxForm: await superValidate(flashcardCollectionSchema, {
+				id: 'box'
+			}),
+			flashcardCollections
+		};
+	}
+
 	const flashcardCollections = await locals.pb.collection('flashcardCollections').getFullList({
 		filter: `userId = "${locals.pb.authStore.model?.id}" || type = "original"`,
 		expand: 'flashcardBoxes'
@@ -57,7 +98,8 @@ export const actions = {
 				await locals.pb.collection('flashcardCollections').create({
 					name: form.data.name,
 					description: form.data.description,
-					userId: locals?.pb.authStore.model?.id
+					userId: locals?.pb.authStore.model?.id,
+					type: 'custom'
 				});
 			} catch (_) {
 				return setError(form, 'name', 'Collection already exists');

@@ -18,14 +18,14 @@
 
 	export let rotateYCard: number;
 
-	$: if (browser && $currentAlphabet === 'kanji')
+	$: if (browser && $currentAlphabet === 'kanji' && $page.url.pathname.includes('alphabet'))
 		replaceStateWithQuery({
 			letter: $currentLetter,
 			meaning: kanji[$currentLetter].meaning,
 			onyomi: kanji[$currentLetter].onyomi.join(', '),
 			kunyomi: kanji[$currentLetter].kunyomi.join(', ')
 		});
-	else if (browser && $currentAlphabet !== 'kanji')
+	else if (browser && $currentAlphabet !== 'kanji' && $page.url.pathname.includes('alphabet'))
 		replaceStateWithQuery({
 			letter: $currentLetter,
 			romanji: toRomaji($currentLetter)

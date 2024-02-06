@@ -49,7 +49,7 @@ async function getOrCreateKanjiId(pb: Pocketbase, userId: string) {
 	await pb.collection('flashcardCollections').create({
 		name: 'Taijobi',
 		description: 'It is a list of saved flashcards by Taijobi.',
-		userId: userId,
+		userId,
 		type: 'custom',
 		'flashcardBoxes+': flashcardBox.id
 	});

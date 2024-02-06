@@ -28,7 +28,20 @@
 	import { onMount } from 'svelte';
 	import { quizSchema, flashcardCollectionSchema } from '$lib/utils/zodSchema';
 
+	import { browser } from '$app/environment';
+	import { replaceStateWithQuery } from '$lib/utils';
+
 	export let data;
+
+	$: if (browser && !data.isLoggedIn) {
+		const collectionsNames = data.flashcardCollections
+			.map((collection: any) => collection.name)
+			.join(',');
+
+		replaceStateWithQuery({
+			flashcardCollections: collectionsNames
+		});
+	}
 
 	// Flashcard collection form:
 	const superFrmCollection = superForm(data.form, {
