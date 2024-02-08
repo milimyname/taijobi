@@ -1,5 +1,9 @@
 <script lang="ts">
-	import { clickedEditFlashcard, clickedAddFlashcardCollection } from '$lib/utils/stores';
+	import {
+		clickedEditFlashcard,
+		clickedAddFlashcardCollection,
+		currentFlashcardTypeStore
+	} from '$lib/utils/stores';
 	import { ArrowUpCircle } from 'lucide-svelte';
 	import type { FlashcardType } from '$lib/utils/ambient.d.ts';
 
@@ -23,9 +27,11 @@
 			meaning: currentFlashcard.meaning,
 			id: currentFlashcard.id,
 			notes: currentFlashcard.notes,
-			type: currentFlashcard.type ?? '',
+			type: currentFlashcard.type,
 			romanji: currentFlashcard.romanji
 		};
+
+		$currentFlashcardTypeStore = currentFlashcard.type ?? '';
 	}}
 >
 	<ArrowUpCircle class="h-5 w-5" />

@@ -46,7 +46,7 @@
 		},
 		onUpdated: ({ form }) => {
 			// Keep the form open if there is an error
-			if (form.errors.type) $clickedAddFlashcardCollection = true;
+			if (form.errors.type || form.errors.name) $clickedAddFlashcardCollection = true;
 
 			// Slide to the new created word
 			if (swiperInstance.slides.length + 1 === data.flashcards.length) {

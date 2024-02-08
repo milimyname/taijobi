@@ -8,7 +8,8 @@
 		innerWidthStore,
 		innerHeightStore,
 		showLetterDrawing,
-		selectedQuizItems
+		selectedQuizItems,
+		currentFlashcardTypeStore
 	} from '$lib/utils/stores';
 	import { page } from '$app/stores';
 	import { getLocalStorageItem } from '$lib/utils/localStorage';
@@ -53,6 +54,7 @@
 						$clickedAddFlahcardBox = false;
 						$clickedAddFlashcardCollection = true;
 						$clickedEditFlashcard = false;
+						$currentFlashcardTypeStore = '';
 					}}
 					class="add-btn transition-all hover:scale-110 active:scale-110"
 				>
@@ -64,6 +66,7 @@
 						$clickedAddFlahcardBox = false;
 						$clickedAddFlashcardCollection = true;
 						$clickedEditFlashcard = false;
+						$currentFlashcardTypeStore = '';
 					}}
 					class="add-btn transition-all hover:scale-110 active:scale-110"
 				>
