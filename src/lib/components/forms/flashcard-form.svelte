@@ -91,15 +91,13 @@
 		<Form.Field {config} name="type">
 			<Form.Item>
 				<Form.Label>Type</Form.Label>
-				<Form.Select
-					selected={{ value: $currentFlashcardTypeStore, label: $currentFlashcardTypeStore }}
-				>
+				<Form.Select>
 					<Form.SelectTrigger />
 					<Form.SelectContent>
 						{#if $currentFlashcardTypeStore === 'kanji'}
-							<Form.SelectItem value={$currentFlashcardTypeStore}
-								>{$currentFlashcardTypeStore}</Form.SelectItem
-							>
+							<Form.SelectItem value={$currentFlashcardTypeStore}>
+								{$currentFlashcardTypeStore}
+							</Form.SelectItem>
 						{:else}
 							<Form.SelectItem value="word">word</Form.SelectItem>
 							<Form.SelectItem value="phrase">phrase</Form.SelectItem>

@@ -32,7 +32,7 @@ export type ProfileData = typeof profileData;
 export const flashcardSchema = z.object({
 	name: z.string(),
 	meaning: z.string().optional(),
-	type: z.string(),
+	type: z.string().nonempty({ message: 'Type is required.' }),
 	notes: z.string().optional(),
 	romanji: z.string().optional(),
 	furigana: z.string().optional(),

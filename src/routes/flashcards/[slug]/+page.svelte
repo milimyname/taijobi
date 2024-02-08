@@ -39,14 +39,15 @@
 		resetForm: true,
 		applyAction: true,
 		onSubmit: async (form) => {
-			setTimeout(() => {
-				$clickedEditFlashcard = false;
-				$clickedAddFlashcardCollection = false;
-			}, 200);
+			$clickedEditFlashcard = false;
+			$clickedAddFlashcardCollection = false;
 
 			if (form.action.search.endsWith('delete')) currentIndex = 0;
 		},
-		onUpdated: () => {
+		onUpdated: ({ form }) => {
+			// Keep the form open if there is an error
+			if (form.errors.type) $clickedAddFlashcardCollection = true;
+
 			// Slide to the new created word
 			if (swiperInstance.slides.length + 1 === data.flashcards.length) {
 				// Update slides

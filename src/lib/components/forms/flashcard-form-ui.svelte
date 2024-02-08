@@ -15,10 +15,8 @@
 	export let form: SuperForm<FlashcardSchema>;
 
 	const onOutsideClick = () => {
-		setTimeout(() => {
-			$clickedAddFlashcardCollection = false;
-			form.reset();
-		}, 100);
+		$clickedAddFlashcardCollection = false;
+		form.reset();
 	};
 
 	$: if ($clickedFeedback) {
