@@ -50,7 +50,10 @@
 		resetForm: true,
 		applyAction: true,
 		onSubmit: () => ($clickedAddFlashcardCollection = false),
-		onError: () => ($clickedAddFlashcardCollection = true)
+		onUpdated: ({ form }) => {
+			// Keep the form open if there is an error
+			if (form.errors.name) $clickedAddFlashcardCollection = true;
+		}
 	});
 
 	// Quiz form:
@@ -63,20 +66,25 @@
 			$clickedQuizForm = false;
 			$selectedQuizItems = [];
 		},
-		onError: () => ($clickedQuizForm = true)
+		onUpdated: ({ form }) => {
+			// Keep the form open if there is an error
+			if (form.errors.name) $clickedQuizForm = true;
+		},
 	});
 
 	let quizFormData = superFrmQuiz.form;
 
 	// Box form:
-
 	const superFrmBox = superForm(data.boxForm, {
 		validators: flashcardCollectionSchema,
 		taintedMessage: null,
 		resetForm: true,
 		applyAction: true,
 		onSubmit: () => ($clickedAddFlahcardBox = false),
-		onError: () => ($clickedQuizForm = true)
+		onUpdated: ({ form }) => {
+			// Keep the form open if there is an error
+			if (form.errors.name) $clickedAddFlahcardBox = true;
+		}
 	});
 
 	let boxFormData = superFrmBox.form;

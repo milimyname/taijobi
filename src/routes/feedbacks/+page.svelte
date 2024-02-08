@@ -21,8 +21,9 @@
 		onSubmit: () => {
 			$clickedReport = false;
 		},
-		onError: () => {
-			$clickedReport = true;
+		onUpdated: ({ form }) => {
+			// Keep the form open if there is an error
+			if (form.errors.name || form.errors.description) $clickedReport = true;
 		}
 	});
 

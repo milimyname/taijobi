@@ -112,7 +112,10 @@
 		resetForm: true,
 		applyAction: true,
 		onSubmit: () => ($clickedQuizForm = false),
-		onError: () => ($clickedQuizForm = true)
+		onUpdated: ({ form }) => {
+			// Keep the form open if there is an error
+			if (form.errors.name) $clickedQuizForm = true;
+		}
 	});
 </script>
 
