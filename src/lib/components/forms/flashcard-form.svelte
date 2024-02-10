@@ -11,6 +11,17 @@
 	export let form: SuperForm<FlashcardSchema>;
 
 	let showInfo = false;
+
+	let selectedItems = {
+		value: '',
+		label: ''
+	};
+
+	$: if ($clickedEditFlashcard)
+		selectedItems = {
+			value: $currentFlashcardTypeStore,
+			label: $currentFlashcardTypeStore
+		};
 </script>
 
 <Form.Root
@@ -91,9 +102,7 @@
 		<Form.Field {config} name="type">
 			<Form.Item>
 				<Form.Label>Type</Form.Label>
-				<Form.Select
-					selected={{ value: $currentFlashcardTypeStore, label: $currentFlashcardTypeStore }}
-				>
+				<Form.Select selected={selectedItems}>
 					<Form.SelectTrigger />
 					<Form.SelectContent>
 						{#if $currentFlashcardTypeStore === 'kanji'}

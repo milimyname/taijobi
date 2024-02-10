@@ -69,7 +69,7 @@
 		onUpdated: ({ form }) => {
 			// Keep the form open if there is an error
 			if (form.errors.name) $clickedQuizForm = true;
-		},
+		}
 	});
 
 	let quizFormData = superFrmQuiz.form;

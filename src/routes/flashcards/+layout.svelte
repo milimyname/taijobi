@@ -54,7 +54,7 @@
 						$clickedAddFlahcardBox = false;
 						$clickedAddFlashcardCollection = true;
 						$clickedEditFlashcard = false;
-						$currentFlashcardTypeStore = '';
+						// $currentFlashcardTypeStore = '';
 					}}
 					class="add-btn transition-all hover:scale-110 active:scale-110"
 				>
@@ -66,7 +66,7 @@
 						$clickedAddFlahcardBox = false;
 						$clickedAddFlashcardCollection = true;
 						$clickedEditFlashcard = false;
-						$currentFlashcardTypeStore = '';
+						// $currentFlashcardTypeStore = '';
 					}}
 					class="add-btn transition-all hover:scale-110 active:scale-110"
 				>

@@ -30,7 +30,7 @@ export const profileData = z.object({
 export type ProfileData = typeof profileData;
 
 export const flashcardSchema = z.object({
-	name: z.string(),
+	name: z.string().nonempty({ message: 'Name is required.' }),
 	meaning: z.string().optional(),
 	type: z.string().nonempty({ message: 'Type is required.' }),
 	notes: z.string().optional(),
@@ -53,7 +53,7 @@ export const flashcardCollectionSchema = z.object({
 export type FlashcardCollectionSchema = typeof flashcardCollectionSchema;
 
 export const feedbackSchema = z.object({
-	name: z.string(),
+	name: z.string().nonempty({ message: 'Name is required.' }),
 	description: z.string().max(1000),
 	device: z.string().optional(),
 	userId: z.string(),
@@ -64,7 +64,7 @@ export const feedbackSchema = z.object({
 export type FeedbackSchema = typeof feedbackSchema;
 
 export const quizSchema = z.object({
-	name: z.string(),
+	name: z.string().nonempty({ message: 'Name is required.' }),
 	choice: z.string().default('2'),
 	type: z.string().default('name'),
 	maxCount: z.number().default(20),
