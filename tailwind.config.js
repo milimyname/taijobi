@@ -1,7 +1,6 @@
 import { fontFamily } from 'tailwindcss/defaultTheme';
 import plugin from 'tailwindcss/plugin';
 import typography from '@tailwindcss/typography';
-import forms from '@tailwindcss/forms';
 import dottedBackground from 'tailwindcss-dotted-background';
 import queries from '@tailwindcss/container-queries';
 
@@ -84,7 +83,6 @@ const config = {
 		}
 	},
 	plugins: [
-		forms,
 		typography,
 		dottedBackground,
 		queries,
