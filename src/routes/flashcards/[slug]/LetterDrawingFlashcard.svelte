@@ -19,7 +19,6 @@
 		ArrowLeft,
 		ArrowRight,
 		RotateCcw,
-		Undo,
 		RefreshCcw,
 		Eraser,
 		ChevronLast,
@@ -29,7 +28,7 @@
 	import { clearCanvas } from '$lib/utils/actions';
 	import BacksideCard from '$lib/components/canvas/BacksideCard.svelte';
 	import Swiper from 'swiper';
-	import { getFlashcardWidth } from '$lib/utils';
+	import { getFlashcardWidth, isNonJapanase } from '$lib/utils';
 
 	export let swiperInstance: Swiper;
 
@@ -88,6 +87,9 @@
 		index = 0;
 		clearCanvas(ctx, canvas);
 	}
+
+	// Disable the letter drawing if the flashcard is not Japanese
+	$: if ($showLetterDrawing && isNonJapanase($currentFlashcard)) $showLetterDrawing = false;
 </script>
 
 <div

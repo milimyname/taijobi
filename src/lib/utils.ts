@@ -13,7 +13,7 @@ import {
 import { isKanji, isKatakana, isHiragana } from 'wanakana';
 
 // Check if a string does not contain any Japanese characters
-export const isRomaji = (str: string) => {
+export const isNonJapanase = (str: string) => {
 	// Split the string into individual characters
 	const chars = str.split('');
 

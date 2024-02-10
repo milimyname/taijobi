@@ -14,7 +14,7 @@
 	import { quintOut, cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
 	import { RotateCcw, Scroll, PenTool } from 'lucide-svelte';
-	import { getFlashcardHeight, getFlashcardWidth, isRomaji } from '$lib/utils';
+	import { getFlashcardHeight, getFlashcardWidth, isNonJapanase } from '$lib/utils';
 	import { browser } from '$app/environment';
 	import { replaceStateWithQuery } from '$lib/utils';
 
@@ -67,7 +67,7 @@
 			{currentIndex + 1}
 		</span>
 
-		{#if !isRomaji($currentFlashcard)}
+		{#if !isNonJapanase($currentFlashcard)}
 			<button
 				class="absolute bottom-3 left-2 z-30 rounded-full border bg-white p-2 shadow-sm transition-all xm:bottom-5 xm:left-5
 					{showNotes && 'hidden'}"
