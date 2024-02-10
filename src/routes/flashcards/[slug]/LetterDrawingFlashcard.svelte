@@ -14,7 +14,7 @@
 	import { tweened } from 'svelte/motion';
 	import Letter from '$lib/components/canvas/Letter.svelte';
 	import Canvas from '$lib/components/canvas/Canvas.svelte';
-	import { isKanji, isKatakana } from 'wanakana';
+	import { isKanji, isKatakana, isRomaji } from 'wanakana';
 	import {
 		ArrowLeft,
 		ArrowRight,
@@ -81,7 +81,9 @@
 					char !== '。' &&
 					char !== '~' &&
 					char !== '、' &&
-					char !== '-'
+					char !== '-' &&
+					isNaN(Number(char)) &&
+					!isRomaji(char)
 			);
 		index = 0;
 		clearCanvas(ctx, canvas);

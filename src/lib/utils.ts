@@ -10,6 +10,20 @@ import {
 	CANVAS_LG_WIDTH,
 	CANVAS_SM_WIDTH
 } from '$lib/utils/constants';
+import { isKanji, isKatakana, isHiragana } from 'wanakana';
+
+// Check if a string does not contain any Japanese characters
+export const isRomaji = (str: string) => {
+	// Split the string into individual characters
+	const chars = str.split('');
+
+	// Check each character
+	// If any character is a Japanese character, return false
+	for (const char of chars) if (isKanji(char) || isKatakana(char) || isHiragana(char)) return false; // Found a Japanese character, so it's not Romaji
+
+	// If no Japanese characters are found, return true
+	return true;
+};
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
