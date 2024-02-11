@@ -14,21 +14,27 @@
 
 	async function performAnimation() {
 		const texts = ['😊', '🐞'];
-		const delay = 2000 / (texts[isReversing ? 0 : 1].length - 1);
 
-		for (let i = 0; i < texts[isReversing ? 0 : 1].length; i++) {
-			animationText = texts[isReversing ? 0 : 1].slice(0, i + 1);
+		// Calculate the delay based on the character count, correctly handling surrogate pairs
+		const delay = 2000 / (Array.from(texts[isReversing ? 0 : 1]).length - 1);
+
+		// Convert the text to an array of characters, correctly handling emojis and surrogate pairs
+		const characters = Array.from(texts[isReversing ? 0 : 1]);
+
+		for (let i = 0; i < characters.length; i++) {
+			// Use the array of characters to build up the animationText
+			animationText = characters.slice(0, i + 1).join('');
 			await new Promise((resolve) => setTimeout(resolve, delay));
 		}
 
-		if (isReversing) {
-			isReversing = false;
-			performAnimation();
-		} else {
-			isReversing = true;
-			setTimeout(performAnimation, 2000);
-		}
+		if (isReversing) isReversing = false;
+		else isReversing = true;
+
+		// Use setTimeout to continue or reverse the animation, ensuring proper handling of the asynchronous call
+		setTimeout(performAnimation, 2000);
 	}
+
+	// You would need to define isReversing and possibly other missing variables or logic outside this snippet.
 
 	function onOutsideClickDrawer(e: MouseEvent) {
 		//  If the user clicks on the leave button, don't move the card

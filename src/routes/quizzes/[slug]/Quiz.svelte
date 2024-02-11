@@ -15,16 +15,16 @@
 	$: $tweenedRatio = ratio;
 </script>
 
-<section class="flex h-screen flex-col items-center justify-between md:gap-20">
+<section class="flex h-screen items-center">
 	<div
-		class="relative flex h-fit w-[300px] items-center justify-center rounded-xl border p-10 shadow-sm xm:h-[60dvh] xm:w-[354px] sm:h-[404px] sm:w-96"
+		class="relative mb-20 flex h-[40dvh] w-[300px] items-center justify-center rounded-xl border p-10 shadow-sm xm:w-[354px] sm:h-[404px] sm:w-96"
 	>
 		{#if type === 'name'}
-			<h2 class={flashcard.meaning.length > 2 ? 'text-2xl sm:text-4xl' : 'text-2xl sm:text-8xl'}>
+			<h2 class={flashcard.meaning.length > 2 ? 'text-2xl sm:text-4xl' : 'text-5xl sm:text-8xl'}>
 				{flashcard.meaning}
 			</h2>
 		{:else}
-			<h2 class={flashcard.name.length > 2 ? 'text-3xl sm:text-4xl' : 'text-2xl  sm:text-8xl'}>
+			<h2 class={flashcard.name.length > 2 ? 'text-3xl sm:text-4xl' : 'text-4xl  sm:text-8xl'}>
 				{flashcard.name}
 			</h2>
 		{/if}
@@ -34,14 +34,12 @@
 		/>
 	</div>
 	<div
-		class="fixed bottom-2 grid w-[300px] grid-flow-row grid-cols-2 justify-center gap-2 xm:w-[354px] sm:bottom-5 sm:gap-5 {type ===
-		'name'
-			? 'sm:text-4xl'
-			: 'text-sm sm:text-lg'}  sm:w-96"
+		class="fixed bottom-2 grid w-[300px] grid-flow-row grid-cols-2 justify-center gap-2 xm:w-[354px] sm:bottom-5 sm:gap-5
+		{type === 'name' ? 'text-xl sm:text-4xl' : 'text-sm sm:text-lg'} sm:w-96"
 	>
 		{#each shuffledOptions as option}
 			<button
-				class="w-full rounded-xl border-2 border-black bg-white px-10 py-4 sm:w-40"
+				class="w-full justify-self-center rounded-xl border-2 border-black bg-white px-10 py-4 sm:w-40"
 				on:click|preventDefault={(e) => {
 					selectAnswer(e, option);
 				}}
