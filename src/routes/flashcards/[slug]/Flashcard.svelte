@@ -105,7 +105,10 @@
 			>
 				<h2 class="col-span-2 text-center text-6xl sm:text-9xl">{$currentFlashcard}</h2>
 
-				<h2 class="text-lg font-medium">{kanjiFlashcard.meaning}</h2>
+				<div>
+					<h4 class="text-lg">{kanjiFlashcard.meaning}</h4>
+					<p class="text-sm text-gray-300">Meaning</p>
+				</div>
 
 				{#if kanjiFlashcard.onyomi.length > 0}
 					<div>
