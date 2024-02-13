@@ -58,7 +58,7 @@
 <svelte:window bind:innerWidth={$innerWidthStore} bind:innerHeight={$innerHeightStore} />
 
 <main
-	class="relative flex h-screen select-none flex-col-reverse items-center overflow-auto p-5 sm:flex-row-reverse"
+	class="relative flex h-screen select-none flex-col-reverse items-start overflow-auto p-5 sm:flex-row-reverse"
 >
 	<nav
 		class="{!isLongPress
