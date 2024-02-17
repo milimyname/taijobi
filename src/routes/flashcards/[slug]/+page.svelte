@@ -102,7 +102,7 @@
 		} else $currentIndexStore = swiperInstance.activeIndex;
 	});
 
-	$: if (flashcards && flashcards.length > 0 && browser) {
+	$: if (browser && currentIndex) {
 		const card = flashcards.at(currentIndex);
 		if (card) {
 			// Check if currentFlashcard is not undefined
@@ -110,7 +110,7 @@
 			currentFlashcardFurigana = card.furigana || '';
 			$currentFlashcardTypeStore = card.type || 'word';
 		}
-	} else $currentFlashcardTypeStore = 'word';
+	}
 
 	$: if ($currentIndexStore && swiperInstance) {
 		swiperInstance.activeIndex = $currentIndexStore;

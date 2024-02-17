@@ -31,12 +31,10 @@ async function processFurigana(card: RecordModel, kuroshiro: Kuroshiro) {
 }
 
 export const GET: RequestHandler = async ({ locals, params }) => {
-	console.time('flashcards');
 	const flashcards = await locals.pb.collection('flashcard').getFullList({
 		filter: `flashcardBox = "${params.slug}"`,
 		fields: `id, name, meaning, romanji, furigana, type, notes`
 	});
-	console.timeEnd('flashcards');
 
 	const processeFlashcards = await Promise.all(
 		flashcards.map((card: RecordModel) => processFurigana(card, kuroshiro))
