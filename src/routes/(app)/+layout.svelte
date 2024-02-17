@@ -59,73 +59,75 @@
 <svelte:window bind:innerWidth={$innerWidthStore} bind:innerHeight={$innerHeightStore} />
 
 <main
-	class="relative grid h-screen select-none grid-cols-1 items-start overflow-auto p-5 sm:grid-cols-[1fr_1fr_6rem]"
+	class="grid h-screen select-none grid-cols-1 items-start overflow-auto p-5 sm:grid-cols-[1fr_1fr_6rem]"
 >
 	<slot />
-	<nav
-		class={cn(
-			'fixed bottom-5 z-40 ml-5 flex w-[90%] items-center justify-between self-end rounded-full  bg-primary p-2  text-white transition-all xm:w-[93%] xm:p-2 sm:relative sm:sticky sm:bottom-0 sm:top-5 sm:ml-0 sm:h-full sm:w-24 sm:flex-col sm:justify-center sm:gap-10 sm:p-5',
-			isLongPress && 'right-5 p-2'
-		)}
-	>
-		{#if $innerWidthStore > IS_DESKTOP}
-			<a href="/" class="mb-auto">
-				<img
-					src="/taijobi.png"
-					class="h-10 w-10 rounded-full shadow-logo sm:h-12 sm:w-12"
-					alt="Logo"
-				/>
-			</a>
-			<div class="flex gap-10 sm:flex-col">
-				<a href="/">
-					<Home class="h-6 w-6" />
+	<aside class="fixed bottom-5 left-0 z-40 w-full p-5 pb-0 sm:sticky sm:h-full sm:p-0">
+		<nav
+			class={cn(
+				'flex items-center justify-between rounded-full bg-primary p-2 text-white transition-all sm:h-full sm:flex-col sm:justify-center sm:gap-10 sm:p-5',
+				isLongPress && 'right-5 p-2'
+			)}
+		>
+			{#if $innerWidthStore > IS_DESKTOP}
+				<a href="/" class="mb-auto">
+					<img
+						src="/taijobi.png"
+						class="h-10 w-10 rounded-full shadow-logo sm:h-12 sm:w-12"
+						alt="Logo"
+					/>
 				</a>
-				<a href="/studying">
-					<GraduationCap class="h-6 w-6" />
+				<div class="flex gap-10 sm:flex-col">
+					<a href="/">
+						<Home class="h-6 w-6" />
+					</a>
+					<a href="/studying">
+						<GraduationCap class="h-6 w-6" />
+					</a>
+					<a href="/profile">
+						<Newspaper class="h-6 w-6" />
+					</a>
+					<form action="/logout" method="POST">
+						<button type="submit">
+							<LogOut class="h-6 w-6" />
+						</button>
+					</form>
+				</div>
+				<a href="/profile" class="mt-auto">
+					<img src={imageSrc} alt="Logo" class="size-10 rounded-full shadow-logo sm:size-12" />
 				</a>
-				<a href="/profile">
-					<Newspaper class="h-6 w-6" />
-				</a>
-				<form action="/logout" method="POST">
-					<button type="submit">
-						<LogOut class="h-6 w-6" />
-					</button>
-				</form>
-			</div>
-			<a href="/profile" class="mt-auto">
-				<img src={imageSrc} alt="Logo" class="size-10 rounded-full shadow-logo sm:size-12" />
-			</a>
-		{:else}
-			<button
-				on:click|preventDefault={handleUserIconClick}
-				on:mousedown={handleLongPress}
-				on:touchstart={handleLongPress}
-				on:mouseup={handleCancelPress}
-				on:touchend={handleCancelPress}
-				class="select-none transition-transform hover:scale-110"
-			>
-				<img
-					src={imageSrc}
-					class="pointer-events-none size-8 select-none rounded-full shadow-logo hover:h-12 hover:w-12 xm:size-10 sm:size-12"
-					alt="Profile Pic"
-				/>
-			</button>
-
-			{#if !isLongPress}
+			{:else}
 				<button
-					transition:fly={{
-						delay: 0,
-						duration: 0,
-						opacity: 0,
-						x: 100,
-						easing: sineIn
-					}}
-					on:click|preventDefault={handleMenuIconClick}
+					on:click|preventDefault={handleUserIconClick}
+					on:mousedown={handleLongPress}
+					on:touchstart={handleLongPress}
+					on:mouseup={handleCancelPress}
+					on:touchend={handleCancelPress}
+					class="select-none transition-transform hover:scale-110"
 				>
-					<Menu class="mr-1 xm:size-6 sm:size-8" />
+					<img
+						src={imageSrc}
+						class="pointer-events-none size-8 select-none rounded-full shadow-logo hover:h-12 hover:w-12 xm:size-10 sm:size-12"
+						alt="Profile Pic"
+					/>
 				</button>
+
+				{#if !isLongPress}
+					<button
+						transition:fly={{
+							delay: 0,
+							duration: 0,
+							opacity: 0,
+							x: 100,
+							easing: sineIn
+						}}
+						on:click|preventDefault={handleMenuIconClick}
+					>
+						<Menu class="mr-1 xm:size-6 sm:size-8" />
+					</button>
+				{/if}
 			{/if}
-		{/if}
-	</nav>
+		</nav>
+	</aside>
 	<MobileNav />
 </main>
