@@ -20,14 +20,15 @@
 	import LetterDrawingFlashcard from './LetterDrawingFlashcard.svelte';
 	import { Plus } from 'lucide-svelte';
 	import { flashcardSchema } from '$lib/utils/zodSchema';
+	import type { FlashcardType } from '$lib/utils/ambient.d.ts';
+	import { browser } from '$app/environment';
 
 	export let data;
 
 	// Get the alphabet store length
 	let currentFlashcardFurigana: string;
-	let currentIndex: number = $currentIndexStore
-		? $currentIndexStore
-		: Math.floor(data.flashcards.length / 2);
+	let currentIndex: number = 0;
+	let flashcards: FlashcardType[] = [];
 
 	let islocalBoxTypeOriginal = getLocalStorageItem('flashcardsBoxType') !== 'original';
 	let swiperInstance: Swiper;
@@ -49,18 +50,29 @@
 			if (form.errors.type || form.errors.name) $clickedAddFlashcardCollection = true;
 
 			// Slide to the new created word
-			if (swiperInstance.slides.length + 1 === data.flashcards.length) {
+			if (swiperInstance.slides.length + 1 === flashcards.length) {
 				// Update slides
 				swiperInstance.update();
 
 				setTimeout(() => {
-					swiperInstance.slideTo(data.flashcards.length + 1);
+					swiperInstance.slideTo(flashcards.length + 1);
 				}, 10);
 			}
 		}
 	});
 
-	onMount(() => {
+	// Fetch flashcards from the server
+	async function fetchFlashcards() {
+		try {
+			const res = await fetch(`/flashcards/${$page.params.slug}`);
+			const data = await res.json();
+			return data;
+		} catch (error) {
+			console.error(error);
+		}
+	}
+
+	onMount(async () => {
 		swiperInstance = new Swiper('.swiper-container', {
 			slidesPerView: 'auto',
 			centeredSlides: true,
@@ -75,22 +87,29 @@
 			}
 		});
 
+		const data = await fetchFlashcards();
+		flashcards = data.flashcards;
+
 		// Set the initial flashcard
 		swiperInstance.activeIndex = $currentIndexStore
 			? $currentIndexStore
-			: Math.floor(data.flashcards.length / 2);
+			: Math.floor(flashcards.length / 2);
 
 		const savedIndex = localStorage.getItem('swiperActiveIndex');
-		if (savedIndex !== null && data.flashcards.length > 0) {
+		if (savedIndex !== null && flashcards.length > 0) {
 			$currentIndexStore = +savedIndex;
 			swiperInstance.slideTo($currentIndexStore);
 		} else $currentIndexStore = swiperInstance.activeIndex;
 	});
 
-	$: if (data.flashcards.length > 0) {
-		$currentFlashcard = data.flashcards.at(currentIndex).name;
-		currentFlashcardFurigana = data.flashcards.at(currentIndex).furigana;
-		$currentFlashcardTypeStore = data.flashcards.at(currentIndex).type;
+	$: if (flashcards && flashcards.length > 0 && browser) {
+		const card = flashcards.at(currentIndex);
+		if (card) {
+			// Check if currentFlashcard is not undefined
+			$currentFlashcard = card.name;
+			currentFlashcardFurigana = card.furigana || '';
+			$currentFlashcardTypeStore = card.type || 'word';
+		}
 	} else $currentFlashcardTypeStore = 'word';
 
 	$: if ($currentIndexStore && swiperInstance) {
@@ -100,30 +119,28 @@
 	}
 </script>
 
-{#if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin}
+{#if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.isAdmin}
 	<FlashcardForm form={superFrm} />
 {/if}
 
 <section
 	class="mb-10 sm:mb-20
 	{!$showLetterDrawing && 'gap-5'} 
-	{data.flashcards.length > 0 ? 'items-center' : 'w-full max-w-md'} 
+	{flashcards.length > 0 ? 'items-center' : 'w-full max-w-md'} 
 	flex flex-1 flex-col justify-center"
 >
-	{#if data.flashcards.length > 0}
+	{#if flashcards.length > 0}
 		{#if !$showLetterDrawing}
 			<Flashcard
-				wordFlashcard={data.flashcards.at(currentIndex)}
+				wordFlashcard={flashcards.at(currentIndex)}
 				{currentIndex}
 				longWord={$currentFlashcard.length > 8}
 				{currentFlashcardFurigana}
 			/>
 
 			<div class="flex items-center justify-center sm:mx-auto sm:w-[600px]">
-				{#if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin}
-				
-						<EditButton form={superFrm.form} currentFlashcard={data.flashcards[currentIndex]} />
-		
+				{#if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.isAdmin}
+					<EditButton form={superFrm.form} currentFlashcard={flashcards[currentIndex]} />
 				{/if}
 			</div>
 		{:else}
@@ -142,7 +159,7 @@
 		class="swiper-container fixed bottom-5 flex h-12 cursor-ew-resize items-center justify-between gap-5 sm:bottom-10 lg:bottom-5"
 	>
 		<div class="swiper-wrapper">
-			{#each data.flashcards as flashcard, index}
+			{#each flashcards as flashcard, index}
 				<div
 					style="display: flex; justify-content: center; width: fit-content"
 					class="swiper-slide"

@@ -25,7 +25,7 @@
 
 	let showNotes: boolean = false;
 
-	export let wordFlashcard: FlashcardType;
+	export let wordFlashcard: FlashcardType | undefined;
 	export let currentFlashcardFurigana: string;
 	export let currentIndex: number;
 	export let longWord: boolean;

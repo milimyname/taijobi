@@ -45,6 +45,7 @@ export type FlashcardType = {
 	romanji?: string;
 	id?: string;
 	type?: string;
+	furigana?: string;
 };
 
 export type ProgressDataItem = {
