@@ -1,4 +1,4 @@
-export const IS_DESKTOP = 768;
+export const IS_DESKTOP = 640;
 export const XM_SMALL_SCREEN = 400;
 
 export const CANVAS_LG_WIDTH = 500;

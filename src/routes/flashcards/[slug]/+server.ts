@@ -3,8 +3,7 @@ import KuromojiAnalyzer from '@sglkc/kuroshiro-analyzer-kuromoji';
 import { convertToRubyTag } from '$lib/utils/actions.js';
 import { isHiragana } from 'wanakana';
 import type { RecordModel } from 'pocketbase';
-import { json } from '@sveltejs/kit';
-import type { RequestHandler } from '../../api/$types';
+import { json, type RequestHandler } from '@sveltejs/kit';
 
 const kuroshiro = new Kuroshiro();
 

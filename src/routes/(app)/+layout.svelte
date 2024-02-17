@@ -8,6 +8,7 @@
 	import image from '$lib/static/taijobi.png';
 	import { pocketbase } from '$lib/utils/pocketbase';
 	import { Home, LogOut, Newspaper, GraduationCap, Menu } from 'lucide-svelte';
+	import { cn } from '$lib/utils.js';
 
 	let longPressTimer: NodeJS.Timeout;
 	let isLongPress = false;
@@ -58,12 +59,14 @@
 <svelte:window bind:innerWidth={$innerWidthStore} bind:innerHeight={$innerHeightStore} />
 
 <main
-	class="relative flex h-screen select-none flex-col-reverse items-start overflow-auto p-5 sm:flex-row-reverse"
+	class="relative grid h-screen select-none grid-cols-1 items-start overflow-auto p-5 sm:grid-cols-[1fr_1fr_6rem]"
 >
+	<slot />
 	<nav
-		class="{!isLongPress
-			? 'w-[90%] p-4'
-			: 'right-5 p-2'}  fixed bottom-5 z-40 flex items-center justify-between rounded-full bg-primary p-2 text-white transition-all xm:p-2 sm:relative sm:bottom-0 sm:h-full sm:w-24 sm:flex-col sm:justify-center sm:gap-10 sm:p-5"
+		class={cn(
+			'sticky z-40 flex w-full items-center justify-between self-end rounded-full bg-primary p-2 text-white transition-all xm:p-2 sm:relative sm:h-full sm:w-24 sm:flex-col sm:justify-center sm:gap-10 sm:p-5',
+			isLongPress && 'right-5 p-2'
+		)}
 	>
 		{#if $innerWidthStore > IS_DESKTOP}
 			<a href="/" class="mb-auto">
@@ -90,7 +93,7 @@
 				</form>
 			</div>
 			<a href="/profile" class="mt-auto">
-				<img src={imageSrc} alt="Logo" class="h-10 w-10 rounded-full shadow-logo sm:h-12 sm:w-12" />
+				<img src={imageSrc} alt="Logo" class="size-10 rounded-full shadow-logo sm:size-12" />
 			</a>
 		{:else}
 			<button
@@ -103,7 +106,7 @@
 			>
 				<img
 					src={imageSrc}
-					class="pointer-events-none h-8 w-8 select-none rounded-full shadow-logo hover:h-12 hover:w-12 xm:h-10 xm:w-10 sm:h-12 sm:w-12"
+					class="pointer-events-none size-8 select-none rounded-full shadow-logo hover:h-12 hover:w-12 xm:size-10 sm:size-12"
 					alt="Profile Pic"
 				/>
 			</button>
@@ -119,11 +122,10 @@
 					}}
 					on:click|preventDefault={handleMenuIconClick}
 				>
-					<Menu class="mr-1 xm:h-6 xm:w-6 sm:h-8 sm:w-8" />
+					<Menu class="mr-1 xm:size-6 sm:size-8" />
 				</button>
 			{/if}
 		{/if}
 	</nav>
 	<MobileNav />
-	<slot />
 </main>

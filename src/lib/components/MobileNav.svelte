@@ -12,7 +12,7 @@
 			$showNav = false;
 			$showAppNav = false;
 		}}
-		class="fixed bottom-20 z-30 w-full p-5"
+		class="fixed bottom-20 left-0 z-30 w-full p-5"
 		transition:fly={{
 			delay: 0,
 			duration: 500,
@@ -67,7 +67,7 @@
 			$showNav = false;
 			$showAppNav = false;
 		}}
-		class="fixed bottom-20 z-30 w-full p-5"
+		class="fixed bottom-20 left-0 z-30 w-full p-5"
 		transition:fly={{
 			delay: 0,
 			duration: 500,

@@ -3,7 +3,7 @@
 </script>
 
 <section
-	class="mb-auto flex w-full flex-col gap-6 rounded-tr-4xl border border-[#EEEEEE] px-10 py-10 sm:mb-auto sm:w-1/2 sm:rounded-r-4xl sm:px-16"
+	class="border-t-1 mb-auto flex h-full w-full flex-col gap-6 self-end rounded-br-4xl border border-[#EEEEEE] p-8 sm:rounded-l-4xl lg:px-16"
 >
 	<h2 class="text-lg font-bold sm:text-2xl">Alphabets</h2>
 	<div class="flex flex-col gap-2">
@@ -38,7 +38,7 @@
 </section>
 
 <section
-	class="flex w-full flex-col gap-6 rounded-br-4xl border border-[#EEEEEE] px-10 py-10 sm:w-1/2 sm:rounded-l-4xl sm:rounded-r-none sm:border-r-0 sm:border-t sm:px-16"
+	class="border-t-1 flex w-full flex-col gap-6 rounded-tr-4xl border border-[#EEEEEE] p-8 sm:rounded-r-4xl sm:border-l-0 lg:px-16"
 >
 	<h2 class="text-lg font-bold sm:text-2xl">Studying</h2>
 	<div class="flex flex-col gap-2">
