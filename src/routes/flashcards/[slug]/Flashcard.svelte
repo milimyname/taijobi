@@ -106,10 +106,17 @@
 			>
 				<h2 class="col-span-2 text-center text-6xl sm:text-9xl">{$currentFlashcard}</h2>
 
-				<div>
-					<h4 class="text-lg">{kanjiFlashcard.meaning}</h4>
-					<p class="text-sm text-gray-300">Meaning</p>
-				</div>
+				{#if wordFlashcard?.meaning !== ''}
+					<div>
+						<h4 class="text-lg">{wordFlashcard?.meaning}</h4>
+						<p class="text-sm text-gray-300">Meaning</p>
+					</div>
+				{:else}
+					<div>
+						<h4 class="text-lg">{kanjiFlashcard.meaning}</h4>
+						<p class="text-sm text-gray-300">Meaning</p>
+					</div>
+				{/if}
 
 				{#if kanjiFlashcard.onyomi.length > 0}
 					<div>
@@ -124,7 +131,8 @@
 						<p class=" text-sm text-gray-300">Kunyomi</p>
 					</div>
 				{/if}
-				{#if wordFlashcard.notes && wordFlashcard.notes.length > 0}
+
+				{#if wordFlashcard?.notes && wordFlashcard?.notes.length > 0}
 					<button
 						class="fixed bottom-0 left-0 z-10 rounded-tr-xl {showNotes
 							? 'bg-white text-black'
@@ -168,19 +176,19 @@
 					</h2>
 					<p class=" text-sm text-gray-300">Meaning</p>
 				</div>
-				{#if wordFlashcard.customFurigana}
+				{#if wordFlashcard?.customFurigana}
 					<div>
 						<h2 class="text-xl font-medium">{wordFlashcard.customFurigana}</h2>
 						<p class=" text-sm text-gray-300">Custom furigana</p>
 					</div>
 				{/if}
-				{#if wordFlashcard.romanji}
-					<div class="justify-self-end">
+				{#if wordFlashcard?.romanji}
+					<div class="justify-self-end sm:justify-self-start">
 						<h2 class="text-xl font-medium">{wordFlashcard.romanji}</h2>
 						<p class=" text-sm text-gray-300">Romanji/Furigana</p>
 					</div>
 				{/if}
-				{#if wordFlashcard.notes && wordFlashcard.notes.length > 0}
+				{#if wordFlashcard?.notes && wordFlashcard.notes.length > 0}
 					<button
 						class="fixed bottom-0 left-0 z-10 rounded-tr-xl {showNotes
 							? 'bg-white text-black'

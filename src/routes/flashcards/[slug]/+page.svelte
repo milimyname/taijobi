@@ -33,6 +33,17 @@
 	let islocalBoxTypeOriginal = getLocalStorageItem('flashcardsBoxType') !== 'original';
 	let swiperInstance: Swiper;
 
+	// Fetch flashcards from the server
+	async function fetchFlashcards() {
+		try {
+			const res = await fetch(`/flashcards/${$page.params.slug}`);
+			const data = await res.json();
+			return data;
+		} catch (error) {
+			console.error(error);
+		}
+	}
+
 	// Client API:
 	const superFrm = superForm(data.form, {
 		validators: flashcardSchema,
@@ -45,7 +56,7 @@
 
 			if (form.action.search.endsWith('delete')) currentIndex = 0;
 		},
-		onUpdated: ({ form }) => {
+		onUpdated: async ({ form }) => {
 			// Keep the form open if there is an error
 			if (form.errors.type || form.errors.name) $clickedAddFlashcardCollection = true;
 
@@ -58,19 +69,12 @@
 					swiperInstance.slideTo(flashcards.length + 1);
 				}, 10);
 			}
+
+			// Update the flashcards
+			const data = await fetchFlashcards();
+			flashcards = data.flashcards;
 		}
 	});
-
-	// Fetch flashcards from the server
-	async function fetchFlashcards() {
-		try {
-			const res = await fetch(`/flashcards/${$page.params.slug}`);
-			const data = await res.json();
-			return data;
-		} catch (error) {
-			console.error(error);
-		}
-	}
 
 	onMount(async () => {
 		swiperInstance = new Swiper('.swiper-container', {
@@ -102,7 +106,7 @@
 		} else $currentIndexStore = swiperInstance.activeIndex;
 	});
 
-	$: if (browser && currentIndex) {
+	$: if (browser && currentIndex && flashcards.length > 0) {
 		const card = flashcards.at(currentIndex);
 		if (card) {
 			// Check if currentFlashcard is not undefined
