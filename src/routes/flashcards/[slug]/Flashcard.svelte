@@ -14,7 +14,7 @@
 	import { quintOut, cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
 	import { RotateCcw, Scroll, PenTool } from 'lucide-svelte';
-	import { getFlashcardHeight, getFlashcardWidth, isNonJapanase } from '$lib/utils';
+	import { cn, getFlashcardHeight, getFlashcardWidth, isNonJapanase } from '$lib/utils';
 	import { browser } from '$app/environment';
 	import { replaceStateWithQuery } from '$lib/utils';
 
@@ -44,10 +44,11 @@
 		style={`transform: rotateY(${-$rotateYCard}deg); transform-style: preserve-3d; backface-visibility: hidden; 
 				height: ${getFlashcardHeight($innerWidthStore, $innerHeightStore)}px;
 				width: ${getFlashcardWidth($innerWidthStore)}px `}
-		class="relative z-10 cursor-pointer
-				{$rotateYCard > 90 ? 'hidden' : 'block'}  rounded-xl
-				{longWord && 'py-10 sm:py-32'} flex items-center justify-center border
-				shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200"
+		class={cn(
+			'relative z-10 flex cursor-pointer items-center justify-center rounded-xl border shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200',
+			$rotateYCard > 90 && 'hidden',
+			longWord && 'py-10 sm:py-32'
+		)}
 	>
 		{#if $currentFlashcardTypeStore === 'kanji'}
 			<span class="text-9xl sm:text-[14rem]">
@@ -174,7 +175,7 @@
 					</div>
 				{/if}
 				{#if wordFlashcard.romanji}
-					<div>
+					<div class="justify-self-end">
 						<h2 class="text-xl font-medium">{wordFlashcard.romanji}</h2>
 						<p class=" text-sm text-gray-300">Romanji/Furigana</p>
 					</div>

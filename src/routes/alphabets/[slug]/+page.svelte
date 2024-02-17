@@ -29,7 +29,7 @@
 	import DrawingNav from '$lib/components/DrawingNav.svelte';
 	import ProgressSlider from '$lib/components/ProgressSlider.svelte';
 	import * as Select from '$lib/components/ui/select';
-	import { getFlashcardWidth } from '$lib/utils';
+	import { cn, getFlashcardWidth } from '$lib/utils';
 	import { quizSchema } from '$lib/utils/zodSchema';
 	import { goto } from '$app/navigation';
 
@@ -121,7 +121,7 @@
 
 <QuizForm form={superFrmQuiz} />
 
-<section class=" flex flex-1 flex-col justify-center gap-2 sm:justify-center sm:gap-5">
+<section class="flex flex-1 flex-col justify-center gap-2 sm:justify-center sm:gap-5">
 	<div style="perspective: 3000px; position: relative; overflow: hidden;">
 		<div>
 			<Canvas rotationY={$rotateYCard} {canvas} {ctx} />
@@ -136,37 +136,46 @@
 						handleSavedKanji();
 						savedKanji = !savedKanji;
 					}}
-					class="{$rotateYCard > 5 ? 'hidden' : 'text-black'} 
-				fixed left-3 top-3 z-30 text-lg font-medium sm:left-5 sm:top-5"
+					class={cn(
+						'fixed bottom-3 left-3 z-30 text-lg font-medium text-black sm:bottom-5 sm:left-5',
+						$rotateYCard > 5 && 'hidden'
+					)}
 				>
 					<Heart
-						class="h-6 w-6 transition-all {savedKanji &&
-							'fill-black'} hover:scale-110 active:scale-110"
+						class={cn(
+							'size-6 transition-all hover:scale-110 active:scale-110',
+							savedKanji && 'fill-black'
+						)}
 					/>
 				</button>
 			{/if}
 
 			<span
-				class="{$rotateYCard > 5
-					? 'hidden'
-					: 'text-black'} fixed right-3 top-3 z-30 text-lg font-medium sm:right-5 sm:top-5"
+				class={cn(
+					'fixed right-3 top-3 z-30 text-lg font-medium text-black sm:right-5 sm:top-5',
+					$rotateYCard > 5 && 'hidden'
+				)}
 			>
 				{$currentLetter}
 			</span>
 
 			<span
-				class="{$rotateYCard > 5 ? 'hidden' : 'block'}
-				fixed bottom-3 left-3 z-30 transition-all sm:bottom-5 sm:left-5"
+				class={cn(
+					'fixed left-3 top-3 z-30 block transition-all sm:left-5 sm:top-5',
+					$rotateYCard > 5 && 'hidden'
+				)}
 			>
 				{$progressSlider}
 			</span>
 
 			<button
-				class="{$rotateYCard > 5 && $rotateYCard < 175 ? 'hidden' : 'block'}
-				fixed bottom-3 right-2 z-30 rounded-full border bg-white p-2 shadow-sm transition-all sm:bottom-5 sm:right-5"
+				class={cn(
+					'fixed bottom-3 right-2 z-30 block rounded-full border bg-white p-2 shadow-sm transition-all sm:bottom-5 sm:right-5',
+					$rotateYCard > 5 && $rotateYCard < 175 && 'hidden'
+				)}
 				on:click={() => ($rotateYCard < 40 ? ($rotateYCard = 180) : ($rotateYCard = 0))}
 			>
-				<RotateCcw class="h-4 w-4" />
+				<RotateCcw class="size-4" />
 			</button>
 
 			<BacksideCard rotateYCard={$rotateYCard} />

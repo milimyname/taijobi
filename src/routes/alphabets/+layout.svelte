@@ -32,7 +32,7 @@
 			}}
 		>
 			<ArrowLeft
-				class="h-4 w-4 transition-transform group-hover:-translate-x-2 group-active:-translate-x-2"
+				class="size-4 transition-transform group-hover:-translate-x-2 group-active:-translate-x-2"
 			/>
 			<span>Back</span>
 		</a>

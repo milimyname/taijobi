@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { spring, tweened } from 'svelte/motion';
+	import { cn } from '$lib/utils';
+	import { tweened } from 'svelte/motion';
 
 	export let flashcard: {
 		meaning: string;
@@ -15,9 +16,9 @@
 	$: $tweenedRatio = ratio;
 </script>
 
-<section class="flex h-screen items-center">
+<section class="flex h-full flex-col items-center justify-between">
 	<div
-		class="relative mb-20 flex h-[40dvh] w-[300px] items-center justify-center rounded-xl border p-10 shadow-sm xm:w-[354px] sm:h-[404px] sm:w-96"
+		class="relative flex h-[40dvh] w-[300px] items-center justify-center rounded-xl border p-10 shadow-sm xm:w-[354px] sm:h-[404px] sm:w-96"
 	>
 		{#if type === 'name'}
 			<h2 class={flashcard.meaning.length > 2 ? 'text-2xl sm:text-4xl' : 'text-5xl sm:text-8xl'}>
@@ -34,12 +35,14 @@
 		/>
 	</div>
 	<div
-		class="fixed bottom-2 grid w-[300px] grid-flow-row grid-cols-2 justify-center gap-2 xm:w-[354px] sm:bottom-5 sm:gap-5
-		{type === 'name' ? 'text-xl sm:text-4xl' : 'text-sm sm:text-lg'} sm:w-96"
+		class={cn(
+			'grid w-[300px] grid-flow-row grid-cols-2 justify-center gap-2 text-sm xm:w-[354px] sm:gap-5 sm:text-lg',
+			type === 'name' && 'text-xl sm:text-4xl'
+		)}
 	>
 		{#each shuffledOptions as option}
 			<button
-				class="w-full justify-self-center rounded-xl border-2 border-black bg-white px-10 py-4 sm:w-40"
+				class="w-full justify-self-center rounded-xl border-2 border-black bg-white p-2 sm:w-40 sm:p-4"
 				on:click|preventDefault={(e) => {
 					selectAnswer(e, option);
 				}}

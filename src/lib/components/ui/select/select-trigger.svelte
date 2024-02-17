@@ -25,7 +25,7 @@
 	<slot {builder} />
 	{#if $clickedQuizForm || $page.url.pathname.includes('/flashcards')}
 		<div>
-			<ChevronDown class="h-4 w-4 opacity-50" />
+			<ChevronDown class="size-4 opacity-50" />
 		</div>
 	{/if}
 </SelectPrimitive.Trigger>

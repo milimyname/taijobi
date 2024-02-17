@@ -45,7 +45,7 @@
 						on:mouseleave={() => (showInfo = false)}
 						class="relative hover:fill-black/50"
 					>
-						<HelpCircle class="h-4 w-4 transition-transform hover:scale-125" />
+						<HelpCircle class="size-4 transition-transform hover:scale-125" />
 					</button>
 
 					{#if showInfo}

@@ -13,12 +13,12 @@
 </script>
 
 <button
-	class="z-40"
+	class="z-40 rounded-full bg-black px-4 py-1.5 text-white"
 	on:click={() => {
 		$clickedAddFlashcardCollection = true;
 		$clickedEditFlashcard = true;
 
-		// Fill out the form with the current card data
+	// Fill out the form with the current card data
 		$form = {
 			...form.data,
 			name: currentFlashcard.customFurigana
@@ -34,5 +34,5 @@
 		$currentFlashcardTypeStore = currentFlashcard.type ?? '';
 	}}
 >
-	<ArrowUpCircle class="h-5 w-5" />
+	<ArrowUpCircle class="size-5" />
 </button>

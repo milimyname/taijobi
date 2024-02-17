@@ -121,11 +121,9 @@
 
 			<div class="flex items-center justify-center sm:mx-auto sm:w-[600px]">
 				{#if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin}
-					<div
-						class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
-					>
+				
 						<EditButton form={superFrm.form} currentFlashcard={data.flashcards[currentIndex]} />
-					</div>
+		
 				{/if}
 			</div>
 		{:else}

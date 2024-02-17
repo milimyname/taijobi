@@ -38,7 +38,7 @@
 	<nav class="flex w-full p-5">
 		<button on:click|preventDefault={() => goto('/')} class="flex items-center gap-2">
 			<ArrowLeft
-				class="h-4 w-4 transition-transform group-hover:-translate-x-2 group-active:-translate-x-2"
+				class="size-4 transition-transform group-hover:-translate-x-2 group-active:-translate-x-2"
 			/>
 			<span>Back</span>
 		</button>

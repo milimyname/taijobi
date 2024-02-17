@@ -111,7 +111,7 @@
 		absolute bottom-3 left-2 z-40 rounded-full border bg-white p-2 shadow-sm transition-all sm:bottom-5 sm:left-5"
 		on:click={() => ($showLetterDrawing = false)}
 	>
-		<FileText class="h-4 w-4" />
+		<FileText class="size-4" />
 	</button>
 
 	<Canvas rotationY={$rotateYCard} {canvas} {ctx} />
@@ -123,7 +123,7 @@
 				absolute bottom-3 right-2 z-40 rounded-full border bg-white p-2 shadow-sm transition-all sm:bottom-5 sm:right-5"
 		on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
 	>
-		<RotateCcw class="h-4 w-4" />
+		<RotateCcw class="size-4" />
 	</button>
 
 	<BacksideCard rotateYCard={$rotateYCard} />
@@ -146,7 +146,7 @@
 				}}
 				class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
 			>
-				<ChevronFirst class="h-4 w-4" />
+				<ChevronFirst class="size-4" />
 			</button>
 		{:else}
 			<button
@@ -156,7 +156,7 @@
 				}}
 				class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
 			>
-				<ArrowLeft class="h-4 w-4" />
+				<ArrowLeft class="size-4" />
 			</button>
 		{/if}
 
@@ -165,7 +165,7 @@
 				class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
 			>
 				<button on:click|preventDefault={() => clearCanvas(ctx, canvas)}>
-					<Eraser class="h-4 w-4 " />
+					<Eraser class="size-4 " />
 				</button>
 				<button
 					on:click|preventDefault={() => {
@@ -174,7 +174,7 @@
 					}}
 					class="transition-transform active:rotate-180"
 				>
-					<RefreshCcw class="h-4 w-4" />
+					<RefreshCcw class="size-4" />
 				</button>
 			</div>
 		</div>
@@ -187,7 +187,7 @@
 				}}
 				class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
 			>
-				<ArrowRight class="h-4 w-4" />
+				<ArrowRight class="size-4" />
 			</button>
 		{:else}
 			<button
@@ -204,21 +204,21 @@
 					? 'pointer-events-none opacity-0'
 					: 'opacity-100'}"
 			>
-				<ChevronLast class="h-4 w-4" />
+				<ChevronLast class="size-4" />
 			</button>
 		{/if}
 	{:else}
 		<button
 			class="previousLetter h-fit w-fit rounded-full border bg-white p-2 opacity-0 shadow-sm transition-all"
 		>
-			<ArrowRight class="h-4 w-4" />
+			<ArrowRight class="size-4" />
 		</button>
 		<div class="flex items-center justify-center">
 			<div
 				class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
 			>
 				<button on:click|preventDefault={() => clearCanvas(ctx, canvas)}>
-					<Eraser class="h-4 w-4 " />
+					<Eraser class="size-4" />
 				</button>
 				<button
 					on:click|preventDefault={() => {
@@ -227,7 +227,7 @@
 					}}
 					class="transition-transform active:rotate-180"
 				>
-					<RefreshCcw class="h-4 w-4" />
+					<RefreshCcw class="size-4" />
 				</button>
 			</div>
 		</div>
@@ -243,7 +243,7 @@
 			}}
 			class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
 		>
-			<ChevronLast class="h-4 w-4" />
+			<ChevronLast class="size-4" />
 		</button>
 	{/if}
 </div>

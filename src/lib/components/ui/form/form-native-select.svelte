@@ -22,5 +22,5 @@
 	>
 		<slot />
 	</FormPrimitive.Select>
-	<ChevronDown class="absolute right-3 top-2.5 h-4 w-4 opacity-50" />
+	<ChevronDown class="absolute right-3 top-2.5 size-4 opacity-50" />
 </div>
