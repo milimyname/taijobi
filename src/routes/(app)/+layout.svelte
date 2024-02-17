@@ -64,7 +64,7 @@
 	<slot />
 	<nav
 		class={cn(
-			'sticky z-40 flex w-full items-center justify-between self-end rounded-full bg-primary p-2 text-white transition-all xm:p-2 sm:relative sm:h-full sm:w-24 sm:flex-col sm:justify-center sm:gap-10 sm:p-5',
+			'fixed bottom-5 z-40 ml-5 flex w-[90%]  items-center justify-between  self-end rounded-full bg-primary p-2 text-white transition-all xm:w-[93%] xm:p-2 sm:relative sm:h-full sm:w-24 sm:flex-col sm:justify-center sm:gap-10 sm:p-5',
 			isLongPress && 'right-5 p-2'
 		)}
 	>
