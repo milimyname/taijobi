@@ -24,13 +24,15 @@
 	});
 
 	let showNotes: boolean = false;
-
+	let kanjiFlashcard: FlashcardType;
 	export let wordFlashcard: FlashcardType | undefined;
 	export let currentFlashcardFurigana: string;
 	export let currentIndex: number;
 	export let longWord: boolean;
 
-	$: kanjiFlashcard = kanji[$currentFlashcard as keyof typeof kanji];
+	$: if (!isNonJapanase($currentFlashcard) && $currentFlashcardTypeStore === 'kanji')
+		kanjiFlashcard = kanji[$currentFlashcard as keyof typeof kanji];
+	else kanjiFlashcard = { name: '', meaning: '', onyomi: '', kunyomi: '' };
 
 	$: if (browser && wordFlashcard)
 		replaceStateWithQuery({
@@ -109,6 +111,11 @@
 				{#if wordFlashcard?.meaning !== ''}
 					<div>
 						<h4 class="text-lg">{wordFlashcard?.meaning}</h4>
+						<p class="text-sm text-gray-300">Meaning</p>
+					</div>
+				{:else if wordFlashcard?.meaning === ''}
+					<div>
+						<h4 class="text-lg">-</h4>
 						<p class="text-sm text-gray-300">Meaning</p>
 					</div>
 				{:else}
