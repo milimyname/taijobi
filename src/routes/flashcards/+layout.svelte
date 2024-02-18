@@ -8,8 +8,7 @@
 		innerWidthStore,
 		innerHeightStore,
 		showLetterDrawing,
-		selectedQuizItems,
-		currentFlashcardTypeStore
+		selectedQuizItems
 	} from '$lib/utils/stores';
 	import { page } from '$app/stores';
 	import { getLocalStorageItem } from '$lib/utils/localStorage';

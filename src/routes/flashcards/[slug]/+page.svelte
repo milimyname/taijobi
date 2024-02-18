@@ -63,6 +63,10 @@
 			// Keep the form open if there is an error
 			if (form.errors.type || form.errors.name) $clickedAddFlashcardCollection = true;
 
+			// Update the flashcards
+			const data = await fetchFlashcards();
+			flashcards = data.flashcards;
+
 			// Slide to the new created word
 			if (swiperInstance.slides.length + 1 === flashcards.length) {
 				// Update slides
@@ -72,10 +76,6 @@
 					swiperInstance.slideTo(flashcards.length + 1);
 				}, 10);
 			}
-
-			// Update the flashcards
-			const data = await fetchFlashcards();
-			flashcards = data.flashcards;
 		}
 	});
 
