@@ -29,12 +29,14 @@
 	let currentFlashcardFurigana: string;
 	let currentIndex: number = 0;
 	let flashcards: FlashcardType[] = [];
+	let isLoading = false;
 
 	let islocalBoxTypeOriginal = getLocalStorageItem('flashcardsBoxType') !== 'original';
 	let swiperInstance: Swiper;
 
 	// Fetch flashcards from the server
 	async function fetchFlashcards() {
+		isLoading = true;
 		try {
 			const res = await fetch(`/flashcards/${$page.params.slug}`);
 			const data = await res.json();
@@ -42,6 +44,7 @@
 		} catch (error) {
 			console.error(error);
 		}
+		isLoading = false;
 	}
 
 	// Client API:
@@ -150,7 +153,7 @@
 		{:else}
 			<LetterDrawingFlashcard {swiperInstance} />
 		{/if}
-	{:else}
+	{:else if !isLoading}
 		<button
 			class="add-form-btn flex h-80 items-center justify-center rounded-xl border-4 border-blue-400 text-center text-xl font-bold text-blue-500 hover:border-blue-500"
 			on:click={() => ($clickedAddFlashcardCollection = true)}

@@ -17,7 +17,7 @@
 
 	export let data;
 
-	let islocalBoxTypeOriginal = getLocalStorageItem('flashcardsBoxType') !== 'original';
+	$: islocalBoxTypeOriginal = getLocalStorageItem('flashcardsBoxType') !== 'original';
 </script>
 
 <svelte:window bind:innerWidth={$innerWidthStore} bind:innerHeight={$innerHeightStore} />
@@ -54,7 +54,6 @@
 						$clickedAddFlahcardBox = false;
 						$clickedAddFlashcardCollection = true;
 						$clickedEditFlashcard = false;
-						// $currentFlashcardTypeStore = '';
 					}}
 					class="add-btn transition-all hover:scale-110 active:scale-110"
 				>
@@ -66,7 +65,6 @@
 						$clickedAddFlahcardBox = false;
 						$clickedAddFlashcardCollection = true;
 						$clickedEditFlashcard = false;
-						// $currentFlashcardTypeStore = '';
 					}}
 					class="add-btn transition-all hover:scale-110 active:scale-110"
 				>
