@@ -74,7 +74,7 @@
 
 				setTimeout(() => {
 					swiperInstance.slideTo(flashcards.length + 1);
-				}, 10);
+				}, 100);
 			}
 		}
 	});
@@ -124,6 +124,8 @@
 		// Set to local storage
 		localStorage.setItem('swiperActiveIndex', '' + $currentIndexStore);
 	}
+
+	$: flashcards.length === 0 && (isLoading = false);
 </script>
 
 {#if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.isAdmin}
