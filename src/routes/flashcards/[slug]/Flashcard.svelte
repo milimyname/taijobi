@@ -32,7 +32,8 @@
 
 	$: if (!isNonJapanase($currentFlashcard) && $currentFlashcardTypeStore === 'kanji')
 		kanjiFlashcard = kanji[$currentFlashcard as keyof typeof kanji];
-	else kanjiFlashcard = { name: '', meaning: '', onyomi: '', kunyomi: '' };
+	else if ($currentFlashcardTypeStore === 'kanji')
+		kanjiFlashcard = { name: '', meaning: '', onyomi: '', kunyomi: '' };
 
 	$: if (browser && wordFlashcard)
 		replaceStateWithQuery({
@@ -177,12 +178,13 @@
 				class="grid-rows-[max-content max-content] sm:grid-rows-[max-content 1fr] grid h-full grid-cols-2 sm:gap-4"
 			>
 				<h2 class="col-span-2 text-center text-4xl">{$currentFlashcard}</h2>
-				<div>
-					<h2 class="text-xl font-medium">
-						{wordFlashcard && wordFlashcard.meaning}
-					</h2>
-					<p class=" text-sm text-gray-300">Meaning</p>
-				</div>
+
+				{#if wordFlashcard?.meaning}
+					<div>
+						<h2 class="text-xl font-medium">{wordFlashcard.meaning}</h2>
+						<p class=" text-sm text-gray-300">Meaning</p>
+					</div>
+				{/if}
 				{#if wordFlashcard?.customFurigana}
 					<div>
 						<h2 class="text-xl font-medium">{wordFlashcard.customFurigana}</h2>
