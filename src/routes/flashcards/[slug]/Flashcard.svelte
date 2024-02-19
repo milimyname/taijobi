@@ -96,11 +96,11 @@
 		style={`transform: rotateY(${180 - $rotateYCard}deg); backface-visibility: hidden; 
 				height: ${getFlashcardHeight($innerWidthStore, $innerHeightStore)}px;
 				width: ${getFlashcardWidth($innerWidthStore)}px`}
-		class="relative z-10 mx-auto
-				{$rotateYCard > 90 ? 'block' : 'hidden'} 
-				 flex flex-col
-				 {$currentAlphabet === 'kanji' ? 'gap-1' : 'gap-5'}  
-				justify-center overflow-hidden rounded-xl border p-5 shadow-sm sm:p-10"
+		class={cn(
+			'relative z-10 mx-auto justify-center overflow-hidden rounded-xl border p-5 shadow-sm sm:p-10',
+			$rotateYCard > 90 ? 'block' : 'hidden',
+			$currentAlphabet === 'kanji' ? 'gap-1' : 'gap-5'
+		)}
 	>
 		{#if $currentFlashcardTypeStore === 'kanji'}
 			<div

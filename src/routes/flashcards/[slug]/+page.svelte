@@ -1,5 +1,6 @@
 <script lang="ts">
-	import Flashcard from './Flashcard.svelte';
+	import Flashcard from './flashcard.svelte';
+	import Skeleton from './flashcard-skeleton.svelte';
 	import {
 		clickedEditFlashcard,
 		clickedAddFlashcardCollection,
@@ -162,6 +163,8 @@
 		>
 			<Plus class="h-10 w-10" />
 		</button>
+	{:else}
+		<Skeleton />
 	{/if}
 
 	<div
