@@ -129,7 +129,7 @@
 	$: flashcards.length === 0 && (isLoading = false);
 </script>
 
-{#if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.isAdmin}
+{#if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin}
 	<FlashcardForm form={superFrm} />
 {/if}
 
@@ -149,7 +149,7 @@
 			/>
 
 			<div class="flex items-center justify-center sm:mx-auto sm:w-[600px]">
-				{#if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.isAdmin}
+				{#if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin}
 					<EditButton form={superFrm.form} currentFlashcard={flashcards[currentIndex]} />
 				{/if}
 			</div>
