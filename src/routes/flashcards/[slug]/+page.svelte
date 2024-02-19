@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Flashcard from './flashcard.svelte';
+	import Flashcard from './flashcard-plain.svelte';
 	import Skeleton from './flashcard-skeleton.svelte';
 	import {
 		clickedEditFlashcard,
@@ -110,7 +110,7 @@
 		} else $currentIndexStore = swiperInstance.activeIndex;
 	});
 
-	$: if (browser && currentIndex && flashcards.length > 0) {
+	$: if (browser && currentIndex >= 0 && flashcards.length > 0) {
 		const card = flashcards.at(currentIndex);
 		if (card) {
 			// Check if currentFlashcard is not undefined
