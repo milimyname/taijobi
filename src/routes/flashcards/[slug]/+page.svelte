@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Flashcard from './flashcard.svelte';
+	import Flashcard from './flashcard-plain.svelte';
 	import Skeleton from './flashcard-skeleton.svelte';
 	import {
 		clickedEditFlashcard,
