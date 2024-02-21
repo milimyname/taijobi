@@ -29,7 +29,9 @@
 	<div class="fixed top-0 z-[100] h-screen w-full bg-black opacity-50 transition-all" />
 {/if}
 
-<section class="mb-auto w-full rounded-t-4xl border border-[#EEEEEE] px-10 py-10 sm:w-1/2 sm:px-16">
+<section
+	class="mb-auto w-full rounded-t-4xl border border-[#EEEEEE] px-10 py-10 sm:px-16 lg:col-start-2"
+>
 	<form action="?/changeProfileData" class="flex flex-col gap-8" method="POST" use:enhance>
 		<div class="flex justify-between">
 			<h4 class="text-3xl font-bold">Profile Data</h4>

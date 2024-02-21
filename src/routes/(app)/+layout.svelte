@@ -59,13 +59,15 @@
 <svelte:window bind:innerWidth={$innerWidthStore} bind:innerHeight={$innerHeightStore} />
 
 <main
-	class="grid h-screen select-none grid-cols-1 items-start overflow-auto p-5 sm:grid-cols-[1fr_1fr_6rem]"
+	class="grid h-screen select-none grid-cols-1 items-start overflow-auto p-5 lg:grid-cols-[1fr_1fr_6rem]"
 >
 	<slot />
-	<aside class="fixed bottom-5 left-0 z-40 w-full p-5 pb-0 sm:sticky sm:h-full sm:p-0">
+	<aside
+		class="fixed bottom-5 left-0 z-40 order-last col-start-3 w-full justify-self-end p-5 pb-0 lg:sticky lg:h-full lg:w-full lg:p-0"
+	>
 		<nav
 			class={cn(
-				'flex items-center justify-between rounded-full bg-primary p-2 text-white transition-all sm:h-full sm:flex-col sm:justify-center sm:gap-10 sm:p-5',
+				'flex items-center justify-between rounded-full bg-primary p-2 text-white transition-all lg:h-full lg:flex-col lg:justify-center lg:gap-10 lg:p-5',
 				isLongPress && 'right-5 p-2'
 			)}
 		>
@@ -81,7 +83,7 @@
 					<a href="/">
 						<Home class="h-6 w-6" />
 					</a>
-					<a href="/studying">
+					<a href="/">
 						<GraduationCap class="h-6 w-6" />
 					</a>
 					<a href="/profile">
