@@ -47,7 +47,7 @@
 		</a>
 
 		{#if data.isLoggedIn}
-			{#if $page.route.id && $page.route.id.length < 12}
+			{#if data.isAdmin}
 				<button
 					on:click={() => {
 						$clickedAddFlahcardBox = false;
@@ -58,7 +58,7 @@
 				>
 					<FolderPlus />
 				</button>
-			{:else if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin}
+			{:else if $flashcardsBoxType !== 'original' && islocalBoxTypeOriginal}
 				<button
 					on:click={() => {
 						$clickedAddFlahcardBox = false;
