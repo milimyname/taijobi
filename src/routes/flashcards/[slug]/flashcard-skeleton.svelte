@@ -5,12 +5,20 @@
 
 <div
 	style={`height: ${getFlashcardHeight($innerWidthStore, $innerHeightStore)}px; width: ${getFlashcardWidth($innerWidthStore)}px`}
-	class="rounded-xl border p-4 shadow"
+	class="animate-pulse"
 >
-	<div class="grid h-full w-full animate-pulse grid-cols-2 grid-rows-4 gap-4">
-		<div class="row-span-2 rounded-lg bg-slate-100"></div>
-		<div class="row-span-2 rounded-lg bg-slate-100"></div>
-		<div class="row-span-2 rounded-lg bg-slate-100"></div>
-		<div class="row-span-2 rounded-lg bg-slate-100"></div>
+	<div
+		class="flex h-full w-full items-center justify-center rounded-xl border shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200"
+	>
+		<span class="vertical text-5xl sm:text-7xl">ローディング</span>
 	</div>
 </div>
+
+<style>
+	.vertical {
+		-webkit-writing-mode: vertical-rl;
+		-moz-writing-mode: vertical-rl;
+		-ms-writing-mode: vertical-rl;
+		writing-mode: vertical-rl;
+	}
+</style>
