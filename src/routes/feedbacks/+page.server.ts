@@ -1,5 +1,5 @@
 import { superValidate, setError } from 'sveltekit-superforms/server';
-import { fail, redirect } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit';
 import { feedbackSchema } from '$lib/utils/zodSchema';
 
 export const load = async ({ locals }) => {
@@ -7,19 +7,16 @@ export const load = async ({ locals }) => {
 
 	const user = locals.pb.authStore.model;
 
-	// Server API:
-	const form = await superValidate(feedbackSchema);
-
 	if (user?.role.includes('admin'))
 		// Get all the flashcards
 		feedbacks = await locals.pb.collection('feedbacks').getFullList();
 	// Get all the flashcards
 	else
-		feedbacks = await locals.pb
-			.collection('feedbacks')
-			.getFullList({ filter: `userId = "${user?.id}"`, fields: 'id,name,description,device' });
+		feedbacks = await locals.pb.collection('feedbacks').getFullList({
+			filter: `userId = "${user?.id}"`
+		});
 
-	return { feedbacks, form };
+	return { feedbacks, form: await superValidate(feedbackSchema) };
 };
 
 export const actions = {
@@ -35,7 +32,7 @@ export const actions = {
 			console.log(e);
 		}
 
-		throw redirect(303, '/feedbacks');
+		return;
 	},
 	update: async ({ request, locals }) => {
 		const form = await superValidate(request, feedbackSchema);

@@ -33,7 +33,7 @@
 </script>
 
 <main
-	class="flex h-screen select-none flex-col items-center gap-10 overflow-hidden overflow-y-scroll bg-white px-3 py-11 transition-all"
+	class="flex h-screen select-none flex-col items-center overflow-hidden overflow-y-scroll bg-white px-3 py-11 transition-all"
 >
 	<nav class="flex w-full p-5">
 		<button on:click|preventDefault={() => goto('/')} class="flex items-center gap-2">
@@ -87,18 +87,7 @@
 					</p>
 				</Dialog.Description>
 			</Dialog.Header>
-			<Form form={superFrm}>
-				<div slot="delete">
-					<Dialog.Close asChild let:builder>
-						<Button builders={[builder]} variant="destructive">Delete</Button>
-					</Dialog.Close>
-				</div>
-				<div slot="update">
-					<Dialog.Close asChild let:builder>
-						<Button builders={[builder]}>Update</Button>
-					</Dialog.Close>
-				</div>
-			</Form>
+			<Form form={superFrm} />
 		</Dialog.Content>
 	</Dialog.Root>
 {:else}
@@ -116,10 +105,7 @@
 						</p>
 					</Drawer.Description>
 				</Drawer.Header>
-				<Form form={superFrm}>
-					<Button variant="destructive" slot="delete" class="w-full">Delete</Button>
-					<Button slot="update" class="w-full">Update</Button>
-				</Form>
+				<Form form={superFrm} />
 				<Drawer.Footer>
 					<Drawer.Close asChild let:builder>
 						<Button builders={[builder]} variant="outline">Cancel</Button>
