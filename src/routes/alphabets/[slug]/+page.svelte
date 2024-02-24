@@ -121,8 +121,8 @@
 
 <QuizForm form={superFrmQuiz} />
 
-<section class="flex flex-1 flex-col justify-center gap-2 sm:justify-center sm:gap-5">
-	<div style="perspective: 3000px; position: relative; overflow: hidden;">
+<section class="flex h-full flex-col gap-4 sm:gap-5 lg:justify-center">
+	<div style="perspective: 3000px;" class="my-auto lg:my-0">
 		<div>
 			<Canvas rotationY={$rotateYCard} {canvas} {ctx} />
 
@@ -182,75 +182,76 @@
 		</div>
 	</div>
 
-	<div
-		style={`width: ${getFlashcardWidth($innerWidthStore)}px;`}
-		class="flex items-center justify-between sm:mx-auto"
-	>
-		<button
-			on:click|preventDefault={() => {
-				clearCanvas(ctx, canvas);
-				$progressSlider > 1 ? $progressSlider-- : $progressSlider;
-				$searchKanji = '';
-			}}
-			class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
+	<div class="space-y-4 sm:space-y-5">
+		<div
+			style={`width: ${getFlashcardWidth($innerWidthStore)}px;`}
+			class="flex items-center justify-between sm:mx-auto"
 		>
-			<ArrowLeft class="h-4 w-4" />
-		</button>
-
-		{#if $currentAlphabet === 'kanji'}
-			<Select.Root
-				name="kanji-grade"
-				onSelectedChange={(selected) => {
-					if (selected) $selectedKanjiGrade = '' + selected.value;
-					$progressSlider = Math.floor(Math.random() * $kanjiLength);
-				}}
-			>
-				<Select.Trigger class="w-32 border-0 focus:ring-0 focus:ring-offset-0">
-					<Select.Value
-						placeholder={$selectedKanjiGrade === '0' ? 'All Grades' : $selectedKanjiGrade}
-						class="w-full"
-					/>
-				</Select.Trigger>
-				<Select.Content>
-					<Select.Item value="0">All Grades</Select.Item>
-					<Select.Item value="1">Grade 1</Select.Item>
-					<Select.Item value="2">Grade 2</Select.Item>
-					<Select.Item value="3">Grade 3</Select.Item>
-					<Select.Item value="4">Grade 4</Select.Item>
-					<Select.Item value="5">Grade 5</Select.Item>
-					<Select.Item value="6">Grade 6</Select.Item>
-					{#if $page.data.isLoggedIn}
-						<Select.Item value="saved">My Saved</Select.Item>
-					{/if}
-				</Select.Content>
-			</Select.Root>
-		{/if}
-
-		{#if alphabetLength !== $progressSlider && $kanjiLength !== $progressSlider}
 			<button
 				on:click|preventDefault={() => {
 					clearCanvas(ctx, canvas);
-					$progressSlider < alphabetLength ? $progressSlider++ : $progressSlider;
+					$progressSlider > 1 ? $progressSlider-- : $progressSlider;
 					$searchKanji = '';
 				}}
 				class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
 			>
-				<ArrowRight class="h-4 w-4" />
+				<ArrowLeft class="size-4" />
 			</button>
-		{:else}
-			<button
-				on:click|preventDefault={() => {
-					clearCanvas(ctx, canvas);
-					$progressSlider = 1;
-					$searchKanji = '';
-				}}
-				class="previousLetter h-fit w-fit rounded-full border bg-white px-3 py-1 shadow-sm transition-all"
-			>
-				1
-			</button>
-		{/if}
-	</div>
 
-	<DrawingNav />
-	<ProgressSlider />
+			{#if $currentAlphabet === 'kanji'}
+				<Select.Root
+					name="kanji-grade"
+					onSelectedChange={(selected) => {
+						if (selected) $selectedKanjiGrade = '' + selected.value;
+						$progressSlider = Math.floor(Math.random() * $kanjiLength);
+					}}
+				>
+					<Select.Trigger class="w-32 border-0 focus:ring-0 focus:ring-offset-0">
+						<Select.Value
+							placeholder={$selectedKanjiGrade === '0' ? 'All Grades' : $selectedKanjiGrade}
+							class="w-full"
+						/>
+					</Select.Trigger>
+					<Select.Content>
+						<Select.Item value="0">All Grades</Select.Item>
+						<Select.Item value="1">Grade 1</Select.Item>
+						<Select.Item value="2">Grade 2</Select.Item>
+						<Select.Item value="3">Grade 3</Select.Item>
+						<Select.Item value="4">Grade 4</Select.Item>
+						<Select.Item value="5">Grade 5</Select.Item>
+						<Select.Item value="6">Grade 6</Select.Item>
+						{#if $page.data.isLoggedIn}
+							<Select.Item value="saved">My Saved</Select.Item>
+						{/if}
+					</Select.Content>
+				</Select.Root>
+			{/if}
+
+			{#if alphabetLength !== $progressSlider && $kanjiLength !== $progressSlider}
+				<button
+					on:click|preventDefault={() => {
+						clearCanvas(ctx, canvas);
+						$progressSlider < alphabetLength ? $progressSlider++ : $progressSlider;
+						$searchKanji = '';
+					}}
+					class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
+				>
+					<ArrowRight class="size-4" />
+				</button>
+			{:else}
+				<button
+					on:click|preventDefault={() => {
+						clearCanvas(ctx, canvas);
+						$progressSlider = 1;
+						$searchKanji = '';
+					}}
+					class="previousLetter h-fit w-fit rounded-full border bg-white px-3 py-1 shadow-sm transition-all"
+				>
+					1
+				</button>
+			{/if}
+		</div>
+		<DrawingNav />
+		<ProgressSlider />
+	</div>
 </section>

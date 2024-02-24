@@ -9,10 +9,6 @@
 <Umami />
 <FeedbackForm />
 
-{#if $clickedFeedback && !$isDesktop}
-	<div data-vaul-drawer-wrapper class={'min-h-dvh bg-white'}>
-		<slot />
-	</div>
-{:else}
+<div data-vaul-drawer-wrapper class="min-h-dvh bg-white">
 	<slot />
-{/if}
+</div>

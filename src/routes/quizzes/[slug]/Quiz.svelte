@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { cn } from '$lib/utils';
+	import { cn, getFlashcardWidth, getFlashcardHeight } from '$lib/utils';
+	import { innerWidthStore, innerHeightStore } from '$lib/utils/stores';
 	import { tweened } from 'svelte/motion';
 
 	export let flashcard: {
@@ -16,9 +17,11 @@
 	$: $tweenedRatio = ratio;
 </script>
 
-<section class="flex h-full flex-col items-center justify-between">
+<section class="flex h-full flex-col items-center justify-center gap-4 sm:gap-5">
 	<div
-		class="relative flex h-[40dvh] w-[300px] items-center justify-center rounded-xl border p-10 shadow-sm xm:w-[354px] sm:h-[404px] sm:w-96"
+		style={`height: ${getFlashcardHeight($innerWidthStore, $innerHeightStore)}px;
+			width: ${getFlashcardWidth($innerWidthStore)}px`}
+		class="relative my-auto flex items-center justify-center rounded-xl border p-10 shadow-sm"
 	>
 		{#if type === 'name'}
 			<h2 class={flashcard.meaning.length > 2 ? 'text-2xl sm:text-4xl' : 'text-5xl sm:text-8xl'}>
@@ -35,14 +38,15 @@
 		/>
 	</div>
 	<div
+		style={`width: ${getFlashcardWidth($innerWidthStore)}px;`}
 		class={cn(
-			'grid w-[300px] grid-flow-row grid-cols-2 justify-center gap-2 text-sm xm:w-[354px] sm:gap-5 sm:text-lg',
+			'grid grid-cols-2 justify-center gap-2 text-sm sm:gap-5 sm:text-lg',
 			type === 'name' && 'text-xl sm:text-4xl'
 		)}
 	>
 		{#each shuffledOptions as option}
 			<button
-				class="w-full justify-self-center rounded-xl border-2 border-black bg-white p-2 sm:w-40 sm:p-4"
+				class="w-full justify-self-center rounded-xl border-2 border-black bg-white p-2 sm:p-4"
 				on:click|preventDefault={(e) => {
 					selectAnswer(e, option);
 				}}

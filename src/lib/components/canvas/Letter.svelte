@@ -73,8 +73,11 @@
 				currentObject = savedKanji;
 
 				// Set the current letter to the first kanji if the searchKanji is not empty
-				if ($searchKanji && kanjiKeys.find((k) => $searchKanji === k))
+				if ($searchKanji && kanjiKeys.find((k) => $searchKanji === k)) {
 					$currentLetter = $searchKanji;
+					// Set the progressSlider to the index of the searchKanji
+					$progressSlider = kanjiKeys.indexOf($searchKanji) + 1;
+				}
 			} else if (+$selectedKanjiGrade !== 0) {
 				// Filter the kanji objects based on the selected grade
 				const filteredKanji: SavedLetter = {};
@@ -99,8 +102,11 @@
 				$progressSlider = Math.min($progressSlider, $kanjiLength);
 
 				// Set the current letter to the first kanji if the searchKanji is not empty
-				if ($searchKanji && kanjiKeys.find((k) => $searchKanji === k))
+				if ($searchKanji && kanjiKeys.find((k) => $searchKanji === k)) {
 					$currentLetter = $searchKanji;
+					// Set the progressSlider to the index of the searchKanji
+					$progressSlider = kanjiKeys.indexOf($searchKanji) + 1;
+				}
 			} else {
 				currentObject = kanji;
 				$currentLetter = $kanjiStore[Math.min($progressSlider - 1, $kanjiStore.length - 1)];
@@ -112,8 +118,11 @@
 				$kanjiWidthMulitplier = 100 / $kanjiLength;
 
 				// Set the current letter to the first kanji if the searchKanji is not empty
-				if ($searchKanji && $kanjiStore.find((k) => $searchKanji === k))
+				if ($searchKanji && $kanjiStore.find((k) => $searchKanji === k)) {
 					$currentLetter = $searchKanji;
+					// Set the progressSlider to the index of the searchKanji
+					$progressSlider = $kanjiStore.indexOf($searchKanji) + 1;
+				}
 			}
 
 			break;

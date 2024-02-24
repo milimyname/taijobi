@@ -1,7 +1,10 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { innerHeightStore, innerWidthStore } from '$lib/utils/stores';
 	import { ArrowLeft } from 'lucide-svelte';
 </script>
+
+<svelte:window bind:innerWidth={$innerWidthStore} bind:innerHeight={$innerHeightStore} />
 
 <svelte:head>
 	<title>Quizzes</title>

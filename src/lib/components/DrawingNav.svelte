@@ -12,8 +12,9 @@
 	import { onMount } from 'svelte';
 	import { Brush, Eraser, RefreshCcw, MoveHorizontal } from 'lucide-svelte';
 	import { page } from '$app/stores';
+	import { cn } from '$lib/utils';
 
-	let longPressTimer: NodeJS.Timeout;
+	let longPressTimer: any;
 	let canvas: HTMLCanvasElement, ctx: Ctx;
 
 	// Get canvas and context
@@ -28,9 +29,10 @@
 
 {#if !$showProgressSlider}
 	<nav
-		class=" {!$isLongPress
-			? 'px-10 py-4'
-			: 'ml-auto p-2'} z-40 mb-4 mt-auto flex w-full select-none items-center justify-between rounded-full bg-black text-white transition-all sm:my-0 sm:justify-center sm:gap-20 lg:bottom-5"
+		class={cn(
+			'mx-auto flex h-14 w-20 select-none items-center justify-center rounded-full bg-black p-2 text-white transition-all sm:gap-20 lg:bottom-5',
+			!$isLongPress && 'w-full justify-between px-10 py-4'
+		)}
 	>
 		<button
 			on:click|preventDefault={handleUserIconClick}
@@ -43,7 +45,7 @@
 			{#if !$isLongPress}
 				<input type="color" class="absolute left-0 top-0 opacity-0" bind:value={$strokeColor} />
 			{/if}
-			<Brush class="h-5 w-5 sm:h-6 sm:w-6" />
+			<Brush class="size-5 sm:size-6" />
 		</button>
 
 		{#if !$isLongPress}
@@ -57,7 +59,7 @@
 				}}
 				on:click|preventDefault={() => clearCanvas(ctx, canvas)}
 			>
-				<Eraser class="h-5 w-5 sm:h-6 sm:w-6" />
+				<Eraser class="size-5 sm:size-6" />
 			</button>
 			<button
 				on:click|preventDefault={() => {
@@ -66,7 +68,7 @@
 				}}
 				class="transition-transform active:rotate-180"
 			>
-				<RefreshCcw class="h-5 w-5 sm:h-6 sm:w-6" />
+				<RefreshCcw class="size-5 sm:size-6" />
 			</button>
 			{#if !$page.url.pathname.includes('draw')}
 				<button
@@ -80,7 +82,7 @@
 					on:click|preventDefault={() => ($showProgressSlider = !$showProgressSlider)}
 					class="select-none"
 				>
-					<MoveHorizontal class="h-5 w-5 sm:h-6 sm:w-6" />
+					<MoveHorizontal class="size-5 sm:size-6" />
 				</button>
 			{/if}
 		{/if}

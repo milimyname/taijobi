@@ -38,9 +38,9 @@
 		</a>
 
 		{#if $currentAlphabet === 'kanji'}
-			<div class="kanji-search">
-				<label for="search">
-					<Search class="absolute right-2 top-5 h-5 w-5 xm:right-5 xm:top-7" />
+			<div class="kanji-search flex flex-row-reverse">
+				<label for="search" class="my-auto">
+					<Search class="size-5" />
 				</label>
 				<input
 					type="text"
@@ -48,7 +48,7 @@
 					bind:value={$searchKanji}
 					on:input={handleInput}
 					autocomplete="off"
-					class="w-14 border-hidden bg-white outline-none focus:border-transparent focus:bg-transparent focus:ring-0 focus:ring-transparent"
+					class="w-4 border-hidden bg-transparent outline-none focus:border-transparent focus:bg-transparent focus:ring-0 focus:ring-transparent"
 				/>
 			</div>
 		{/if}
