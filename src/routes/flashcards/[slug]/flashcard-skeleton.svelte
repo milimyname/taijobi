@@ -5,7 +5,7 @@
 
 <div
 	style={`height: ${getFlashcardHeight($innerWidthStore, $innerHeightStore)}px; width: ${getFlashcardWidth($innerWidthStore)}px`}
-	class="animate-pulse"
+	class="flex animate-pulse justify-center"
 >
 	<div
 		class="flex h-full w-full items-center justify-center rounded-xl border shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200"

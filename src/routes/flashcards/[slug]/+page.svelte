@@ -116,9 +116,8 @@
 
 <section
 	class={cn(
-		'flex h-full w-full flex-col justify-center gap-5 lg:flex-col-reverse',
-		!$showLetterDrawing && 'gap-5',
-		flashcards.length > 0 && 'items-center'
+		'flex h-full w-full flex-col items-center justify-center gap-5 lg:flex-col-reverse',
+		!$showLetterDrawing && 'gap-5'
 	)}
 >
 	{#if flashcards.length > 0}
@@ -140,7 +139,7 @@
 		{/if}
 	{:else if !isLoading}
 		<button
-			class="add-form-btn flex h-80 items-center justify-center rounded-xl border-4 border-blue-400 text-center text-xl font-bold text-blue-500 hover:border-blue-500"
+			class="add-form-btn flex h-80 w-1/2 items-center justify-center rounded-xl border-4 border-blue-400 text-center text-xl font-bold text-blue-500 hover:border-blue-500"
 			on:click={() => ($clickedAddFlashcardCollection = true)}
 		>
 			<Plus class="size-10" />
@@ -156,7 +155,10 @@
 			loop: true
 		}}
 		plugins={[WheelGesturesPlugin()]}
-		class={cn('w-2/3 sm:w-5/6', $currentFlashcardTypeStore === 'kanji' && 'w-full')}
+		class={cn(
+			'fixed bottom-5 w-2/3 lg:static lg:bottom-0 lg:w-5/6',
+			$currentFlashcardTypeStore === 'kanji' && 'w-full'
+		)}
 	>
 		<Carousel.Content class="flex gap-4">
 			{#each flashcards as flashcard, index}
@@ -164,7 +166,9 @@
 					class={cn(
 						'basis-auto scale-75 cursor-pointer text-2xl opacity-50 sm:text-4xl',
 						$currentIndexStore === index && '!scale-100  opacity-100',
-						$currentFlashcardTypeStore === 'kanji' && 'basis-1/6 text-center'
+						$currentFlashcardTypeStore === 'kanji' && 'basis-1/6 text-center',
+						flashcards.length === 1 && 'basis-full',
+						flashcards.length < 10 && 'basis-1/3'
 					)}
 				>
 					<button
