@@ -21,7 +21,7 @@
 	<div
 		style={`height: ${getFlashcardHeight($innerWidthStore, $innerHeightStore)}px;
 			width: ${getFlashcardWidth($innerWidthStore)}px`}
-		class="relative my-auto flex items-center justify-center rounded-xl border p-10 shadow-sm"
+		class="relative my-auto flex items-center justify-center rounded-xl border p-10 shadow-sm lg:my-0"
 	>
 		{#if type === 'name'}
 			<h2 class={flashcard.meaning.length > 2 ? 'text-2xl sm:text-4xl' : 'text-5xl sm:text-8xl'}>
