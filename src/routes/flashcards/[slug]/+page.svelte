@@ -16,24 +16,27 @@
 	import EditButton from './EditButton.svelte';
 	import { getLocalStorageItem } from '$lib/utils/localStorage';
 	import { onMount } from 'svelte';
-	import Swiper from 'swiper';
-	import 'swiper/swiper-bundle.css';
 	import LetterDrawingFlashcard from './LetterDrawingFlashcard.svelte';
 	import { Plus } from 'lucide-svelte';
 	import { flashcardSchema } from '$lib/utils/zodSchema';
 	import type { FlashcardType } from '$lib/utils/ambient.d.ts';
 	import { browser } from '$app/environment';
+	import * as Carousel from '$lib/components/ui/carousel/index';
+	import { type CarouselAPI } from '$lib/components/ui/carousel/context';
+	import { cn } from '$lib/utils';
+	import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures';
 
 	export let data;
 
+	let embla: CarouselAPI;
+
 	// Get the alphabet store length
 	let currentFlashcardFurigana: string;
-	let currentIndex: number = 0;
+	let currentIndex = 0;
 	let flashcards: FlashcardType[] = [];
 	let isLoading = false;
 
 	let islocalBoxTypeOriginal = getLocalStorageItem('flashcardsBoxType') !== 'original';
-	let swiperInstance: Swiper;
 
 	// Fetch flashcards from the server
 	async function fetchFlashcards() {
@@ -55,8 +58,10 @@
 		resetForm: true,
 		applyAction: true,
 		onSubmit: async (form) => {
-			$clickedEditFlashcard = false;
-			$clickedAddFlashcardCollection = false;
+			setTimeout(() => {
+				$clickedEditFlashcard = false;
+				$clickedAddFlashcardCollection = false;
+			}, 150);
 
 			if (form.action.search.endsWith('delete')) currentIndex = 0;
 		},
@@ -66,48 +71,22 @@
 
 			// Update the flashcards
 			const data = await fetchFlashcards();
-			flashcards = data.flashcards;
+			if (data) flashcards = data.flashcards;
 
 			// Slide to the new created word
-			if (swiperInstance.slides.length + 1 === flashcards.length) {
-				// Update slides
-				swiperInstance.update();
+			if (embla.scrollSnapList().length + 1 === flashcards.length) {
+				embla.reInit();
 
 				setTimeout(() => {
-					swiperInstance.slideTo(flashcards.length + 1);
+					embla.scrollTo(flashcards.length - 1);
 				}, 100);
 			}
 		}
 	});
 
 	onMount(async () => {
-		swiperInstance = new Swiper('.swiper-container', {
-			slidesPerView: 'auto',
-			centeredSlides: true,
-			spaceBetween: 30,
-			slideToClickedSlide: true,
-			grabCursor: true,
-			on: {
-				slideChange: (swiper) => {
-					currentIndex = swiper.activeIndex;
-					$currentIndexStore = swiper.activeIndex;
-				}
-			}
-		});
-
 		const data = await fetchFlashcards();
-		flashcards = data.flashcards;
-
-		// Set the initial flashcard
-		swiperInstance.activeIndex = $currentIndexStore
-			? $currentIndexStore
-			: Math.floor(flashcards.length / 2);
-
-		const savedIndex = localStorage.getItem('swiperActiveIndex');
-		if (savedIndex !== null && flashcards.length > 0) {
-			$currentIndexStore = +savedIndex;
-			swiperInstance.slideTo($currentIndexStore);
-		} else $currentIndexStore = swiperInstance.activeIndex;
+		if (data) flashcards = data.flashcards;
 	});
 
 	$: if (browser && currentIndex >= 0 && flashcards.length > 0) {
@@ -120,10 +99,12 @@
 		}
 	}
 
-	$: if ($currentIndexStore && swiperInstance) {
-		swiperInstance.activeIndex = $currentIndexStore;
-		// Set to local storage
-		localStorage.setItem('swiperActiveIndex', '' + $currentIndexStore);
+	$: if (embla) {
+		$currentIndexStore = currentIndex;
+		embla.on('select', () => {
+			currentIndex = embla.selectedScrollSnap();
+			$currentIndexStore = currentIndex;
+		});
 	}
 
 	$: flashcards.length === 0 && (isLoading = false);
@@ -134,10 +115,11 @@
 {/if}
 
 <section
-	class="mb-10 sm:mb-20
-	{!$showLetterDrawing && 'gap-5'} 
-	{flashcards.length > 0 ? 'items-center' : 'w-full max-w-md'} 
-	flex flex-1 flex-col justify-center"
+	class={cn(
+		'flex h-full w-full flex-col justify-center gap-5 lg:flex-col-reverse',
+		!$showLetterDrawing && 'gap-5',
+		flashcards.length > 0 && 'items-center'
+	)}
 >
 	{#if flashcards.length > 0}
 		{#if !$showLetterDrawing}
@@ -148,55 +130,55 @@
 				{currentFlashcardFurigana}
 			/>
 
-			<div class="flex items-center justify-center sm:mx-auto sm:w-[600px]">
+			<div class="flex items-center justify-center sm:mx-auto sm:w-[600px] lg:-order-1">
 				{#if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin}
 					<EditButton form={superFrm.form} currentFlashcard={flashcards[currentIndex]} />
 				{/if}
 			</div>
 		{:else}
-			<LetterDrawingFlashcard {swiperInstance} />
+			<LetterDrawingFlashcard {embla} />
 		{/if}
 	{:else if !isLoading}
 		<button
 			class="add-form-btn flex h-80 items-center justify-center rounded-xl border-4 border-blue-400 text-center text-xl font-bold text-blue-500 hover:border-blue-500"
 			on:click={() => ($clickedAddFlashcardCollection = true)}
 		>
-			<Plus class="h-10 w-10" />
+			<Plus class="size-10" />
 		</button>
 	{:else}
 		<Skeleton />
 	{/if}
 
-	<div
-		class="swiper-container fixed bottom-5 flex h-12 cursor-ew-resize items-center justify-between gap-5 sm:bottom-10 lg:bottom-5"
+	<Carousel.Root
+		bind:api={embla}
+		opts={{
+			dragFree: true,
+			loop: true
+		}}
+		plugins={[WheelGesturesPlugin()]}
+		class={cn('w-2/3 sm:w-5/6', $currentFlashcardTypeStore === 'kanji' && 'w-full')}
 	>
-		<div class="swiper-wrapper">
+		<Carousel.Content class="flex gap-4">
 			{#each flashcards as flashcard, index}
-				<div
-					style="display: flex; justify-content: center; width: fit-content"
-					class="swiper-slide"
+				<Carousel.Item
+					class={cn(
+						'basis-auto scale-75 cursor-pointer text-2xl opacity-50 sm:text-4xl',
+						$currentIndexStore === index && '!scale-100  opacity-100',
+						$currentFlashcardTypeStore === 'kanji' && 'basis-1/6 text-center'
+					)}
 				>
-					<button class="text-2xl sm:text-4xl" on:click={() => swiperInstance.slideTo(index)}>
+					<button
+						on:click={() => {
+							$currentIndexStore = index;
+							embla.scrollTo(index);
+						}}
+					>
 						{flashcard.name}
 					</button>
-				</div>
+				</Carousel.Item>
 			{/each}
-		</div>
-	</div>
+		</Carousel.Content>
+		<Carousel.Previous />
+		<Carousel.Next />
+	</Carousel.Root>
 </section>
-
-<style>
-	.swiper-slide:not(.swiper-slide-active) {
-		opacity: 0.5;
-		transform: scale(0.8);
-		transition:
-			transform 0.3s,
-			opacity 0.3s;
-	}
-
-	/* Styles for active slide */
-	.swiper-slide-active {
-		opacity: 1;
-		transform: scale(1);
-	}
-</style>

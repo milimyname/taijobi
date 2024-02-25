@@ -38,7 +38,7 @@
 </section>
 
 <section
-	class="flex w-full flex-col gap-6 rounded-b-4xl border border-t-0 border-[#EEEEEE] px-8 pb-20 pt-14 lg:rounded-b-none lg:rounded-r-4xl lg:border-l-0 lg:border-t lg:px-16"
+	class="flex w-full flex-col gap-6 rounded-b-4xl border border-t border-[#EEEEEE] px-8 pb-20 pt-14 lg:rounded-b-none lg:rounded-r-4xl lg:border-l-0 lg:px-16"
 >
 	<h2 class="text-lg font-bold sm:text-2xl">Studying</h2>
 	<div class="flex flex-col gap-2">

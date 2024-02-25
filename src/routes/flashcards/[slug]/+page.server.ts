@@ -66,14 +66,9 @@ export const actions = {
 		// Convenient validation check:
 		if (!form.valid || !form.data.id) return fail(400, { form });
 
-		if (form.data.type === 'kanji') {
-			// Check if name is only kanji
-			if (!isKanji(form.data.name)) return setError(form, 'name', 'Flashcard name must be kanji.');
-
-			// Check if name is only one kanji letter
-			if (form.data.name.length !== 1)
-				return setError(form, 'name', 'Flashcard name must be one kanji.');
-		}
+		// Check if name is only one kanji letter
+		if (form.data.type === 'kanji' && form.data.name.length !== 1)
+			return setError(form, 'name', 'Flashcard name must be one kanji.');
 
 		try {
 			// Create user

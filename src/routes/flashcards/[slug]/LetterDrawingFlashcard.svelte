@@ -27,10 +27,10 @@
 	} from 'lucide-svelte';
 	import { clearCanvas } from '$lib/utils/actions';
 	import BacksideCard from '$lib/components/canvas/BacksideCard.svelte';
-	import Swiper from 'swiper';
-	import { getFlashcardWidth, isNonJapanase } from '$lib/utils';
+	import { cn, getFlashcardWidth, isNonJapanase } from '$lib/utils';
+	import { type CarouselAPI } from '$lib/components/ui/carousel/context';
 
-	export let swiperInstance: Swiper;
+	export let embla: CarouselAPI;
 
 	const rotateYCard = tweened(0, {
 		duration: 2000,
@@ -92,23 +92,25 @@
 	$: if ($showLetterDrawing && isNonJapanase($currentFlashcard)) $showLetterDrawing = false;
 </script>
 
-<div
-	style="perspective: 3000px; position: relative; transform: rotateY(${-$rotateYCard}deg); z-index: 100"
->
+<div style="perspective: 3000px; position: relative; transform: rotateY(${-$rotateYCard}deg);">
 	<span
-		class="{$rotateYCard > 5 ? 'hidden' : 'block'} 
-			absolute right-3 top-3 z-40 text-lg font-medium sm:right-5 sm:top-5"
+		class={cn(
+			'absolute right-3 top-3 z-40 block text-lg font-medium sm:right-5 sm:top-5',
+			$rotateYCard > 5 && 'hidden'
+		)}
 	>
 		{#each slicedFlashcard as letter, i}
-			<span class={`${i === index ? 'font-medium opacity-100' : 'opacity-50'}`}>
+			<span class={cn('opacity-50', i === index && 'font-medium opacity-100')}>
 				{letter}
 			</span>
 		{/each}
 	</span>
 
 	<button
-		class="{$rotateYCard > 5 && $rotateYCard < 175 ? 'hidden' : 'block'}
-		absolute bottom-3 left-2 z-40 rounded-full border bg-white p-2 shadow-sm transition-all sm:bottom-5 sm:left-5"
+		class={cn(
+			'absolute bottom-3 left-2 z-40 block rounded-full border bg-white p-2 shadow-sm transition-all sm:bottom-5 sm:left-5',
+			$rotateYCard > 5 && $rotateYCard < 175 && 'hidden'
+		)}
 		on:click={() => ($showLetterDrawing = false)}
 	>
 		<FileText class="size-4" />
@@ -119,8 +121,10 @@
 	<Letter rotationY={$rotateYCard} />
 
 	<button
-		class="{$rotateYCard > 5 && $rotateYCard < 175 ? 'hidden' : 'block'}
-				absolute bottom-3 right-2 z-40 rounded-full border bg-white p-2 shadow-sm transition-all sm:bottom-5 sm:right-5"
+		class={cn(
+			'absolute bottom-3 right-2 z-40 block rounded-full border bg-white p-2 shadow-sm transition-all sm:bottom-5 sm:right-5',
+			$rotateYCard > 5 && $rotateYCard < 175 && 'hidden'
+		)}
 		on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
 	>
 		<RotateCcw class="size-4" />
@@ -131,7 +135,7 @@
 
 <div
 	style={`width: ${getFlashcardWidth($innerWidthStore)}px;`}
-	class="z-40 mt-5 flex items-center justify-between sm:mx-auto"
+	class="my-5 flex items-center justify-between sm:mx-auto lg:-order-1 lg:my-0"
 >
 	{#if $currentFlashcard.length > 1}
 		{#if index === 0}
@@ -142,9 +146,9 @@
 					// Go to the previous flashcard
 					$currentIndexStore -= 1;
 					$showLetterDrawing = false;
-					swiperInstance.slideTo($currentIndexStore);
+					embla.scrollPrev();
 				}}
-				class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
+				class="previousLetter rounded-full border bg-white p-2 shadow-sm transition-all"
 			>
 				<ChevronFirst class="size-4" />
 			</button>
@@ -154,29 +158,25 @@
 					index > 0 ? (index -= 1) : null;
 					clearCanvas(ctx, canvas);
 				}}
-				class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
+				class="previousLetter rounded-full border bg-white p-2 shadow-sm transition-all"
 			>
 				<ArrowLeft class="size-4" />
 			</button>
 		{/if}
 
-		<div class="flex items-center justify-center">
-			<div
-				class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
+		<div class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white">
+			<button on:click|preventDefault={() => clearCanvas(ctx, canvas)}>
+				<Eraser class="size-4" />
+			</button>
+			<button
+				on:click|preventDefault={() => {
+					$animateSVG = !$animateSVG;
+					// setTimeout(() => ($animateSVG = true), 250);
+				}}
+				class="transition-transform active:rotate-180"
 			>
-				<button on:click|preventDefault={() => clearCanvas(ctx, canvas)}>
-					<Eraser class="size-4 " />
-				</button>
-				<button
-					on:click|preventDefault={() => {
-						$animateSVG = !$animateSVG;
-						// setTimeout(() => ($animateSVG = true), 250);
-					}}
-					class="transition-transform active:rotate-180"
-				>
-					<RefreshCcw class="size-4" />
-				</button>
-			</div>
+				<RefreshCcw class="size-4" />
+			</button>
 		</div>
 
 		{#if slicedFlashcard.length - 1 !== index}
@@ -185,7 +185,7 @@
 					index < slicedFlashcard.length - 1 ? (index += 1) : null;
 					clearCanvas(ctx, canvas);
 				}}
-				class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
+				class="previousLetter rounded-full border bg-white p-2 shadow-sm transition-all"
 			>
 				<ArrowRight class="size-4" />
 			</button>
@@ -197,19 +197,20 @@
 					// Go to the next flashcard
 					$currentIndexStore += 1;
 					$showLetterDrawing = false;
-					swiperInstance.slideTo($currentIndexStore);
+					embla.scrollNext();
 				}}
-				class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all
-				{$currentIndexStore + 1 === swiperInstance.slides.length
-					? 'pointer-events-none opacity-0'
-					: 'opacity-100'}"
+				class={cn(
+					'previousLetter rounded-full border bg-white p-2 opacity-100 shadow-sm transition-all',
+					$currentIndexStore + 1 === embla.scrollSnapList().length &&
+						'pointer-events-none opacity-0'
+				)}
 			>
 				<ChevronLast class="size-4" />
 			</button>
 		{/if}
 	{:else}
 		<button
-			class="previousLetter h-fit w-fit rounded-full border bg-white p-2 opacity-0 shadow-sm transition-all"
+			class="previousLetter rounded-full border bg-white p-2 opacity-0 shadow-sm transition-all"
 		>
 			<ArrowRight class="size-4" />
 		</button>
@@ -239,9 +240,9 @@
 				// Go to the next flashcard
 				$currentIndexStore += 1;
 				$showLetterDrawing = false;
-				swiperInstance.slideTo($currentIndexStore);
+				embla.scrollTo($currentIndexStore);
 			}}
-			class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
+			class="previousLetter rounded-full border bg-white p-2 shadow-sm transition-all"
 		>
 			<ChevronLast class="size-4" />
 		</button>
