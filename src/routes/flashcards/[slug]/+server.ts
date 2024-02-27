@@ -44,3 +44,41 @@ export const GET: RequestHandler = async ({ locals, params }) => {
 		flashcards: processeFlashcards
 	});
 };
+
+export const POST: RequestHandler = async ({ locals, params }) => {
+	try {
+		console.time('searchFlashcards');
+
+		const flashcardCollections = await locals.pb.collection('flashcardCollections').getFullList({
+			filter: `userId = "${locals.pb.authStore.model?.id}" || type = "original"`,
+			expand: 'flashcardBoxes'
+		});
+
+		const flashcardBoxIds = flashcardCollections.flatMap((collection) =>
+			collection.flashcardBoxes.map((id: string) => id)
+		);
+
+		// Deduplicate the IDs if necessary
+		const uniqueFlashcardBoxIds = [...new Set(flashcardBoxIds)];
+
+		// Dynamically build the OR-based filter string for multiple box IDs
+		const boxIdFilter = uniqueFlashcardBoxIds.map((id) => `flashcardBox="${id}"`).join(' || ');
+
+		// Construct the final filter with additional search criteria
+		const finalFilter = `(${boxIdFilter}) && (name ~ {:search} || meaning ~ {:search})`;
+
+		// Fetch flashcards for each flashcard box
+		const flashcards = await locals.pb.collection('flashcard').getList(1, 20, {
+			filter: locals.pb.filter(finalFilter, {
+				search: params.slug
+			})
+		});
+
+		console.timeEnd('searchFlashcards');
+
+		return json({ flashcards: flashcards.items });
+	} catch (error) {
+		console.error(error);
+		return json({ error });
+	}
+};

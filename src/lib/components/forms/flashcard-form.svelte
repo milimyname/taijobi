@@ -81,24 +81,6 @@
 			</Form.Item>
 		</Form.Field>
 
-		<Form.Field {config} name="meaning">
-			<Form.Item>
-				<Form.Label>Meaning</Form.Label>
-				<Form.Input />
-				<Form.Validation />
-			</Form.Item>
-		</Form.Field>
-
-		{#if $currentFlashcardTypeStore !== 'kanji'}
-			<Form.Field {config} name="romanji">
-				<Form.Item>
-					<Form.Label>Romanji/Furigana</Form.Label>
-					<Form.Input />
-					<Form.Validation />
-				</Form.Item>
-			</Form.Field>
-		{/if}
-
 		<Form.Field {config} name="type">
 			<Form.Item>
 				<Form.Label>Type</Form.Label>
@@ -118,6 +100,24 @@
 				<Form.Validation />
 			</Form.Item>
 		</Form.Field>
+
+		<Form.Field {config} name="meaning">
+			<Form.Item>
+				<Form.Label>Meaning</Form.Label>
+				<Form.Input />
+				<Form.Validation />
+			</Form.Item>
+		</Form.Field>
+
+		{#if $currentFlashcardTypeStore !== 'kanji'}
+			<Form.Field {config} name="romanji">
+				<Form.Item>
+					<Form.Label>Romanji/Furigana</Form.Label>
+					<Form.Input />
+					<Form.Validation />
+				</Form.Item>
+			</Form.Field>
+		{/if}
 
 		<Form.Field {config} name="notes">
 			<Form.Item>

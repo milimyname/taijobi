@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { cn } from '$lib/utils.js';
+	import { cn } from '$lib/utils';
 	import type { HTMLAttributes } from 'svelte/elements';
-	import { getEmblaContext } from './context.js';
+	import { getEmblaContext } from './context';
 	import emblaCarouselSvelte from 'embla-carousel-svelte';
 
 	type $$Props = HTMLAttributes<HTMLDivElement>;

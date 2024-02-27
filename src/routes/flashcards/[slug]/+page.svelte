@@ -137,6 +137,41 @@
 		{:else}
 			<LetterDrawingFlashcard {embla} />
 		{/if}
+
+		<Carousel.Root
+			bind:api={embla}
+			opts={{
+				dragFree: true,
+				loop: true
+			}}
+			plugins={[WheelGesturesPlugin()]}
+			class={cn('fixed bottom-5 w-2/3 sm:bottom-10 lg:sticky lg:bottom-0 lg:w-5/6')}
+		>
+			<Carousel.Content>
+				{#each flashcards as flashcard, index}
+					<Carousel.Item
+						class={cn(
+							'basis-auto scale-75 cursor-pointer text-center text-2xl opacity-50 sm:text-4xl',
+							$currentIndexStore === index && '!scale-100  opacity-100',
+							flashcards.length < 5 && 'basis-1/2',
+							flashcards.length < 10 && 'md:basis-1/3',
+							$currentFlashcardTypeStore === 'kanji' && 'basis-1/6'
+						)}
+					>
+						<button
+							on:click={() => {
+								$currentIndexStore = index;
+								embla.scrollTo(index);
+							}}
+						>
+							{flashcard.name}
+						</button>
+					</Carousel.Item>
+				{/each}
+			</Carousel.Content>
+			<Carousel.Previous />
+			<Carousel.Next />
+		</Carousel.Root>
 	{:else if !isLoading}
 		<button
 			class="add-form-btn flex h-80 w-1/2 items-center justify-center rounded-xl border-4 border-blue-400 text-center text-xl font-bold text-blue-500 hover:border-blue-500"
@@ -147,42 +182,4 @@
 	{:else}
 		<Skeleton />
 	{/if}
-
-	<Carousel.Root
-		bind:api={embla}
-		opts={{
-			dragFree: true,
-			loop: true
-		}}
-		plugins={[WheelGesturesPlugin()]}
-		class={cn(
-			'fixed bottom-5 w-2/3 lg:static lg:bottom-0 lg:w-5/6',
-			$currentFlashcardTypeStore === 'kanji' && 'w-full'
-		)}
-	>
-		<Carousel.Content class="flex gap-4">
-			{#each flashcards as flashcard, index}
-				<Carousel.Item
-					class={cn(
-						'basis-auto scale-75 cursor-pointer text-2xl opacity-50 sm:text-4xl',
-						$currentIndexStore === index && '!scale-100  opacity-100',
-						$currentFlashcardTypeStore === 'kanji' && 'basis-1/6 text-center',
-						flashcards.length === 1 && 'basis-full',
-						flashcards.length < 10 && 'basis-1/3'
-					)}
-				>
-					<button
-						on:click={() => {
-							$currentIndexStore = index;
-							embla.scrollTo(index);
-						}}
-					>
-						{flashcard.name}
-					</button>
-				</Carousel.Item>
-			{/each}
-		</Carousel.Content>
-		<Carousel.Previous />
-		<Carousel.Next />
-	</Carousel.Root>
 </section>
