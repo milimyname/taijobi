@@ -55,3 +55,11 @@ export type ProgressDataItem = {
 	onyomi: string;
 	kunyomi: string;
 };
+
+export type KanjiInfo = {
+	ds: string[];
+	grade: number;
+	meaning: string;
+	onyomi: string[];
+	kunyomi: string[];
+};

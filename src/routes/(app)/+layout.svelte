@@ -3,16 +3,28 @@
 	import { fly } from 'svelte/transition';
 	import { sineIn } from 'svelte/easing';
 	import MobileNav from '$lib/components/MobileNav.svelte';
-	import { showAppNav, showNav, innerWidthStore, innerHeightStore } from '$lib/utils/stores';
+	import {
+		showAppNav,
+		showNav,
+		innerWidthStore,
+		innerHeightStore,
+		searchedWordStore,
+		openSearch
+	} from '$lib/utils/stores';
 	import { onMount } from 'svelte';
 	import image from '$lib/static/taijobi.png';
 	import { pocketbase } from '$lib/utils/pocketbase';
 	import { Home, LogOut, Newspaper, GraduationCap, Menu } from 'lucide-svelte';
-	import { cn } from '$lib/utils.js';
+	import { cn, getRandomKanji } from '$lib/utils.js';
+	import * as Command from '$lib/components/ui/command';
+	import type { FlashcardType } from '$lib/utils/ambient';
 
-	let longPressTimer: NodeJS.Timeout;
+	let longPressTimer: any;
 	let isLongPress = false;
 	let imageSrc = image;
+	let search = '';
+	let randomKanji = getRandomKanji();
+	let fetchedData: FlashcardType[] = [];
 
 	export let data;
 
@@ -42,18 +54,48 @@
 		}
 	}
 
+	// Fetch flashcards from the server
+	async function fetchFlashcards() {
+		if (search === '') return;
+
+		try {
+			const res = await fetch(`/flashcards/${search}`, { method: 'POST' });
+
+			if (!res.ok) return new Error('Failed to fetch flashcards');
+
+			const data = await res.json();
+			fetchedData = data.flashcards;
+		} catch (error) {
+			console.error(error);
+		}
+	}
+
 	onMount(() => {
-		if (!data.isLoggedIn) return (imageSrc = image);
+		if (!data.isLoggedIn) imageSrc = image;
 		else if (data.user && data.user.oauth2ImageUrl) imageSrc = data.user.oauth2ImageUrl;
 		else if (data.user && data.user.avatar && data.user)
 			imageSrc = pocketbase.files.getUrl(data.user, data.user.avatar);
 		else imageSrc = image;
+
+		function handleKeydown(e: KeyboardEvent) {
+			if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+				e.preventDefault();
+				$openSearch = !$openSearch;
+			}
+		}
+
+		document.addEventListener('keydown', handleKeydown);
+		return () => {
+			document.removeEventListener('keydown', handleKeydown);
+		};
 	});
 
 	$: {
 		$innerWidthStore > IS_DESKTOP && ($showNav = false);
 		$innerWidthStore > IS_DESKTOP && ($showAppNav = false);
 	}
+
+	$: if (search !== '') setTimeout(async () => await fetchFlashcards(), 100);
 </script>
 
 <svelte:window bind:innerWidth={$innerWidthStore} bind:innerHeight={$innerHeightStore} />
@@ -63,11 +105,19 @@
 >
 	<slot />
 	<aside
-		class="fixed bottom-5 left-0 z-40 order-last col-start-3 w-full justify-self-end p-5 pb-0 lg:sticky lg:h-full lg:w-full lg:p-0"
+		class="fixed bottom-5 left-0 flex w-full justify-center p-5 pb-0 lg:sticky lg:h-full lg:w-full lg:justify-between lg:p-0"
 	>
+		<p class="fixed bottom-5 left-5 hidden text-sm text-muted-foreground lg:block">
+			Press
+			<kbd
+				class="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100"
+			>
+				<span class="text-xs">⌘</span>K
+			</kbd>
+		</p>
 		<nav
 			class={cn(
-				'flex items-center justify-between rounded-full bg-primary p-2 text-white transition-all lg:h-full lg:flex-col lg:justify-center lg:gap-10 lg:p-5',
+				'z-40 flex items-center justify-between gap-40 rounded-full bg-primary p-2 text-white transition-all lg:h-full lg:flex-col lg:justify-center lg:gap-10 lg:p-5',
 				isLongPress && 'right-5 p-2'
 			)}
 		>
@@ -81,17 +131,17 @@
 				</a>
 				<div class="flex gap-10 sm:flex-col">
 					<a href="/">
-						<Home class="h-6 w-6" />
+						<Home class="size-6" />
 					</a>
 					<a href="/">
-						<GraduationCap class="h-6 w-6" />
+						<GraduationCap class="size-6" />
 					</a>
 					<a href="/profile">
-						<Newspaper class="h-6 w-6" />
+						<Newspaper class="size-6" />
 					</a>
 					<form action="/logout" method="POST">
 						<button type="submit">
-							<LogOut class="h-6 w-6" />
+							<LogOut class="size-6" />
 						</button>
 					</form>
 				</div>
@@ -130,6 +180,41 @@
 				{/if}
 			{/if}
 		</nav>
+		<MobileNav />
 	</aside>
-	<MobileNav />
 </main>
+
+<Command.Dialog bind:open={$openSearch}>
+	<Command.Input
+		bind:value={search}
+		placeholder="Find a japanese letter or flashcard by meaning or name"
+	/>
+	<Command.List>
+		<Command.Empty>No results found.</Command.Empty>
+		<Command.Group heading="Suggestions">
+			<Command.Item>
+				<a
+					href={`search/${randomKanji[0]}?meaning=${randomKanji[1].meaning}`}
+					on:click={() => ($searchedWordStore = randomKanji[1])}
+				>
+					<span class="mr-2">{randomKanji[0]}</span>
+					<span>{randomKanji[1].meaning}</span>
+				</a>
+			</Command.Item>
+
+			{#if search !== ''}
+				{#each fetchedData as flashcard}
+					<Command.Item>
+						<a
+							href={`search/${flashcard.name}?meaning=${flashcard.meaning}`}
+							on:click={() => ($searchedWordStore = flashcard)}
+						>
+							<span class="mr-2">{flashcard.name}</span>
+							<span>{flashcard.meaning}</span>
+						</a>
+					</Command.Item>
+				{/each}
+			{/if}
+		</Command.Group>
+	</Command.List>
+</Command.Dialog>

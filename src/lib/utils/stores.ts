@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store';
+import type { FlashcardType, KanjiInfo } from '$lib/utils/ambient';
 
 export const showNav = writable(false);
 export const showAppNav = writable(false);
@@ -1205,6 +1206,9 @@ export const kanjiStore = writable([
 	'頂',
 	'骨'
 ]);
+
+export const searchedWordStore = writable<FlashcardType | KanjiInfo>(); // Use KanjiInfo as the value type
+export const openSearch = writable(false);
 
 // Get the length of the kanji store
 let getKanjiLength = 0;

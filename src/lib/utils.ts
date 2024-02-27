@@ -11,6 +11,7 @@ import {
 	CANVAS_SM_WIDTH
 } from '$lib/utils/constants';
 import { isKanji, isKatakana, isHiragana } from 'wanakana';
+import { kanji } from '$lib/static/kanji';
 
 // Check if a string does not contain any Japanese characters
 export const isNonJapanase = (str: string) => {
@@ -30,6 +31,18 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const isDesktop = mediaQuery('(min-width: 768px)');
+
+// Get a random kanji character
+export const getRandomKanji = () => {
+	// Convert to an array
+	const kanjiArray = Object.entries(kanji);
+
+	// Get a random index
+	const randomIndex = Math.floor(Math.random() * kanjiArray.length);
+
+	// Return the kanji character at the index
+	return kanjiArray[randomIndex];
+};
 
 export const getFlashcardHeight = (width: number, height: number) =>
 	(width > IS_DESKTOP ? CANVAS_LG_HEIGHT : width < XM_SMALL_SCREEN ? height * 0.6 : height * 0.6) +

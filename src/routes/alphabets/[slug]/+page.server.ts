@@ -1,10 +1,9 @@
 import { superValidate, setError } from 'sveltekit-superforms/server';
 import { fail, redirect } from '@sveltejs/kit';
 import { quizSchema } from '$lib/utils/zodSchema';
-import { kanji } from '$lib/static/kanji.js';
+import { kanji } from '$lib/static/kanji';
 import type Pocketbase from 'pocketbase';
 
-/** @type {import('./$types').PageServerLoad} */
 export const load = async ({ locals, parent }) => {
 	try {
 		const { isLoggedIn } = await parent();
@@ -57,7 +56,6 @@ async function getOrCreateKanjiId(pb: Pocketbase, userId: string) {
 	return flashcardBox.id;
 }
 
-/** @type {import('./$types').Actions} */
 export const actions = {
 	addQuiz: async ({ request, locals }) => {
 		const form = await superValidate(request, quizSchema);
