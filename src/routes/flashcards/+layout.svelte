@@ -16,7 +16,7 @@
 
 	export let data;
 
-	$: islocalBoxTypeOriginal = getLocalStorageItem('flashcardsBoxType') !== 'original';
+	$: islocalBoxTypeOriginal = getLocalStorageItem('flashcardsBoxType');
 </script>
 
 <svelte:window bind:innerWidth={$innerWidthStore} bind:innerHeight={$innerHeightStore} />
@@ -37,6 +37,9 @@
 				$currentIndexStore = 0;
 				$showLetterDrawing = false;
 				$selectedQuizItems = [];
+
+				// Clear the local storage for the flashcards box type
+				localStorage.removeItem('flashcardsBoxType');
 			}}
 			data-sveltekit-preload-data
 		>
@@ -59,6 +62,17 @@
 					<FolderPlus />
 				</button>
 			{:else if $flashcardsBoxType !== 'original' && islocalBoxTypeOriginal}
+				<button
+					on:click={() => {
+						$clickedAddFlahcardBox = false;
+						$clickedAddFlashcardCollection = true;
+						$clickedEditFlashcard = false;
+					}}
+					class="add-btn transition-all hover:scale-110 active:scale-110"
+				>
+					<FolderPlus />
+				</button>
+			{:else if $page.route.id && $page.route.id.endsWith('/flashcards')}
 				<button
 					on:click={() => {
 						$clickedAddFlahcardBox = false;
