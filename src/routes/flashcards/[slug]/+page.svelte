@@ -154,7 +154,8 @@
 							'basis-auto scale-75 cursor-pointer text-center text-2xl opacity-50 sm:text-4xl',
 							$currentIndexStore === index && '!scale-100  opacity-100',
 							flashcards.length < 5 && 'basis-1/2',
-							flashcards.length < 10 && 'md:basis-1/3',
+							flashcards.length < 3 && 'basis-full',
+							flashcards.length > 6 && flashcards.length < 10 && 'md:basis-1/3',
 							$currentFlashcardTypeStore === 'kanji' && 'basis-1/6'
 						)}
 					>
