@@ -98,8 +98,6 @@
 	$: if (search !== '') setTimeout(async () => await fetchFlashcards(), 100);
 </script>
 
-<svelte:window bind:innerWidth={$innerWidthStore} bind:innerHeight={$innerHeightStore} />
-
 <main
 	class="grid h-screen select-none grid-cols-1 items-start overflow-auto p-5 lg:grid-cols-[1fr_1fr_6rem]"
 >

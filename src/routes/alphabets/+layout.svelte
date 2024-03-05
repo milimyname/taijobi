@@ -3,7 +3,6 @@
 	import {
 		showNav,
 		innerWidthStore,
-		innerHeightStore,
 		currentAlphabet,
 		searchKanji,
 		currentFlashcard,
@@ -18,8 +17,6 @@
 		if (target.value.length > 1) target.value = target.value.slice(0, 1);
 	}
 </script>
-
-<svelte:window bind:innerWidth={$innerWidthStore} bind:innerHeight={$innerHeightStore} />
 
 <main class="relative flex h-[100dvh] select-none flex-col items-center p-2 sm:px-3 sm:py-5">
 	<nav class="relative flex w-full justify-between px-2 py-3 xm:p-5">

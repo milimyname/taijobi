@@ -17,7 +17,6 @@
 		currentBoxId
 	} from '$lib/utils/stores.js';
 	import { superForm } from 'sveltekit-superforms/client';
-	import { innerWidthStore } from '$lib/utils/stores';
 	import FlashcardCollection from './FlashcardCollection.svelte';
 	import { quintOut } from 'svelte/easing';
 	import { fly } from 'svelte/transition';
@@ -134,8 +133,6 @@
 
 	$: if (data.flashcardCollections.length < 5) visibleCardsCount = data.flashcardCollections.length;
 </script>
-
-<svelte:window bind:innerWidth={$innerWidthStore} />
 
 <FlashcardCollectionForm form={$clickedAddFlahcardBox ? superFrmBox : superFrmCollection} />
 

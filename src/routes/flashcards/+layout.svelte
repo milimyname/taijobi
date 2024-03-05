@@ -5,8 +5,6 @@
 		clickedEditFlashcard,
 		flashcardsBoxType,
 		currentIndexStore,
-		innerWidthStore,
-		innerHeightStore,
 		showLetterDrawing,
 		selectedQuizItems
 	} from '$lib/utils/stores';
@@ -18,8 +16,6 @@
 
 	$: islocalBoxTypeOriginal = getLocalStorageItem('flashcardsBoxType');
 </script>
-
-<svelte:window bind:innerWidth={$innerWidthStore} bind:innerHeight={$innerHeightStore} />
 
 <svelte:head>
 	<title>Flashcards</title>
