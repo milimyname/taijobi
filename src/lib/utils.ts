@@ -73,6 +73,8 @@ export const getFlashcardWidth = (width: number) =>
 
 // Get the platform the user is on
 export function getPlatform() {
+	if (typeof window === 'undefined') return 'unknown';
+
 	const platform = navigator.platform.toLowerCase();
 	if (platform.includes('win')) return 'windows';
 	if (platform.includes('mac')) return 'mac';
