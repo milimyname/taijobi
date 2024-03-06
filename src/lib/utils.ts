@@ -32,7 +32,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export const isDesktop = mediaQuery('(min-width: 768px)');
 
-// Get a random kanji character
+// Get 3 random kanji characterS
 export const getRandomKanji = () => {
 	// Convert to an array
 	const kanjiArray = Object.entries(kanji);
@@ -40,8 +40,27 @@ export const getRandomKanji = () => {
 	// Get a random index
 	const randomIndex = Math.floor(Math.random() * kanjiArray.length);
 
-	// Return the kanji character at the index
-	return kanjiArray[randomIndex];
+	// Return the kanji character at the index array of objects with name as key and meaning
+	return [
+		{
+			name: kanjiArray[randomIndex][0],
+			meaning: kanjiArray[randomIndex][1].meaning,
+			onyomi: kanjiArray[randomIndex][1].onyomi,
+			kunyomi: kanjiArray[randomIndex][1].kunyomi
+		},
+		{
+			name: kanjiArray[randomIndex + 1][0],
+			meaning: kanjiArray[randomIndex + 1][1].meaning,
+			onyomi: kanjiArray[randomIndex + 1][1].onyomi,
+			kunyomi: kanjiArray[randomIndex + 1][1].kunyomi
+		},
+		{
+			name: kanjiArray[randomIndex + 2][0],
+			meaning: kanjiArray[randomIndex + 2][1].meaning,
+			onyomi: kanjiArray[randomIndex + 2][1].onyomi,
+			kunyomi: kanjiArray[randomIndex + 2][1].kunyomi
+		}
+	];
 };
 
 export const getFlashcardHeight = (width: number, height: number) =>
@@ -51,6 +70,21 @@ export const getFlashcardHeight = (width: number, height: number) =>
 export const getFlashcardWidth = (width: number) =>
 	(width > IS_DESKTOP ? CANVAS_LG_WIDTH : width < XM_SMALL_SCREEN ? CANVAS_SM_WIDTH : width * 0.9) +
 	2;
+
+// Get the platform the user is on
+export function getPlatform() {
+	const platform = navigator.platform.toLowerCase();
+	if (platform.includes('win')) return 'windows';
+	if (platform.includes('mac')) return 'mac';
+	if (platform.includes('linux')) return 'linux';
+	return 'unknown';
+}
+
+// Get the hotkey prefix for the user's platform
+export function getHotkeyPrefix() {
+	const platform = getPlatform();
+	return platform.startsWith('mac') ? '⌘' : 'Ctrl';
+}
 
 export const replaceStateWithQuery = (values: Record<string, string>) => {
 	const url = new URL(window.location.toString());

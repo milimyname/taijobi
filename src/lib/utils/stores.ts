@@ -1207,7 +1207,7 @@ export const kanjiStore = writable([
 	'骨'
 ]);
 
-export const searchedWordStore = writable<FlashcardType | KanjiInfo>(); // Use KanjiInfo as the value type
+export const searchedWordStore = writable<FlashcardType>(); // Use KanjiInfo as the value type
 export const openSearch = writable(false);
 
 // Get the length of the kanji store

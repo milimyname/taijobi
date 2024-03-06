@@ -6,7 +6,8 @@
 		flashcardsBoxType,
 		currentIndexStore,
 		showLetterDrawing,
-		selectedQuizItems
+		selectedQuizItems,
+		searchedWordStore
 	} from '$lib/utils/stores';
 	import { page } from '$app/stores';
 	import { getLocalStorageItem } from '$lib/utils/localStorage';
@@ -33,6 +34,7 @@
 				$currentIndexStore = 0;
 				$showLetterDrawing = false;
 				$selectedQuizItems = [];
+				$searchedWordStore = {};
 
 				// Clear the local storage for the flashcards box type
 				localStorage.removeItem('flashcardsBoxType');

@@ -8,7 +8,8 @@
 		currentFlashcard,
 		currentIndexStore,
 		showLetterDrawing,
-		currentFlashcardTypeStore
+		currentFlashcardTypeStore,
+		searchedWordStore
 	} from '$lib/utils/stores';
 	import { superForm } from 'sveltekit-superforms/client';
 	import FlashcardForm from '$lib/components/forms/flashcard-form-ui.svelte';
@@ -108,6 +109,26 @@
 	}
 
 	$: flashcards.length === 0 && (isLoading = false);
+
+	$: if ($searchedWordStore?.type) {
+		// Find the index of the searched word
+		const seachedIndex = flashcards.findIndex(
+			(flashcard) => flashcard.name === $searchedWordStore.name
+		);
+
+		if (seachedIndex !== -1) {
+			currentIndex = seachedIndex;
+			$currentIndexStore = seachedIndex;
+
+			// Scroll to the searched word
+			setTimeout(() => {
+				embla.scrollTo(seachedIndex);
+			}, 100);
+
+			// Clear the searched word
+			$searchedWordStore = {};
+		}
+	}
 </script>
 
 {#if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin}
