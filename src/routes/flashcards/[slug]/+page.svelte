@@ -124,9 +124,6 @@
 			setTimeout(() => {
 				embla.scrollTo(seachedIndex);
 			}, 100);
-
-			// Clear the searched word
-			$searchedWordStore = {};
 		}
 	}
 </script>

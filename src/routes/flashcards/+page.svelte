@@ -189,6 +189,17 @@
 			easing: quintOut
 		}}
 	>
+		{#if $flashcardsBoxType !== 'original' || data.isAdmin}
+			<button
+				class="flex h-60 flex-none basis-1/6 flex-col items-center justify-center rounded-xl border-4 border-blue-400 text-center text-xl font-bold text-blue-500 hover:border-blue-500 sm:h-80"
+				on:click={() => {
+					$clickedAddFlahcardBox = true;
+					$showCollections = false;
+				}}
+			>
+				<Plus class="h-10 w-10" />
+			</button>
+		{/if}
 		{#each data.flashcardCollections as collection}
 			{#if collection.id === $currentFlashcardCollectionId && collection.expand}
 				{#each collection.expand.flashcardBoxes as box}
@@ -209,76 +220,66 @@
 							{box.name}
 						</span>
 
-						<div class="flex w-full justify-around rounded-t-xl bg-blue-500 p-4">
-							{#if $flashcardsBoxType !== 'original' || data.isAdmin}
-								<button
-									class="flex w-full justify-center"
-									on:click|stopPropagation={() => {
-										$clickedEditFlashcard = true;
-										$clickedAddFlahcardBox = true;
-										$showCollections = false;
-										$clickedAddFlashcardCollection = false;
-										$flashcardsBoxType = collection.type;
-										$maxFlashcards = '' + box.count;
+						{#if $flashcardsBoxType !== 'original' || data.isAdmin || box.count > 20}
+							<div class="flex w-full justify-around rounded-t-xl bg-blue-500 p-4">
+								{#if $flashcardsBoxType !== 'original' || data.isAdmin}
+									<button
+										class="flex w-full justify-center"
+										on:click|stopPropagation={() => {
+											$clickedEditFlashcard = true;
+											$clickedAddFlahcardBox = true;
+											$showCollections = false;
+											$clickedAddFlashcardCollection = false;
+											$flashcardsBoxType = collection.type;
+											$maxFlashcards = '' + box.count;
 
-										$flashcardBoxes = [];
+											$flashcardBoxes = [];
 
-										// Save flashcard boxes to store for swapping flashcards later
-										collection.expand.flashcardBoxes.forEach((box) => {
-											$flashcardBoxes = [
-												...$flashcardBoxes,
-												{
-													id: box.id,
-													name: box.name
-												}
-											];
-										});
+											// Save flashcard boxes to store for swapping flashcards later
+											collection.expand.flashcardBoxes.forEach((box) => {
+												$flashcardBoxes = [
+													...$flashcardBoxes,
+													{
+														id: box.id,
+														name: box.name
+													}
+												];
+											});
 
-										// Fill in the form with the current flashcard data
-										$boxFormData.name = box.name;
-										$boxFormData.description = box.description;
-										$boxFormData.id = box.id;
-										$currentBoxId = box.id;
-									}}
-								>
-									<FolderEdit />
-								</button>
-							{/if}
+											// Fill in the form with the current flashcard data
+											$boxFormData.name = box.name;
+											$boxFormData.description = box.description;
+											$boxFormData.id = box.id;
+											$currentBoxId = box.id;
+										}}
+									>
+										<FolderEdit />
+									</button>
+								{/if}
 
-							{#if box.count > 20}
-								<button
-									class="flex w-full justify-center"
-									on:click|stopPropagation={() => {
-										$quizFormData.flashcardBox = box.id;
-										$maxFlashcards = box.count;
-										$clickedQuizForm = true;
-										$showCollections = false;
-										$clickedAddFlashcardCollection = false;
-										$clickedAddFlahcardBox = false;
-										$flashcardsBoxType = collection.type;
-										$currentAlphabet = '';
-									}}
-								>
-									<Dices />
-								</button>
-							{/if}
-						</div>
+								{#if box.count > 20}
+									<button
+										class="flex w-full justify-center"
+										on:click|stopPropagation={() => {
+											$quizFormData.flashcardBox = box.id;
+											$maxFlashcards = box.count;
+											$clickedQuizForm = true;
+											$showCollections = false;
+											$clickedAddFlashcardCollection = false;
+											$clickedAddFlahcardBox = false;
+											$flashcardsBoxType = collection.type;
+											$currentAlphabet = '';
+										}}
+									>
+										<Dices />
+									</button>
+								{/if}
+							</div>
+						{/if}
 					</button>
 				{/each}
 			{/if}
 		{/each}
-
-		{#if $flashcardsBoxType !== 'original' || data.isAdmin}
-			<button
-				class="flex h-60 flex-none basis-1/4 flex-col items-center justify-center rounded-xl border-4 border-blue-400 text-center text-xl font-bold text-blue-500 hover:border-blue-500 sm:h-80"
-				on:click={() => {
-					$clickedAddFlahcardBox = true;
-					$showCollections = false;
-				}}
-			>
-				<Plus class="h-10 w-10" />
-			</button>
-		{/if}
 	</div>
 {/if}
 
