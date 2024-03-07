@@ -6,16 +6,12 @@
 		flashcardsBoxType,
 		currentIndexStore,
 		showLetterDrawing,
-		selectedQuizItems,
-		searchedWordStore
+		selectedQuizItems
 	} from '$lib/utils/stores';
 	import { page } from '$app/stores';
-	import { getLocalStorageItem } from '$lib/utils/localStorage';
 	import { ArrowLeft, FolderPlus } from 'lucide-svelte';
 
 	export let data;
-
-	$: islocalBoxTypeOriginal = getLocalStorageItem('flashcardsBoxType');
 </script>
 
 <svelte:head>
@@ -34,7 +30,6 @@
 				$currentIndexStore = 0;
 				$showLetterDrawing = false;
 				$selectedQuizItems = [];
-				$searchedWordStore = {};
 
 				// Clear the local storage for the flashcards box type
 				localStorage.removeItem('flashcardsBoxType');
@@ -59,7 +54,7 @@
 				>
 					<FolderPlus />
 				</button>
-			{:else if $flashcardsBoxType !== 'original' && islocalBoxTypeOriginal}
+			{:else if $flashcardsBoxType !== 'original'}
 				<button
 					on:click={() => {
 						$clickedAddFlahcardBox = false;
