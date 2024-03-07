@@ -59,21 +59,23 @@
 		taintedMessage: null,
 		resetForm: true,
 		applyAction: true,
-		onSubmit: async (form) => {
-			setTimeout(() => {
-				$clickedEditFlashcard = false;
-				$clickedAddFlashcardCollection = false;
-			}, 150);
-
-			if (form.action.search.endsWith('delete')) currentIndex = 0;
-		},
 		onUpdated: async ({ form }) => {
 			// Keep the form open if there is an error
 			if (form.errors.type || form.errors.name) $clickedAddFlashcardCollection = true;
+			else {
+				setTimeout(() => {
+					$clickedEditFlashcard = false;
+					$clickedAddFlashcardCollection = false;
+				}, 150);
+			}
 
+			console.log(form.errors);
 			// Update the flashcards
 			const data = await fetchFlashcards();
 			if (data) flashcards = data.flashcards;
+
+			//  Don't slide to the new created word if there are less than 2 words
+			if (flashcards.length < 2) return;
 
 			// Slide to the new created word
 			if (embla.scrollSnapList().length + 1 === flashcards.length) {
@@ -148,11 +150,11 @@
 				{currentFlashcardFurigana}
 			/>
 
-			<div class="flex items-center justify-center sm:mx-auto sm:w-[600px] lg:-order-1">
-				{#if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin}
+			{#if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin}
+				<div class="flex items-center justify-center sm:mx-auto sm:w-[600px] lg:-order-1">
 					<EditButton form={superFrm.form} currentFlashcard={flashcards[currentIndex]} />
-				{/if}
-			</div>
+				</div>
+			{/if}
 		{:else}
 			<LetterDrawingFlashcard {embla} />
 		{/if}

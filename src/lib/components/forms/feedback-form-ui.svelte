@@ -7,7 +7,6 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { isDesktop } from '$lib/utils';
-	import { beforeNavigate } from '$app/navigation';
 
 	let animationText = '';
 	let isReversing = false;
@@ -46,16 +45,7 @@ function onOutsideClickDrawer(e: MouseEvent) {
 
 	function onCloseDrawer() {
 		if ($page.url.pathname.slice(1) === 'flashcards') $clickedFeedback = false;
-
-		if (!$isDesktop) document.body.style.background = 'white';
 	}
-
-	beforeNavigate(() => {
-		// Set body background to white if the user is not on the desktop
-		if (!$isDesktop) document.body.style.backgroundColor = 'white';
-
-		$clickedFeedback = false;
-	});
 
 	onMount(() => performAnimation());
 
@@ -104,7 +94,7 @@ function onOutsideClickDrawer(e: MouseEvent) {
 		onClose={onCloseDrawer}
 		open={$page.url.pathname.endsWith('flashcards') && $clickedFeedback}
 	onOutsideClick={onOutsideClickDrawer}
-		shouldScaleBackground={!$page.url.pathname.endsWith('flashcards')}
+		onOutsideClick={onOutsideClickDrawer}
 	>
 		<Drawer.Trigger asChild let:builder>
 			{#if !hideFeedbackButton}

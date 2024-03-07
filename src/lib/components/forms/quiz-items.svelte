@@ -34,7 +34,7 @@
 	async function onSwapFlashcards() {
 		// Swap the flashcards
 		$selectedQuizItems.forEach(async (item) => {
-			const [id, meaning] = item.split('=');
+			const [id] = item.split('=');
 			await pocketbase.collection('flashcard').update(id, {
 				flashcardBox: selectedFlashcardBox
 			});
@@ -125,7 +125,7 @@
 		{/if}
 
 		{#if $swapFlashcards}
-			<div class="flex gap-2 sm:gap-5">
+			<div class="flex items-center gap-3 sm:gap-5">
 				<div>
 					<span>Move to</span>
 					<select

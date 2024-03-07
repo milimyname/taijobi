@@ -10,6 +10,4 @@
 <Umami />
 <FeedbackForm />
 
-<div data-vaul-drawer-wrapper class="min-h-dvh bg-white">
-	<slot />
-</div>
+<slot />

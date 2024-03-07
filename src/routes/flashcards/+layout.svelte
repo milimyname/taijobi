@@ -12,6 +12,12 @@
 	import { ArrowLeft, FolderPlus } from 'lucide-svelte';
 
 	export let data;
+
+	function handleAddFlashcardCollection() {
+		$clickedAddFlashcardCollection = true;
+		$clickedAddFlahcardBox = false;
+		$clickedEditFlashcard = false;
+	}
 </script>
 
 <svelte:head>
@@ -45,33 +51,21 @@
 		{#if data.isLoggedIn}
 			{#if data.isAdmin}
 				<button
-					on:click={() => {
-						$clickedAddFlahcardBox = false;
-						$clickedAddFlashcardCollection = true;
-						$clickedEditFlashcard = false;
-					}}
+					on:click={handleAddFlashcardCollection}
 					class="add-btn transition-all hover:scale-110 active:scale-110"
 				>
 					<FolderPlus />
 				</button>
 			{:else if $flashcardsBoxType !== 'original'}
 				<button
-					on:click={() => {
-						$clickedAddFlahcardBox = false;
-						$clickedAddFlashcardCollection = true;
-						$clickedEditFlashcard = false;
-					}}
+					on:click={handleAddFlashcardCollection}
 					class="add-btn transition-all hover:scale-110 active:scale-110"
 				>
 					<FolderPlus />
 				</button>
 			{:else if $page.route.id && $page.route.id.endsWith('/flashcards')}
 				<button
-					on:click={() => {
-						$clickedAddFlahcardBox = false;
-						$clickedAddFlashcardCollection = true;
-						$clickedEditFlashcard = false;
-					}}
+					on:click={handleAddFlashcardCollection}
 					class="add-btn transition-all hover:scale-110 active:scale-110"
 				>
 					<FolderPlus />
