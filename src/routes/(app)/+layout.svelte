@@ -102,6 +102,8 @@
 	$: if (search !== '' && fetchedData.length === 0) value = '';
 
 	$: currentHoveredFlashcard = fetchedData?.find((flashcard) => flashcard.name === value);
+
+	$: fetchedData.length === 1 && (value = fetchedData[0].name);
 </script>
 
 <main
