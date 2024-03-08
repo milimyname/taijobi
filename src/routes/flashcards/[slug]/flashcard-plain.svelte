@@ -13,17 +13,18 @@
 	} from '$lib/utils/stores';
 	import { quintOut, cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
-	import { RotateCcw, Scroll, PenTool } from 'lucide-svelte';
+	import { RotateCcw, Box, PenTool } from 'lucide-svelte';
 	import { cn, getFlashcardHeight, getFlashcardWidth, isNonJapanase } from '$lib/utils';
 	import { browser } from '$app/environment';
 	import { replaceStateWithQuery } from '$lib/utils';
+	import CustomCompletion from './custom-completion.svelte';
 
 	const rotateYCard = tweened(0, {
 		duration: 2000,
 		easing: cubicOut
 	});
 
-	let showNotes: boolean = false;
+	let showCustomContent: boolean = false;
 	let kanjiFlashcard: FlashcardType;
 	export let wordFlashcard: FlashcardType | undefined;
 	export let currentFlashcardFurigana: string;
@@ -74,22 +75,22 @@
 		{#if !isNonJapanase($currentFlashcard)}
 			<button
 				class="absolute bottom-3 left-2 z-30 rounded-full border bg-white p-2 shadow-sm transition-all xm:bottom-5 xm:left-5
-					{showNotes && 'hidden'}"
+					{showCustomContent && 'hidden'}"
 				on:click={() => {
 					$showLetterDrawing = true;
 					$showProgressSlider = false;
 				}}
 			>
-				<PenTool class="h-4 w-4" />
+				<PenTool class="size-4" />
 			</button>
 		{/if}
 
 		<button
-			class="{showNotes && 'hidden'} 
+			class="{showCustomContent && 'hidden'} 
 						absolute bottom-3 right-2 z-30 rounded-full border bg-white p-2 shadow-sm transition-all xm:bottom-5 xm:right-5"
 			on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
 		>
-			<RotateCcw class="h-4 w-4" />
+			<RotateCcw class="size-4" />
 		</button>
 	</div>
 
@@ -142,15 +143,15 @@
 
 				{#if wordFlashcard?.notes && wordFlashcard?.notes.length > 0}
 					<button
-						class="fixed bottom-0 left-0 z-10 rounded-tr-xl {showNotes
+						class="fixed bottom-0 left-0 z-10 rounded-tr-xl {showCustomContent
 							? 'bg-white text-black'
 							: 'bg-blue-200'} p-5"
-						on:click|preventDefault={() => (showNotes = !showNotes)}
+						on:click|preventDefault={() => (showCustomContent = !showCustomContent)}
 					>
-						<Scroll class="h-6 w-6" />
+						<Box class="size-6" />
 					</button>
 
-					{#if showNotes}
+					{#if showCustomContent}
 						<p
 							transition:fly={{
 								delay: 0,
@@ -166,11 +167,11 @@
 					{/if}
 				{/if}
 				<button
-					class="{showNotes && 'hidden'}
+					class="{showCustomContent && 'hidden'}
 								fixed bottom-5 right-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all"
 					on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
 				>
-					<RotateCcw class="h-4 w-4" />
+					<RotateCcw class="size-4" />
 				</button>
 			</div>
 		{:else}
@@ -197,38 +198,36 @@
 						<p class=" text-sm text-gray-300">Romanji/Furigana</p>
 					</div>
 				{/if}
-				{#if wordFlashcard?.notes && wordFlashcard.notes.length > 0}
-					<button
-						class="fixed bottom-0 left-0 z-10 rounded-tr-xl {showNotes
-							? 'bg-white text-black'
-							: 'bg-blue-200'} p-5"
-						on:click|preventDefault={() => (showNotes = !showNotes)}
-					>
-						<Scroll class="h-6 w-6" />
-					</button>
+				<button
+					class="fixed bottom-0 left-0 z-10 rounded-tr-xl {showCustomContent
+						? 'bg-white text-black'
+						: 'bg-blue-200'} p-5"
+					on:click|preventDefault={() => (showCustomContent = !showCustomContent)}
+				>
+					<Box class="size-6" />
+				</button>
 
-					{#if showNotes}
-						<p
-							transition:fly={{
-								delay: 0,
-								duration: 1000,
-								opacity: 0,
-								y: 400,
-								easing: quintOut
-							}}
-							class="z-4 absolute bottom-0 left-0 h-5/6 w-full rounded-xl bg-primary p-4 text-xl text-white"
-						>
-							{wordFlashcard.notes}
-						</p>
-					{/if}
+				{#if showCustomContent}
+					<div
+						class="z-4 absolute bottom-0 left-0 h-5/6 w-full rounded-xl bg-primary p-4 text-xl text-white"
+						transition:fly={{
+							delay: 0,
+							duration: 1000,
+							opacity: 0,
+							y: 400,
+							easing: quintOut
+						}}
+					>
+						<CustomCompletion {wordFlashcard} />
+					</div>
 				{/if}
 
 				<button
-					class="{showNotes && 'hidden'}
+					class="{showCustomContent && 'hidden'}
 								fixed bottom-5 right-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all"
 					on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
 				>
-					<RotateCcw class="h-4 w-4" />
+					<RotateCcw class="size-4" />
 				</button>
 			</div>
 		{/if}

@@ -1,11 +1,34 @@
-// import { json } from '@sveltejs/kit';
-// import type { RequestHandler } from './$types';
+import { json } from '@sveltejs/kit';
+import codec from 'kamiya-codec';
 
-// export const POST: RequestHandler = async ({ req }) => {
-// 	const data = await req.json();
+function classifyWord(word: string) {
+	// Implement logic to determine if the word is a verb or an adjective
+	// This is a simplified example; actual implementation may require a more sophisticated approach
+	if (word.endsWith('る') || word.endsWith('う') || word.endsWith('く')) {
+		return 'verb';
+	} else if (word.endsWith('い')) {
+		return 'adjective';
+	}
+	return 'unknown'; // Fallback case
+}
 
-// 	// Process the data as needed
+/** @type {import('./$types').RequestHandler} */
+export async function POST({ request }) {
+	const { word } = await request.json();
 
-// 	// Return a response
-// 	return json({ status: 'ok' });
-// };
+	// Check if the word is a verb or adjective
+	const classification = classifyWord(word);
+
+	if (classification === 'unknown') {
+		return json({
+			error: 'The word is not a verb or adjective'
+		});
+	}
+
+	return json({
+		conjugated: {
+			taiNegative: codec.conjugateAuxiliaries(word, ['Tai'], 'Negative'),
+			nai: codec.conjugateAuxiliaries(word, ['Nai'], 'Te')
+		}
+	});
+}

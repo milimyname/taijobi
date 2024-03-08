@@ -38,6 +38,9 @@ dependencies:
   formsnap:
     specifier: ^0.4.3
     version: 0.4.3(svelte@4.2.8)(sveltekit-superforms@1.13.4)(zod@3.22.4)
+  kamiya-codec:
+    specifier: ^4.10.0
+    version: 4.10.0
   kuroshiro-analyzer-kuromoji:
     specifier: ^1.1.0
     version: 1.1.0
@@ -2065,6 +2068,10 @@ packages:
   /json-stable-stringify-without-jsonify@1.0.1:
     resolution: {integrity: sha512-Bdboy+l7tA3OGW6FjyFHWkP5LuByj1Tk33Ljyq0axyzdk9//JSi2u3fP1QSmd1KNwq6VOKYGlAu87CisVir6Pw==}
     dev: true
+
+  /kamiya-codec@4.10.0:
+    resolution: {integrity: sha512-CP6S8CwhfQtVg8paeHl2EoZQpU8fsGtkH9ldK+e7QFmz2Ecs6Met8Grvt+SArbJYVBdN4Dbb+ZKhPPV0yiQ26A==}
+    dev: false
 
   /keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
