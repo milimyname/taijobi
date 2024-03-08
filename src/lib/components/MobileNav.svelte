@@ -98,7 +98,14 @@
 			</a>
 		</div>
 		<div class="-mb-20 h-36 w-full rounded-4xl border-4 border-[#47A992] bg-white shadow-xl">
-			<button class="flex w-full justify-between p-4" on:click={() => ($openSearch = true)}>
+			<button
+				class="flex w-full justify-between p-4"
+				on:click={() => {
+					$openSearch = true;
+					$showNav = false;
+					$showAppNav = false;
+				}}
+			>
 				<Command />
 				<h4 class="text-xl font-medium">Search</h4>
 			</button>

@@ -6,6 +6,7 @@
 		searchKanji
 	} from '$lib/utils/stores';
 	import { getFlashcardHeight, getFlashcardWidth } from '$lib/utils';
+	import Button from '$lib/components/ui/button/button.svelte';
 </script>
 
 <section class="flex h-full w-full flex-col items-center justify-center gap-5 lg:flex-col-reverse">
@@ -33,18 +34,18 @@
 				</p>
 			{/if}
 		</div>
-
-		<a
-			href={!$searchedWordStore.type
-				? '/alphabets/kanji'
-				: `/flashcards/${$searchedWordStore.flashcardBox}`}
-			on:click={() => {
-				if (!$searchedWordStore.type) $searchKanji = $searchedWordStore.name;
-			}}
-		>
-			Go to Flashcard
-		</a>
 	</div>
+
+	<Button
+		href={!$searchedWordStore.type
+			? '/alphabets/kanji'
+			: `/flashcards/${$searchedWordStore?.flashcardBox}`}
+		on:click={() => {
+			if (!$searchedWordStore.type) $searchKanji = $searchedWordStore.name;
+		}}
+	>
+		Go to Flashcard
+	</Button>
 </section>
 
 <style>

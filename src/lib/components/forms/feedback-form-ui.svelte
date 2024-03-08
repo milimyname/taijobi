@@ -36,7 +36,7 @@
 
 	// You would need to define isReversing and possibly other missing variables or logic outside this snippet.
 
-	function onOutsideClickDrawer(e: MouseEvent) {
+function onOutsideClickDrawer(e: MouseEvent) {
 		//  If the user clicks on the leave button, don't move the card
 		if ($page.url.pathname.includes('flashcards') && (e.target as Element).closest('.feedback-btn'))
 			return;
@@ -70,7 +70,7 @@
 </script>
 
 {#if $isDesktop}
-	<Dialog.Root bind:open={$clickedFeedback} onOutsideClick={onOutsideClickDrawer}>
+<Dialog.Root bind:open={$clickedFeedback} onOutsideClick={onOutsideClickDrawer}>
 		<Dialog.Trigger asChild let:builder>
 			{#if !hideFeedbackButton}
 				<Button
@@ -103,7 +103,7 @@
 	<Drawer.Root
 		onClose={onCloseDrawer}
 		open={$page.url.pathname.endsWith('flashcards') && $clickedFeedback}
-		onOutsideClick={onOutsideClickDrawer}
+	onOutsideClick={onOutsideClickDrawer}
 		shouldScaleBackground={!$page.url.pathname.endsWith('flashcards')}
 	>
 		<Drawer.Trigger asChild let:builder>
