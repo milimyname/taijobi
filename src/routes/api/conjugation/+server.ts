@@ -4,9 +4,9 @@ import codec from 'kamiya-codec';
 function classifyWord(word: string) {
 	// Implement logic to determine if the word is a verb or an adjective
 	// This is a simplified example; actual implementation may require a more sophisticated approach
-	if (word.endsWith('る') || word.endsWith('う') || word.endsWith('く')) {
+	if (word.endsWith('る') || word.endsWith('う') || word.endsWith('く') || word.endsWith('ます')) {
 		return 'verb';
-	} else if (word.endsWith('い')) {
+	} else if (word.endsWith('い') || word.endsWith('ない')) {
 		return 'adjective';
 	}
 	return 'unknown'; // Fallback case
@@ -28,7 +28,8 @@ export async function POST({ request }) {
 	return json({
 		conjugated: {
 			taiNegative: codec.conjugateAuxiliaries(word, ['Tai'], 'Negative'),
-			nai: codec.conjugateAuxiliaries(word, ['Nai'], 'Te')
+			naiTe: codec.conjugateAuxiliaries(word, ['Nai'], 'Te'),
+			te: codec.conjugateAuxiliaries(word, [], 'Te')
 		}
 	});
 }
