@@ -18,6 +18,7 @@
 	import { browser } from '$app/environment';
 	import { replaceStateWithQuery } from '$lib/utils';
 	import CustomCompletion from './custom-completion.svelte';
+	import { clickOutside } from '$lib/utils/clickOutside';
 
 	const rotateYCard = tweened(0, {
 		duration: 2000,
@@ -32,7 +33,7 @@
 	export let longWord: boolean;
 
 	$: if (!isNonJapanase($currentFlashcard) && $currentFlashcardTypeStore === 'kanji')
-		kanjiFlashcard = kanji[$currentFlashcard as keyof typeof kanji];
+		kanjiFlashcard = kanji[$currentFlashcard];
 	else if ($currentFlashcardTypeStore === 'kanji')
 		kanjiFlashcard = { name: '', meaning: '', onyomi: '', kunyomi: '' };
 
@@ -199,7 +200,7 @@
 					</div>
 				{/if}
 				<button
-					class="fixed bottom-0 left-0 z-10 rounded-tr-xl {showCustomContent
+					class="flashcard-completion-btn fixed bottom-0 left-0 z-10 rounded-tr-xl {showCustomContent
 						? 'bg-white text-black'
 						: 'bg-blue-200'} p-5"
 					on:click|preventDefault={() => (showCustomContent = !showCustomContent)}
@@ -209,6 +210,7 @@
 
 				{#if showCustomContent}
 					<div
+						use:clickOutside={() => (showCustomContent = false)}
 						class="z-4 absolute bottom-0 left-0 h-5/6 w-full rounded-xl bg-primary p-4 text-xl text-white"
 						transition:fly={{
 							delay: 0,

@@ -2,13 +2,14 @@
 	import * as Tabs from '$lib/components/ui/tabs';
 	import { WholeWord, Text, Scroll } from 'lucide-svelte';
 	import type { FlashcardType } from '$lib/utils/ambient.d.ts';
+	import { cn } from '$lib/utils';
 
-	export let wordFlashcard: FlashcardType;
+	export let wordFlashcard: FlashcardType | undefined;
 
-	let activeTab: string | undefined = 'verb-conjugation';
+	let activeTab: string | undefined = 'conjugation';
 	let conjugationData: any;
 
-	$: if (activeTab === 'verb-conjugation' && wordFlashcard) loadWordFlashcard();
+	$: if (activeTab === 'conjugation' && wordFlashcard) loadWordFlashcard();
 
 	async function loadWordFlashcard() {
 		try {
@@ -36,25 +37,23 @@
 		<Tabs.Trigger value="note" disabled={!wordFlashcard?.notes}>
 			<Scroll class="size-5" />
 		</Tabs.Trigger>
-		<Tabs.Trigger value="verb-conjugation"><WholeWord class="size-5" /></Tabs.Trigger>
+		<Tabs.Trigger value="conjugation"><WholeWord class="size-5" /></Tabs.Trigger>
 		<Tabs.Trigger value="sentence" disabled><Text class="size-5" /></Tabs.Trigger>
 	</Tabs.List>
 	<Tabs.Content value="note">{wordFlashcard?.notes}</Tabs.Content>
-	<Tabs.Content value="verb-conjugation" class="grid grid-cols-2">
-		{#if conjugationData}
-			{#if conjugationData.conjugated}
-				{#each Object.keys(conjugationData.conjugated) as key}
-					<div class="flex flex-col">
-						<span>{key}</span>
-						<span>{conjugationData.conjugated[key]}</span>
+	<Tabs.Content value="conjugation">
+		<div class={cn(!conjugationData?.error && 'grid grid-cols-3 gap-1 sm:gap-2')}>
+			{#if conjugationData}
+				{#each Object.keys(conjugationData) as key}
+					<div class={cn('flex flex-col', key === 'Imperative' && 'col-[3/3]')}>
+						<span class="text-sm">{key}</span>
+						<span>{conjugationData[key]}</span>
 					</div>
 				{/each}
 			{:else}
-				<p>No conjugation data available</p>
+				<p>Loading...</p>
 			{/if}
-		{:else}
-			<p>Loading...</p>
-		{/if}
+		</div>
 	</Tabs.Content>
 	<Tabs.Content value="sentence">Change your password here.</Tabs.Content>
 </Tabs.Root>
