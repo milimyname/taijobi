@@ -53,7 +53,6 @@
 		"embla-carousel-svelte": "^8.0.0",
 		"embla-carousel-wheel-gestures": "8.0.0-rc05",
 		"formsnap": "^0.4.3",
-		"kamiya-codec": "^4.10.0",
 		"kuroshiro-analyzer-kuromoji": "^1.1.0",
 		"lucide-svelte": "^0.294.0",
 		"pocketbase": "^0.20.3",
