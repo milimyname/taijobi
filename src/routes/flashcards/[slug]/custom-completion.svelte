@@ -58,48 +58,6 @@
 
 	$: if (activeTab === 'conjugation' && wordFlashcard) loadWordFlashcard();
 	$: if (activeTab === 'sentence' && wordFlashcard) exampleSentences = [];
-	const test = [
-		{
-			sentence: '家に着く前に電話します。',
-			meaning: 'I will call before arriving home.'
-		},
-		{
-			sentence: '駅に着いてから、友達と待ち合わせました。',
-			meaning: 'I arrived at the station and met with my friend.'
-		},
-		{
-			sentence: '今朝、学校に着いたら授業が始まっていた。',
-			meaning: 'When I arrived at school this morning, the class had already started.'
-		},
-		{
-			sentence: '彼女はいつも遅刻するので、そろそろ着ないと。',
-			meaning: 'She always runs late, so she should hurry up and arrive.'
-		},
-		{
-			sentence: '明日のパーティーには、黒いドレスを着ます。',
-			meaning: 'I will wear a black dress to the party tomorrow.'
-		},
-		{
-			sentence: '平日はスーツを着ませんが、土日は着ます。',
-			meaning: "I don't wear a suit on weekdays, but I wear one on the weekends."
-		},
-		{
-			sentence: 'お母さんは昨日、美しい着物を着ました。',
-			meaning: 'Yesterday, my mother wore a beautiful kimono.'
-		},
-		{
-			sentence: '高校時代の友達が結婚式に来るので、洋服を着ませんでした。',
-			meaning: "My high school friends are coming to the wedding, so I didn't wear Western clothes."
-		},
-		{
-			sentence: '新しい道具を使えば、短時間で手紙を書き終えることができるだろう。',
-			meaning: 'If you use the new tool, you will be able to finish writing the letter quickly.'
-		},
-		{
-			sentence: '試験の準備はしっかりとしておかないと、着ろ、後悔するよ。',
-			meaning: 'If you don’t prepare well for the exam, persevere, you will regret it.'
-		}
-	];
 </script>
 
 <Tabs.Root
@@ -112,7 +70,7 @@
 			<Scroll class="size-5" />
 		</Tabs.Trigger>
 		<Tabs.Trigger value="conjugation"><WholeWord class="size-5" /></Tabs.Trigger>
-		<Tabs.Trigger value="sentence" disabled={conjugationData?.error || !$page.data.isLoggedIn}>
+		<Tabs.Trigger value="sentence" disabled={!$page.data.isLoggedIn}>
 			<Text class="size-5" />
 		</Tabs.Trigger>
 	</Tabs.List>
@@ -142,12 +100,6 @@
 		{:else}
 			<p>Loading...</p>
 		{/if}
-		{#each test as { sentence, meaning }}
-			<div class="flex flex-col gap-1">
-				<span>{@html sentence}</span>
-				<span class="text-sm">{meaning}</span>
-			</div>
-		{/each}
 	</Tabs.Content>
 </Tabs.Root>
 
@@ -164,11 +116,15 @@
 			<Select.Value />
 		</Select.Trigger>
 		<Select.Content class="flashcard-completion-btn">
-			{#each Object.values(conjugationData) as conjugation}
-				<Select.Item value={conjugation}>
-					{conjugation}
-				</Select.Item>
-			{/each}
+			{#if !conjugationData?.error}
+				{#each Object.values(conjugationData) as conjugation}
+					<Select.Item value={conjugation}>
+						{conjugation}
+					</Select.Item>
+				{/each}
+			{:else}
+				<Select.Item value={wordFlashcard?.name}>{wordFlashcard?.name}</Select.Item>
+			{/if}
 		</Select.Content>
 	</Select.Root>
 {/if}
