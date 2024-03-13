@@ -55,6 +55,7 @@
 		"formsnap": "^0.4.3",
 		"kuroshiro-analyzer-kuromoji": "^1.1.0",
 		"lucide-svelte": "^0.294.0",
+		"openai": "^4.28.4",
 		"pocketbase": "^0.20.3",
 		"svelte-easy-crop": "^2.0.3",
 		"svelte-legos": "^0.2.2",

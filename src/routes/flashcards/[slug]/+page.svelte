@@ -42,8 +42,9 @@
 	// Fetch flashcards from the server
 	async function fetchFlashcards() {
 		isLoading = true;
+
 		try {
-			const res = await fetch(`/flashcards/${$page.params.slug}`);
+			const res = await fetch(`/api/flashcard?id=${$page.params.slug}`);
 			const data = await res.json();
 			return data;
 		} catch (error) {

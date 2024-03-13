@@ -1,19 +1,9 @@
-import Kuroshiro from '@sglkc/kuroshiro';
-import KuromojiAnalyzer from '@sglkc/kuroshiro-analyzer-kuromoji';
 import { convertToRubyTag } from '$lib/utils/actions.js';
 import { isHiragana } from 'wanakana';
 import type { RecordModel } from 'pocketbase';
 import { json, type RequestHandler } from '@sveltejs/kit';
 import { kanji } from '$lib/static/kanji';
-
-const kuroshiro = new Kuroshiro();
-
-let kuroshiroInitialized = false;
-
-if (!kuroshiroInitialized) {
-	await kuroshiro.init(new KuromojiAnalyzer());
-	kuroshiroInitialized = true;
-}
+import { kuroshiro } from '$lib/server/kuroshiro';
 
 async function processFurigana(card: RecordModel, kuroshiro: Kuroshiro) {
 	// Custom furigana processing
@@ -31,9 +21,15 @@ async function processFurigana(card: RecordModel, kuroshiro: Kuroshiro) {
 	return card;
 }
 
-export const GET: RequestHandler = async ({ locals, params }) => {
+export const GET: RequestHandler = async ({ locals, url }) => {
+	// Get id slug
+	const flashcardBoxId = url.searchParams.get('id');
+
+	// Check if id exists
+	if (!flashcardBoxId) return json({ error: 'Flashcard box not found' });
+
 	const flashcards = await locals.pb.collection('flashcard').getFullList({
-		filter: `flashcardBox = "${params.slug}"`,
+		filter: `flashcardBox = "${flashcardBoxId}"`,
 		fields: `id, name, meaning, romanji, furigana, type, notes`
 	});
 
@@ -56,13 +52,15 @@ function getKanjiBySlug(slug: string) {
 }
 
 // Get the flashcard box by slug and return the flashcards for command component
-export const POST: RequestHandler = async ({ locals, params }) => {
+export const POST: RequestHandler = async ({ locals, request }) => {
 	try {
 		// Check if the user is authenticated
 		if (!locals.pb.authStore.model) return json({ error: 'User not authenticated' });
 
-		// Check if params.slug is present
-		if (!params.slug) return json({ error: 'No slug provided' });
+		const { search } = await request.json();
+
+		// If search is not provided, return an error
+		if (!search) return json({ error: 'Search is required' });
 
 		console.time('searchFlashcards');
 
@@ -89,7 +87,7 @@ export const POST: RequestHandler = async ({ locals, params }) => {
 		// Fetch flashcards for each flashcard box
 		const flashcards = await locals.pb.collection('flashcard').getList(1, 30, {
 			filter: locals.pb.filter(finalFilter, {
-				search: params.slug
+				search
 			})
 		});
 
@@ -99,7 +97,7 @@ export const POST: RequestHandler = async ({ locals, params }) => {
 		);
 
 		// Get the kanji by slug
-		const kanji = getKanjiBySlug(params.slug);
+		const kanji = getKanjiBySlug(search);
 		if (kanji) processeFlashcards.unshift(kanji);
 
 		console.timeEnd('searchFlashcards');

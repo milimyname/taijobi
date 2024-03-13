@@ -58,7 +58,10 @@
 		if (search === '') return;
 
 		try {
-			const res = await fetch(`/flashcards/${search}`, { method: 'POST' });
+			const res = await fetch('/api/flashcard', {
+				method: 'POST',
+				body: JSON.stringify({ search })
+			});
 
 			if (!res.ok) return new Error('Failed to fetch flashcards');
 
