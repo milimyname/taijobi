@@ -134,12 +134,12 @@
 	</div>
 
 	{#if $clickedEditFlashcard}
-		<div class="flex w-full {!$isDesktop && 'flex-col gap-2'} justify-between">
+		<div class="grid grid-cols-3 flex-col {!$isDesktop && 'flex-col gap-2'} ">
 			<button formaction="?/delete">
 				<slot name="delete" />
 			</button>
 
-			<button formaction="?/update">
+			<button formaction="?/update" class="col-span-2">
 				<slot name="update" />
 			</button>
 		</div>

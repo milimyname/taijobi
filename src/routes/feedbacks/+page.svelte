@@ -33,9 +33,9 @@
 </script>
 
 <main
-	class="flex h-screen select-none flex-col items-center overflow-hidden overflow-y-scroll bg-white px-3 py-11 transition-all"
+	class="flex h-[100dvh] select-none flex-col items-center overflow-hidden bg-white p-2 transition-all sm:px-3 sm:py-5"
 >
-	<nav class="flex w-full p-5">
+	<nav class="flex w-full justify-between px-2 py-3 xm:p-5">
 		<button on:click|preventDefault={() => goto('/')} class="flex items-center gap-2">
 			<ArrowLeft
 				class="size-4 transition-transform group-hover:-translate-x-2 group-active:-translate-x-2"

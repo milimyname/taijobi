@@ -97,6 +97,11 @@ export const replaceStateWithQuery = (values: Record<string, string>) => {
 	history.replaceState(history.state, '', url);
 };
 
+// Set timeout for drawer onOutsideClick
+export function setDrawerTimeout(open: boolen) {
+	return setTimeout(() => (open = false), 100);
+}
+
 type FlyAndScaleParams = {
 	y?: number;
 	x?: number;

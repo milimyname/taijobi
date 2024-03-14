@@ -4,7 +4,7 @@
 		clickedAddFlashcardCollection,
 		currentFlashcardCollectionId
 	} from '$lib/utils/stores';
-	import { isDesktop } from '$lib/utils';
+	import { cn, isDesktop } from '$lib/utils';
 	import { flashcardCollectionSchema, type FlashcardCollectionSchema } from '$lib/utils/zodSchema';
 	import { type SuperForm } from 'sveltekit-superforms/client';
 	import * as Form from '$lib/components/ui/form';
@@ -18,7 +18,7 @@
 	controlled
 	schema={flashcardCollectionSchema}
 	let:config
-	class="quiz-form z-[1000] flex w-full flex-col rounded-t-2xl"
+	class={cn('quiz-form z-[1000] flex w-full flex-col rounded-t-2xl', !$isDesktop && 'px-4')}
 >
 	<div class="mb-auto flex flex-col gap-2">
 		<Form.Field {config} name="name">
@@ -46,12 +46,12 @@
 	</div>
 
 	{#if $clickedEditFlashcard}
-		<div class="flex w-full {!$isDesktop && 'flex-col gap-2'} justify-between">
-			<button formaction="?/delete"><slot name="delete" /></button>
+		<div class="grid grid-cols-3 flex-col {!$isDesktop && 'flex-col gap-2'} ">
+			<button formaction="?/delete">
+				<slot name="delete" />
+			</button>
 
-			<slot name="swap" />
-
-			<button formaction="?/update">
+			<button formaction="?/update" class="col-span-2">
 				<slot name="update" />
 			</button>
 		</div>

@@ -8,7 +8,7 @@
 	import * as Drawer from '$lib/components/ui/drawer';
 	import { Button } from '$lib/components/ui/button';
 	import FlashcardForm from '$lib/components/forms/flashcard-form.svelte';
-	import { isDesktop } from '$lib/utils';
+	import { isDesktop, setDrawerTimeout } from '$lib/utils';
 	import { type FlashcardSchema } from '$lib/utils/zodSchema';
 	import { type SuperForm } from 'sveltekit-superforms/client';
 
@@ -19,7 +19,7 @@
 			$clickedAddFlashcardCollection = false;
 			$clickedEditFlashcard = false;
 			form.reset();
-		}, 150);
+		}, 100);
 	};
 
 	$: if ($clickedFeedback) {
@@ -60,7 +60,7 @@
 		</Dialog.Content>
 	</Dialog.Root>
 {:else}
-	<Drawer.Root open={$clickedAddFlashcardCollection}>
+	<Drawer.Root onClose={onOutsideClick} open={$clickedAddFlashcardCollection} {onOutsideClick}>
 		<Drawer.Portal>
 			<Drawer.Content>
 				<Drawer.Header class="text-left">
@@ -77,22 +77,6 @@
 						<Button variant="destructive" slot="delete" class="w-full">Delete</Button>
 						<Button slot="update" class="w-full">Update</Button>
 						<Button slot="add" class="w-full">Add</Button>
-
-						<!-- <div slot="delete">
-							<Drawer.Close asChild let:builder>
-								<Button builders={[builder]} variant="destructive">Delete</Button>
-							</Drawer.Close>
-						</div>
-						<div slot="update">
-							<Drawer.Close asChild let:builder>
-								<Button builders={[builder]}>Update</Button>
-							</Drawer.Close>
-						</div>
-						<div slot="add">
-							<Drawer.Close asChild let:builder>
-								<Button builders={[builder]} class="w-full">Add</Button>
-							</Drawer.Close>
-						</div> -->
 					</FlashcardForm>
 					<Drawer.Close asChild let:builder>
 						<Button builders={[builder]} variant="outline">Cancel</Button>

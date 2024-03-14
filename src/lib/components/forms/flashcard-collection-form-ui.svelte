@@ -16,7 +16,7 @@
 	import * as Drawer from '$lib/components/ui/drawer';
 	import { Button } from '$lib/components/ui/button';
 	import Form from '$lib/components/forms/flashcard-collection-form.svelte';
-	import { isDesktop } from '$lib/utils';
+	import { isDesktop, setDrawerTimeout } from '$lib/utils';
 	import { page } from '$app/stores';
 	import { type FlashcardCollectionSchema } from '$lib/utils/zodSchema';
 	import { type SuperForm } from 'sveltekit-superforms/client';
@@ -123,9 +123,10 @@
 			form.reset();
 		}}
 		{open}
+		onOutsideClick={() => setDrawerTimeout(open)}
 	>
 		<Drawer.Portal>
-			<Drawer.Content>
+			<Drawer.Content class="max-h-fit">
 				<Drawer.Header class="text-left">
 					<Drawer.Title>
 						{#if $clickedEditFlashcard}
@@ -135,46 +136,46 @@
 						{/if}
 					</Drawer.Title>
 				</Drawer.Header>
-				<Drawer.Footer>
-					<Form {form}>
-						<Button variant="destructive" slot="delete" class="w-full">Delete</Button>
-						<Button slot="update" class="w-full">Update</Button>
-						<Button slot="add" class="w-full">Add</Button>
+				<Form {form}>
+					<Button variant="destructive" slot="delete" class="w-full">Delete</Button>
+					<Button slot="update" class="w-full">Update</Button>
+					<Button slot="add" class="w-full">Add</Button>
 
-						<div slot="swap">
-							<Drawer.Nested>
-								{#if !$clickedAddFlashcardCollection && $maxFlashcards !== '0' && $flashcardBoxes.length > 1}
-									<Drawer.Trigger
-										class=" w-full  items-center gap-2 rounded-md bg-gray-900 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
-										on:click={() => ($swapFlashcards = true)}
-									>
-										Swap Flashcards
-									</Drawer.Trigger>
-								{/if}
-								<Drawer.Portal>
-									<Drawer.Content
-										class="select-quiz fixed bottom-0 left-0 right-0 mt-24 flex h-full max-h-[94%] flex-col rounded-t-[10px] bg-gray-100"
-									>
-										<QuizItems flashcardBox={$currentBoxId}>
-											<Drawer.Close asChild let:builder>
-												<Button
-													builders={[builder]}
-													on:click={() => {
-														$selectQuizItemsForm = false;
-														$swapFlashcards = false;
-														$selectedQuizItems = [];
-													}}
-													variant="outline"
-												>
-													Cancel
-												</Button>
-											</Drawer.Close>
-										</QuizItems>
-									</Drawer.Content>
-								</Drawer.Portal>
-							</Drawer.Nested>
-						</div>
-					</Form>
+					<div slot="swap">
+						<Drawer.Nested>
+							{#if !$clickedAddFlashcardCollection && $maxFlashcards !== '0' && $flashcardBoxes.length > 1}
+								<Drawer.Trigger
+									class=" w-full  items-center gap-2 rounded-md bg-gray-900 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
+									on:click={() => ($swapFlashcards = true)}
+								>
+									Swap Flashcards
+								</Drawer.Trigger>
+							{/if}
+							<Drawer.Portal>
+								<Drawer.Content
+									class="select-quiz fixed bottom-0 left-0 right-0 mt-24 flex h-full max-h-[94%] flex-col rounded-t-[10px] bg-gray-100"
+								>
+									<QuizItems flashcardBox={$currentBoxId}>
+										<Drawer.Close asChild let:builder>
+											<Button
+												builders={[builder]}
+												on:click={() => {
+													$selectQuizItemsForm = false;
+													$swapFlashcards = false;
+													$selectedQuizItems = [];
+												}}
+												variant="outline"
+											>
+												Cancel
+											</Button>
+										</Drawer.Close>
+									</QuizItems>
+								</Drawer.Content>
+							</Drawer.Portal>
+						</Drawer.Nested>
+					</div>
+				</Form>
+				<Drawer.Footer class="h-fit">
 					<Drawer.Close asChild let:builder>
 						<Button builders={[builder]} variant="outline">Cancel</Button>
 					</Drawer.Close>
