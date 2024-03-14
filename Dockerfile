@@ -21,8 +21,10 @@ ENV NODE_ENV production
 # If you're using Docker secrets, the secret should be available as a file in /run/secrets/
 # Here, we're assuming VITE_POCKETBASE_URL is available as a file at /run/secrets/VITE_POCKETBASE_URL
 ARG VITE_POCKETBASE_URL
+ARG OPENAI_API_KEY
 RUN --mount=type=secret,id=VITE_POCKETBASE_URL \
     export VITE_POCKETBASE_URL="$(cat /run/secrets/VITE_POCKETBASE_URL)" && \
+    export OPENAI_API_KEY="$(cat /run/secrets/OPENAI_API_KEY)" && \
     pnpm run build
 
 # Remove dev dependencies
