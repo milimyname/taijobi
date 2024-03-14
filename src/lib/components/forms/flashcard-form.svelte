@@ -3,7 +3,7 @@
 	import { fly } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 	import { HelpCircle } from 'lucide-svelte';
-	import { isDesktop } from '$lib/utils';
+	import { cn, isDesktop } from '$lib/utils';
 	import * as Form from '$lib/components/ui/form';
 	import { flashcardSchema, type FlashcardSchema } from '$lib/utils/zodSchema';
 	import { type SuperForm } from 'sveltekit-superforms/client';
@@ -30,7 +30,7 @@
 	controlled
 	schema={flashcardSchema}
 	let:config
-	class="quiz-form z-[1000] flex w-full flex-col rounded-t-2xl"
+	class={cn('quiz-form z-[1000] flex w-full flex-col rounded-t-2xl', !$isDesktop && 'px-4')}
 >
 	<div class="mb-auto flex flex-col gap-2">
 		<Form.Field {config} name="name">

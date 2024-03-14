@@ -8,7 +8,7 @@
 	import * as Drawer from '$lib/components/ui/drawer';
 	import { Button } from '$lib/components/ui/button';
 	import FlashcardForm from '$lib/components/forms/flashcard-form.svelte';
-	import { isDesktop, setDrawerTimeout } from '$lib/utils';
+	import { isDesktop } from '$lib/utils';
 	import { type FlashcardSchema } from '$lib/utils/zodSchema';
 	import { type SuperForm } from 'sveltekit-superforms/client';
 
@@ -62,26 +62,28 @@
 {:else}
 	<Drawer.Root onClose={onOutsideClick} open={$clickedAddFlashcardCollection} {onOutsideClick}>
 		<Drawer.Portal>
-			<Drawer.Content>
-				<Drawer.Header class="text-left">
-					<Drawer.Title>
-						{#if $clickedEditFlashcard}
-							Update flashcard
-						{:else}
-							Add a new flashcard
-						{/if}
-					</Drawer.Title>
-				</Drawer.Header>
-				<Drawer.Footer>
+			<Drawer.Content class="fixed bottom-0 left-0 right-0 max-h-[96%]">
+				<div class="mx-auto flex w-full max-w-md flex-col overflow-auto rounded-t-[10px]">
+					<Drawer.Header class="text-left">
+						<Drawer.Title>
+							{#if $clickedEditFlashcard}
+								Update flashcard
+							{:else}
+								Add a new flashcard
+							{/if}
+						</Drawer.Title>
+					</Drawer.Header>
 					<FlashcardForm {form}>
 						<Button variant="destructive" slot="delete" class="w-full">Delete</Button>
 						<Button slot="update" class="w-full">Update</Button>
 						<Button slot="add" class="w-full">Add</Button>
 					</FlashcardForm>
-					<Drawer.Close asChild let:builder>
-						<Button builders={[builder]} variant="outline">Cancel</Button>
-					</Drawer.Close>
-				</Drawer.Footer>
+					<Drawer.Footer>
+						<Drawer.Close asChild let:builder>
+							<Button builders={[builder]} variant="outline">Cancel</Button>
+						</Drawer.Close>
+					</Drawer.Footer>
+				</div>
 			</Drawer.Content>
 		</Drawer.Portal>
 	</Drawer.Root>
