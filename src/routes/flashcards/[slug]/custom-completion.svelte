@@ -11,7 +11,7 @@
 	let activeTab: string | undefined = 'conjugation';
 	let conjugationData: any;
 	let exampleSentences: { sentence: string; meaning: string }[] = [];
-	let currentItem: string | unknown;
+	let selectedValue: { value: unknown; label?: string };
 
 	async function loadWordFlashcard() {
 		try {
@@ -25,7 +25,7 @@
 				})
 			});
 
-			if (!res.ok) return new Error('Failed to fetch word flashcard');
+			if (!res.ok) throw new Error('Failed to fetch word flashcard');
 
 			conjugationData = await res.json();
 		} catch (e) {
@@ -41,7 +41,7 @@
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					input: currentItem
+					input: selectedValue?.value
 				})
 			});
 
@@ -56,8 +56,14 @@
 		}
 	}
 
-	$: if (activeTab === 'conjugation' && wordFlashcard) loadWordFlashcard();
+	$: if (activeTab === 'conjugation' || wordFlashcard) loadWordFlashcard();
 	$: if (activeTab === 'sentence' && wordFlashcard) exampleSentences = [];
+
+	$: if (wordFlashcard)
+		selectedValue = {
+			value: '',
+			label: ''
+		};
 </script>
 
 <Tabs.Root
@@ -105,8 +111,12 @@
 
 {#if activeTab === 'sentence'}
 	<Select.Root
+		selected={selectedValue}
 		onSelectedChange={async (item) => {
-			currentItem = item?.value;
+			selectedValue = {
+				value: item?.value,
+				label: item?.label
+			};
 			await generateexampleSentences();
 		}}
 	>

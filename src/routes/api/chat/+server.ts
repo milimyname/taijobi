@@ -1,10 +1,11 @@
 import OpenAI from 'openai';
+import { OPENAI_API_KEY } from '$env/static/private';
 import { json } from '@sveltejs/kit';
 import { kuroshiro } from '$lib/server/kuroshiro';
+import { dev } from '$app/environment';
 
-// Create an OpenAI API client (that's edge friendly!)
 const openai = new OpenAI({
-	apiKey: import.meta.env.OPENAI_API_KEY
+	apiKey: dev ? OPENAI_API_KEY : process.env.OPENAI_API_KEY
 });
 
 export async function POST({ request, locals }) {
