@@ -13,7 +13,7 @@
 	import { spring } from 'svelte/motion';
 	import { getRandomNumber } from '$lib/utils/actions';
 	import { afterNavigate } from '$app/navigation';
-	import { Slider } from '$lib/components/ui/slider';
+	import { Slider } from '$lib/components/ui/slider/index';
 	import { onMount } from 'svelte';
 
 	let progress = spring(1, { stiffness: 0.1, damping: 0.5 });
@@ -52,6 +52,8 @@
 	$: value = $progressSlider;
 
 	$: max = $kanjiLength;
+
+	$: console.log($progressSlider);
 </script>
 
 {#if $showProgressSlider}

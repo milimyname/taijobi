@@ -13,11 +13,15 @@
 	bind:value
 	class={cn('relative flex w-full touch-none select-none items-center', className)}
 	{...$$restProps}
+	let:thumbs
 >
 	<span class="relative h-14 w-full grow overflow-hidden rounded-full bg-secondary">
 		<SliderPrimitive.Range class="absolute h-full bg-primary" />
 	</span>
-	<SliderPrimitive.Thumb
-		class="border-border-input sq-[27px] active:scale-98 block h-14 w-5 cursor-pointer  select-auto rounded-full border bg-background shadow transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-	/>
+	{#each thumbs as thumb}
+		<SliderPrimitive.Thumb
+			{thumb}
+			class="border-border-input sq-[27px] active:scale-98 block h-14 w-5 cursor-pointer  select-auto rounded-full border bg-background shadow transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+		/>
+	{/each}
 </SliderPrimitive.Root>
