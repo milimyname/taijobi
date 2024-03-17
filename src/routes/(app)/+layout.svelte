@@ -201,18 +201,20 @@
 	<Command.List>
 		<Command.Empty>No results found.</Command.Empty>
 		<div class="relative grid grid-cols-3">
-			<Command.Group heading="Suggestions" class="overflow-x-hidden border-r">
-				{#each fetchedData as flashcard}
-					<Command.Item value={flashcard.name} class="flex flex-col items-start gap-0.5">
-						<h4 class="font-medium">{flashcard.name}</h4>
-						<h4>{flashcard.meaning}</h4>
-					</Command.Item>
-				{/each}
-			</Command.Group>
+			{#if fetchedData.length > 0}
+				<Command.Group heading="Suggestions" class="border-r">
+					{#each fetchedData as flashcard}
+						<Command.Item value={flashcard.name} class="flex flex-col items-start gap-0.5">
+							<h4 class="font-medium">{flashcard.name}</h4>
+							<h4>{flashcard.meaning}</h4>
+						</Command.Item>
+					{/each}
+				</Command.Group>
+			{/if}
 
 			{#if currentHoveredFlashcard}
 				<div
-					class="sticky top-0 col-span-2 flex h-72 flex-col items-center justify-center gap-10 px-2"
+					class="sticky top-0 col-span-2 flex h-[60dvh] flex-col items-center justify-center gap-10 px-2"
 				>
 					{#if currentHoveredFlashcard.furigana}
 						<h2 class="text-center text-4xl">
