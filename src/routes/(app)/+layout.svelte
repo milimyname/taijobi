@@ -214,7 +214,7 @@
 
 			{#if currentHoveredFlashcard}
 				<div
-					class="sticky top-0 col-span-2 flex h-[60dvh] flex-col items-center justify-center gap-10 px-2"
+					class="sticky top-0 col-span-2 flex h-[60dvh] flex-col items-center justify-center gap-10 px-2 md:h-72"
 				>
 					{#if currentHoveredFlashcard.furigana}
 						<h2 class="text-center text-4xl">
