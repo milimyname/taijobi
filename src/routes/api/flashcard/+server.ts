@@ -33,12 +33,12 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 		fields: `id, name, meaning, romanji, furigana, type, notes`
 	});
 
-	const processeFlashcards = await Promise.all(
+	const processedFlashcards = await Promise.all(
 		flashcards.map((card: RecordModel) => processFurigana(card, kuroshiro))
 	);
 
 	return json({
-		flashcards: processeFlashcards
+		flashcards: processedFlashcards
 	});
 };
 
@@ -92,17 +92,27 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		});
 
 		// Process the furigana for each flashcard
-		const processeFlashcards = await Promise.all(
+		const processedFlashcards = await Promise.all(
 			flashcards.items.map((card: RecordModel) => processFurigana(card, kuroshiro))
 		);
 
 		// Get the kanji by slug
 		const kanji = getKanjiBySlug(search);
-		if (kanji) processeFlashcards.unshift(kanji);
+		if (kanji) processedFlashcards.unshift(kanji);
 
 		console.timeEnd('searchFlashcards');
 
-		return json({ flashcards: processeFlashcards });
+		// Filter out duplicate flashcards by name
+		const uniqueFlashcards = [];
+		const namesSet = new Set();
+		for (const card of processedFlashcards) {
+			if (!namesSet.has(card.name)) {
+				namesSet.add(card.name);
+				uniqueFlashcards.push(card);
+			}
+		}
+
+		return json({ flashcards: uniqueFlashcards });
 	} catch (error) {
 		console.error(error);
 		return json({ error });
