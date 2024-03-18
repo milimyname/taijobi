@@ -2,8 +2,6 @@ import { json } from '@sveltejs/kit';
 import { kuroshiro } from '$lib/server/kuroshiro';
 import { openai } from '$lib/server/openai';
 import { openaiSchema } from '$lib/utils/zodSchema';
-import fs from 'fs';
-import path from 'path';
 
 export async function POST({ request, locals }) {
 	// if user is not authenticated, return 401
@@ -69,10 +67,6 @@ export async function POST({ request, locals }) {
 	}
 
 	if (type === 'audio') {
-		const fileName = `${input}-${Date.now()}.mp3`;
-
-		const speechFile = path.resolve('./static/' + fileName);
-
 		const mp3 = await openai.audio.speech.create({
 			model: 'tts-1',
 			voice: 'nova',
@@ -80,9 +74,9 @@ export async function POST({ request, locals }) {
 		});
 
 		const buffer = Buffer.from(await mp3.arrayBuffer());
-		await fs.promises.writeFile(speechFile, buffer);
-		// Return the response from OpenAI
-		return json({ fileName });
+		const base64Audio = buffer.toString('base64');
+
+		return json({ audioData: base64Audio });
 	}
 
 	return json({ error: 'Invalid type' });

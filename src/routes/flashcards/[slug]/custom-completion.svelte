@@ -8,7 +8,7 @@
 
 	export let wordFlashcard: FlashcardType | undefined;
 
-	let audioUrl: string = '';
+	let audioSource: string = '';
 	let audioElement: HTMLAudioElement;
 	let activeTab: string | undefined = 'conjugation';
 	let conjugationData: any;
@@ -60,8 +60,6 @@
 	}
 
 	async function convertTextToSpeech(input: string) {
-		console.log(audioUrl);
-
 		try {
 			const res = await fetch('/api/openai', {
 				method: 'POST',
@@ -75,7 +73,9 @@
 
 			const data = await res.json();
 
-			audioUrl = data.fileName;
+			const audioData = data.audioData;
+
+			audioSource = `data:audio/mp3;base64,${audioData}`;
 		} catch (e) {
 			console.error(e);
 		}
@@ -91,8 +91,8 @@
 		};
 </script>
 
-{#if audioUrl}
-	<audio src={'/' + audioUrl} bind:this={audioElement} />
+{#if audioSource}
+	<audio src={audioSource} bind:this={audioElement} />
 {/if}
 
 <Tabs.Root
@@ -135,9 +135,7 @@
 
 					<button
 						on:click={async () => {
-							if (audioUrl === '') await convertTextToSpeech(sentence);
-
-							if (!audioUrl.includes(sentence) && audioUrl) await convertTextToSpeech(sentence);
+							await convertTextToSpeech(sentence);
 
 							if (audioElement) audioElement.play();
 						}}

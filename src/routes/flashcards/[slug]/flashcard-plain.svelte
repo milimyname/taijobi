@@ -31,7 +31,7 @@
 	});
 	let showCustomContent: boolean = false;
 	let kanjiFlashcard: FlashcardType;
-	let audioUrl = '';
+	let audioSource = '';
 	let audioElement: HTMLAudioElement;
 
 	$: if (!isNonJapanase($currentFlashcard) && $currentFlashcardTypeStore === 'kanji')
@@ -59,17 +59,19 @@
 
 			const data = await res.json();
 
-			audioUrl = data.fileName;
+			const audioData = data.audioData;
+
+			audioSource = `data:audio/mp3;base64,${audioData}`;
 		} catch (e) {
 			console.error(e);
 		}
 	}
 
-	$: if (wordFlashcard) audioUrl = '';
+	$: if (wordFlashcard) audioSource = '';
 </script>
 
-{#if audioUrl}
-	<audio src={'/' + audioUrl} bind:this={audioElement} />
+{#if audioSource}
+	<audio src={audioSource} bind:this={audioElement} />
 {/if}
 
 <div style="perspective: 3000px; position: relative;">
@@ -123,7 +125,7 @@
 					showCustomContent && 'hidden'
 				)}
 				on:click={async () => {
-					if (audioUrl === '') await convertTextToSpeech();
+					if (audioSource === '') await convertTextToSpeech();
 					if (audioElement) audioElement.play();
 				}}
 			>
