@@ -87,3 +87,8 @@ export const quizProgressSchema = z.object({
 });
 
 export type QuizProgressSchema = typeof quizProgressSchema;
+
+export const openaiSchema = z.object({
+	input: z.string().min(1, { message: 'Input is required.' }),
+	type: z.string().min(1, { message: 'Type is required.' })
+});

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as Tabs from '$lib/components/ui/tabs';
-	import { WholeWord, Text, Scroll } from 'lucide-svelte';
+	import { WholeWord, Text, Scroll, Volume2 } from 'lucide-svelte';
 	import type { FlashcardType } from '$lib/utils/ambient.d.ts';
 	import { cn } from '$lib/utils';
 	import * as Select from '$lib/components/ui/select';
@@ -8,9 +8,11 @@
 
 	export let wordFlashcard: FlashcardType | undefined;
 
+	let audioUrl: string = '';
+	let audioElement: HTMLAudioElement;
 	let activeTab: string | undefined = 'conjugation';
 	let conjugationData: any;
-	let exampleSentences: { sentence: string; meaning: string }[] = [];
+	let exampleSentences: { sentence: string; meaning: string; furigana: string }[] = [];
 	let selectedValue: { value: unknown; label?: string };
 
 	async function loadWordFlashcard() {
@@ -33,15 +35,16 @@
 		}
 	}
 
-	async function generateexampleSentences() {
+	async function generateExampleSentences() {
 		try {
-			const res = await fetch(`/api/chat`, {
+			const res = await fetch('/api/openai', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					input: selectedValue?.value
+					input: selectedValue?.value,
+					type: 'text'
 				})
 			});
 
@@ -56,6 +59,28 @@
 		}
 	}
 
+	async function convertTextToSpeech(input: string) {
+		console.log(audioUrl);
+
+		try {
+			const res = await fetch('/api/openai', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ input, type: 'audio' })
+			});
+
+			if (!res.ok) throw new Error('Failed to fetch audio');
+
+			const data = await res.json();
+
+			audioUrl = data.fileName;
+		} catch (e) {
+			console.error(e);
+		}
+	}
+
 	$: if (activeTab === 'conjugation' || wordFlashcard) loadWordFlashcard();
 	$: if (activeTab === 'sentence' && wordFlashcard) exampleSentences = [];
 
@@ -65,6 +90,10 @@
 			label: ''
 		};
 </script>
+
+{#if audioUrl}
+	<audio src={'/' + audioUrl} bind:this={audioElement} />
+{/if}
 
 <Tabs.Root
 	value={activeTab}
@@ -97,10 +126,24 @@
 	</Tabs.Content>
 	<Tabs.Content value="sentence" class="space-y-2 pb-14">
 		{#if exampleSentences}
-			{#each exampleSentences as { sentence, meaning }}
-				<div class="flex flex-col gap-1">
-					<span>{@html sentence}</span>
-					<span class="text-sm">{meaning}</span>
+			{#each exampleSentences as { furigana, sentence, meaning }}
+				<div class="flex gap-2">
+					<div class="flex flex-col gap-1">
+						<span>{@html furigana}</span>
+						<span class="text-sm">{meaning}</span>
+					</div>
+
+					<button
+						on:click={async () => {
+							if (audioUrl === '') await convertTextToSpeech(sentence);
+
+							if (!audioUrl.includes(sentence) && audioUrl) await convertTextToSpeech(sentence);
+
+							if (audioElement) audioElement.play();
+						}}
+					>
+						<Volume2 class="size-5" />
+					</button>
 				</div>
 			{/each}
 		{:else}
@@ -117,7 +160,7 @@
 				value: item?.value,
 				label: item?.label
 			};
-			await generateexampleSentences();
+			await generateExampleSentences();
 		}}
 	>
 		<Select.Trigger

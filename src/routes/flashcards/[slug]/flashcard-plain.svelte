@@ -13,24 +13,26 @@
 	} from '$lib/utils/stores';
 	import { quintOut, cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
-	import { RotateCcw, Box, PenTool } from 'lucide-svelte';
+	import { RotateCcw, Box, PenTool, Volume2 } from 'lucide-svelte';
 	import { cn, getFlashcardHeight, getFlashcardWidth, isNonJapanase } from '$lib/utils';
 	import { browser } from '$app/environment';
 	import { replaceStateWithQuery } from '$lib/utils';
 	import CustomCompletion from './custom-completion.svelte';
 	import { clickOutside } from '$lib/utils/clickOutside';
 
-	const rotateYCard = tweened(0, {
-		duration: 2000,
-		easing: cubicOut
-	});
-
-	let showCustomContent: boolean = false;
-	let kanjiFlashcard: FlashcardType;
 	export let wordFlashcard: FlashcardType | undefined;
 	export let currentFlashcardFurigana: string;
 	export let currentIndex: number;
 	export let longWord: boolean;
+
+	const rotateYCard = tweened(0, {
+		duration: 2000,
+		easing: cubicOut
+	});
+	let showCustomContent: boolean = false;
+	let kanjiFlashcard: FlashcardType;
+	let audioUrl = '';
+	let audioElement: HTMLAudioElement;
 
 	$: if (!isNonJapanase($currentFlashcard) && $currentFlashcardTypeStore === 'kanji')
 		kanjiFlashcard = kanji[$currentFlashcard];
@@ -42,7 +44,33 @@
 			flashcardName: wordFlashcard.name,
 			meaning: wordFlashcard.meaning
 		});
+
+	async function convertTextToSpeech() {
+		try {
+			const res = await fetch('/api/openai', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ input: wordFlashcard?.name, type: 'audio' })
+			});
+
+			if (!res.ok) throw new Error('Failed to fetch audio');
+
+			const data = await res.json();
+
+			audioUrl = data.fileName;
+		} catch (e) {
+			console.error(e);
+		}
+	}
+
+	$: if (wordFlashcard) audioUrl = '';
 </script>
+
+{#if audioUrl}
+	<audio src={'/' + audioUrl} bind:this={audioElement} />
+{/if}
 
 <div style="perspective: 3000px; position: relative;">
 	<div
@@ -73,18 +101,35 @@
 			{currentIndex + 1}
 		</span>
 
-		{#if !isNonJapanase($currentFlashcard)}
+		<div class="flex gap-5">
+			{#if !isNonJapanase($currentFlashcard)}
+				<button
+					class={cn(
+						'absolute bottom-3 left-2 z-30 rounded-full border bg-white p-2 shadow-sm transition-all xm:bottom-5 xm:left-5',
+						showCustomContent && 'hidden'
+					)}
+					on:click={() => {
+						$showLetterDrawing = true;
+						$showProgressSlider = false;
+					}}
+				>
+					<PenTool class="size-4" />
+				</button>
+			{/if}
+
 			<button
-				class="absolute bottom-3 left-2 z-30 rounded-full border bg-white p-2 shadow-sm transition-all xm:bottom-5 xm:left-5
-					{showCustomContent && 'hidden'}"
-				on:click={() => {
-					$showLetterDrawing = true;
-					$showProgressSlider = false;
+				class={cn(
+					'absolute bottom-14 left-2 z-30 rounded-full border bg-white p-2 shadow-sm transition-all xm:bottom-[4rem] xm:left-5',
+					showCustomContent && 'hidden'
+				)}
+				on:click={async () => {
+					if (audioUrl === '') await convertTextToSpeech();
+					if (audioElement) audioElement.play();
 				}}
 			>
-				<PenTool class="size-4" />
+				<Volume2 class="size-4" />
 			</button>
-		{/if}
+		</div>
 
 		<button
 			class="{showCustomContent && 'hidden'} 

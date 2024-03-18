@@ -145,3 +145,24 @@ export function isTouchScreen() {
 
 	return 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.maxTouchPoints > 0;
 }
+
+// Function to convert text to speech
+export async function convertTextToSpeech(input: string) {
+	try {
+		const res = await fetch('/api/openai', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ input, type: 'audio' })
+		});
+
+		if (!res.ok) throw new Error('Failed to fetch audio');
+
+		const data = await res.json();
+
+		return data.fileName;
+	} catch (e) {
+		console.error(e);
+	}
+}
