@@ -69,7 +69,6 @@
 				}, 150);
 			}
 
-			console.log(form.errors);
 			// Update the flashcards
 			const data = await fetchFlashcards();
 			if (data) flashcards = data.flashcards;
@@ -91,6 +90,15 @@
 	onMount(async () => {
 		const data = await fetchFlashcards();
 		if (data) flashcards = data.flashcards;
+
+		// Get the current flashcard index from the local storage
+		const index = localStorage.getItem('currentFlashcardIndex');
+		if (index) currentIndex = parseInt(index);
+
+		// Scroll to the current flashcard
+		setTimeout(() => {
+			embla.scrollTo(currentIndex);
+		}, 100);
 	});
 
 	$: if (browser && currentIndex >= 0 && flashcards.length > 0) {
@@ -100,6 +108,9 @@
 			$currentFlashcard = card.name;
 			currentFlashcardFurigana = card.furigana || '';
 			$currentFlashcardTypeStore = card.type || 'word';
+
+			// Save current flashcard to local storage
+			localStorage.setItem('currentFlashcardIndex', currentIndex.toString());
 		}
 	}
 
