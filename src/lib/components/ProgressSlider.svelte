@@ -52,8 +52,6 @@
 	$: value = $progressSlider;
 
 	$: max = $kanjiLength;
-
-	$: console.log($progressSlider);
 </script>
 
 {#if $showProgressSlider}

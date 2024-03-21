@@ -21,6 +21,7 @@
 	$: if ($page.url.pathname.includes('kanji')) {
 		$formData.startCount = $progressSlider === $kanjiLength ? 1 : $progressSlider;
 		$maxFlashcards = '' + $kanjiLength;
+		$formData.name = '漢字';
 	} else $formData.startCount = Math.floor(Math.random() * (+$maxFlashcards - 20)) + 1;
 
 	$: if ($selectQuizItemsForm) $formData.selectedQuizItems = $selectedQuizItems.join(',');
@@ -99,8 +100,8 @@
 					</Form.Field>
 					<Form.Field {config} name="maxCount">
 						<Form.Item>
-							<Form.Label>Max Amount of Flashcards</Form.Label>
-							<Form.Input type="number" min="20" max={$maxFlashcards} />
+							<Form.Label>Max Amount of flashcards</Form.Label>
+							<Form.Input type="number" min="10" max={$maxFlashcards} />
 							<Form.Validation />
 						</Form.Item>
 					</Form.Field>

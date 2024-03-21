@@ -6,7 +6,6 @@
 <svelte:head>
 	<title>Quizzes</title>
 	<meta name="description" content="Quizzes" />
-	<meta name="theme-color" content="rgb(0,0,0)" />
 </svelte:head>
 
 <main class="flex h-[100dvh] select-none flex-col items-center overflow-hidden bg-white px-3 py-5">

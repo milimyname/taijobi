@@ -7,6 +7,7 @@
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
 	import { replaceStateWithQuery } from '$lib/utils';
+	import { Confetti } from 'svelte-confetti';
 
 	export let data;
 
@@ -17,6 +18,7 @@
 	let shuffledOptions: string[] = [];
 	let correctAnswers = 0;
 	let flashcards: any[];
+	let isWon = false;
 
 	$: if (browser && currentFlashcard && !data.isKanjiQuiz)
 		replaceStateWithQuery({
@@ -41,15 +43,24 @@
 
 		if (!selectedProperty) return []; // If type doesn't match any key, return empty array
 
+		// Handle potential undefined values when accessing properties
+		const getPropertyValue = (card: FlashcardType, property: keyof FlashcardType): string => {
+			const value = card[property];
+			return typeof value === 'string' ? value : ''; // Return an empty string if value is undefined
+		};
+
 		switch (data.quiz.choice) {
 			case '2':
-				return [currentFlashcard[selectedProperty], otherOptions[0][selectedProperty]];
+				return [
+					getPropertyValue(currentFlashcard, selectedProperty),
+					getPropertyValue(otherOptions[0], selectedProperty)
+				];
 			case '4':
 				return [
-					currentFlashcard[selectedProperty],
-					otherOptions[0][selectedProperty],
-					otherOptions[1][selectedProperty],
-					otherOptions[2][selectedProperty]
+					getPropertyValue(currentFlashcard, selectedProperty),
+					getPropertyValue(otherOptions[0], selectedProperty),
+					getPropertyValue(otherOptions[1], selectedProperty),
+					getPropertyValue(otherOptions[2], selectedProperty)
 				];
 			default:
 				return [];
@@ -60,7 +71,8 @@
 		flashcards = JSON.parse(localStorage.getItem(`flashcards_${data.quiz.id}`) || '[]');
 		if (flashcards.length > 0 && Array.isArray(flashcards)) {
 			progressData = JSON.parse(localStorage.getItem(`quizProgress_${data.quiz.id}`) || '[]');
-			currentQuestion = +localStorage.getItem(`currentQuestion_${data.quiz.id}`);
+			const storedQuestionId = localStorage.getItem(`currentQuestion_${data.quiz.id}`);
+			currentQuestion = storedQuestionId ? parseInt(storedQuestionId) : 0;
 			currentFlashcard = flashcards[currentQuestion];
 
 			// Get a random number between 0 and the length of the flashcards array
@@ -137,7 +149,7 @@
 			}
 
 			// Reset the quiz
-			alert('Quiz completed!');
+			isWon = true;
 
 			setTimeout(() => {
 				currentQuestion = 0;
@@ -158,9 +170,10 @@
 			setTimeout(() => {
 				localStorage.removeItem(`currentQuestion_${data.quiz.id}`);
 			}, 260);
+		} else {
+			// Save the user's answer
+			localStorage.setItem(`quizProgress_${data.quiz.id}`, JSON.stringify(progressData));
 		}
-		// Save the user's answer
-		else localStorage.setItem(`quizProgress_${data.quiz.id}`, JSON.stringify(progressData));
 
 		// Move to the next question
 		setTimeout(() => {
@@ -178,13 +191,31 @@
 		}, 250);
 	}
 
-	$: if (currentFlashcard) {
+	$: if (currentFlashcard && !isWon) {
 		const sourceFlashcards = flashcards.length > 0 ? flashcards : data.flashcards;
 		currentFlashcard = sourceFlashcards[currentQuestion];
 		shuffledOptions = generateShuffledOptions(sourceFlashcards);
 		shuffleArray(shuffledOptions);
 	}
+
+	$: if (isWon) setTimeout(() => (isWon = false), 5000);
 </script>
+
+{#if isWon}
+	<div
+		class="pointer-events-none fixed -top-1/2 left-0 flex h-screen w-screen justify-center overflow-hidden"
+	>
+		<Confetti
+			x={[-5, 5]}
+			y={[0, 0.1]}
+			delay={[0, 100]}
+			infinite
+			duration={1000}
+			amount={1000}
+			fallDistance="100vh"
+		/>
+	</div>
+{/if}
 
 {#if currentFlashcard}
 	{#if flashcards.length > 0}
