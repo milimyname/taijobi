@@ -10,6 +10,7 @@
 	} from '$lib/utils/stores';
 	import { page } from '$app/stores';
 	import { ArrowLeft, FolderPlus } from 'lucide-svelte';
+	import { getLocalStorageItem } from '$lib/utils/localStorage.js';
 
 	export let data;
 
@@ -18,6 +19,8 @@
 		$clickedAddFlahcardBox = false;
 		$clickedEditFlashcard = false;
 	}
+
+	$: $flashcardsBoxType = getLocalStorageItem('flashcardsBoxType') as string;
 </script>
 
 <svelte:head>
