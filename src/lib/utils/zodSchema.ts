@@ -67,7 +67,7 @@ export const quizSchema = z.object({
 	name: z.string().nonempty({ message: 'Name is required.' }),
 	choice: z.string().default('2'),
 	type: z.string().default('name'),
-	maxCount: z.number().default(20),
+	maxCount: z.number().default(10),
 	startCount: z.number().default(1),
 	score: z.number().default(0),
 	flashcardBox: z.string(),

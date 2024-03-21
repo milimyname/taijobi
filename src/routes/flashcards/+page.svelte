@@ -257,11 +257,12 @@
 									</button>
 								{/if}
 
-								{#if box.count > 20}
+								{#if box.count > 10}
 									<button
 										class="flex w-full justify-center"
 										on:click|stopPropagation={() => {
 											$quizFormData.flashcardBox = box.id;
+											$quizFormData.name = box.name;
 											$maxFlashcards = box.count;
 											$clickedQuizForm = true;
 											$showCollections = false;
