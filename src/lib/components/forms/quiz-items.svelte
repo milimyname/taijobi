@@ -114,7 +114,7 @@
 		</ul>
 	{/if}
 	<div
-		class="sticky bottom-0 z-40 flex w-full items-center justify-between gap-2 bg-white p-5 shadow-profile sm:bottom-0"
+		class="sticky bottom-0 z-40 flex w-full items-center justify-between gap-2 rounded-b-md bg-white p-5 shadow-profile sm:bottom-0"
 	>
 		<slot />
 

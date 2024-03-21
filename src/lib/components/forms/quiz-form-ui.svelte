@@ -38,7 +38,7 @@
 						<Grid2X2 />
 						Quiz Items ({selectedItems})
 					</Dialog.Trigger>
-					<Dialog.Content class="swap-items z-[101] h-full max-h-[96%] max-w-2xl p-0">
+					<Dialog.Content class="swap-items z-[101] !h-[40rem] !w-[40rem] p-0">
 						<QuizItems flashcardBox={$formData.flashcardBox}>
 							<Dialog.Close asChild let:builder>
 								<Button
@@ -60,11 +60,7 @@
 		</Dialog.Content>
 	</Dialog.Root>
 {:else}
-	<Drawer.Root
-		onClose={() => ($clickedQuizForm = false)}
-		open={$clickedQuizForm}
-		shouldScaleBackground
-	>
+	<Drawer.Root onClose={() => ($clickedQuizForm = false)} open={$clickedQuizForm}>
 		<Drawer.Portal>
 			<Drawer.Content>
 				<Drawer.Header class="text-left">
