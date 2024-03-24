@@ -231,6 +231,7 @@ export const actions = {
 				type: form.data.type,
 				userId: locals.pb.authStore.model?.id,
 				maxCount: +form.data.maxCount,
+				startCount: +form.data.startCount,
 				flashcardBox: form.data.flashcardBox,
 				timeLimit: form.data.timeLimit,
 				flashcards

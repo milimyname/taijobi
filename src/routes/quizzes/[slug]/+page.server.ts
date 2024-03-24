@@ -39,21 +39,20 @@ export const load = async ({ params, locals }) => {
 		.collection('quizzes')
 		.getFullList({ filter: `id = "${params.slug}"` });
 
-	// Remove unnecessary flashcards from the quiz
-	// const removedCount = +quiz.maxCount % +quiz.choice;
-
-	// Get all the flashcards from the quiz
-	const items = quiz.flashcards;
-
-	// Remove the first `removedCount` elements from the shuffled array
-	const slicedItems = items.splice(0, +quiz.maxCount);
+	// Get the flashcards from the quiz
+	// If the startCount is 1, then slice the items from 0 to maxCount (custom flashcards)
+	// If the startCount is not 1, then slice the items from startCount to maxCount
+	const items =
+		+quiz.startCount === 1
+			? quiz.flashcards
+			: quiz.flashcards.slice(+quiz.startCount, +quiz.maxCount);
 
 	// Shuffle the flashcards array
-	shuffleArray(slicedItems);
+	shuffleArray(items);
 
 	return {
 		quiz,
-		flashcards: slicedItems,
+		flashcards: items,
 		userId: locals.pb.authStore.model?.id,
 		isKanjiQuiz: true
 	};
