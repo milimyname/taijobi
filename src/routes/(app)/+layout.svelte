@@ -16,7 +16,6 @@
 	import { Home, LogOut, Newspaper, GraduationCap, Menu } from 'lucide-svelte';
 	import { cn, getHotkeyPrefix, getRandomKanji } from '$lib/utils.js';
 	import * as Command from '$lib/components/ui/command';
-	import type { FlashcardType } from '$lib/utils/ambient';
 
 	let longPressTimer: any;
 	let isLongPress = false;

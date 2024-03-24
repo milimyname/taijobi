@@ -63,7 +63,7 @@
 	<Drawer.Root onClose={onOutsideClick} open={$clickedAddFlashcardCollection} {onOutsideClick}>
 		<Drawer.Portal>
 			<Drawer.Content class="fixed bottom-0 left-0 right-0 max-h-[96%]">
-				<div class="mx-auto flex w-full max-w-md flex-col overflow-auto rounded-t-[10px]">
+				<div class="flex w-full flex-col overflow-auto rounded-t-[10px]">
 					<Drawer.Header class="text-left">
 						<Drawer.Title>
 							{#if $clickedEditFlashcard}

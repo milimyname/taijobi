@@ -4,7 +4,7 @@
 	import type { Dialog as DialogPrimitive } from 'bits-ui';
 	import type { Command as CommandPrimitive } from 'cmdk-sv';
 	import * as Drawer from '$lib/components/ui/drawer';
-	import { isDesktop, setDrawerTimeout } from '$lib/utils';
+	import { isDesktop } from '$lib/utils';
 
 	type $$Props = DialogPrimitive.Props & CommandPrimitive.CommandProps;
 
@@ -25,12 +25,7 @@
 		</Dialog.Content>
 	</Dialog.Root>
 {:else}
-	<Drawer.Root
-		{open}
-		{...$$restProps}
-		onClose={() => (open = false)}
-		onOutsideClick={() => setDrawerTimeout(open)}
-	>
+	<Drawer.Root {open} {...$$restProps} onOutsideClick={() => setTimeout(() => (open = false), 100)}>
 		<Drawer.Content class="h-[80dvh] overflow-hidden shadow-lg">
 			<Command {...$$restProps} bind:value>
 				<slot />

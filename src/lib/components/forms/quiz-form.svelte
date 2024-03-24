@@ -25,8 +25,6 @@
 	}
 
 	$: if ($selectQuizItemsForm) $formData.selectedQuizItems = $selectedQuizItems.join(',');
-
-	$: console.log($formData, $maxFlashcards > '20');
 </script>
 
 <Form.Root

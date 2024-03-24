@@ -142,9 +142,7 @@
 	}
 </script>
 
-{#if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin}
-	<FlashcardForm form={superFrm} />
-{/if}
+<FlashcardForm form={superFrm} />
 
 <section
 	class={cn(

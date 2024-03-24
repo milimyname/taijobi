@@ -60,11 +60,7 @@
 		</Dialog.Content>
 	</Dialog.Root>
 {:else}
-	<Drawer.Root
-		onClose={() => ($clickedQuizForm = false)}
-		open={$clickedQuizForm}
-		onOutsideClick={() => setDrawerTimeout($clickedQuizForm)}
-	>
+	<Drawer.Root onClose={() => setTimeout(() => ($clickedQuizForm = false))} open={$clickedQuizForm}>
 		<Drawer.Portal>
 			<Drawer.Content>
 				<Drawer.Header class="text-left">

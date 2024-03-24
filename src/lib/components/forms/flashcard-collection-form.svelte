@@ -46,7 +46,7 @@
 	</div>
 
 	{#if $clickedEditFlashcard}
-		<div class="grid grid-cols-3 flex-col {!$isDesktop && 'flex-col gap-2'} ">
+		<div class="grid grid-cols-3 gap-2">
 			<button formaction="?/delete">
 				<slot name="delete" />
 			</button>

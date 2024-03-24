@@ -54,7 +54,7 @@
 		getFlashcards();
 </script>
 
-<div class="select-quiz-data flex flex-1 flex-col overflow-y-auto">
+<div class="select-quiz-data swap-items flex flex-1 flex-col overflow-y-auto">
 	<h4 class="px-5 py-2 text-2xl">
 		{$swapFlashcards ? 'Swap Flashcards' : 'Select Quiz Items'}
 	</h4>
@@ -95,7 +95,7 @@
 						class=" {$selectedQuizItems.includes(formattedItem)
 							? 'bg-black text-white hover:bg-gray-700'
 							: 'border-2 border-black bg-white text-black hover:bg-gray-200'}
-                         relative h-full rounded-md px-4 py-2 font-medium shadow-lg transition duration-200 visited:-translate-x-4 active:translate-y-1 active:shadow-sm"
+                         relative h-full w-full rounded-md px-4 py-2 font-medium shadow-lg transition duration-200 visited:-translate-x-4 active:translate-y-1 active:shadow-sm"
 						on:click|preventDefault={() => {
 							// Remove the letter if it's already selected
 							if ($selectedQuizItems.includes(formattedItem)) {

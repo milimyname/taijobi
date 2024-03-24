@@ -19,6 +19,7 @@
 	import { replaceStateWithQuery } from '$lib/utils';
 	import CustomCompletion from './custom-completion.svelte';
 	import { clickOutside } from '$lib/utils/clickOutside';
+	import { page } from '$app/stores';
 
 	export let wordFlashcard: FlashcardType | undefined;
 	export let currentFlashcardFurigana: string;
@@ -119,18 +120,20 @@
 				</button>
 			{/if}
 
-			<button
-				class={cn(
-					'absolute bottom-14 left-2 z-30 rounded-full border bg-white p-2 shadow-sm transition-all xm:bottom-[4rem] xm:left-5',
-					showCustomContent && 'hidden'
-				)}
-				on:click={async () => {
-					if (audioSource === '') await convertTextToSpeech();
-					if (audioElement) audioElement.play();
-				}}
-			>
-				<Volume2 class="size-4" />
-			</button>
+			{#if $page.data.isLoggedIn}
+				<button
+					class={cn(
+						'absolute bottom-14 left-2 z-30 rounded-full border bg-white p-2 shadow-sm transition-all xm:bottom-[4rem] xm:left-5',
+						showCustomContent && 'hidden'
+					)}
+					on:click={async () => {
+						if (audioSource === '') await convertTextToSpeech();
+						if (audioElement) audioElement.play();
+					}}
+				>
+					<Volume2 class="size-4" />
+				</button>
+			{/if}
 		</div>
 
 		<button
