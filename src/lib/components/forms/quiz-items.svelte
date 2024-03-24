@@ -64,9 +64,9 @@
 			{#each Object.keys(kanji) as letter, i}
 				<li class="flex flex-col justify-between">
 					<button
-						class=" {$selectedQuizItems.includes(letter)
-							? 'bg-black text-white hover:bg-gray-700 '
-							: 'border-2  border-black bg-white text-black hover:bg-gray-200  '}
+						class="{$selectedQuizItems.includes(letter)
+							? 'bg-black text-white hover:bg-gray-700'
+							: 'border-2 border-black bg-white text-black hover:bg-gray-200'}
                          relative rounded-md px-4 py-2 font-medium shadow-lg transition duration-200 visited:-translate-x-4 active:translate-y-1 active:shadow-sm"
 						on:click|preventDefault={() => {
 							// Remove the letter if it's already selected
@@ -90,12 +90,12 @@
 				{@const formattedItem = $swapFlashcards
 					? flashcard.id + '=' + flashcard.meaning
 					: '---' + flashcard.name + '=' + flashcard.meaning}
-				<li class="flex flex-col justify-between self-stretch">
+				<li>
 					<button
 						class=" {$selectedQuizItems.includes(formattedItem)
-							? 'bg-black text-white hover:bg-gray-700 '
-							: 'border-2  border-black bg-white  text-black hover:bg-gray-200  '}
-                         relative grow rounded-md px-4 py-2 font-medium shadow-lg transition duration-200 visited:-translate-x-4 active:translate-y-1 active:shadow-sm"
+							? 'bg-black text-white hover:bg-gray-700'
+							: 'border-2 border-black bg-white text-black hover:bg-gray-200'}
+                         relative h-full rounded-md px-4 py-2 font-medium shadow-lg transition duration-200 visited:-translate-x-4 active:translate-y-1 active:shadow-sm"
 						on:click|preventDefault={() => {
 							// Remove the letter if it's already selected
 							if ($selectedQuizItems.includes(formattedItem)) {
@@ -118,9 +118,9 @@
 	>
 		<slot />
 
-		{#if $selectedQuizItems.length < 20 && $selectedQuizItems.length > 0 && !$swapFlashcards}
+		{#if $selectedQuizItems.length < 10 && $selectedQuizItems.length > 0 && !$swapFlashcards}
 			<p class="px-5 text-sm font-bold text-red-400">
-				At least 20 items ({$selectedQuizItems.length})
+				At least 10 items ({$selectedQuizItems.length})
 			</p>
 		{/if}
 
@@ -144,10 +144,10 @@
 			</div>
 		{:else}
 			<Button
-				disabled={$selectedQuizItems.length < 20}
+				disabled={$selectedQuizItems.length < 10}
 				on:click={() => ($selectQuizItemsForm = false)}
 			>
-				{#if $selectedQuizItems.length < 20}
+				{#if $selectedQuizItems.length < 10}
 					Not yet
 				{:else}
 					Select

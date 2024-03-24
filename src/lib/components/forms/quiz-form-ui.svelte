@@ -10,7 +10,7 @@
 	import * as Drawer from '$lib/components/ui/drawer';
 	import { Button } from '$lib/components/ui/button';
 	import Form from '$lib/components/forms/quiz-form.svelte';
-	import { isDesktop } from '$lib/utils';
+	import { isDesktop, setDrawerTimeout } from '$lib/utils';
 	import { Grid2X2 } from 'lucide-svelte';
 	import { type QuizSchema } from '$lib/utils/zodSchema';
 	import { type SuperForm } from 'sveltekit-superforms/client';
@@ -60,7 +60,11 @@
 		</Dialog.Content>
 	</Dialog.Root>
 {:else}
-	<Drawer.Root onClose={() => ($clickedQuizForm = false)} open={$clickedQuizForm}>
+	<Drawer.Root
+		onClose={() => ($clickedQuizForm = false)}
+		open={$clickedQuizForm}
+		onOutsideClick={() => setDrawerTimeout($clickedQuizForm)}
+	>
 		<Drawer.Portal>
 			<Drawer.Content>
 				<Drawer.Header class="text-left">

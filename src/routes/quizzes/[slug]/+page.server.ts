@@ -40,15 +40,21 @@ export const load = async ({ params, locals }) => {
 		.getFullList({ filter: `id = "${params.slug}"` });
 
 	// Remove unnecessary flashcards from the quiz
-	const removedCount = quiz.maxCount % +quiz.type;
+	// const removedCount = +quiz.maxCount % +quiz.choice;
 
-	const items = JSON.parse(quiz.flashcards);
-
-	// Shuffle the flashcards array
-	shuffleArray(items);
+	// Get all the flashcards from the quiz
+	const items = quiz.flashcards;
 
 	// Remove the first `removedCount` elements from the shuffled array
-	items.splice(0, removedCount);
+	const slicedItems = items.splice(0, +quiz.maxCount);
 
-	return { quiz, flashcards: items, userId: locals.pb.authStore.model?.id, isKanjiQuiz: true };
+	// Shuffle the flashcards array
+	shuffleArray(slicedItems);
+
+	return {
+		quiz,
+		flashcards: slicedItems,
+		userId: locals.pb.authStore.model?.id,
+		isKanjiQuiz: true
+	};
 };

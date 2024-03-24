@@ -19,12 +19,14 @@
 	let formData = form.form;
 
 	$: if ($page.url.pathname.includes('kanji')) {
-		$formData.startCount = $progressSlider === $kanjiLength ? 1 : $progressSlider;
+		$formData.startCount = $progressSlider === $kanjiLength ? '1' : String($progressSlider);
 		$maxFlashcards = '' + $kanjiLength;
 		$formData.name = '漢字';
-	} else $formData.startCount = Math.floor(Math.random() * (+$maxFlashcards - 20)) + 1;
+	}
 
 	$: if ($selectQuizItemsForm) $formData.selectedQuizItems = $selectedQuizItems.join(',');
+
+	$: console.log($formData, $maxFlashcards > '20');
 </script>
 
 <Form.Root
@@ -49,10 +51,10 @@
 			<Form.Item>
 				<Form.Label>Multi Choice Number</Form.Label>
 				<Form.Select>
-					<Form.SelectTrigger />
+					<Form.SelectTrigger placeholder={$formData.choice} />
 					<Form.SelectContent>
 						<Form.SelectItem value="2">2</Form.SelectItem>
-						{#if $maxFlashcards > '20'}
+						{#if +$maxFlashcards > 20}
 							<Form.SelectItem value="4">4</Form.SelectItem>
 						{/if}
 					</Form.SelectContent>
@@ -65,7 +67,7 @@
 			<Form.Item>
 				<Form.Label>Type</Form.Label>
 				<Form.Select>
-					<Form.SelectTrigger />
+					<Form.SelectTrigger placeholder={$formData.type} />
 					<Form.SelectContent>
 						<Form.SelectItem value="name">name</Form.SelectItem>
 						<Form.SelectItem value="meaning">meaning</Form.SelectItem>
@@ -90,7 +92,7 @@
 				<slot />
 			</Tabs.Content>
 			<Tabs.Content value="range">
-				<div class="flex justify-between gap-2">
+				<div class="grid grid-cols-2 gap-2">
 					<Form.Field {config} name="startCount">
 						<Form.Item class="flex-1">
 							<Form.Label>Start</Form.Label>
@@ -100,8 +102,8 @@
 					</Form.Field>
 					<Form.Field {config} name="maxCount">
 						<Form.Item>
-							<Form.Label>Max Amount of flashcards</Form.Label>
-							<Form.Input type="number" min="10" max={$maxFlashcards} />
+							<Form.Label>End</Form.Label>
+							<Form.Input type="number" min={10} max={$maxFlashcards} />
 							<Form.Validation />
 						</Form.Item>
 					</Form.Field>

@@ -205,7 +205,7 @@ export const actions = {
 		// Remove the first item from selectedQuizItems if it is empty
 		if (selectedQuizItems && selectedQuizItems[0] === '') selectedQuizItems.shift();
 
-		if (selectedQuizItems && form.data.startCount === 1) {
+		if (selectedQuizItems && +form.data.startCount === 1) {
 			// Find all the flashcards
 			selectedQuizItems.forEach((item) => {
 				const splitted = item.split('=');
@@ -230,10 +230,10 @@ export const actions = {
 				choice: form.data.choice,
 				type: form.data.type,
 				userId: locals.pb.authStore.model?.id,
-				maxCount: form.data.maxCount,
+				maxCount: +form.data.maxCount,
 				flashcardBox: form.data.flashcardBox,
 				timeLimit: form.data.timeLimit,
-				flashcards: JSON.stringify(flashcards)
+				flashcards
 			});
 		} catch (_) {
 			return setError(form, 'name', 'Cannot create a quiz. Try again later.');

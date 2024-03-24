@@ -80,7 +80,7 @@ export const actions = {
 			onyomi: string;
 		}[] = [];
 
-		if (selectedQuizItems && form.data.startCount === 1) {
+		if (selectedQuizItems && +form.data.startCount === 1) {
 			// Find all the flashcards
 			selectedQuizItems.forEach((item) => {
 				flashcards.push({
@@ -102,8 +102,8 @@ export const actions = {
 			});
 
 			flashcards = arrKanji.slice(
-				form.data.startCount - 1,
-				form.data.startCount + form.data.maxCount
+				+form.data.startCount - 1,
+				+form.data.startCount + +form.data.maxCount
 			);
 		}
 
@@ -116,8 +116,8 @@ export const actions = {
 				choice: form.data.choice,
 				type: form.data.type,
 				userId,
-				maxCount: form.data.maxCount,
-				startCount: form.data.startCount,
+				maxCount: +form.data.maxCount,
+				startCount: +form.data.startCount,
 				flashcardBox: kanjiId,
 				timeLimit: form.data.timeLimit,
 				flashcards: JSON.stringify(flashcards)
