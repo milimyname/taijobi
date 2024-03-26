@@ -85,7 +85,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		const finalFilter = `(${boxIdFilter}) && (name ~ {:search} || meaning ~ {:search})`;
 
 		// Fetch flashcards for each flashcard box
-		const flashcards = await locals.pb.collection('flashcard').getList(1, 30, {
+		const flashcards = await locals.pb.collection('flashcard').getList(1, 100, {
 			filter: locals.pb.filter(finalFilter, {
 				search
 			})
