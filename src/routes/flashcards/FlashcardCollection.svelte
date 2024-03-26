@@ -11,7 +11,8 @@
 		skippedFlashcard,
 		showCollections,
 		clickedEditFlashcard,
-		clickedFeedback
+		clickedFeedback,
+		openSearch
 	} from '$lib/utils/stores';
 	import { IS_DESKTOP } from '$lib/utils/constants';
 	import { FolderEdit } from 'lucide-svelte';
@@ -51,7 +52,8 @@
 			$clickedAddFlahcardBox ||
 			$clickedQuizForm ||
 			isClicked ||
-			$clickedFeedback
+			$clickedFeedback ||
+			$openSearch
 		)
 			return;
 
@@ -87,7 +89,8 @@
 			(!isDragging && index !== totalCount - 1) ||
 			$clickedAddFlashcardCollection ||
 			$clickedAddFlahcardBox ||
-			$clickedQuizForm
+			$clickedQuizForm ||
+			$openSearch
 		)
 			return;
 
@@ -132,7 +135,8 @@
 			!$clickedQuizForm &&
 			!$clickedAddFlashcardCollection &&
 			!$clickedAddFlahcardBox &&
-			!$clickedFeedback
+			!$clickedFeedback &&
+			!$openSearch
 		)
 			event.preventDefault();
 
@@ -179,7 +183,8 @@
 			!$clickedQuizForm &&
 			!$clickedAddFlashcardCollection &&
 			!$clickedAddFlahcardBox &&
-			!$clickedFeedback
+			!$clickedFeedback &&
+			!$openSearch
 		)
 			event.preventDefault();
 
@@ -225,7 +230,8 @@
 			!$clickedQuizForm &&
 			!$clickedAddFlashcardCollection &&
 			!$clickedAddFlahcardBox &&
-			!$clickedFeedback
+			!$clickedFeedback &&
+			!$openSearch
 		)
 			event.preventDefault();
 

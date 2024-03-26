@@ -3,10 +3,11 @@
 	import * as Drawer from '$lib/components/ui/drawer';
 	import Form from '$lib/components/forms/feedback-form.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { clickedFeedback } from '$lib/utils/stores';
+	import { clickedFeedback, openSearch } from '$lib/utils/stores';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { isDesktop } from '$lib/utils';
+	import { Search } from 'lucide-svelte';
 
 	let animationText = '';
 	let isReversing = false;
@@ -34,8 +35,7 @@
 	}
 
 	// You would need to define isReversing and possibly other missing variables or logic outside this snippet.
-
-	function onOutsideClickDrawer(e: MouseEvent) {
+	function onOutsideClickDrawer(e: MouseEvent | TouchEvent | PointerEvent) {
 		//  If the user clicks on the leave button, don't move the card
 		if ($page.url.pathname.includes('flashcards') && (e.target as Element).closest('.feedback-btn'))
 			return;
@@ -66,10 +66,12 @@
 				<Button
 					variant="outline"
 					builders={[builder]}
-					on:click={() => ($clickedFeedback = true)}
-					class="feedback-btn absolute left-1/2 top-10 z-20 w-12 -translate-x-1/2 -translate-y-1/2 rounded-full border px-4 py-2"
+					class="feedback-btn absolute left-1/2 top-10 z-20 flex w-20 -translate-x-1/2 -translate-y-1/2 gap-6 rounded-full border px-4 py-2"
 				>
 					{animationText}
+					<button on:click|stopPropagation={() => ($openSearch = true)}>
+						<Search class="size-4" />
+					</button>
 				</Button>
 			{/if}
 		</Dialog.Trigger>
@@ -100,10 +102,12 @@
 				<Button
 					variant="outline"
 					builders={[builder]}
-					on:click={() => ($clickedFeedback = true)}
-					class="feedback-btn absolute left-1/2 top-10 z-20 w-12 -translate-x-1/2 -translate-y-1/2 rounded-full border px-4 py-2"
+					class="feedback-btn absolute left-1/2 top-10 z-20 flex w-20 -translate-x-1/2 -translate-y-1/2 gap-4 rounded-full border px-4 py-2"
 				>
 					{animationText}
+					<button on:click|stopPropagation={() => ($openSearch = true)}>
+						<Search class="size-4" />
+					</button>
 				</Button>
 			{/if}
 		</Drawer.Trigger>
