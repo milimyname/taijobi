@@ -285,12 +285,3 @@
 		{/if}
 	</div>
 </div>
-
-<style>
-	.vertical {
-		-webkit-writing-mode: vertical-rl;
-		-moz-writing-mode: vertical-rl;
-		-ms-writing-mode: vertical-rl;
-		writing-mode: vertical-rl;
-	}
-</style>

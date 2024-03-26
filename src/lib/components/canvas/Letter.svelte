@@ -156,5 +156,12 @@
 		{/each}
 	</svg>
 {:else}
-	Not Found
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		viewBox="0 0 110 147"
+		fill="none"
+		class="vertical absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-20"
+	>
+		<text x="50%" y="50%" text-anchor="middle" font-size="20" fill="black"> 見つかりません </text>
+	</svg>
 {/if}
