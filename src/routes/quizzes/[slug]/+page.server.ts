@@ -40,10 +40,10 @@ export const load = async ({ params, locals }) => {
 		.getFullList({ filter: `id = "${params.slug}"` });
 
 	// Get the flashcards from the quiz
-	// If the startCount is 1, then slice the items from 0 to maxCount (custom flashcards)
-	// If the startCount is not 1, then slice the items from startCount to maxCount
+	// If the startCount are default , then slice the items from 0 to maxCount (custom flashcards)
+	// Otherwise, slice the items from startCount to maxCount
 	const items =
-		+quiz.startCount === 1
+		quiz.startCount === 1 && quiz.maxCount === 10
 			? quiz.flashcards
 			: quiz.flashcards.slice(+quiz.startCount, +quiz.maxCount);
 
