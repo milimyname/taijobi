@@ -98,21 +98,16 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 
 		// Get the kanji by slug
 		const kanji = getKanjiBySlug(search);
-		if (kanji) processedFlashcards.unshift(kanji);
+
+		// If there is kanji in processed flashcards, don't add
+		if (kanji) {
+			const foundKanji = processedFlashcards.find((card) => card.name === kanji.name);
+			if (!foundKanji) processedFlashcards.unshift(kanji);
+		}
 
 		console.timeEnd('searchFlashcards');
 
-		// Filter out duplicate flashcards by name
-		const uniqueFlashcards = [];
-		const namesSet = new Set();
-		for (const card of processedFlashcards) {
-			if (!namesSet.has(card.name)) {
-				namesSet.add(card.name);
-				uniqueFlashcards.push(card);
-			}
-		}
-
-		return json({ flashcards: uniqueFlashcards });
+		return json({ flashcards: processedFlashcards });
 	} catch (error) {
 		console.error(error);
 		return json({ error });
