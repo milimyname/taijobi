@@ -58,7 +58,6 @@
 		validators: flashcardSchema,
 		taintedMessage: null,
 		resetForm: true,
-		applyAction: true,
 		onUpdated: async ({ form }) => {
 			// Keep the form open if there is an error
 			if (form.errors.type || form.errors.name) $clickedAddFlashcardCollection = true;
@@ -83,7 +82,16 @@
 				setTimeout(() => {
 					embla.scrollTo(flashcards.length - 1);
 					$currentFlashcard = flashcards[flashcards.length - 1].name;
-					console.log(flashcards, $currentFlashcard, currentIndex);
+				}, 100);
+			}
+
+			// If deleted, move to the previous word
+			if (embla.scrollSnapList().length > flashcards.length) {
+				embla.reInit();
+
+				setTimeout(() => {
+					embla.scrollTo(currentIndex - 1);
+					$currentFlashcard = flashcards[currentIndex - 1].name;
 				}, 100);
 			}
 		}

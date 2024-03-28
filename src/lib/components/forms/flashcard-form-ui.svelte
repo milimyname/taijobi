@@ -43,12 +43,12 @@
 			<FlashcardForm {form}>
 				<div slot="delete">
 					<Dialog.Close asChild let:builder>
-						<Button builders={[builder]} variant="destructive">Delete</Button>
+						<Button builders={[builder]} variant="destructive" class="w-full">Delete</Button>
 					</Dialog.Close>
 				</div>
 				<div slot="update">
 					<Dialog.Close asChild let:builder>
-						<Button builders={[builder]}>Update</Button>
+						<Button builders={[builder]} class="w-full">Update</Button>
 					</Dialog.Close>
 				</div>
 				<div slot="add">
