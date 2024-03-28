@@ -111,10 +111,10 @@
 		taintedMessage: null,
 		resetForm: true,
 		applyAction: true,
-		onSubmit: () => ($clickedQuizForm = false),
 		onUpdated: ({ form }) => {
 			// Keep the form open if there is an error
 			if (form.errors.name) $clickedQuizForm = true;
+			else $clickedQuizForm = false;
 		}
 	});
 </script>
