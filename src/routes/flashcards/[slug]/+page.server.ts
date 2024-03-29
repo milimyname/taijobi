@@ -1,19 +1,18 @@
-import { superValidate, setError } from 'sveltekit-superforms/server';
+import { superValidate, setError } from 'sveltekit-superforms';
 import { fail } from '@sveltejs/kit';
 import { flashcardSchema } from '$lib/utils/zodSchema';
 import { isKanji } from 'wanakana';
+import { zod } from 'sveltekit-superforms/adapters';
 
-/** @type {import('./$types').PageServerLoad} */
 export const load = async () => {
 	return {
-		form: await superValidate(flashcardSchema)
+		form: await superValidate(zod(flashcardSchema))
 	};
 };
 
-/** @type {import('./$types').Actions} */
 export const actions = {
 	add: async ({ request, locals, params }) => {
-		const form = await superValidate(request, flashcardSchema);
+		const form = await superValidate(request, zod(flashcardSchema));
 
 		// Convenient validation check:
 		if (!form.valid) return fail(400, { form });
@@ -49,7 +48,7 @@ export const actions = {
 		return { form };
 	},
 	delete: async ({ request, locals }) => {
-		const form = await superValidate(request, flashcardSchema);
+		const form = await superValidate(request, zod(flashcardSchema));
 
 		// Convenient validation check:
 		if (!form.valid || !form.data.id) return fail(400, { form });
@@ -64,7 +63,7 @@ export const actions = {
 		return { form };
 	},
 	update: async ({ request, locals }) => {
-		const form = await superValidate(request, flashcardSchema);
+		const form = await superValidate(request, zod(flashcardSchema));
 
 		// Convenient validation check:
 		if (!form.valid || !form.data.id) return fail(400, { form });

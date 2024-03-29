@@ -1,7 +1,7 @@
 import { convertToRubyTag } from '$lib/utils/actions.js';
 import { isHiragana } from 'wanakana';
 import type { RecordModel } from 'pocketbase';
-import { json, type RequestHandler } from '@sveltejs/kit';
+import { json, redirect, type RequestHandler } from '@sveltejs/kit';
 import { kanji } from '$lib/static/kanji';
 import { kuroshiro } from '$lib/server/kuroshiro';
 
@@ -27,6 +27,13 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 
 	// Check if id exists
 	if (!flashcardBoxId) return json({ error: 'Flashcard box not found' });
+
+	// Check if flashcardBoxId exists in db
+	try {
+		await locals.pb.collection('flashcardBoxes').getFirstListItem(`id = "${flashcardBoxId}"`);
+	} catch (e) {
+		return json({ error: 'Flashcard box not found' });
+	}
 
 	const flashcards = await locals.pb.collection('flashcard').getFullList({
 		filter: `flashcardBox = "${flashcardBoxId}"`,

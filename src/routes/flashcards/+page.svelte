@@ -16,7 +16,6 @@
 		currentAlphabet,
 		currentBoxId
 	} from '$lib/utils/stores.js';
-	import { superForm } from 'sveltekit-superforms/client';
 	import FlashcardCollection from './FlashcardCollection.svelte';
 	import { quintOut } from 'svelte/easing';
 	import { fly } from 'svelte/transition';
@@ -26,7 +25,8 @@
 	import { isTouchScreen } from '$lib/utils/actions';
 	import { onMount } from 'svelte';
 	import { quizSchema, flashcardCollectionSchema } from '$lib/utils/zodSchema';
-
+	import { superForm } from 'sveltekit-superforms';
+	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { browser } from '$app/environment';
 	import { replaceStateWithQuery } from '$lib/utils';
 
@@ -44,10 +44,7 @@
 
 	// Flashcard collection form:
 	const superFrmCollection = superForm(data.form, {
-		validators: flashcardCollectionSchema,
-		taintedMessage: null,
-		resetForm: true,
-		applyAction: true,
+		validators: zodClient(flashcardCollectionSchema),
 		onUpdated: ({ form }) => {
 			// Keep the form open if there is an error
 			if (form.errors.name) $clickedAddFlashcardCollection = true;
@@ -55,12 +52,11 @@
 		}
 	});
 
+	let collectionFormData = superFrmCollection.form;
+
 	// Quiz form:
 	const superFrmQuiz = superForm(data.quizForm, {
-		validators: quizSchema,
-		taintedMessage: null,
-		resetForm: true,
-		applyAction: true,
+		validators: zodClient(quizSchema),
 		onUpdated: ({ form }) => {
 			// Keep the form open if there is an error
 			if (form.errors.name) $clickedQuizForm = true;
@@ -75,10 +71,7 @@
 
 	// Box form:
 	const superFrmBox = superForm(data.boxForm, {
-		validators: flashcardCollectionSchema,
-		taintedMessage: null,
-		resetForm: true,
-		applyAction: true,
+		validators: zodClient(flashcardCollectionSchema),
 		onUpdated: ({ form }) => {
 			// Keep the form open if there is an error
 			if (form.errors.name) $clickedAddFlahcardBox = true;
@@ -110,18 +103,15 @@
 	onMount(() => {
 		const savedId = localStorage.getItem('currentFlashcardCollectionId');
 		if (savedId !== null) $currentFlashcardCollectionId = savedId;
-
 		// Reorder data flashcard collections based on the current flashcard collection id or local storage
 		if ($currentFlashcardCollectionId) {
 			const currentFlashcardCollectionIndex = data.flashcardCollections.findIndex(
 				(collection: { id: string }) => collection.id === $currentFlashcardCollectionId
 			);
-
 			const currentFlashcardCollection = data.flashcardCollections.splice(
 				currentFlashcardCollectionIndex,
 				1
 			);
-
 			data.flashcardCollections = [...data.flashcardCollections, ...currentFlashcardCollection];
 		}
 	});
@@ -134,9 +124,13 @@
 	$: if (data.flashcardCollections.length < 5) visibleCardsCount = data.flashcardCollections.length;
 </script>
 
-<FlashcardCollectionForm form={$clickedAddFlahcardBox ? superFrmBox : superFrmCollection} />
+{#if $clickedAddFlahcardBox}
+	<FlashcardCollectionForm form={superFrmBox} />
+{:else}
+	<FlashcardCollectionForm form={superFrmCollection} />
+{/if}
 
-<QuizForm form={superFrmQuiz} />
+<!-- <QuizForm form={superFrmQuiz} /> -->
 
 <section class="collection-container flex flex-1 cursor-pointer items-center justify-center pb-20">
 	{#if !isTouchScreen()}
@@ -147,7 +141,7 @@
 				description={card.description}
 				type={card.type}
 				{index}
-				form={superFrmCollection.form}
+				form={collectionFormData}
 				totalCount={visibleCardsCount}
 			/>
 		{/each}
@@ -160,7 +154,7 @@
 					description={card.description}
 					type={card.type}
 					{index}
-					form={superFrmCollection.form}
+					form={collectionFormData}
 					totalCount={visibleCardsCount}
 				/>
 			{/each}

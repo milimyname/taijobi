@@ -2,16 +2,15 @@
 	import Flashcard from './flashcard-plain.svelte';
 	import Skeleton from './flashcard-skeleton.svelte';
 	import {
-		clickedEditFlashcard,
 		clickedAddFlashcardCollection,
 		flashcardsBoxType,
 		currentFlashcard,
 		currentIndexStore,
 		showLetterDrawing,
 		currentFlashcardTypeStore,
-		searchedWordStore
+		searchedWordStore,
+		clickedEditFlashcard
 	} from '$lib/utils/stores';
-	import { superForm } from 'sveltekit-superforms/client';
 	import FlashcardForm from '$lib/components/forms/flashcard-form-ui.svelte';
 	import { page } from '$app/stores';
 	import EditButton from './EditButton.svelte';
@@ -19,14 +18,16 @@
 	import { onMount } from 'svelte';
 	import LetterDrawingFlashcard from './LetterDrawingFlashcard.svelte';
 	import { Plus } from 'lucide-svelte';
-	import { flashcardSchema } from '$lib/utils/zodSchema';
 	import type { FlashcardType } from '$lib/utils/ambient.d.ts';
 	import { browser } from '$app/environment';
 	import * as Carousel from '$lib/components/ui/carousel/index';
 	import { type CarouselAPI } from '$lib/components/ui/carousel/context';
 	import { cn } from '$lib/utils';
 	import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures';
-
+	import { superForm } from 'sveltekit-superforms';
+	import { zodClient } from 'sveltekit-superforms/adapters';
+	import { flashcardSchema } from '$lib/utils/zodSchema';
+	import { goto } from '$app/navigation';
 	export let data;
 
 	let embla: CarouselAPI;
@@ -46,6 +47,9 @@
 		try {
 			const res = await fetch(`/api/flashcard?id=${$page.params.slug}`);
 			const data = await res.json();
+
+			if (data.error) return goto('/flashcards');
+
 			return data;
 		} catch (error) {
 			console.error(error);
@@ -53,19 +57,14 @@
 		isLoading = false;
 	}
 
-	// Client API:
-	const superFrm = superForm(data.form, {
-		validators: flashcardSchema,
-		taintedMessage: null,
-		resetForm: true,
+	const form = superForm(data.form, {
+		validators: zodClient(flashcardSchema),
 		onUpdated: async ({ form }) => {
 			// Keep the form open if there is an error
-			if (form.errors.type || form.errors.name) $clickedAddFlashcardCollection = true;
+			if (form.errors.type || form.errors.name) return ($clickedAddFlashcardCollection = true);
 			else {
-				setTimeout(() => {
-					$clickedEditFlashcard = false;
-					$clickedAddFlashcardCollection = false;
-				}, 150);
+				$clickedEditFlashcard = false;
+				$clickedAddFlashcardCollection = false;
 			}
 
 			// Update the flashcards
@@ -160,7 +159,7 @@
 	}
 </script>
 
-<FlashcardForm form={superFrm} />
+<FlashcardForm {form} />
 
 <section
 	class={cn(
@@ -179,7 +178,7 @@
 
 			{#if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin}
 				<div class="flex items-center justify-center sm:mx-auto sm:w-[600px] lg:-order-1">
-					<EditButton form={superFrm.form} currentFlashcard={flashcards[currentIndex]} />
+					<EditButton form={form.form} currentFlashcard={flashcards[currentIndex]} />
 				</div>
 			{/if}
 		{:else}
@@ -193,9 +192,7 @@
 				loop: true
 			}}
 			plugins={[WheelGesturesPlugin()]}
-			class={cn(
-				'flaschards-carousel fixed bottom-5 w-2/3 sm:bottom-10 lg:sticky lg:bottom-0 lg:w-5/6'
-			)}
+			class="flaschards-carousel fixed bottom-5 w-2/3 sm:bottom-10 lg:sticky lg:bottom-0 lg:w-5/6"
 		>
 			<Carousel.Content>
 				{#each flashcards as flashcard, index}
@@ -203,11 +200,11 @@
 						class={cn(
 							'basis-auto scale-75 cursor-pointer text-center text-2xl opacity-50 sm:text-4xl',
 							$currentIndexStore === index && '!scale-100  opacity-100',
-							flashcards.length < 5 && 'basis-1/2',
+							flashcards.length < 5 && 'basis-full',
 							flashcards.length > 6 && flashcards.length < 10 && 'md:basis-1/3',
-							flashcards.length > 10 && 'md:basis-1/3',
-							flashcard.name.length < 3 && 'basis-full',
-							flashcard.name.length > 5 && 'basis-full',
+							// flashcards.length > 10 && 'md:basis-1/3',
+							// flashcard.name.length < 3 && 'basis-full',
+							// flashcard.name.length > 5 && flashcard.name.length < 10 && 'basis-full',
 							$currentFlashcardTypeStore === 'kanji' && 'basis-1/3'
 						)}
 					>
