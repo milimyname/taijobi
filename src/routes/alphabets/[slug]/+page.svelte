@@ -13,7 +13,8 @@
 		innerWidthStore,
 		clickedQuizForm,
 		kanjiStore,
-		kanjiLength
+		kanjiLength,
+		selectedQuizItems
 	} from '$lib/utils/stores';
 	import { cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
@@ -32,6 +33,7 @@
 	import { cn, getFlashcardWidth } from '$lib/utils';
 	import { quizSchema } from '$lib/utils/zodSchema';
 	import { goto } from '$app/navigation';
+	import { zodClient } from 'sveltekit-superforms/adapters';
 
 	export let data;
 
@@ -107,14 +109,16 @@
 
 	// Client API:
 	const superFrmQuiz = superForm(data.quizForm, {
-		validators: quizSchema,
-		taintedMessage: null,
-		resetForm: true,
-		applyAction: true,
+		validators: zodClient(quizSchema),
+		onError: (error) => {
+			if (error) $clickedQuizForm = true;
+		},
 		onUpdated: ({ form }) => {
-			// Keep the form open if there is an error
-			if (form.errors.name) $clickedQuizForm = true;
-			else $clickedQuizForm = false;
+			if (!form.valid) return;
+
+			$clickedQuizForm = false;
+			$selectedQuizItems = [];
+			goto(`/quizzes/${form.data.id}`);
 		}
 	});
 </script>

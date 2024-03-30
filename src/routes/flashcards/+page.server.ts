@@ -1,12 +1,12 @@
-import { superValidate, setError } from 'sveltekit-superforms/server';
-import { fail, redirect } from '@sveltejs/kit';
+import { superValidate, setError } from 'sveltekit-superforms';
+import { fail } from '@sveltejs/kit';
 import { flashcardCollectionSchema, quizSchema } from '$lib/utils/zodSchema';
+import { zod } from 'sveltekit-superforms/adapters';
 
-/** @type {import('./$types').PageServerLoad} */
 export const load = async ({ locals, parent }) => {
 	// Get all the flashcards collection
-
 	const { isLoggedIn } = await parent();
+
 	if (!isLoggedIn) {
 		const flashcardCollections = await locals.pb.collection('flashcardCollections').getFullList({
 			filter: `type = "original"`
@@ -33,13 +33,11 @@ export const load = async ({ locals, parent }) => {
 		});
 
 		return {
-			form: await superValidate(flashcardCollectionSchema, {
+			form: await superValidate(zod(flashcardCollectionSchema), {
 				id: 'collection'
 			}),
-			quizForm: await superValidate(quizSchema, {
-				id: 'quiz'
-			}),
-			boxForm: await superValidate(flashcardCollectionSchema, {
+			quizForm: await superValidate(zod(quizSchema)),
+			boxForm: await superValidate(zod(flashcardCollectionSchema), {
 				id: 'box'
 			}),
 			flashcardCollections
@@ -48,7 +46,8 @@ export const load = async ({ locals, parent }) => {
 
 	const flashcardCollections = await locals.pb.collection('flashcardCollections').getFullList({
 		filter: `userId = "${locals.pb.authStore.model?.id}" || type = "original"`,
-		expand: 'flashcardBoxes'
+		expand: 'flashcardBoxes',
+		sort: '+created'
 	});
 
 	// Get all the flashcard from the server
@@ -71,26 +70,25 @@ export const load = async ({ locals, parent }) => {
 	});
 
 	return {
-		form: await superValidate(flashcardCollectionSchema, {
+		form: await superValidate(zod(flashcardCollectionSchema), {
 			id: 'collection'
 		}),
-		quizForm: await superValidate(quizSchema, {
-			id: 'quiz'
-		}),
-		boxForm: await superValidate(flashcardCollectionSchema, {
+		quizForm: await superValidate(zod(quizSchema)),
+		boxForm: await superValidate(zod(flashcardCollectionSchema), {
 			id: 'box'
 		}),
 		flashcardCollections
 	};
 };
 
-/** @type {import('./$types').Actions} */
 export const actions = {
 	add: async ({ request, locals }) => {
-		const form = await superValidate(request, flashcardCollectionSchema);
+		const form = await superValidate(request, zod(flashcardCollectionSchema));
 
 		// Convenient validation check:
 		if (!form.valid) return fail(400, { form });
+
+		console.log(form);
 
 		if (form.id === 'collection') {
 			try {
@@ -128,7 +126,7 @@ export const actions = {
 		return { form };
 	},
 	update: async ({ request, locals }) => {
-		const form = await superValidate(request, flashcardCollectionSchema);
+		const form = await superValidate(request, zod(flashcardCollectionSchema));
 
 		// Convenient validation check:
 		if (!form.valid) return fail(400, { form });
@@ -161,7 +159,7 @@ export const actions = {
 		return { form };
 	},
 	delete: async ({ request, locals }) => {
-		const form = await superValidate(request, flashcardCollectionSchema);
+		const form = await superValidate(request, zod(flashcardCollectionSchema));
 
 		// Convenient validation check:
 		if (!form.valid) return fail(400, { form });
@@ -188,7 +186,7 @@ export const actions = {
 		return { form };
 	},
 	addQuiz: async ({ request, locals }) => {
-		const form = await superValidate(request, quizSchema);
+		const form = await superValidate(request, zod(quizSchema));
 
 		// Convenient validation check:
 		if (!form.valid) return fail(400, { form });
@@ -222,10 +220,8 @@ export const actions = {
 			});
 		}
 
-		let quiz;
-
 		try {
-			quiz = await locals.pb.collection('quizzes').create({
+			const quiz = await locals.pb.collection('quizzes').create({
 				name: form.data.name,
 				choice: form.data.choice,
 				type: form.data.type,
@@ -236,10 +232,12 @@ export const actions = {
 				timeLimit: form.data.timeLimit,
 				flashcards
 			});
+
+			form.data.id = quiz.id;
 		} catch (_) {
 			return setError(form, 'name', 'Cannot create a quiz. Try again later.');
 		}
 
-		throw redirect(303, `/quizzes/${quiz.id}`);
+		return { form };
 	}
 };

@@ -11,7 +11,7 @@ import Title from './drawer-title.svelte';
 const Trigger = DrawerPrimitive.Trigger;
 const Portal = DrawerPrimitive.Portal;
 const Close = DrawerPrimitive.Close;
-const Nested = DrawerPrimitive.NestedRoot;
+const NestedRoot = DrawerPrimitive.NestedRoot;
 
 export {
 	Root,
@@ -24,7 +24,7 @@ export {
 	Trigger,
 	Portal,
 	Close,
-	Nested,
+	NestedRoot,
 	//
 	Root as Drawer,
 	Content as DrawerContent,

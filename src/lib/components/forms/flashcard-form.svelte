@@ -1,46 +1,38 @@
 <script lang="ts">
-	import {
-		clickedEditFlashcard,
-		currentFlashcardTypeStore,
-		clickedAddFlashcardCollection
-	} from '$lib/utils/stores';
+	import { clickedEditFlashcard, currentFlashcardTypeStore } from '$lib/utils/stores';
+	import * as Select from '$lib/components/ui/select';
+	import { Input } from '$lib/components/ui/input';
+	import { Textarea } from '$lib/components/ui/textarea';
 	import { fly } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 	import { HelpCircle } from 'lucide-svelte';
-	import { cn, isDesktop } from '$lib/utils';
 	import * as Form from '$lib/components/ui/form';
-	import { flashcardSchema, type FlashcardSchema } from '$lib/utils/zodSchema';
-	import { type SuperForm } from 'sveltekit-superforms/client';
+	import { type FlashcardSchema } from '$lib/utils/zodSchema';
+	import { type SuperForm, type Infer } from 'sveltekit-superforms';
+	import { cn, isDesktop } from '$lib/utils';
 
-	export let form: SuperForm<FlashcardSchema>;
+	export let form: SuperForm<Infer<FlashcardSchema>>;
 
 	let showInfo = false;
 
-	let selectedItems = {
-		value: '',
-		label: ''
-	};
+	const { form: formData, enhance } = form;
 
-	$: if ($clickedEditFlashcard)
-		selectedItems = {
-			value: $currentFlashcardTypeStore,
-			label: $currentFlashcardTypeStore
-		};
+	$: selected = {
+		value: $formData.type,
+		label: $formData.type
+	};
 </script>
 
-<Form.Root
+<form
 	method="POST"
-	{form}
-	controlled
-	schema={flashcardSchema}
-	let:config
-	class={cn('quiz-form z-[1000] flex w-full flex-col rounded-t-2xl', !$isDesktop && 'px-4')}
+	use:enhance
+	class={cn('quiz-form z-[1000] flex w-full flex-col', !$isDesktop && 'px-4')}
 >
 	<div class="mb-auto flex flex-col gap-2">
-		<Form.Field {config} name="name">
-			<Form.Item>
+		<Form.Field {form} name="name">
+			<Form.Control let:attrs>
 				<Form.Label class="mb-2 flex items-center gap-2">
-					Flashcard
+					Name
 					<button
 						type="button"
 						on:click={() => (showInfo = true)}
@@ -79,77 +71,85 @@
 						</div>
 					{/if}
 				</Form.Label>
-				<Form.Input />
-				<Form.Validation />
-			</Form.Item>
+				<Input {...attrs} bind:value={$formData.name} />
+			</Form.Control>
+			<Form.FieldErrors />
 		</Form.Field>
 
-		<Form.Field {config} name="type">
-			<Form.Item>
+		<Form.Field {form} name="type">
+			<Form.Control let:attrs>
 				<Form.Label>Type</Form.Label>
-				<Form.Select selected={selectedItems}>
-					<Form.SelectTrigger />
-					<Form.SelectContent>
+				<Select.Root
+					{selected}
+					onSelectedChange={(v) => {
+						v && ($formData.type = v.value);
+					}}
+				>
+					<Select.SelectTrigger {...attrs}>
+						<Select.Value />
+					</Select.SelectTrigger>
+					<Select.Content>
 						{#if $currentFlashcardTypeStore === 'kanji'}
-							<Form.SelectItem value={$currentFlashcardTypeStore}>
+							<Select.Item value={$currentFlashcardTypeStore} label="kanji">
 								{$currentFlashcardTypeStore}
-							</Form.SelectItem>
+							</Select.Item>
 						{:else}
-							<Form.SelectItem value="word">word</Form.SelectItem>
-							<Form.SelectItem value="phrase">phrase</Form.SelectItem>
+							<Select.Item value="word" label="word">word</Select.Item>
+							<Select.Item value="phrase" label="phrase">phrase</Select.Item>
 						{/if}
-					</Form.SelectContent>
-				</Form.Select>
-				<Form.Validation />
-			</Form.Item>
+					</Select.Content>
+				</Select.Root>
+				<input hidden bind:value={$formData.type} name={attrs.name} />
+			</Form.Control>
+			<Form.FieldErrors />
 		</Form.Field>
 
-		<Form.Field {config} name="meaning">
-			<Form.Item>
+		<Form.Field {form} name="meaning">
+			<Form.Control let:attrs>
 				<Form.Label>Meaning</Form.Label>
-				<Form.Input />
-				<Form.Validation />
-			</Form.Item>
+				<Input {...attrs} bind:value={$formData.meaning} />
+			</Form.Control>
+			<Form.FieldErrors />
 		</Form.Field>
 
 		{#if $currentFlashcardTypeStore !== 'kanji'}
-			<Form.Field {config} name="romanji">
-				<Form.Item>
+			<Form.Field {form} name="romanji">
+				<Form.Control let:attrs>
 					<Form.Label>Romanji/Furigana</Form.Label>
-					<Form.Input />
-					<Form.Validation />
-				</Form.Item>
+					<Input {...attrs} bind:value={$formData.romanji} />
+				</Form.Control>
+				<Form.FieldErrors />
 			</Form.Field>
 		{/if}
 
-		<Form.Field {config} name="notes">
-			<Form.Item>
+		<Form.Field {form} name="notes">
+			<Form.Control let:attrs>
 				<Form.Label>Notes</Form.Label>
-				<Form.Textarea class="resize-none" />
-				<Form.Validation />
-			</Form.Item>
+				<Textarea {...attrs} class="resize-none" bind:value={$formData.notes} />
+			</Form.Control>
+			<Form.FieldErrors />
 		</Form.Field>
 
-		<Form.Field {config} name="id">
-			<Form.Item>
-				<Form.Input type="hidden" />
-			</Form.Item>
+		<Form.Field {form} name="id">
+			<Form.Control let:attrs>
+				<Input {...attrs} type="hidden" bind:value={$formData.id} />
+			</Form.Control>
 		</Form.Field>
 	</div>
 
 	{#if $clickedEditFlashcard}
-		<div class={cn('grid grid-cols-3 flex-col gap-2', !$isDesktop && 'flex-col')}>
+		<div class="grid grid-cols-3 gap-2">
 			<button formaction="?/delete">
 				<slot name="delete" />
 			</button>
 
-			<button formaction="?/update" class="col-span-2">
+			<button formaction="?/update" class="col-span-2 cursor-not-allowed">
 				<slot name="update" />
 			</button>
 		</div>
 	{:else}
-		<button formaction="?/add">
+		<button formaction="?/add" class="col-span-2 cursor-not-allowed">
 			<slot name="add" />
 		</button>
 	{/if}
-</Form.Root>
+</form>

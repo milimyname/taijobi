@@ -1,8 +1,8 @@
 import { superValidate, setError } from 'sveltekit-superforms/server';
 import { fail, redirect } from '@sveltejs/kit';
 import { loginSchema } from '$lib/utils/zodSchema';
+import { zod } from 'sveltekit-superforms/adapters';
 
-/** @type {import('./$types').PageServerLoad} */
 export const load = async ({ locals, url }) => {
 	// Redirect if already logged in
 	if (locals.pb.authStore.isValid) throw redirect(303, '/');
@@ -25,17 +25,16 @@ export const load = async ({ locals, url }) => {
 
 	// Always return { form } in load and form actions.
 	return {
-		form: await superValidate(loginSchema),
+		form: await superValidate(zod(loginSchema)),
 		authProviderRedirect,
 		authProviderState: state,
 		codeVerifier
 	};
 };
 
-/** @type {import('./$types').Actions} */
 export const actions = {
 	default: async ({ request, locals }) => {
-		const form = await superValidate(request, loginSchema);
+		const form = await superValidate(request, zod(loginSchema));
 
 		// Convenient validation check:
 		if (!form.valid)

@@ -16,7 +16,6 @@
 		currentAlphabet,
 		currentBoxId
 	} from '$lib/utils/stores.js';
-	import { superForm } from 'sveltekit-superforms/client';
 	import FlashcardCollection from './FlashcardCollection.svelte';
 	import { quintOut } from 'svelte/easing';
 	import { fly } from 'svelte/transition';
@@ -26,7 +25,8 @@
 	import { isTouchScreen } from '$lib/utils/actions';
 	import { onMount } from 'svelte';
 	import { quizSchema, flashcardCollectionSchema } from '$lib/utils/zodSchema';
-
+	import { superForm } from 'sveltekit-superforms';
+	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { browser } from '$app/environment';
 	import { replaceStateWithQuery } from '$lib/utils';
 
@@ -44,10 +44,7 @@
 
 	// Flashcard collection form:
 	const superFrmCollection = superForm(data.form, {
-		validators: flashcardCollectionSchema,
-		taintedMessage: null,
-		resetForm: true,
-		applyAction: true,
+		validators: zodClient(flashcardCollectionSchema),
 		onUpdated: ({ form }) => {
 			// Keep the form open if there is an error
 			if (form.errors.name) $clickedAddFlashcardCollection = true;
@@ -55,19 +52,20 @@
 		}
 	});
 
+	let collectionFormData = superFrmCollection.form;
+
 	// Quiz form:
 	const superFrmQuiz = superForm(data.quizForm, {
-		validators: quizSchema,
-		taintedMessage: null,
-		resetForm: true,
-		applyAction: true,
+		validators: zodClient(quizSchema),
+		onError: (error) => {
+			if (error) $clickedQuizForm = true;
+		},
 		onUpdated: ({ form }) => {
-			// Keep the form open if there is an error
-			if (form.errors.name) $clickedQuizForm = true;
-			else {
-				$clickedQuizForm = false;
-				$selectedQuizItems = [];
-			}
+			if (!form.valid) return;
+
+			$clickedQuizForm = false;
+			$selectedQuizItems = [];
+			goto(`/quizzes/${form.data.id}`);
 		}
 	});
 
@@ -75,10 +73,7 @@
 
 	// Box form:
 	const superFrmBox = superForm(data.boxForm, {
-		validators: flashcardCollectionSchema,
-		taintedMessage: null,
-		resetForm: true,
-		applyAction: true,
+		validators: zodClient(flashcardCollectionSchema),
 		onUpdated: ({ form }) => {
 			// Keep the form open if there is an error
 			if (form.errors.name) $clickedAddFlahcardBox = true;
@@ -110,18 +105,15 @@
 	onMount(() => {
 		const savedId = localStorage.getItem('currentFlashcardCollectionId');
 		if (savedId !== null) $currentFlashcardCollectionId = savedId;
-
 		// Reorder data flashcard collections based on the current flashcard collection id or local storage
 		if ($currentFlashcardCollectionId) {
 			const currentFlashcardCollectionIndex = data.flashcardCollections.findIndex(
 				(collection: { id: string }) => collection.id === $currentFlashcardCollectionId
 			);
-
 			const currentFlashcardCollection = data.flashcardCollections.splice(
 				currentFlashcardCollectionIndex,
 				1
 			);
-
 			data.flashcardCollections = [...data.flashcardCollections, ...currentFlashcardCollection];
 		}
 	});
@@ -134,7 +126,11 @@
 	$: if (data.flashcardCollections.length < 5) visibleCardsCount = data.flashcardCollections.length;
 </script>
 
-<FlashcardCollectionForm form={$clickedAddFlahcardBox ? superFrmBox : superFrmCollection} />
+{#if $clickedAddFlahcardBox}
+	<FlashcardCollectionForm form={superFrmBox} />
+{:else}
+	<FlashcardCollectionForm form={superFrmCollection} />
+{/if}
 
 <QuizForm form={superFrmQuiz} />
 
@@ -147,7 +143,7 @@
 				description={card.description}
 				type={card.type}
 				{index}
-				form={superFrmCollection.form}
+				form={collectionFormData}
 				totalCount={visibleCardsCount}
 			/>
 		{/each}
@@ -160,7 +156,7 @@
 					description={card.description}
 					type={card.type}
 					{index}
-					form={superFrmCollection.form}
+					form={collectionFormData}
 					totalCount={visibleCardsCount}
 				/>
 			{/each}
@@ -194,6 +190,7 @@
 				class="flex h-60 flex-none basis-1/6 flex-col items-center justify-center rounded-xl border-4 border-blue-400 text-center text-xl font-bold text-blue-500 hover:border-blue-500 sm:h-80"
 				on:click={() => {
 					$clickedAddFlahcardBox = true;
+					$clickedEditFlashcard = false;
 					$showCollections = false;
 				}}
 			>
@@ -214,7 +211,7 @@
 
 							goto(`/flashcards/${box.id}`);
 						}}
-						class=" flex h-60 flex-none basis-1/2 flex-col items-center justify-between rounded-xl bg-blue-400 text-center text-xl font-bold text-white sm:h-80 sm:basis-1/3"
+						class="flex h-60 flex-none basis-1/2 flex-col items-center justify-between rounded-xl bg-blue-400 text-center text-xl font-bold text-white sm:h-80 sm:basis-1/3"
 					>
 						<span class="p-4">
 							{box.name}

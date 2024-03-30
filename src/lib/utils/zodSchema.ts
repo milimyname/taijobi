@@ -43,7 +43,7 @@ export const flashcardSchema = z.object({
 export type FlashcardSchema = typeof flashcardSchema;
 
 export const flashcardCollectionSchema = z.object({
-	name: z.string().max(25),
+	name: z.string().min(1).max(25),
 	description: z.string().max(100).optional(),
 	type: z.string().optional(),
 	id: z.string().optional(),

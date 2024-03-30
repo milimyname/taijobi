@@ -7,16 +7,19 @@
 		selectQuizItemsForm,
 		selectedQuizItems
 	} from '$lib/utils/stores';
-	import { isDesktop } from '$lib/utils';
+	import { cn, isDesktop } from '$lib/utils';
 	import * as Tabs from '$lib/components/ui/tabs';
 	import { page } from '$app/stores';
-	import { quizSchema, type QuizSchema } from '$lib/utils/zodSchema';
-	import { type SuperForm } from 'sveltekit-superforms/client';
+	import { type QuizSchema } from '$lib/utils/zodSchema';
 	import * as Form from '$lib/components/ui/form';
+	import { type SuperForm, type Infer } from 'sveltekit-superforms';
+	import Input from '$lib/components/ui/input/input.svelte';
+	import Switch from '$lib/components/ui/switch/switch.svelte';
+	import * as Select from '$lib/components/ui/select';
 
-	export let form: SuperForm<QuizSchema>;
+	export let form: SuperForm<Infer<QuizSchema>>;
 
-	let formData = form.form;
+	const { form: formData, enhance } = form;
 
 	$: if ($page.url.pathname.includes('kanji')) {
 		$formData.startCount = $progressSlider === $kanjiLength ? '1' : String($progressSlider);
@@ -25,61 +28,83 @@
 	}
 
 	$: if ($selectQuizItemsForm) $formData.selectedQuizItems = $selectedQuizItems.join(',');
+
+	$: selected = {
+		value: $formData.type,
+		label: $formData.type
+	};
+
+	$: choice = {
+		value: $formData.choice,
+		label: $formData.choice
+	};
 </script>
 
-<Form.Root
+<form
 	method="POST"
-	{form}
-	controlled
-	schema={quizSchema}
-	let:config
-	class="quiz-form z-[1000] flex w-full flex-col gap-5 rounded-t-2xl bg-white
-        {!$isDesktop && 'px-4'}"
+	use:enhance
+	class={cn('quiz-form z-[1000] flex w-full flex-col gap-4', !$isDesktop && 'px-4')}
 >
 	<div class="mb-auto flex flex-col gap-2">
-		<Form.Field {config} name="name">
-			<Form.Item>
+		<Form.Field {form} name="name">
+			<Form.Control let:attrs>
 				<Form.Label>Name</Form.Label>
-				<Form.Input />
-				<Form.Validation />
-			</Form.Item>
+				<Input {...attrs} bind:value={$formData.name} />
+			</Form.Control>
+			<Form.FieldErrors />
 		</Form.Field>
 
-		<Form.Field {config} name="choice">
-			<Form.Item>
-				<Form.Label>Multi Choice Number</Form.Label>
-				<Form.Select>
-					<Form.SelectTrigger placeholder={$formData.choice} />
-					<Form.SelectContent>
-						<Form.SelectItem value="2">2</Form.SelectItem>
-						{#if +$maxFlashcards > 20}
-							<Form.SelectItem value="4">4</Form.SelectItem>
+		<Form.Field {form} name="choice">
+			<Form.Control let:attrs>
+				<Form.Label>Choice</Form.Label>
+				<Select.Root
+					selected={choice}
+					onSelectedChange={(v) => {
+						v && ($formData.choice = v.value);
+					}}
+				>
+					<Select.SelectTrigger {...attrs}>
+						<Select.Value />
+					</Select.SelectTrigger>
+					<Select.Content>
+						<Select.Item value="2">2</Select.Item>
+						{#if +$maxFlashcards > 10}
+							<Select.Item value="4">4</Select.Item>
 						{/if}
-					</Form.SelectContent>
-				</Form.Select>
-				<Form.Validation />
-			</Form.Item>
+					</Select.Content>
+				</Select.Root>
+				<input hidden bind:value={$formData.choice} name={attrs.name} />
+			</Form.Control>
+			<Form.FieldErrors />
 		</Form.Field>
 
-		<Form.Field {config} name="type">
-			<Form.Item>
+		<Form.Field {form} name="type">
+			<Form.Control let:attrs>
 				<Form.Label>Type</Form.Label>
-				<Form.Select>
-					<Form.SelectTrigger placeholder={$formData.type} />
-					<Form.SelectContent>
-						<Form.SelectItem value="name">name</Form.SelectItem>
-						<Form.SelectItem value="meaning">meaning</Form.SelectItem>
+				<Select.Root
+					{selected}
+					onSelectedChange={(v) => {
+						v && ($formData.type = v.value);
+					}}
+				>
+					<Select.SelectTrigger {...attrs}>
+						<Select.Value />
+					</Select.SelectTrigger>
+					<Select.Content>
+						<Select.Item value="name">name</Select.Item>
+						<Select.Item value="meaning">meaning</Select.Item>
 						{#if $currentAlphabet === 'kanji'}
-							<Form.SelectItem value="onyomi">onyomi</Form.SelectItem>
-							<Form.SelectItem value="kunyomi">kunyomi</Form.SelectItem>
+							<Select.Item value="onyomi">onyomi</Select.Item>
+							<Select.Item value="kunyomi">kunyomi</Select.Item>
 						{/if}
-					</Form.SelectContent>
-				</Form.Select>
-				<Form.Validation />
-			</Form.Item>
+					</Select.Content>
+				</Select.Root>
+				<input hidden bind:value={$formData.type} name={attrs.name} />
+			</Form.Control>
+			<Form.FieldErrors />
 		</Form.Field>
 
-		<Tabs.Root value="custom">
+		<Tabs.Root value="range">
 			<Tabs.List class="flex flex-1">
 				<Tabs.Trigger class="flex-1" value="custom">Custom</Tabs.Trigger>
 				<Tabs.Trigger class="flex-1" value="range" disabled={$selectedQuizItems.length !== 0}>
@@ -87,52 +112,54 @@
 				</Tabs.Trigger>
 			</Tabs.List>
 			<Tabs.Content value="custom">
-				<slot />
+				<slot name="custom" />
 			</Tabs.Content>
 			<Tabs.Content value="range">
 				<div class="grid grid-cols-2 gap-2">
-					<Form.Field {config} name="startCount">
-						<Form.Item class="flex-1">
+					<Form.Field {form} name="startCount">
+						<Form.Control let:attrs>
 							<Form.Label>Start</Form.Label>
-							<Form.Input type="number" min={1} max={+$maxFlashcards - 20} />
-							<Form.Validation />
-						</Form.Item>
+							<Input
+								{...attrs}
+								type="number"
+								min={1}
+								max={+$maxFlashcards - 10}
+								bind:value={$formData.startCount}
+							/>
+						</Form.Control>
+						<Form.FieldErrors />
 					</Form.Field>
-					<Form.Field {config} name="maxCount">
-						<Form.Item>
+
+					<Form.Field {form} name="maxCount">
+						<Form.Control let:attrs>
 							<Form.Label>End</Form.Label>
-							<Form.Input type="number" min={10} max={$maxFlashcards} />
-							<Form.Validation />
-						</Form.Item>
+							<Input
+								{...attrs}
+								type="number"
+								min={10}
+								max={$maxFlashcards}
+								bind:value={$formData.maxCount}
+							/>
+						</Form.Control>
+						<Form.FieldErrors />
 					</Form.Field>
 				</div>
 			</Tabs.Content>
 		</Tabs.Root>
 
-		<Form.Field {config} name="timeLimit">
-			<Form.Item class="flex items-center justify-between">
+		<Form.Field {form} name="timeLimit" class="flex items-center justify-between">
+			<Form.Control let:attrs>
 				<Form.Label class="flex-1">Time limit (🚧)</Form.Label>
-				<Form.Switch />
-				<Form.Validation />
-			</Form.Item>
+				<Switch {...attrs} bind:checked={$formData.timeLimit} />
+			</Form.Control>
 		</Form.Field>
 
-		<Form.Field {config} name="id">
-			<Form.Item>
-				<Form.Input type="hidden" />
-			</Form.Item>
-		</Form.Field>
-		<Form.Field {config} name="flashcardBox">
-			<Form.Item>
-				<Form.Input type="hidden" />
-			</Form.Item>
-		</Form.Field>
-		<Form.Field {config} name="selectedQuizItems">
-			<Form.Item>
-				<Form.Input type="hidden" />
-			</Form.Item>
-		</Form.Field>
+		<input type="hidden" name="id" bind:value={$formData.id} />
+		<input type="hidden" name="flashcardBox" bind:value={$formData.flashcardBox} />
+		<input type="hidden" name="selectedQuizItems" bind:value={$formData.selectedQuizItems} />
 	</div>
 
-	<Form.Button formaction="?/addQuiz">Add</Form.Button>
-</Form.Root>
+	<button formaction="?/addQuiz">
+		<slot name="add" />
+	</button>
+</form>

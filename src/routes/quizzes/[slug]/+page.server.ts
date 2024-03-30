@@ -42,10 +42,11 @@ export const load = async ({ params, locals }) => {
 	// Get the flashcards from the quiz
 	// If the startCount are default , then slice the items from 0 to maxCount (custom flashcards)
 	// Otherwise, slice the items from startCount to maxCount
-	const items =
-		quiz.startCount === 1 && quiz.maxCount === 10
-			? quiz.flashcards
-			: quiz.flashcards.slice(+quiz.startCount, +quiz.maxCount);
+	let items;
+
+	if (quiz.startCount === 1 && quiz.maxCount === 10) items = quiz.flashcards;
+	else if (quiz.startCount > quiz.flashcards.length) items = quiz.flashcards;
+	else quiz.flashcards.slice(+quiz.startCount, +quiz.maxCount);
 
 	// Shuffle the flashcards array
 	shuffleArray(items);

@@ -1,13 +1,16 @@
 <script lang="ts">
-	import * as Form from '$lib/components/ui/form';
-	import { loginSchema, type LoginSchema } from '$lib/utils/zodSchema';
-	import type { SuperValidated } from 'sveltekit-superforms';
+	import { type LoginSchema } from '$lib/utils/zodSchema';
 	import { browser } from '$app/environment';
+	import { type SuperForm, type Infer } from 'sveltekit-superforms';
+	import * as Form from '$lib/components/ui/form';
+	import { Input } from '$lib/components/ui/input';
 
-	export let form: SuperValidated<LoginSchema>;
+	export let form: SuperForm<Infer<LoginSchema>>;
 	export let authProviderState: string;
 	export let authProviderRedirect: string;
 	export let codeVerifier: string;
+
+	const { form: formData, enhance } = form;
 
 	function gotoAuthProvider() {
 		if (browser) {
@@ -19,13 +22,7 @@
 	}
 </script>
 
-<Form.Root
-	method="POST"
-	{form}
-	schema={loginSchema}
-	let:config
-	class="flex h-full w-full flex-col gap-24 p-10 md:gap-0"
->
+<form method="POST" use:enhance class="flex h-full w-full flex-col gap-24 p-10 md:gap-0">
 	<div class="tex flex items-center justify-between">
 		<a href="/signup">Sign up</a>
 		<a href="/" class="self-end">
@@ -43,20 +40,20 @@
 			<p>It’s been a while. You need to log in</p>
 		</div>
 
-		<Form.Field {config} name="email">
-			<Form.Item class="flex w-full flex-col md:w-2/3">
+		<Form.Field {form} name="email" class="flex w-full flex-col md:w-2/3">
+			<Form.Control let:attrs>
 				<Form.Label>Email or username</Form.Label>
-				<Form.Input />
-				<Form.Validation />
-			</Form.Item>
+				<Input {...attrs} bind:value={$formData.email} />
+			</Form.Control>
+			<Form.FieldErrors />
 		</Form.Field>
 
-		<Form.Field {config} name="password">
-			<Form.Item class="flex w-full flex-col md:w-2/3">
+		<Form.Field {form} name="password" class="flex w-full flex-col md:w-2/3">
+			<Form.Control let:attrs>
 				<Form.Label>Password</Form.Label>
-				<Form.Input type="password" />
-				<Form.Validation />
-			</Form.Item>
+				<Input {...attrs} bind:value={$formData.password} />
+			</Form.Control>
+			<Form.FieldErrors />
 		</Form.Field>
 
 		<Form.Button
@@ -87,12 +84,12 @@
 		<Form.Button
 			variant="ghost"
 			on:click={() => {
-				config.form.fields.email.value.set('kj@mili-my.name');
-				config.form.fields.password.value.set('12345678');
+				$formData.email = 'kj@mili-my.name';
+				$formData.password = '12345678';
 			}}
 			class="text-md flex w-full items-center justify-center rounded-md border-2 border-black py-2 font-medium text-black shadow-lg transition duration-200 visited:-translate-x-4 active:translate-y-1 active:shadow-sm md:w-2/3"
 		>
 			Mili's Account
 		</Form.Button>
 	</div>
-</Form.Root>
+</form>

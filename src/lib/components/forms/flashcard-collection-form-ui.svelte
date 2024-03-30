@@ -15,22 +15,22 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Drawer from '$lib/components/ui/drawer';
 	import { Button } from '$lib/components/ui/button';
-	import Form from '$lib/components/forms/flashcard-collection-form.svelte';
-	import { isDesktop } from '$lib/utils';
+	import { cn, isDesktop } from '$lib/utils';
 	import { page } from '$app/stores';
 	import { type FlashcardCollectionSchema } from '$lib/utils/zodSchema';
-	import { type SuperForm } from 'sveltekit-superforms/client';
+	import { type SuperForm, type Infer } from 'sveltekit-superforms';
+	import FlashcardCollectionForm from '$lib/components/forms/flashcard-collection-form.svelte';
 
-	export let form: SuperForm<FlashcardCollectionSchema>;
+	export let form: SuperForm<Infer<FlashcardCollectionSchema>>;
+
+	const { form: formData } = form;
 
 	function onClose() {
-		setTimeout(() => {
-			$clickedAddFlashcardCollection = false;
-			$clickedAddFlahcardBox = false;
-			$clickedEditFlashcard = false;
-			$selectedQuizItems = [];
-			form.reset();
-		}, 100);
+		$clickedAddFlashcardCollection = false;
+		$clickedAddFlahcardBox = false;
+		$clickedEditFlashcard = false;
+		$selectedQuizItems = [];
+		form.reset();
 	}
 
 	function onOutsideClick(e: PointerEvent | MouseEvent | TouchEvent) {
@@ -56,6 +56,8 @@
 		$clickedAddFlahcardBox = false;
 		$clickedEditFlashcard = false;
 	}
+
+	$: disabled = $formData.name === '';
 </script>
 
 {#if $isDesktop}
@@ -95,23 +97,17 @@
 					</button>
 				{/if}
 			</Dialog.Header>
-			<Form {form}>
+			<FlashcardCollectionForm {form}>
 				<div slot="delete">
-					<Dialog.Close asChild let:builder>
-						<Button builders={[builder]} variant="destructive" class="w-full">Delete</Button>
-					</Dialog.Close>
+					<Button formaction="?/delete" variant="destructive" class="w-full">Delete</Button>
 				</div>
 				<div slot="update">
-					<Dialog.Close asChild let:builder>
-						<Button builders={[builder]} class="w-full">Update</Button>
-					</Dialog.Close>
+					<Button formaction="?/update" class="w-full" {disabled}>Update</Button>
 				</div>
 				<div slot="add">
-					<Dialog.Close asChild let:builder>
-						<Button builders={[builder]} class="w-full">Add</Button>
-					</Dialog.Close>
+					<Button formaction="?/add" class="w-full" {disabled}>Add</Button>
 				</div>
-			</Form>
+			</FlashcardCollectionForm>
 		</Dialog.Content>
 	</Dialog.Root>
 {:else}
@@ -128,7 +124,7 @@
 					</Drawer.Title>
 
 					{#if !$clickedAddFlashcardCollection && $maxFlashcards !== '0' && $flashcardBoxes.length > 1}
-						<Drawer.Nested>
+						<Drawer.NestedRoot>
 							<Drawer.Trigger
 								class="w-min items-center text-sm underline"
 								on:click={() => ($swapFlashcards = true)}
@@ -137,7 +133,7 @@
 							</Drawer.Trigger>
 							<Drawer.Portal>
 								<Drawer.Content
-									class="select-quiz fixed bottom-0 left-0 right-0 mt-24 flex h-full max-h-[94%] flex-col rounded-t-[10px] bg-gray-100"
+									class="select-quiz fixed bottom-0 left-0 right-0 z-[2000] mt-24 flex h-full max-h-[94%] flex-col rounded-t-[10px] bg-gray-100"
 								>
 									<QuizItems flashcardBox={$currentBoxId}>
 										<Drawer.Close asChild let:builder>
@@ -156,14 +152,28 @@
 									</QuizItems>
 								</Drawer.Content>
 							</Drawer.Portal>
-						</Drawer.Nested>
+						</Drawer.NestedRoot>
 					{/if}
 				</Drawer.Header>
-				<Form {form}>
-					<Button variant="destructive" slot="delete" class="w-full">Delete</Button>
-					<Button slot="update" class="w-full">Update</Button>
-					<Button slot="add" class="w-full">Add</Button>
-				</Form>
+				<FlashcardCollectionForm {form}>
+					<div slot="delete">
+						<Drawer.Close asChild let:builder>
+							<Button builders={[builder]} variant="destructive" class="w-full">Delete</Button>
+						</Drawer.Close>
+					</div>
+
+					<div slot="update">
+						<Drawer.Close asChild let:builder>
+							<Button builders={[builder]} class="w-full" {disabled}>Update</Button>
+						</Drawer.Close>
+					</div>
+					<div slot="add">
+						<Drawer.Close asChild let:builder>
+							<Button builders={[builder]} class="w-full" {disabled}>Add</Button>
+						</Drawer.Close>
+					</div>
+				</FlashcardCollectionForm>
+
 				<Drawer.Footer class="h-fit">
 					<Drawer.Close asChild let:builder>
 						<Button builders={[builder]} variant="outline">Cancel</Button>

@@ -10,14 +10,12 @@
 	import Form from './form.svelte';
 	import { feedbackSchema } from '$lib/utils/zodSchema';
 	import { Button } from '$lib/components/ui/button';
+	import { zodClient } from 'sveltekit-superforms/adapters';
 
 	export let data;
 
 	const superFrm = superForm(data.form, {
-		validators: feedbackSchema,
-		taintedMessage: null,
-		applyAction: true,
-		resetForm: true,
+		validators: zodClient(feedbackSchema),
 		onUpdated: ({ form }) => {
 			// Keep the form open if there is an error
 			if (form.errors.name || form.errors.description) $clickedReport = true;

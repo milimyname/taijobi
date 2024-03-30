@@ -1,8 +1,9 @@
-import { superValidate, setError } from 'sveltekit-superforms/server';
+import { superValidate, setError } from 'sveltekit-superforms';
 import { fail, redirect } from '@sveltejs/kit';
 import { quizSchema } from '$lib/utils/zodSchema';
 import { kanji } from '$lib/static/kanji';
 import type Pocketbase from 'pocketbase';
+import { zod } from 'sveltekit-superforms/adapters';
 
 export const load = async ({ locals, parent }) => {
 	try {
@@ -10,7 +11,7 @@ export const load = async ({ locals, parent }) => {
 
 		if (!isLoggedIn)
 			return {
-				quizForm: await superValidate(quizSchema)
+				quizForm: await superValidate(zod(quizSchema))
 			};
 
 		const kanjiId = await getOrCreateKanjiId(locals.pb, locals.pb.authStore.model?.id);
@@ -23,7 +24,7 @@ export const load = async ({ locals, parent }) => {
 		return {
 			flashcard: structuredClone(flashcard),
 			kanjiId,
-			quizForm: await superValidate(quizSchema)
+			quizForm: await superValidate(zod(quizSchema))
 		};
 	} catch (e) {
 		console.error(e);
@@ -58,7 +59,7 @@ async function getOrCreateKanjiId(pb: Pocketbase, userId: string) {
 
 export const actions = {
 	addQuiz: async ({ request, locals }) => {
-		const form = await superValidate(request, quizSchema);
+		const form = await superValidate(request, zod(quizSchema));
 
 		// Convenient validation check:
 		if (!form.valid) return fail(400, { form });

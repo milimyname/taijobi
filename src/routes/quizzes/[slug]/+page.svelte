@@ -29,6 +29,7 @@
 
 	const generateShuffledOptions = (options: FlashcardType[]): string[] => {
 		const otherOptions = options.filter((opt) => opt.name !== currentFlashcard.name);
+
 		shuffleArray(otherOptions);
 
 		// Define a map of types to properties
@@ -45,6 +46,7 @@
 
 		// Handle potential undefined values when accessing properties
 		const getPropertyValue = (card: FlashcardType, property: keyof FlashcardType): string => {
+			console.log(card, property, data.flashcards);
 			const value = card[property];
 			return typeof value === 'string' ? value : ''; // Return an empty string if value is undefined
 		};

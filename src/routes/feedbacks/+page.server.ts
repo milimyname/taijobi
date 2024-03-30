@@ -1,6 +1,7 @@
-import { superValidate, setError } from 'sveltekit-superforms/server';
+import { superValidate, setError } from 'sveltekit-superforms';
 import { fail } from '@sveltejs/kit';
 import { feedbackSchema } from '$lib/utils/zodSchema';
+import { zod } from 'sveltekit-superforms/adapters';
 
 export const load = async ({ locals }) => {
 	let feedbacks;
@@ -16,7 +17,7 @@ export const load = async ({ locals }) => {
 			filter: `userId = "${user?.id}"`
 		});
 
-	return { feedbacks, form: await superValidate(feedbackSchema) };
+	return { feedbacks, form: await superValidate(zod(feedbackSchema)) };
 };
 
 export const actions = {
@@ -35,7 +36,7 @@ export const actions = {
 		return;
 	},
 	update: async ({ request, locals }) => {
-		const form = await superValidate(request, feedbackSchema);
+		const form = await superValidate(request, zod(feedbackSchema));
 
 		// Convenient validation check:
 		if (!form.valid || !form.data.id)
@@ -55,7 +56,7 @@ export const actions = {
 		return { form };
 	},
 	delete: async ({ request, locals }) => {
-		const form = await superValidate(request, feedbackSchema);
+		const form = await superValidate(request, zod(feedbackSchema));
 
 		// Convenient validation check:
 		if (!form.valid || !form.data.id)
