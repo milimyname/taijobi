@@ -18,12 +18,12 @@
 		taintedMessage: null,
 		applyAction: true,
 		resetForm: true,
-		onSubmit: () => {
-			$clickedReport = false;
-		},
 		onUpdated: ({ form }) => {
 			// Keep the form open if there is an error
 			if (form.errors.name || form.errors.description) $clickedReport = true;
+			else $clickedReport = false;
+
+			console.log(form);
 		}
 	});
 

@@ -48,10 +48,10 @@
 		taintedMessage: null,
 		resetForm: true,
 		applyAction: true,
-		onSubmit: () => ($clickedAddFlashcardCollection = false),
 		onUpdated: ({ form }) => {
 			// Keep the form open if there is an error
 			if (form.errors.name) $clickedAddFlashcardCollection = true;
+			else $clickedAddFlashcardCollection = false;
 		}
 	});
 
@@ -61,13 +61,13 @@
 		taintedMessage: null,
 		resetForm: true,
 		applyAction: true,
-		onSubmit: () => {
-			$clickedQuizForm = false;
-			$selectedQuizItems = [];
-		},
 		onUpdated: ({ form }) => {
 			// Keep the form open if there is an error
 			if (form.errors.name) $clickedQuizForm = true;
+			else {
+				$clickedQuizForm = false;
+				$selectedQuizItems = [];
+			}
 		}
 	});
 
@@ -79,10 +79,10 @@
 		taintedMessage: null,
 		resetForm: true,
 		applyAction: true,
-		onSubmit: () => ($clickedAddFlahcardBox = false),
 		onUpdated: ({ form }) => {
 			// Keep the form open if there is an error
 			if (form.errors.name) $clickedAddFlahcardBox = true;
+			else $clickedAddFlahcardBox = false;
 		}
 	});
 

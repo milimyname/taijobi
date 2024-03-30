@@ -21,14 +21,14 @@ dependencies:
     specifier: ^0.1.1
     version: 0.1.1(tailwindcss@3.4.1)
   bits-ui:
-    specifier: ^0.19.7
-    version: 0.19.7(svelte@4.2.12)
+    specifier: ^0.21.1
+    version: 0.21.1(svelte@4.2.12)
   clsx:
     specifier: ^2.1.0
     version: 2.1.0
   cmdk-sv:
-    specifier: ^0.0.15
-    version: 0.0.15(svelte@4.2.12)
+    specifier: ^0.0.17
+    version: 0.0.17(svelte@4.2.12)
   embla-carousel-svelte:
     specifier: ^8.0.0
     version: 8.0.0(svelte@4.2.12)
@@ -42,8 +42,8 @@ dependencies:
     specifier: ^1.1.0
     version: 1.1.0
   lucide-svelte:
-    specifier: ^0.358.0
-    version: 0.358.0(svelte@4.2.12)
+    specifier: ^0.363.0
+    version: 0.363.0(svelte@4.2.12)
   openai:
     specifier: ^4.29.0
     version: 4.29.0
@@ -63,8 +63,8 @@ dependencies:
     specifier: ^2.2.1
     version: 2.2.1
   tailwind-variants:
-    specifier: ^0.2.0
-    version: 0.2.0(tailwindcss@3.4.1)
+    specifier: ^0.2.1
+    version: 0.2.1(tailwindcss@3.4.1)
   vaul-svelte:
     specifier: ^0.3.0
     version: 0.3.0(svelte@4.2.12)
@@ -568,6 +568,20 @@ packages:
       focus-trap: 7.5.4
       nanoid: 5.0.6
       svelte: 4.2.12
+
+  /@melt-ui/svelte@0.76.2(svelte@4.2.12):
+    resolution: {integrity: sha512-7SbOa11tXUS95T3fReL+dwDs5FyJtCEqrqG3inRziDws346SYLsxOQ6HmX+4BkIsQh1R8U3XNa+EMmdMt38lMA==}
+    peerDependencies:
+      svelte: '>=3 <5'
+    dependencies:
+      '@floating-ui/core': 1.6.0
+      '@floating-ui/dom': 1.6.3
+      '@internationalized/date': 3.5.2
+      dequal: 2.0.3
+      focus-trap: 7.5.4
+      nanoid: 5.0.6
+      svelte: 4.2.12
+    dev: false
 
   /@nodelib/fs.scandir@2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -1252,13 +1266,13 @@ packages:
       svelte: 4.2.12
     dev: false
 
-  /bits-ui@0.19.7(svelte@4.2.12):
-    resolution: {integrity: sha512-GHUpKvN7QyazhnZNkUy0lxg6W1M6KJHWSZ4a/UGCjPE6nQgk6vKbGysY67PkDtQMknZTZAzVoMj1Eic4IKeCRQ==}
+  /bits-ui@0.21.1(svelte@4.2.12):
+    resolution: {integrity: sha512-G6agiFtmbgxV2XQBdsn3tYhZw4b4lETtxU1iTpiNOgMkhUo+oV+XDQA3coMzqKDfAsmfyaLEuYtSM/NiRHGjdw==}
     peerDependencies:
       svelte: ^4.0.0
     dependencies:
       '@internationalized/date': 3.5.2
-      '@melt-ui/svelte': 0.76.0(svelte@4.2.12)
+      '@melt-ui/svelte': 0.76.2(svelte@4.2.12)
       nanoid: 5.0.6
       svelte: 4.2.12
     dev: false
@@ -1364,8 +1378,8 @@ packages:
     engines: {node: '>=6'}
     dev: false
 
-  /cmdk-sv@0.0.15(svelte@4.2.12):
-    resolution: {integrity: sha512-WDEGJwjW30XZnfNXONeh7kQtmPF6e4UTNrDXQCiAWuafDu9odY3qhQpfNrq4pb5mqaZeKQgVtx+4LIojUv7GJw==}
+  /cmdk-sv@0.0.17(svelte@4.2.12):
+    resolution: {integrity: sha512-28QTrK1tT1TSNoGq9MVnzjeLNNjCgjmsM8c2HJfDpRt9t+GD+9m3wX/WdAPaP9jdoNYU0SSdZVdgsGgpaSQOYQ==}
     peerDependencies:
       svelte: ^4.0.0
     dependencies:
@@ -2260,8 +2274,8 @@ packages:
       yallist: 4.0.0
     dev: true
 
-  /lucide-svelte@0.358.0(svelte@4.2.12):
-    resolution: {integrity: sha512-KSdl/FSW5EhexI+qZH/YV/6WmuMybx1dw1VD7n53xDJCpYUm/7dftOV3yTV0KaJxN7/tDss15M62SVvLLWsXLA==}
+  /lucide-svelte@0.363.0(svelte@4.2.12):
+    resolution: {integrity: sha512-zpUBFtMEEOOjILgiDX48ijibUww3JUCLrMo5YDGX/De/m6I+vn+oWIGvdyZtuc8nz/P8xHW9vWLKzIWeMrRYbA==}
     peerDependencies:
       svelte: ^3 || ^4 || ^5.0.0-next.42
     dependencies:
@@ -3231,8 +3245,8 @@ packages:
       '@babel/runtime': 7.24.0
     dev: false
 
-  /tailwind-variants@0.2.0(tailwindcss@3.4.1):
-    resolution: {integrity: sha512-EuW5Sic7c0tzp+p5rJwAgb7398Jb0hi4zkyCstOoZPW0DWwr+EWkNtnZYEo5CjgE1tazHUzyt4oIhss64UXRVA==}
+  /tailwind-variants@0.2.1(tailwindcss@3.4.1):
+    resolution: {integrity: sha512-2xmhAf4UIc3PijOUcJPA1LP4AbxhpcHuHM2C26xM0k81r0maAO6uoUSHl3APmvHZcY5cZCY/bYuJdfFa4eGoaw==}
     engines: {node: '>=16.x', pnpm: '>=7.x'}
     peerDependencies:
       tailwindcss: '*'

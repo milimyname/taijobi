@@ -1,5 +1,9 @@
 <script lang="ts">
-	import { clickedEditFlashcard, currentFlashcardTypeStore } from '$lib/utils/stores';
+	import {
+		clickedEditFlashcard,
+		currentFlashcardTypeStore,
+		clickedAddFlashcardCollection
+	} from '$lib/utils/stores';
 	import { fly } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 	import { HelpCircle } from 'lucide-svelte';
@@ -134,7 +138,7 @@
 	</div>
 
 	{#if $clickedEditFlashcard}
-		<div class="grid grid-cols-3 flex-col {!$isDesktop && 'flex-col gap-2'} ">
+		<div class={cn('grid grid-cols-3 flex-col gap-2', !$isDesktop && 'flex-col')}>
 			<button formaction="?/delete">
 				<slot name="delete" />
 			</button>

@@ -58,7 +58,6 @@
 		validators: flashcardSchema,
 		taintedMessage: null,
 		resetForm: true,
-		applyAction: true,
 		onUpdated: async ({ form }) => {
 			// Keep the form open if there is an error
 			if (form.errors.type || form.errors.name) $clickedAddFlashcardCollection = true;
@@ -82,6 +81,17 @@
 
 				setTimeout(() => {
 					embla.scrollTo(flashcards.length - 1);
+					$currentFlashcard = flashcards[flashcards.length - 1].name;
+				}, 100);
+			}
+
+			// If deleted, move to the previous word
+			if (embla.scrollSnapList().length > flashcards.length) {
+				embla.reInit();
+
+				setTimeout(() => {
+					embla.scrollTo(currentIndex - 1);
+					$currentFlashcard = flashcards[currentIndex - 1].name;
 				}, 100);
 			}
 		}
@@ -91,8 +101,12 @@
 		const data = await fetchFlashcards();
 		if (data) flashcards = data.flashcards;
 
+		// Don't slide to the current flashcard if there are less than 2 words and remove index from localstorage
+		if (flashcards.length < 2)
+			return localStorage.removeItem(`currentFlashcardIndexOfFlashcards-${$page.params.slug}`);
+
 		// Get the current flashcard index from the local storage
-		const index = localStorage.getItem('currentFlashcardIndex');
+		const index = localStorage.getItem(`currentFlashcardIndexOfFlashcards-${$page.params.slug}`);
 		if (index) currentIndex = parseInt(index);
 
 		// Scroll to the current flashcard
@@ -103,6 +117,7 @@
 
 	$: if (browser && currentIndex >= 0 && flashcards.length > 0) {
 		const card = flashcards.at(currentIndex);
+
 		if (card) {
 			// Check if currentFlashcard is not undefined
 			$currentFlashcard = card.name;
@@ -110,7 +125,10 @@
 			$currentFlashcardTypeStore = card.type || 'word';
 
 			// Save current flashcard to local storage
-			localStorage.setItem('currentFlashcardIndex', currentIndex.toString());
+			localStorage.setItem(
+				`currentFlashcardIndexOfFlashcards-${$page.params.slug}`,
+				currentIndex.toString()
+			);
 		}
 	}
 
@@ -186,9 +204,11 @@
 							'basis-auto scale-75 cursor-pointer text-center text-2xl opacity-50 sm:text-4xl',
 							$currentIndexStore === index && '!scale-100  opacity-100',
 							flashcards.length < 5 && 'basis-1/2',
-							flashcards.length < 3 && 'basis-full',
 							flashcards.length > 6 && flashcards.length < 10 && 'md:basis-1/3',
-							$currentFlashcardTypeStore === 'kanji' && 'basis-1/6'
+							flashcards.length > 10 && 'md:basis-1/3',
+							flashcard.name.length < 3 && 'basis-full',
+							flashcard.name.length > 5 && 'basis-full',
+							$currentFlashcardTypeStore === 'kanji' && 'basis-1/3'
 						)}
 					>
 						<button
