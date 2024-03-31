@@ -1,16 +1,18 @@
 <script lang="ts">
-	import { superForm } from 'sveltekit-superforms/client';
 	import { slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 	import Cropper from 'svelte-easy-crop';
-	import { uploadingProfilePic } from '$lib/utils/stores.js';
-	import { uploadCroppedImage } from '$lib/utils/actions.js';
+	import { uploadingProfilePic } from '$lib/utils/stores';
+	import { uploadCroppedImage } from '$lib/utils/actions';
 	import type { CropperDetails } from '$lib/utils/ambient.d.ts';
+	import { superForm } from 'sveltekit-superforms';
+	import { profileDataSchema } from '$lib/utils/zodSchema';
+	import { zodClient } from 'sveltekit-superforms/adapters';
 
 	export let data;
 
 	const { form, errors, constraints, enhance } = superForm(data.form, {
-		taintedMessage: null
+		validators: zodClient(profileDataSchema)
 	});
 
 	let imageSrc: string;
@@ -20,8 +22,8 @@
 	let cropperDetails: CropperDetails;
 
 	$: {
-		$form.email = data.user.email;
-		$form.username = data.user.username;
+		$form.email = data.user?.email;
+		$form.username = data.user?.username;
 	}
 </script>
 

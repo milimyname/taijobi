@@ -21,13 +21,13 @@ export const resetPasswordSchema = z.object({
 
 export type ResetPasswordSchema = typeof resetPasswordSchema;
 
-export const profileData = z.object({
+export const profileDataSchema = z.object({
 	username: z.string().min(3).max(32).optional(),
 	email: z.string().email().optional(),
 	avatar: z.string().url().optional()
 });
 
-export type ProfileData = typeof profileData;
+export type ProfileDataSchema = typeof profileDataSchema;
 
 export const flashcardSchema = z.object({
 	name: z.string().nonempty({ message: 'Name is required.' }),

@@ -1,18 +1,15 @@
 <script lang="ts">
 	import * as Form from '$lib/components/ui/form';
-	import { resetPasswordSchema, type ResetPasswordSchema } from '$lib/utils/zodSchema';
-	import type { SuperValidated } from 'sveltekit-superforms';
+	import { type ResetPasswordSchema } from '$lib/utils/zodSchema';
+	import { type SuperForm, type Infer } from 'sveltekit-superforms';
+	import { Input } from '$lib/components/ui/input';
 
-	export let form: SuperValidated<ResetPasswordSchema>;
+	export let form: SuperForm<Infer<ResetPasswordSchema>>;
+
+	const { form: formData, enhance } = form;
 </script>
 
-<Form.Root
-	method="POST"
-	{form}
-	schema={resetPasswordSchema}
-	let:config
-	class="flex h-full w-full flex-col  gap-60  p-10 md:gap-0"
->
+<form method="POST" use:enhance class="flex h-full w-full flex-col gap-60 p-10 md:gap-0">
 	<div class=" flex items-center justify-between">
 		<a href="/login">Log in</a>
 		<a href="/" class="self-end">
@@ -27,12 +24,12 @@
 	<div class="flex flex-col items-center justify-center gap-5 md:flex-1">
 		<h1 class="text-3xl font-medium">Reset your password</h1>
 
-		<Form.Field {config} name="email">
-			<Form.Item class="flex w-full flex-col md:w-2/3">
+		<Form.Field {form} name="email" class="flex w-full flex-col md:w-2/3">
+			<Form.Control let:attrs>
 				<Form.Label>Email or username</Form.Label>
-				<Form.Input />
-				<Form.Validation />
-			</Form.Item>
+				<Input {...attrs} bind:value={$formData.email} />
+			</Form.Control>
+			<Form.FieldErrors />
 		</Form.Field>
 
 		<Form.Button
@@ -41,4 +38,4 @@
 			Reset
 		</Form.Button>
 	</div>
-</Form.Root>
+</form>

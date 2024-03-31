@@ -24,7 +24,7 @@
 	import { kanji } from '$lib/static/kanji';
 	import { pocketbase } from '$lib/utils/pocketbase';
 	import QuizForm from '$lib/components/forms/quiz-form-ui.svelte';
-	import { superForm } from 'sveltekit-superforms/client';
+	import { superForm } from 'sveltekit-superforms';
 	import { page } from '$app/stores';
 	import BacksideCard from '$lib/components/canvas/BacksideCard.svelte';
 	import DrawingNav from '$lib/components/DrawingNav.svelte';

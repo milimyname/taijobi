@@ -1,18 +1,15 @@
 <script lang="ts">
 	import * as Form from '$lib/components/ui/form';
-	import { signupSchema, type SignupSchema } from '$lib/utils/zodSchema';
-	import type { SuperValidated } from 'sveltekit-superforms';
+	import { type SignupSchema } from '$lib/utils/zodSchema';
+	import { type SuperForm, type Infer } from 'sveltekit-superforms';
+	import { Input } from '$lib/components/ui/input';
 
-	export let form: SuperValidated<SignupSchema>;
+	export let form: SuperForm<Infer<SignupSchema>>;
+
+	const { form: formData, enhance } = form;
 </script>
 
-<Form.Root
-	method="POST"
-	{form}
-	schema={signupSchema}
-	let:config
-	class="flex h-full w-full flex-col gap-24 p-10 md:gap-0"
->
+<form method="POST" use:enhance class="flex h-full w-full flex-col gap-24 p-10 md:gap-0">
 	<div class="tex flex items-center justify-between">
 		<a href="/login">Log in</a>
 		<a href="/" class=" self-end">
@@ -30,28 +27,28 @@
 			<p>Start a journey!</p>
 		</div>
 
-		<Form.Field {config} name="email">
-			<Form.Item class="flex w-full flex-col md:w-2/3">
+		<Form.Field {form} name="email" class="flex w-full flex-col md:w-2/3">
+			<Form.Control let:attrs>
 				<Form.Label>Email</Form.Label>
-				<Form.Input />
-				<Form.Validation />
-			</Form.Item>
+				<Input {...attrs} bind:value={$formData.email} />
+			</Form.Control>
+			<Form.FieldErrors />
 		</Form.Field>
 
-		<Form.Field {config} name="password">
-			<Form.Item class="flex w-full flex-col md:w-2/3">
+		<Form.Field {form} name="password" class="flex w-full flex-col md:w-2/3">
+			<Form.Control let:attrs>
 				<Form.Label>Password</Form.Label>
-				<Form.Input />
-				<Form.Validation />
-			</Form.Item>
+				<Input {...attrs} bind:value={$formData.password} />
+			</Form.Control>
+			<Form.FieldErrors />
 		</Form.Field>
 
-		<Form.Field {config} name="confirmPassword">
-			<Form.Item class="flex w-full flex-col md:w-2/3">
+		<Form.Field {form} name="confirmPassword" class="flex w-full flex-col md:w-2/3">
+			<Form.Control let:attrs>
 				<Form.Label>Confirm password</Form.Label>
-				<Form.Input />
-				<Form.Validation />
-			</Form.Item>
+				<Input {...attrs} bind:value={$formData.confirmPassword} />
+			</Form.Control>
+			<Form.FieldErrors />
 		</Form.Field>
 
 		<Form.Button
@@ -67,4 +64,4 @@
 			<a href="/" class="font-medium underline">Privacy Policy</a>.
 		</p>
 	</div>
-</Form.Root>
+</form>

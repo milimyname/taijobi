@@ -1,13 +1,17 @@
 <script lang="ts">
-	import { superForm } from 'sveltekit-superforms/client';
+	import { superForm } from 'sveltekit-superforms';
 	import { slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
+	import { loginSchema } from '$lib/utils/zodSchema';
+	import { zodClient } from 'sveltekit-superforms/adapters';
 
 	export let data;
 	let disabledPasswordConstraint = false;
 
 	// Client API:
-	const { form, errors, constraints, enhance } = superForm(data.form);
+	const { form, errors, constraints, enhance } = superForm(data.form, {
+		validators: zodClient(loginSchema)
+	});
 </script>
 
 <form

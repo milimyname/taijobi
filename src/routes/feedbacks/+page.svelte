@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { clickedReport } from '$lib/utils/stores';
 	import { ArrowLeft } from 'lucide-svelte';
-	import { superForm } from 'sveltekit-superforms/client';
+	import { superForm } from 'sveltekit-superforms';
 	import { pocketbase } from '$lib/utils/pocketbase';
 	import * as Drawer from '$lib/components/ui/drawer';
 	import * as Dialog from '$lib/components/ui/dialog';
@@ -20,8 +20,6 @@
 			// Keep the form open if there is an error
 			if (form.errors.name || form.errors.description) $clickedReport = true;
 			else $clickedReport = false;
-
-			console.log(form);
 		}
 	});
 
