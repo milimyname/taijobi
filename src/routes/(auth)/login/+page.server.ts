@@ -33,7 +33,7 @@ export const load = async ({ locals, url }) => {
 };
 
 export const actions = {
-	default: async ({ request, locals }) => {
+	login: async ({ request, locals }) => {
 		const form = await superValidate(request, zod(loginSchema));
 
 		// Convenient validation check:
@@ -53,5 +53,16 @@ export const actions = {
 		}
 
 		throw redirect(303, '/');
+	},
+	demo: async ({ locals }) => {
+		try {
+			await locals.pb
+				.collection('users')
+				.authWithPassword(import.meta.env.VITE_DEMO_EMAIL, import.meta.env.VITE_DEMO_PASSWORD);
+
+			throw redirect(303, '/');
+		} catch (error) {
+			console.error(error);
+		}
 	}
 };

@@ -38,7 +38,7 @@
 		<Form.Field {form} name="password" class="flex w-full flex-col md:w-2/3">
 			<Form.Control let:attrs>
 				<Form.Label>Password</Form.Label>
-				<Input {...attrs} bind:value={$formData.password} />
+				<Input {...attrs} bind:value={$formData.password} type="password" />
 			</Form.Control>
 			<Form.FieldErrors />
 		</Form.Field>
@@ -46,7 +46,7 @@
 		<Form.Field {form} name="confirmPassword" class="flex w-full flex-col md:w-2/3">
 			<Form.Control let:attrs>
 				<Form.Label>Confirm password</Form.Label>
-				<Input {...attrs} bind:value={$formData.confirmPassword} />
+				<Input {...attrs} bind:value={$formData.confirmPassword} type="password" />
 			</Form.Control>
 			<Form.FieldErrors />
 		</Form.Field>

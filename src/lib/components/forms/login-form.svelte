@@ -22,7 +22,12 @@
 	}
 </script>
 
-<form method="POST" use:enhance class="flex h-full w-full flex-col gap-24 p-10 md:gap-0">
+<form
+	method="POST"
+	action="?/login"
+	use:enhance
+	class="flex h-full w-full flex-col gap-24 p-10 md:gap-0"
+>
 	<div class="tex flex items-center justify-between">
 		<a href="/signup">Sign up</a>
 		<a href="/" class="self-end">
@@ -51,7 +56,7 @@
 		<Form.Field {form} name="password" class="flex w-full flex-col md:w-2/3">
 			<Form.Control let:attrs>
 				<Form.Label>Password</Form.Label>
-				<Input {...attrs} bind:value={$formData.password} />
+				<Input {...attrs} bind:value={$formData.password} type="password" />
 			</Form.Control>
 			<Form.FieldErrors />
 		</Form.Field>
@@ -82,11 +87,8 @@
 		</Form.Button>
 
 		<Form.Button
+			formaction="?/demo"
 			variant="ghost"
-			on:click={() => {
-				$formData.email = import.meta.env.VITE_DEMO_EMAIL;
-				$formData.password = import.meta.env.VITE_DEMO_PASSWORD;
-			}}
 			class="text-md flex w-full items-center justify-center rounded-md border-2 border-black py-2 font-medium text-black shadow-lg transition duration-200 visited:-translate-x-4 active:translate-y-1 active:shadow-sm md:w-2/3"
 		>
 			Mili's Account
