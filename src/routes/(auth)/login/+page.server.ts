@@ -1,13 +1,12 @@
-import { superValidate, setError } from 'sveltekit-superforms';
+import { superValidate, setError } from 'sveltekit-superforms/server';
 import { fail, redirect } from '@sveltejs/kit';
 import { loginSchema } from '$lib/utils/zodSchema';
 import { zod } from 'sveltekit-superforms/adapters';
+import { DEMO_EMAIL, DEMO_PASSWORD } from '$env/static/private';
 
 export const load = async ({ locals, url }) => {
 	// Redirect if already logged in
 	if (locals.pb.authStore.isValid) throw redirect(303, '/');
-	// Server API:
-	// const form = await superValidate(loginSchema);
 
 	const authMethods = await locals.pb?.collection('users').listAuthMethods();
 	if (!authMethods) {
@@ -58,7 +57,10 @@ export const actions = {
 		try {
 			await locals.pb
 				.collection('users')
-				.authWithPassword(import.meta.env.VITE_DEMO_EMAIL, import.meta.env.VITE_DEMO_PASSWORD);
+				.authWithPassword(
+					process.env.DEMO_EMAIL || DEMO_EMAIL,
+					process.env.DEMO_PASSWORD || DEMO_PASSWORD
+				);
 
 			throw redirect(303, '/');
 		} catch (error) {
