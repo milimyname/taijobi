@@ -130,11 +130,7 @@
 			<Form.FieldErrors />
 		</Form.Field>
 
-		<Form.Field {form} name="id">
-			<Form.Control let:attrs>
-				<Input {...attrs} type="hidden" bind:value={$formData.id} />
-			</Form.Control>
-		</Form.Field>
+		<input type="hidden" name="id" bind:value={$formData.id} />
 	</div>
 
 	{#if $clickedEditFlashcard}
@@ -148,7 +144,7 @@
 			</button>
 		</div>
 	{:else}
-		<button formaction="?/add" class="col-span-2 cursor-not-allowed">
+		<button formaction="?/add" class="cursor-not-allowed">
 			<slot name="add" />
 		</button>
 	{/if}

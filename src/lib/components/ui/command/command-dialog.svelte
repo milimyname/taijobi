@@ -26,7 +26,7 @@
 	</Dialog.Root>
 {:else}
 	<Drawer.Root {open} {...$$restProps} onOutsideClick={() => setTimeout(() => (open = false), 100)}>
-		<Drawer.Content class="h-[80dvh] overflow-hidden shadow-lg">
+		<Drawer.Content class="h-5/6 overflow-hidden shadow-lg">
 			<Command {...$$restProps} bind:value>
 				<slot />
 			</Command>

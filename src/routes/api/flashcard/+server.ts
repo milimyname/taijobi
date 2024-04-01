@@ -1,7 +1,7 @@
 import { convertToRubyTag } from '$lib/utils/actions.js';
 import { isHiragana } from 'wanakana';
 import type { RecordModel } from 'pocketbase';
-import { json, redirect, type RequestHandler } from '@sveltejs/kit';
+import { json, type RequestHandler } from '@sveltejs/kit';
 import { kanji } from '$lib/static/kanji';
 import { kuroshiro } from '$lib/server/kuroshiro';
 

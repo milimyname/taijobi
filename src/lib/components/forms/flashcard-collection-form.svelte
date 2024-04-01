@@ -48,7 +48,7 @@
 			</button>
 		</div>
 	{:else}
-		<button formaction="?/add" class="col-span-2 cursor-not-allowed">
+		<button formaction="?/add" class="cursor-not-allowed">
 			<slot name="add" />
 		</button>
 	{/if}

@@ -27,20 +27,15 @@
 	import { quizSchema, flashcardCollectionSchema } from '$lib/utils/zodSchema';
 	import { superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
-	import { browser } from '$app/environment';
-	import { replaceStateWithQuery } from '$lib/utils';
+	import type { RecordModel } from 'pocketbase';
 
 	export let data;
 
-	$: if (browser && !data.isLoggedIn) {
-		const collectionsNames = data.flashcardCollections
-			.map((collection: any) => collection.name)
-			.join(',');
+	// Reactive variable to keep track of visible cards
+	let visibleCardsCount =
+		data.flashcardCollections.length > 5 ? 5 : data.flashcardCollections.length;
 
-		replaceStateWithQuery({
-			flashcardCollections: collectionsNames
-		});
-	}
+	let savedCollection: RecordModel;
 
 	// Flashcard collection form:
 	const superFrmCollection = superForm(data.form, {
@@ -49,6 +44,9 @@
 			// Keep the form open if there is an error
 			if (form.errors.name) $clickedAddFlashcardCollection = true;
 			else $clickedAddFlashcardCollection = false;
+
+			// Set visible cards count to the total number of flashcard collections
+			visibleCardsCount = data.flashcardCollections.length;
 		}
 	});
 
@@ -83,10 +81,6 @@
 
 	let boxFormData = superFrmBox.form;
 
-	// Reactive variable to keep track of visible cards
-	let visibleCardsCount =
-		data.flashcardCollections.length > 5 ? 5 : data.flashcardCollections.length;
-
 	// Function to handle card removal/swipe
 	function discardCard() {
 		const lastCard = data.flashcardCollections[data.flashcardCollections.length - 1];
@@ -97,46 +91,46 @@
 
 		setTimeout(() => {
 			data.flashcardCollections = [lastCard, ...data.flashcardCollections];
+
 			// Show one more card when discarding
-			if (visibleCardsCount < data.flashcardCollections.length) visibleCardsCount++;
+			if (visibleCardsCount < data.flashcardCollections.length) {
+				// console.log('Flashcards box type:', visibleCardsCount, data.flashcardCollections);
+				visibleCardsCount = data.flashcardCollections.length;
+			}
 		}, 100);
 	}
-
-	onMount(() => {
-		const savedId = localStorage.getItem('currentFlashcardCollectionId');
-		if (savedId !== null) $currentFlashcardCollectionId = savedId;
-		// Reorder data flashcard collections based on the current flashcard collection id or local storage
-		if ($currentFlashcardCollectionId) {
-			const currentFlashcardCollectionIndex = data.flashcardCollections.findIndex(
-				(collection: { id: string }) => collection.id === $currentFlashcardCollectionId
-			);
-			const currentFlashcardCollection = data.flashcardCollections.splice(
-				currentFlashcardCollectionIndex,
-				1
-			);
-			data.flashcardCollections = [...data.flashcardCollections, ...currentFlashcardCollection];
-		}
-	});
 
 	$: if ($skippedFlashcard) {
 		setTimeout(() => discardCard(), 200);
 		$skippedFlashcard = false;
 	}
 
-	$: if (data.flashcardCollections.length < 5) visibleCardsCount = data.flashcardCollections.length;
+	// Show the first 5 cards by updatedAt
+	$: visibleCards = data.flashcardCollections.slice(0, visibleCardsCount).sort((a, b) => {
+		return +new Date(b.updatedAt) - +new Date(a.updatedAt);
+	});
+
+	onMount(() => {
+		const savedId = localStorage.getItem('currentFlashcardCollectionId');
+		if (savedId !== null) $currentFlashcardCollectionId = savedId;
+		// Reorder data flashcard collections based on the current flashcard collection id or local storage
+		if ($currentFlashcardCollectionId) {
+			savedCollection = data.flashcardCollections.find(
+				(collection) => collection.id === $currentFlashcardCollectionId
+			) as RecordModel;
+
+			visibleCards = [...visibleCards.slice(0, visibleCards.length - 1), savedCollection];
+		}
+	});
 </script>
 
-{#if $clickedAddFlahcardBox}
-	<FlashcardCollectionForm form={superFrmBox} />
-{:else}
-	<FlashcardCollectionForm form={superFrmCollection} />
-{/if}
+<FlashcardCollectionForm form={$clickedAddFlahcardBox ? superFrmBox : superFrmCollection} />
 
 <QuizForm form={superFrmQuiz} />
 
 <section class="collection-container flex flex-1 cursor-pointer items-center justify-center pb-20">
 	{#if !isTouchScreen()}
-		{#each data.flashcardCollections.slice(0, visibleCardsCount) as card, index}
+		{#each visibleCards as card, index}
 			<FlashcardCollection
 				name={card.name}
 				id={card.id}
@@ -149,7 +143,7 @@
 		{/each}
 	{:else}
 		<div class="flex cursor-pointer items-center justify-center">
-			{#each data.flashcardCollections.slice(0, visibleCardsCount) as card, index}
+			{#each visibleCards as card, index}
 				<FlashcardCollection
 					name={card.name}
 					id={card.id}

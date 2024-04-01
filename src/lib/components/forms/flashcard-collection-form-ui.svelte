@@ -113,72 +113,61 @@
 {:else}
 	<Drawer.Root {onClose} {open} {onOutsideClick}>
 		<Drawer.Portal>
-			<Drawer.Content class="max-h-fit">
-				<Drawer.Header class="flex items-center text-left">
-					<Drawer.Title class="w-full">
-						{#if $clickedEditFlashcard}
-							Edit {$clickedAddFlashcardCollection ? 'collection' : 'box'}
-						{:else}
-							Add a new {$clickedAddFlashcardCollection ? 'collection' : 'box'}
-						{/if}
-					</Drawer.Title>
+			<Drawer.Content class="fixed bottom-0 left-0 right-0 h-5/6 max-h-[96%]">
+				<div class="flex w-full flex-col overflow-auto">
+					<Drawer.Header class="flex items-center text-left">
+						<Drawer.Title class="w-full">
+							{#if $clickedEditFlashcard}
+								Update {$clickedAddFlashcardCollection ? 'collection' : 'box'}
+							{:else}
+								Add a new {$clickedAddFlashcardCollection ? 'collection' : 'box'}
+							{/if}
+						</Drawer.Title>
 
-					{#if !$clickedAddFlashcardCollection && $maxFlashcards !== '0' && $flashcardBoxes.length > 1}
-						<Drawer.NestedRoot>
-							<Drawer.Trigger
-								class="w-min items-center text-sm underline"
-								on:click={() => ($swapFlashcards = true)}
-							>
-								Swap
-							</Drawer.Trigger>
-							<Drawer.Portal>
-								<Drawer.Content
-									class="select-quiz fixed bottom-0 left-0 right-0 z-[2000] mt-24 flex h-full max-h-[94%] flex-col rounded-t-[10px] bg-gray-100"
+						{#if !$clickedAddFlashcardCollection && $maxFlashcards !== '0' && $flashcardBoxes.length > 1}
+							<Drawer.NestedRoot>
+								<Drawer.Trigger
+									class="w-min items-center text-sm underline"
+									on:click={() => ($swapFlashcards = true)}
 								>
-									<QuizItems flashcardBox={$currentBoxId}>
-										<Drawer.Close asChild let:builder>
-											<Button
-												builders={[builder]}
-												on:click={() => {
-													$selectQuizItemsForm = false;
-													$swapFlashcards = false;
-													$selectedQuizItems = [];
-												}}
-												variant="outline"
-											>
-												Cancel
-											</Button>
-										</Drawer.Close>
-									</QuizItems>
-								</Drawer.Content>
-							</Drawer.Portal>
-						</Drawer.NestedRoot>
-					{/if}
-				</Drawer.Header>
-				<FlashcardCollectionForm {form}>
-					<div slot="delete">
-						<Drawer.Close asChild let:builder>
-							<Button builders={[builder]} variant="destructive" class="w-full">Delete</Button>
-						</Drawer.Close>
-					</div>
+									Swap
+								</Drawer.Trigger>
+								<Drawer.Portal>
+									<Drawer.Content
+										class="select-quiz fixed bottom-0 left-0 right-0 z-[2000] mt-24 flex h-full max-h-[94%] flex-col rounded-t-[10px] bg-gray-100"
+									>
+										<QuizItems flashcardBox={$currentBoxId}>
+											<Drawer.Close asChild let:builder>
+												<Button
+													builders={[builder]}
+													on:click={() => {
+														$selectQuizItemsForm = false;
+														$swapFlashcards = false;
+														$selectedQuizItems = [];
+													}}
+													variant="outline"
+												>
+													Cancel
+												</Button>
+											</Drawer.Close>
+										</QuizItems>
+									</Drawer.Content>
+								</Drawer.Portal>
+							</Drawer.NestedRoot>
+						{/if}
+					</Drawer.Header>
+					<FlashcardCollectionForm {form}>
+						<Button variant="destructive" slot="delete" class="w-full">Delete</Button>
+						<Button slot="update" class="w-full">Update</Button>
+						<Button slot="add" class="w-full">Add</Button>
+					</FlashcardCollectionForm>
 
-					<div slot="update">
+					<Drawer.Footer class="h-fit">
 						<Drawer.Close asChild let:builder>
-							<Button builders={[builder]} class="w-full" {disabled}>Update</Button>
+							<Button builders={[builder]} variant="outline">Cancel</Button>
 						</Drawer.Close>
-					</div>
-					<div slot="add">
-						<Drawer.Close asChild let:builder>
-							<Button builders={[builder]} class="w-full" {disabled}>Add</Button>
-						</Drawer.Close>
-					</div>
-				</FlashcardCollectionForm>
-
-				<Drawer.Footer class="h-fit">
-					<Drawer.Close asChild let:builder>
-						<Button builders={[builder]} variant="outline">Cancel</Button>
-					</Drawer.Close>
-				</Drawer.Footer>
+					</Drawer.Footer>
+				</div>
 			</Drawer.Content>
 		</Drawer.Portal>
 	</Drawer.Root>

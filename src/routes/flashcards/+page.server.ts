@@ -88,8 +88,6 @@ export const actions = {
 		// Convenient validation check:
 		if (!form.valid) return fail(400, { form });
 
-		console.log(form);
-
 		if (form.id === 'collection') {
 			try {
 				// Create a new collection of flashcards
