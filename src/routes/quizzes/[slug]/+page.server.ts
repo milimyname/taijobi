@@ -46,7 +46,7 @@ export const load = async ({ params, locals }) => {
 
 	if (quiz.startCount === 1 && quiz.maxCount === 10) items = quiz.flashcards;
 	else if (quiz.startCount > quiz.flashcards.length) items = quiz.flashcards;
-	else quiz.flashcards.slice(+quiz.startCount, +quiz.maxCount);
+	else items = quiz.flashcards.slice(+quiz.startCount, +quiz.maxCount);
 
 	// Shuffle the flashcards array
 	shuffleArray(items);

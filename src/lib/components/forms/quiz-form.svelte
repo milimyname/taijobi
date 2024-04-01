@@ -132,7 +132,7 @@
 
 					<Form.Field {form} name="maxCount">
 						<Form.Control let:attrs>
-							<Form.Label>End</Form.Label>
+							<Form.Label>End ({$maxFlashcards})</Form.Label>
 							<Input
 								{...attrs}
 								type="number"
