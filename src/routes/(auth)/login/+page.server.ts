@@ -1,4 +1,4 @@
-import { superValidate, setError } from 'sveltekit-superforms/server';
+import { superValidate, setError } from 'sveltekit-superforms';
 import { fail, redirect } from '@sveltejs/kit';
 import { loginSchema } from '$lib/utils/zodSchema';
 import { zod } from 'sveltekit-superforms/adapters';

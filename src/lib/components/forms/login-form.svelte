@@ -88,6 +88,10 @@
 
 		<Form.Button
 			formaction="?/demo"
+			on:click={() => {
+				$formData.email = 'mili';
+				$formData.password = 'milimyname';
+			}}
 			variant="ghost"
 			class="text-md flex w-full items-center justify-center rounded-md border-2 border-black py-2 font-medium text-black shadow-lg transition duration-200 visited:-translate-x-4 active:translate-y-1 active:shadow-sm md:w-2/3"
 		>
