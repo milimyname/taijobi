@@ -21,14 +21,14 @@ ENV NODE_ENV production
 # If you're using Docker secrets, the secret should be available as a file in /run/secrets/
 # Here, we're assuming VITE_POCKETBASE_URL is available as a file at /run/secrets/VITE_POCKETBASE_URL
 ARG VITE_POCKETBASE_URL
-ARG VITE_DEMO_PASSWORD
-ARG VITE_DEMO_EMAIL
+ARG DEMO_PASSWORD
+ARG DEMO_EMAIL
 ARG OPENAI_API_KEY
 RUN --mount=type=secret,id=VITE_POCKETBASE_URL \
     export VITE_POCKETBASE_URL="$(cat /run/secrets/VITE_POCKETBASE_URL)" && \
     export OPENAI_API_KEY="$(cat /run/secrets/OPENAI_API_KEY)" && \
-    export VITE_DEMO_PASSWORD="$(cat /run/secrets/VITE_DEMO_PASSWORD)" && \
-    export VITE_DEMO_EMAIL="$(cat /run/secrets/VITE_DEMO_EMAIL)" && \
+    export DEMO_PASSWORD="$(cat /run/secrets/DEMO_PASSWORD)" && \
+    export DEMO_EMAIL="$(cat /run/secrets/DEMO_EMAIL)" && \
     pnpm run build
 
 # Remove dev dependencies
@@ -49,7 +49,7 @@ ENV NODE_ENV production
 # Set the environment variable here. It's important to understand that this value will not be
 # the secret value from the build stage, but rather a placeholder to be set at container runtime.
 ENV VITE_POCKETBASE_URL=${VITE_POCKETBASE_URL}
-ENV VITE_DEMO_PASSWORD=${VITE_DEMO_PASSWORD}
-ENV VITE_DEMO_EMAIL=${VITE_DEMO_EMAIL}
+ENV DEMO_PASSWORD=${DEMO_PASSWORD}
+ENV DEMO_EMAIL=${DEMO_EMAIL}
 
 CMD ["node", "./build"]
