@@ -14,8 +14,8 @@ jobs:
           flyctl deploy --remote-only \
             --build-secret VITE_POCKETBASE_URL=${{ secrets.VITE_POCKETBASE_URL }} \
             --build-secret OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
-            --build-secret VITE_DEMO_PASSWORD=${{ secrets.VITE_DEMO_PASSWORD }} \
-            --build-secret VITE_DEMO_EMAIL=${{ secrets.VITE_DEMO_EMAIL }}
+            --build-secret DEMO_PASSWORD=${{ secrets.DEMO_PASSWORD }} \
+            --build-secret DEMO_EMAIL=${{ secrets.DEMO_EMAIL }}
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
