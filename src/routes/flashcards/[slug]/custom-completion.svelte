@@ -168,7 +168,7 @@
 		</Select.Trigger>
 		<Select.Content class="flashcard-completion-btn">
 			{#if !conjugationData?.error}
-				{#each Object.values(conjugationData) as conjugation}
+				{#each [wordFlashcard?.name, ...Object.values(conjugationData)] as conjugation}
 					<Select.Item value={conjugation}>
 						{conjugation}
 					</Select.Item>

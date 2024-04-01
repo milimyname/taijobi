@@ -84,8 +84,8 @@
 		<Form.Button
 			variant="ghost"
 			on:click={() => {
-				$formData.email = 'kj@mili-my.name';
-				$formData.password = '12345678';
+				$formData.email = import.meta.env.VITE_DEMO_EMAIL;
+				$formData.password = import.meta.env.VITE_DEMO_PASSWORD;
 			}}
 			class="text-md flex w-full items-center justify-center rounded-md border-2 border-black py-2 font-medium text-black shadow-lg transition duration-200 visited:-translate-x-4 active:translate-y-1 active:shadow-sm md:w-2/3"
 		>
