@@ -69,7 +69,7 @@
 					class="feedback-btn absolute left-1/2 top-10 z-20 flex w-20 -translate-x-1/2 -translate-y-1/2 gap-6 rounded-full border px-4 py-2"
 				>
 					{animationText}
-					<button on:click|stopPropagation={() => ($openSearch = true)}>
+					<button on:click|stopPropagation={() => ($openSearch = true)} class="bg-transparent">
 						<Search class="size-4" />
 					</button>
 				</Button>
@@ -105,7 +105,7 @@
 					class="feedback-btn absolute left-1/2 top-10 z-20 flex w-20 -translate-x-1/2 -translate-y-1/2 gap-4 rounded-full border px-4 py-2"
 				>
 					{animationText}
-					<button on:click|stopPropagation={() => ($openSearch = true)}>
+					<button on:click|stopPropagation={() => ($openSearch = true)} class="bg-transparent">
 						<Search class="size-4" />
 					</button>
 				</Button>
