@@ -5,7 +5,7 @@
 	import { onMount } from 'svelte';
 	import { getFlashcardHeight, getFlashcardWidth } from '$lib/utils';
 
-	export let rotationY: number;
+	export let rotationY: number = 0;
 	export let canvas: HTMLCanvasElement;
 	export let ctx: Ctx;
 
