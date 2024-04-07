@@ -51,7 +51,7 @@
 	});
 
 	$: if ($currentFlashcard.length === 1) {
-		/// Set the current alphabet if the flashcard contains only one character
+		// Set the current alphabet if the flashcard contains only one character
 		if (isKanji($currentFlashcard)) {
 			$currentAlphabet = 'kanji';
 		} else if (isKatakana($currentFlashcard)) $currentAlphabet = 'katakana';

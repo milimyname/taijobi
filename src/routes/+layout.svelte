@@ -4,6 +4,7 @@
 	import Umami from '$lib/components/Umami.svelte';
 	import { innerWidthStore, innerHeightStore } from '$lib/utils/stores';
 	import Search from '$lib/components/Search.svelte';
+	import { Toaster } from '$lib/components/ui/sonner';
 </script>
 
 <svelte:window bind:innerWidth={$innerWidthStore} bind:innerHeight={$innerHeightStore} />
@@ -11,5 +12,6 @@
 <Umami />
 <FeedbackForm />
 <Search />
+<Toaster />
 
 <slot />

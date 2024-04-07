@@ -2,70 +2,133 @@
 	import { onMount } from 'svelte';
 	import type { Ctx } from '$lib/utils/ambient.d.ts';
 	import Canvas from '$lib/components/canvas/Canvas.svelte';
-	import { createWorker } from 'tesseract.js';
 	import { clearCanvas } from '$lib/utils/actions';
 	import { CircleX, CirclePlus } from 'lucide-svelte';
-
-	// export let data;
+	import handwriting from '$lib/utils/handwriting.js';
+	import { toast } from 'svelte-sonner';
+	import { ScrollArea } from '$lib/components/ui/scroll-area/index';
+	import { getFlashcardWidth } from '$lib/utils';
+	import { innerWidthStore, searchKanji, kanjiStore } from '$lib/utils/stores';
+	import { isKanji, isKatakana, isHiragana } from 'wanakana';
+	import { goto } from '$app/navigation';
 
 	let canvas: HTMLCanvasElement;
 	let ctx: Ctx;
 	let recognizedLetters: string[] = [];
+	let handwritingInstance: any;
 
 	// Get canvas and context
 	onMount(() => {
 		canvas = document.querySelector('canvas') as HTMLCanvasElement;
 		ctx = canvas.getContext('2d') as Ctx;
+
+		if (canvas) {
+			handwritingInstance = new handwriting.Canvas(canvas, 'light');
+
+			// Example: Set up a callback to do something when the canvas is clicked
+			handwritingInstance.setCallBack((results: string[], error: string[]) => {
+				if (error) console.error('Handwriting recognition error:', error);
+				else console.log('Handwriting recognition results:', results);
+			});
+		}
 	});
 
-	// async function logTesseract() {
-	// 	const worker = await createWorker('eng');
-	// 	const ret = await worker.recognize('https://tesseract.projectnaptha.com/img/eng_bw.png');
-	// 	console.log(ret.data.text);
-	// 	await worker.terminate();
-	// }
+	// Function to trigger handwriting recognition
+	function recognize() {
+		return new Promise(async (resolve, reject) => {
+			try {
+				// Get the image data URL from the temporary canvas
+				const image = canvas.toDataURL('image/png');
 
-	//  Capture canvas to image
-	async function performOCR() {
-		const image = canvas.toDataURL('image/png');
+				if (image.endsWith('qAAAAAElFTkSuQmCC')) return reject('No image to process');
 
-		// const worker = await createWorker('jpn', 1, {
-		// 	logger: (m) => console.log(m)
-		// });
-		const worker = await createWorker('jpn', 1);
+				handwritingInstance.recognize(
+					handwritingInstance.trace,
+					{ language: 'ja' },
+					(results: string[], error: string) => {
+						if (error) {
+							console.error('Recognition error:', error);
+							reject(error); // Reject the promise with an error message on failure
+						} else {
+							// Get only first letter from the results
+							const newResults = new Set(results.map((result) => result[0]));
 
-		try {
-			const {
-				data: { text }
-			} = await worker.recognize(image);
-			recognizedLetters = [...recognizedLetters, text];
-		} catch (error) {
-			console.error('OCR error:', error);
+							recognizedLetters = [...recognizedLetters, ...newResults];
+							resolve(results); // Resolve the promise with the recognition results on success
+						}
+					}
+				);
+			} catch (err) {
+				const message = err instanceof Error ? err.message : 'An error occurred';
+				reject(message);
+			}
+		});
+	}
+
+	function findKanji() {
+		toast.promise(recognize(), {
+			loading: 'Processing image...',
+			success: 'Successfully recognized the character!',
+			error: 'Failed to recognize the character. Please try again.'
+		});
+
+		// Check if the recognized letter is a valid Japanese character
+		recognizedLetters = recognizedLetters.filter(
+			(letter) => isKanji(letter) || isKatakana(letter) || isHiragana(letter)
+		);
+	}
+
+	function goToKanji(event: MouseEvent | TouchEvent) {
+		const target = event.target as HTMLButtonElement;
+		const letter = target.textContent;
+
+		if (!$kanjiStore.find((k) => k === letter)) {
+			return toast.error(
+				'This character is not available in the database. Please leave a feedback by clicking the 🐞 above'
+			);
 		}
 
-		await worker.terminate();
+		if (letter && isKanji(letter)) {
+			// Redirect to the kanji page
+			$searchKanji = letter;
+
+			goto('/alphabets/kanji');
+		}
 	}
 </script>
 
-<section class="flex h-full flex-col gap-4 sm:gap-5 lg:justify-center">
-	<div class="flex gap-2">
-		{#each recognizedLetters as letter}
-			<p class="text-xl">{letter}</p>
-		{/each}
-	</div>
+<section class="flex h-full flex-col-reverse gap-4 sm:gap-5 md:flex-col lg:justify-center">
+	{#if recognizedLetters.length > 0}
+		<ScrollArea class="overflow-hidden whitespace-nowrap" orientation="horizontal">
+			<div
+				class="flex w-max space-x-4 pb-4"
+				style={`width: ${getFlashcardWidth($innerWidthStore)}px;`}
+			>
+				{#each recognizedLetters as letter}
+					<button class="flex flex-col rounded-md border p-5" on:click={goToKanji}>
+						<span class="text-2xl font-bold">{letter}</span>
+					</button>
+				{/each}
+			</div>
+		</ScrollArea>
+	{/if}
+
 	<div style="perspective: 3000px;" class="my-auto lg:my-0">
 		<div>
 			<Canvas {canvas} {ctx} />
 
 			<button
-				on:click|preventDefault={() => clearCanvas(ctx, canvas)}
+				on:click|preventDefault={() => {
+					clearCanvas(ctx, canvas);
+					recognizedLetters = [];
+				}}
 				class="fixed bottom-5 left-5 z-30 block rounded-full border bg-white p-2 shadow-sm transition-all"
 			>
 				<CircleX />
 			</button>
 
 			<button
-				on:click={performOCR}
+				on:click={findKanji}
 				class="fixed bottom-5 right-5 z-30 block rounded-full border bg-white p-2 shadow-sm transition-all"
 			>
 				<CirclePlus />
