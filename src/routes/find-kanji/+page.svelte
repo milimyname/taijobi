@@ -7,10 +7,13 @@
 	import handwriting from '$lib/utils/handwriting.js';
 	import { toast } from 'svelte-sonner';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index';
+	import { Button } from '$lib/components/ui/button';
 	import { getFlashcardWidth } from '$lib/utils';
 	import { innerWidthStore, searchKanji, kanjiStore } from '$lib/utils/stores';
 	import { isKanji, isKatakana, isHiragana } from 'wanakana';
 	import { goto } from '$app/navigation';
+	import { slide } from 'svelte/transition';
+	import { quintOut } from 'svelte/easing';
 
 	let canvas: HTMLCanvasElement;
 	let ctx: Ctx;
@@ -80,37 +83,58 @@
 
 	function goToKanji(event: MouseEvent | TouchEvent) {
 		const target = event.target as HTMLButtonElement;
-		const letter = target.textContent;
+		const letter = target.textContent?.trim();
 
-		if (!$kanjiStore.find((k) => k === letter)) {
+		// If the letter is a katakana or hiragana, redirect to the alphabets page
+		if (letter && (isKatakana(letter) || isHiragana(letter))) {
+			const isKatakanaLetter = isKatakana(letter);
+
+			return toast.error('Please look for it in alphabets section.', {
+				action: {
+					label: `Go to ${isKatakanaLetter ? 'Katakana' : 'Hiragana'} section`,
+					onClick: () => goto(`/alphabets/${isKatakanaLetter ? 'katakana' : 'hiragana'}`)
+				}
+			});
+		}
+
+		const kanjiExists = $kanjiStore.find((k) => k === letter);
+
+		// Check if the letter is available in the kanji store
+		if (!kanjiExists || !letter) {
 			return toast.error(
-				'This character is not available in the database. Please leave a feedback by clicking the 🐞 above'
+				'This kanji is not available. Please leave a feedback by clicking the 🐞 above'
 			);
 		}
 
-		if (letter && isKanji(letter)) {
-			// Redirect to the kanji page
-			$searchKanji = letter;
+		// Redirect to the kanji page
+		$searchKanji = letter;
 
-			goto('/alphabets/kanji');
-		}
+		toast.loading('Redirecting to the kanji page...');
+
+		goto('/alphabets/kanji');
 	}
 </script>
 
-<section class="flex h-full flex-col-reverse gap-4 sm:gap-5 md:flex-col lg:justify-center">
+<section class="flex h-full flex-col-reverse gap-4 sm:gap-5 lg:flex-col lg:justify-center">
 	{#if recognizedLetters.length > 0}
-		<ScrollArea class="overflow-hidden whitespace-nowrap" orientation="horizontal">
-			<div
-				class="flex w-max space-x-4 pb-4"
-				style={`width: ${getFlashcardWidth($innerWidthStore)}px;`}
-			>
-				{#each recognizedLetters as letter}
-					<button class="flex flex-col rounded-md border p-5" on:click={goToKanji}>
-						<span class="text-2xl font-bold">{letter}</span>
-					</button>
-				{/each}
-			</div>
-		</ScrollArea>
+		<div transition:slide={{ delay: 0, duration: 1000, easing: quintOut, axis: 'x' }}>
+			<ScrollArea class="overflow-hidden whitespace-nowrap" orientation="horizontal">
+				<div
+					class="flex w-max space-x-4 pb-4"
+					style={`width: ${getFlashcardWidth($innerWidthStore)}px;`}
+				>
+					{#each recognizedLetters as letter}
+						<Button
+							variant="ghost"
+							class="flex flex-col rounded-md border p-5"
+							on:click={goToKanji}
+						>
+							<span class="text-2xl font-bold">{letter}</span>
+						</Button>
+					{/each}
+				</div>
+			</ScrollArea>
+		</div>
 	{/if}
 
 	<div style="perspective: 3000px;" class="my-auto lg:my-0">
