@@ -5,6 +5,7 @@
 	import { innerWidthStore, innerHeightStore } from '$lib/utils/stores';
 	import Search from '$lib/components/Search.svelte';
 	import { Toaster } from '$lib/components/ui/sonner';
+	import Kbd from '$lib/components/Kbd.svelte';
 </script>
 
 <svelte:window bind:innerWidth={$innerWidthStore} bind:innerHeight={$innerHeightStore} />
@@ -13,5 +14,6 @@
 <FeedbackForm />
 <Search />
 <Toaster />
+<Kbd />
 
 <slot />

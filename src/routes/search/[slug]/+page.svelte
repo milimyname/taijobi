@@ -37,6 +37,7 @@
 	</div>
 
 	<Button
+		variant="outline"
 		href={!$searchedWordStore.type
 			? '/alphabets/kanji'
 			: `/flashcards/${$searchedWordStore?.flashcardBox}`}

@@ -37,44 +37,46 @@
 	// You would need to define isReversing and possibly other missing variables or logic outside this snippet.
 	function onOutsideClickDrawer(e: MouseEvent | TouchEvent | PointerEvent) {
 		//  If the user clicks on the leave button, don't move the card
+
 		if ($page.url.pathname.includes('flashcards') && (e.target as Element).closest('.feedback-btn'))
 			return;
 
 		if ($page.url.pathname.slice(1) === 'flashcards') $clickedFeedback = false;
 	}
 
-	function onCloseDrawer() {
-		if ($page.url.pathname.slice(1) === 'flashcards') $clickedFeedback = false;
-	}
-
 	onMount(() => performAnimation());
 
-	$: hideFeedbackButton =
+	$: hide =
 		$page.url.pathname.slice(1) === 'login' ||
 		$page.url.pathname.slice(1) === 'signup' ||
 		$page.url.pathname.slice(1) === 'admin' ||
 		$page.url.pathname.startsWith('/test') ||
 		!$page.data.isLoggedIn;
 
-	$: if ($page.url.pathname.slice(1) === 'flashcards') $clickedFeedback = false;
+	$: console.log('hide', { $openSearch });
+
+	$: if ($openSearch) $openSearch = true;
 </script>
 
 {#if $isDesktop}
-	<Dialog.Root bind:open={$clickedFeedback} onOutsideClick={onOutsideClickDrawer}>
-		<Dialog.Trigger asChild let:builder>
-			{#if !hideFeedbackButton}
+	<Dialog.Root bind:open={$clickedFeedback}>
+		{#if !hide}
+			<Dialog.Trigger asChild let:builder>
 				<Button
-					variant="outline"
+					variant="none"
 					builders={[builder]}
-					class="feedback-btn absolute left-1/2 top-10 z-20 flex w-20 -translate-x-1/2 -translate-y-1/2 gap-6 rounded-full border px-4 py-2"
+					class="feedback-btn absolute left-1/2 top-12 z-20 -translate-x-1/2 -translate-y-1/2 border-none px-4 py-2"
 				>
 					{animationText}
-					<button on:click|stopPropagation={() => ($openSearch = true)} class="bg-transparent">
-						<Search class="size-4" />
-					</button>
 				</Button>
-			{/if}
-		</Dialog.Trigger>
+				<button
+					on:click|stopPropagation={() => ($openSearch = true)}
+					class="search-btn absolute left-1/2 top-12 z-20 ml-10 h-10 -translate-x-1/2 -translate-y-1/2 rounded-md border-none px-4 py-2"
+				>
+					<Search class="size-4" />
+				</button>
+			</Dialog.Trigger>
+		{/if}
 		<Dialog.Overlay class="fixed inset-0 bg-black bg-opacity-30" />
 		<Dialog.Content class="z-[100] sm:max-w-[425px]">
 			<Dialog.Header>
@@ -92,25 +94,24 @@
 		</Dialog.Content>
 	</Dialog.Root>
 {:else}
-	<Drawer.Root
-		onClose={onCloseDrawer}
-		open={$page.url.pathname.endsWith('flashcards') && $clickedFeedback}
-		onOutsideClick={onOutsideClickDrawer}
-	>
-		<Drawer.Trigger asChild let:builder>
-			{#if !hideFeedbackButton}
+	<Drawer.Root open={$clickedFeedback} onOutsideClick={onOutsideClickDrawer}>
+		{#if !hide}
+			<Dialog.Trigger asChild let:builder>
 				<Button
-					variant="outline"
+					variant="none"
 					builders={[builder]}
-					class="feedback-btn absolute left-1/2 top-10 z-20 flex w-20 -translate-x-1/2 -translate-y-1/2 gap-4 rounded-full border px-4 py-2"
+					class="feedback-btn absolute left-1/2 top-10 z-20 -translate-x-1/2 -translate-y-1/2 bg-white px-4 py-2"
 				>
 					{animationText}
-					<button on:click|stopPropagation={() => ($openSearch = true)} class="bg-transparent">
-						<Search class="size-4" />
-					</button>
 				</Button>
-			{/if}
-		</Drawer.Trigger>
+				<button
+					on:click|stopPropagation={() => ($openSearch = true)}
+					class="search-btn absolute left-1/2 top-10 z-20 ml-10 h-10 -translate-x-1/2 -translate-y-1/2 rounded-md bg-white px-4 py-2"
+				>
+					<Search class="size-4" />
+				</button>
+			</Dialog.Trigger>
+		{/if}
 		<Drawer.Portal>
 			<Drawer.Content>
 				<Drawer.Header class="text-left">

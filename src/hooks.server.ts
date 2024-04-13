@@ -1,4 +1,5 @@
 import PocketBase from 'pocketbase';
+import { dev } from '$app/environment';
 
 // PocketBase auth store middleware
 /** @type {import('@sveltejs/kit').Handle} */
@@ -8,7 +9,9 @@ export async function handle({ event, resolve }) {
 	// Don't authenticate for /test
 	if (event.url.pathname.startsWith('/test')) return resolve(event);
 
-	event.locals.pb = new PocketBase(import.meta.env.VITE_POCKETBASE_URL);
+	event.locals.pb = new PocketBase(
+		dev ? import.meta.env.VITE_DEV_POCKETBASE_URL : import.meta.env.VITE_POCKETBASE_URL
+	);
 
 	// load the store data from the request cookie string
 	event.locals.pb.authStore.loadFromCookie(event.request.headers.get('cookie') || '');

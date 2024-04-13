@@ -130,15 +130,7 @@
 	}
 
 	function onTouchStart(event: TouchEvent) {
-		if (
-			!$showCollections &&
-			!$clickedQuizForm &&
-			!$clickedAddFlashcardCollection &&
-			!$clickedAddFlahcardBox &&
-			!$clickedFeedback &&
-			!$openSearch
-		)
-			event.preventDefault();
+		if (preventedDefault) event.preventDefault();
 
 		// Freeze cards when drawer is open
 		if ($clickedFeedback || $clickedAddFlahcardBox || $clickedAddFlashcardCollection) return;
@@ -147,13 +139,11 @@
 
 		// If the user clicks on the add button, don't move the card
 		if ((event.target as Element).closest('.add-btn')) {
-			$clickedAddFlashcardCollection = !$clickedAddFlashcardCollection;
-			return;
+			return ($clickedAddFlashcardCollection = !$clickedAddFlashcardCollection);
 		}
 		// If the user clicks on the add button, don't move the card
 		if ((event.target as Element).closest('.go-back-btn')) {
-			$page.route.id && goto('/');
-			return;
+			return $page.route.id && goto('/');
 		}
 
 		// If the user clicks on the add button, don't move the card
@@ -169,24 +159,26 @@
 
 		//  If the user clicks on the leave button, don't move the card
 		if ((event.target as Element).closest('.feedback-btn')) {
-			$clickedFeedback = true;
+			return ($clickedFeedback = true);
+		}
 
-			return;
+		if ((event.target as Element).closest('.search-btn')) {
+			return ($openSearch = true);
 		}
 
 		isDragging = true;
 	}
 
+	$: preventedDefault =
+		!$showCollections &&
+		!$clickedQuizForm &&
+		!$clickedAddFlashcardCollection &&
+		!$clickedAddFlahcardBox &&
+		!$clickedFeedback &&
+		!$openSearch;
+
 	function onTouchMove(event: TouchEvent) {
-		if (
-			!$showCollections &&
-			!$clickedQuizForm &&
-			!$clickedAddFlashcardCollection &&
-			!$clickedAddFlahcardBox &&
-			!$clickedFeedback &&
-			!$openSearch
-		)
-			event.preventDefault();
+		if (preventedDefault) event.preventDefault();
 
 		// Freeze cards when drawer is open
 		if ($clickedFeedback || $clickedAddFlahcardBox || $clickedAddFlashcardCollection) return;
@@ -225,15 +217,7 @@
 	}
 
 	function onTouchEnd(event: TouchEvent) {
-		if (
-			!$showCollections &&
-			!$clickedQuizForm &&
-			!$clickedAddFlashcardCollection &&
-			!$clickedAddFlahcardBox &&
-			!$clickedFeedback &&
-			!$openSearch
-		)
-			event.preventDefault();
+		if (preventedDefault) event.preventDefault();
 
 		// Freeze cards when drawer is open
 		if ($clickedFeedback || $clickedAddFlahcardBox || $clickedAddFlashcardCollection) return;
