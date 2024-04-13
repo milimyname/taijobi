@@ -53,8 +53,6 @@
 		$page.url.pathname.startsWith('/test') ||
 		!$page.data.isLoggedIn;
 
-	$: console.log('hide', { $openSearch });
-
 	$: if ($openSearch) $openSearch = true;
 </script>
 

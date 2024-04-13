@@ -95,7 +95,9 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		const flashcards = await locals.pb.collection('flashcard').getList(1, 100, {
 			filter: locals.pb.filter(finalFilter, {
 				search
-			})
+			}),
+			expand: 'flashcardBox',
+			fields: `id, name, meaning, furigana, expand.flashcardBox.name`
 		});
 
 		// Process the furigana for each flashcard
