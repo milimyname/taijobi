@@ -17,7 +17,8 @@ export function clickOutside(node: Node, callback: () => void) {
 		'.quiz-form',
 		'.alphabet',
 		'.flashcard-completion-btn',
-		'.flaschards-carousel'
+		'.flaschards-carousel',
+		'.search-btn'
 	];
 
 	function handleClick(e: MouseEvent) {

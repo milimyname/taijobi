@@ -8,16 +8,29 @@ export const load = async ({ locals }) => {
 
 	const user = locals.pb.authStore.model;
 
-	if (user?.role.includes('admin'))
+	if (!locals.pb.authStore.isValid) {
+		return {
+			isLoggedIn: false,
+			isAdmin: false
+		};
+	}
+
+	if (user?.role.includes('admin')) {
 		// Get all the flashcards
 		feedbacks = await locals.pb.collection('feedbacks').getFullList();
-	// Get all the flashcards
-	else
+	} else {
+		// Get all the flashcards
 		feedbacks = await locals.pb.collection('feedbacks').getFullList({
 			filter: `userId = "${user?.id}"`
 		});
+	}
 
-	return { feedbacks, form: await superValidate(zod(feedbackSchema)) };
+	return {
+		feedbacks,
+		form: await superValidate(zod(feedbackSchema)),
+		isLoggedIn: true,
+		isAdmin: user?.role.includes('admin')
+	};
 };
 
 export const actions = {

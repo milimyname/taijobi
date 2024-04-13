@@ -63,14 +63,7 @@
 	<aside
 		class="fixed bottom-5 left-0 flex w-full justify-center p-5 pb-0 lg:sticky lg:h-full lg:w-full lg:justify-between lg:p-0"
 	>
-		<p class="fixed bottom-5 left-5 hidden text-sm text-muted-foreground lg:block">
-			Press
-			<kbd
-				class="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100"
-			>
-				<span class="text-xs">{getHotkeyPrefix()}</span>K
-			</kbd>
-		</p>
+	
 		<nav
 			class={cn(
 				'z-40 flex items-center justify-between gap-40 rounded-full bg-primary p-2 text-white transition-all lg:h-full lg:flex-col lg:justify-center lg:gap-10 lg:p-5',

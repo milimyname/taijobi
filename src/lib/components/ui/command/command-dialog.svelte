@@ -5,11 +5,23 @@
 	import type { Command as CommandPrimitive } from 'cmdk-sv';
 	import * as Drawer from '$lib/components/ui/drawer';
 	import { isDesktop } from '$lib/utils';
+	import { page } from '$app/stores';
 
 	type $$Props = DialogPrimitive.Props & CommandPrimitive.CommandProps;
 
 	export let open: $$Props['open'] = false;
 	export let value: $$Props['value'] = undefined;
+
+	// You would need to define isReversing and possibly other missing variables or logic outside this snippet.
+	function onOutsideClickDrawer(e: MouseEvent | TouchEvent | PointerEvent) {
+		//  If the user clicks on the leave button, don't move the card
+		if ($page.url.pathname.includes('flashcards') && (e.target as Element).closest('.search-btn'))
+			return;
+
+		if ($page.url.pathname.slice(1) === 'flashcards') open = false;
+
+		setTimeout(() => (open = false), 100);
+	}
 </script>
 
 {#if $isDesktop}
@@ -25,7 +37,7 @@
 		</Dialog.Content>
 	</Dialog.Root>
 {:else}
-	<Drawer.Root {open} {...$$restProps} onOutsideClick={() => setTimeout(() => (open = false), 100)}>
+	<Drawer.Root {open} {...$$restProps} onOutsideClick={onOutsideClickDrawer}>
 		<Drawer.Content class="h-5/6 overflow-hidden shadow-lg">
 			<Command {...$$restProps} bind:value>
 				<slot />

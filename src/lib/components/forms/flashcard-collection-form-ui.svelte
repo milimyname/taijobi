@@ -113,7 +113,7 @@
 {:else}
 	<Drawer.Root {onClose} {open} {onOutsideClick}>
 		<Drawer.Portal>
-			<Drawer.Content class="fixed bottom-0 left-0 right-0 h-5/6 max-h-[96%]">
+			<Drawer.Content class="fixed bottom-0 left-0 right-0 h-fit max-h-[96%]">
 				<div class="flex w-full flex-col overflow-auto">
 					<Drawer.Header class="flex items-center text-left">
 						<Drawer.Title class="w-full">
