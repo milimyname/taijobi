@@ -12,8 +12,6 @@
 	import { innerWidthStore, searchKanji, kanjiStore } from '$lib/utils/stores';
 	import { isKanji, isKatakana, isHiragana } from 'wanakana';
 	import { goto } from '$app/navigation';
-	import { slide } from 'svelte/transition';
-	import { quintOut } from 'svelte/easing';
 
 	let canvas: HTMLCanvasElement;
 	let ctx: Ctx;
@@ -91,7 +89,7 @@
 
 			return toast.error('Please look for it in alphabets section.', {
 				action: {
-					label: `Go to ${isKatakanaLetter ? 'Katakana' : 'Hiragana'} section`,
+					label: isKatakanaLetter ? 'Katakana' : 'Hiragana',
 					onClick: () => goto(`/alphabets/${isKatakanaLetter ? 'katakana' : 'hiragana'}`)
 				}
 			});
@@ -109,31 +107,42 @@
 		// Redirect to the kanji page
 		$searchKanji = letter;
 
-		toast.loading('Redirecting to the kanji page...');
-
 		goto('/alphabets/kanji');
 	}
 </script>
 
 <section class="flex h-full flex-col-reverse gap-4 sm:gap-5 lg:flex-col lg:justify-center">
 	{#if recognizedLetters.length > 0}
-		<div transition:slide={{ delay: 0, duration: 1000, easing: quintOut, axis: 'x' }}>
-			<ScrollArea class="overflow-hidden whitespace-nowrap" orientation="horizontal">
-				<div
-					class="flex w-max space-x-4 pb-4"
-					style={`width: ${getFlashcardWidth($innerWidthStore)}px;`}
+		<ScrollArea class="overflow-y-visible whitespace-nowrap" orientation="horizontal">
+			<div
+				class="flex w-max space-x-4 pb-4"
+				style={`width: ${getFlashcardWidth($innerWidthStore)}px;`}
+			>
+				{#each recognizedLetters as letter}
+					<Button
+						variant="ghost"
+						class="relative flex flex-col rounded-md border p-5"
+						on:click={goToKanji}
+					>
+						<span class="text-2xl font-bold">{letter}</span>
+					</Button>
+				{/each}
+			</div>
+		</ScrollArea>
+	{:else}
+		<div
+			class="invisible flex w-max space-x-4 pb-4 opacity-0"
+			style={`width: ${getFlashcardWidth($innerWidthStore)}px;`}
+		>
+			{#each ['あ'] as letter}
+				<Button
+					variant="ghost"
+					class="relative flex flex-col rounded-md border p-5"
+					on:click={goToKanji}
 				>
-					{#each recognizedLetters as letter}
-						<Button
-							variant="ghost"
-							class="flex flex-col rounded-md border p-5"
-							on:click={goToKanji}
-						>
-							<span class="text-2xl font-bold">{letter}</span>
-						</Button>
-					{/each}
-				</div>
-			</ScrollArea>
+					<span class="text-2xl font-bold">{letter}</span>
+				</Button>
+			{/each}
 		</div>
 	{/if}
 
@@ -144,6 +153,9 @@
 			<button
 				on:click|preventDefault={() => {
 					clearCanvas(ctx, canvas);
+					// CLear handwritingInstance
+					handwritingInstance.erase();
+
 					recognizedLetters = [];
 				}}
 				class="fixed bottom-5 left-5 z-30 block rounded-full border bg-white p-2 shadow-sm transition-all"
