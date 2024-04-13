@@ -92,7 +92,7 @@
 							$openSearch = false;
 							$searchedWordStore = currentHoveredFlashcard;
 						}}
-						class="center underline"
+						class="text-center underline"
 					>
 						See more
 
