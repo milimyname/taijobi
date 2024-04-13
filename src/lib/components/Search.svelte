@@ -6,7 +6,7 @@
 
 	let search = '';
 	let fetchedData: any[] = getRandomKanji();
-	let value: string = fetchedData[0].name;
+	let value: string = fetchedData[0].id;
 
 	// Fetch flashcards from the server
 	async function fetchFlashcards() {
@@ -48,9 +48,9 @@
 
 	$: if (search !== '' && fetchedData.length === 0) value = '';
 
-	$: currentHoveredFlashcard = fetchedData?.find((flashcard) => flashcard.name === value);
+	$: currentHoveredFlashcard = fetchedData?.find((flashcard) => flashcard.id === value);
 
-	$: fetchedData.length === 1 && (value = fetchedData[0].name);
+	$: fetchedData.length === 1 && (value = fetchedData[0].id);
 </script>
 
 <Command.Dialog bind:open={$openSearch} bind:value shouldFilter={false}>
@@ -64,7 +64,7 @@
 			{#if fetchedData.length > 0}
 				<Command.Group heading="Suggestions" class="border-r">
 					{#each fetchedData as flashcard}
-						<Command.Item value={flashcard.name} class="flex flex-col items-start gap-0.5">
+						<Command.Item value={flashcard.id} class="flex flex-col items-start gap-0.5">
 							<h4 class="font-medium">{flashcard.name}</h4>
 							<h4>{flashcard.meaning}</h4>
 						</Command.Item>
@@ -85,15 +85,22 @@
 					{/if}
 
 					<h3>{currentHoveredFlashcard.meaning}</h3>
+
 					<a
 						href={`/search/${value}`}
 						on:click={() => {
 							$openSearch = false;
 							$searchedWordStore = currentHoveredFlashcard;
 						}}
-						class="underline"
+						class="center underline"
 					>
 						See more
+
+						{#if currentHoveredFlashcard?.expand}
+							<span class="italic">
+								- Collection {currentHoveredFlashcard.expand.flashcardBox.name}</span
+							>
+						{/if}
 					</a>
 				</div>
 			{/if}

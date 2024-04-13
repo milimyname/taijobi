@@ -46,19 +46,22 @@ export const getRandomKanji = () => {
 			name: kanjiArray[randomIndex][0],
 			meaning: kanjiArray[randomIndex][1].meaning,
 			onyomi: kanjiArray[randomIndex][1].onyomi,
-			kunyomi: kanjiArray[randomIndex][1].kunyomi
+			kunyomi: kanjiArray[randomIndex][1].kunyomi,
+			id: Math.random().toString(36).substr(2, 9)
 		},
 		{
 			name: kanjiArray[randomIndex + 1][0],
 			meaning: kanjiArray[randomIndex + 1][1].meaning,
 			onyomi: kanjiArray[randomIndex + 1][1].onyomi,
-			kunyomi: kanjiArray[randomIndex + 1][1].kunyomi
+			kunyomi: kanjiArray[randomIndex + 1][1].kunyomi,
+			id: Math.random().toString(36).substr(2, 9)
 		},
 		{
 			name: kanjiArray[randomIndex + 2][0],
 			meaning: kanjiArray[randomIndex + 2][1].meaning,
 			onyomi: kanjiArray[randomIndex + 2][1].onyomi,
-			kunyomi: kanjiArray[randomIndex + 2][1].kunyomi
+			kunyomi: kanjiArray[randomIndex + 2][1].kunyomi,
+			id: Math.random().toString(36).substr(2, 9)
 		}
 	];
 };
