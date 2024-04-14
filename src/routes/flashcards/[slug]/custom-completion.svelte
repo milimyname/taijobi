@@ -10,7 +10,7 @@
 
 	let audioSource: string = '';
 	let audioElement: HTMLAudioElement;
-	let activeTab: string | undefined = 'conjugation';
+	let activeTab: string | undefined = wordFlashcard?.notes ? 'note' : 'conjugation';
 	let conjugationData: any;
 	let exampleSentences: { sentence: string; meaning: string; furigana: string }[] = [];
 	let selectedValue: { value: unknown; label?: string };
