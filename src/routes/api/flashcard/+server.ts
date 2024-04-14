@@ -97,7 +97,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 				search
 			}),
 			expand: 'flashcardBox',
-			fields: `id, name, meaning, furigana, expand.flashcardBox.name`
+			fields: `id, name, meaning, type, furigana, flashcardBox, expand.flashcardBox.name`
 		});
 
 		// Process the furigana for each flashcard
