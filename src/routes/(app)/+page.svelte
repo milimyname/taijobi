@@ -41,6 +41,12 @@
 		>
 			Find Kanji
 		</a>
+		<a
+			href="/games/fill-in-word"
+			class="w-full rounded-lg border-2 border-black bg-alphabetGreen p-4 text-center text-xl sm:p-10 sm:text-4xl"
+		>
+			Fill in Word
+		</a>
 	</div>
 </section>
 
