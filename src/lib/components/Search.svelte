@@ -8,6 +8,8 @@
 	let fetchedData: any[] = getRandomKanji();
 	let value: string = fetchedData[0].id;
 
+	export let isLoggedIn = false;
+
 	// Fetch flashcards from the server
 	async function fetchFlashcards() {
 		if (search === '') return;
@@ -29,6 +31,8 @@
 	}
 
 	onMount(() => {
+		if (!isLoggedIn) return;
+
 		function handleKeydown(e: KeyboardEvent) {
 			if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
 				e.preventDefault();

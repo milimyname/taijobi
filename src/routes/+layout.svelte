@@ -6,6 +6,10 @@
 	import Search from '$lib/components/Search.svelte';
 	import { Toaster } from '$lib/components/ui/sonner';
 	import Kbd from '$lib/components/Kbd.svelte';
+
+	export let data;
+
+	console.log('data', data?.isLoggedIn);
 </script>
 
 <svelte:window bind:innerWidth={$innerWidthStore} bind:innerHeight={$innerHeightStore} />
@@ -15,5 +19,6 @@
 <Search />
 <Toaster />
 <Kbd />
+<Search isLoggedIn={data?.isLoggedIn} />
 
 <slot />
