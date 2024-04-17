@@ -111,7 +111,7 @@
 	}
 </script>
 
-<section class="lg flex h-full flex-col justify-end gap-4 sm:gap-5 lg:justify-center">
+<section class="lg flex h-full flex-col justify-center gap-4 sm:gap-5">
 	{#if recognizedLetters.length > 0}
 		<ScrollArea class="overflow-y-visible whitespace-nowrap" orientation="horizontal">
 			<div
