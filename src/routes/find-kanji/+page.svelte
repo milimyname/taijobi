@@ -111,7 +111,7 @@
 	}
 </script>
 
-<section class="flex h-full flex-col-reverse gap-4 sm:gap-5 lg:flex-col lg:justify-center">
+<section class="lg flex h-full flex-col justify-center gap-4 sm:gap-5">
 	{#if recognizedLetters.length > 0}
 		<ScrollArea class="overflow-y-visible whitespace-nowrap" orientation="horizontal">
 			<div
@@ -146,7 +146,7 @@
 		</div>
 	{/if}
 
-	<div style="perspective: 3000px;" class="my-auto lg:my-0">
+	<div style="perspective: 3000px;">
 		<div>
 			<Canvas {canvas} {ctx} />
 
