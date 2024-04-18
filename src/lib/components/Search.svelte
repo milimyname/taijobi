@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 	import { getRandomKanji } from '$lib/utils.js';
 	import * as Command from '$lib/components/ui/command';
+	import { page } from '$app/stores';
 
 	let search = '';
 	let fetchedData: any[] = getRandomKanji();
@@ -29,6 +30,8 @@
 	}
 
 	onMount(() => {
+		if (!$page.data.isLoggedin) return;
+
 		function handleKeydown(e: KeyboardEvent) {
 			if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
 				e.preventDefault();
