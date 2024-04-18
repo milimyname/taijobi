@@ -61,7 +61,10 @@
 <Command.Dialog bind:open={$openSearch} bind:value shouldFilter={false}>
 	<Command.Input
 		bind:value={search}
-		placeholder="Find a japanese letter or flashcard by meaning or name"
+		disabled={!$page.data.isLoggedIn}
+		placeholder={!$page.data.isLoggedIn
+			? 'You have reached the maximum number of suggestions. Please sign in to see more.'
+			: 'Search for a word...'}
 	/>
 	<Command.List>
 		<Command.Empty>No results found.</Command.Empty>

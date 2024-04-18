@@ -4322,7 +4322,7 @@ const grade3Kanji: KanjiDictionary = {
 			'M15.13,60.22c2.85,0.74,6.22,0.42,9.12,0.2c11.33-0.85,40.73-4.55,64.72-4.64c2.27-0.01,6.19,0.33,8.03,0.96'
 		],
 		grade: 3,
-		meaning: 'safe, peaceful, cheap',
+		meaning: 'cheap, calm',
 		onyomi: ['アン'],
 		kunyomi: ['やす-い']
 	},
