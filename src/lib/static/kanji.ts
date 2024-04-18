@@ -4178,7 +4178,7 @@ const grade3Kanji: KanjiDictionary = {
 			'M64.4,89.42c7.96-0.58,12.59-0.85,23.11-1.5c1.51-0.09,3.15-0.2,4.93-0.31'
 		],
 		grade: 3,
-		meaning: 'article,',
+		meaning: 'article',
 		onyomi: ['ヒン'],
 		kunyomi: ['しな']
 	},
@@ -4322,7 +4322,7 @@ const grade3Kanji: KanjiDictionary = {
 			'M15.13,60.22c2.85,0.74,6.22,0.42,9.12,0.2c11.33-0.85,40.73-4.55,64.72-4.64c2.27-0.01,6.19,0.33,8.03,0.96'
 		],
 		grade: 3,
-		meaning: 'cheap, cal,',
+		meaning: 'cheap, calm',
 		onyomi: ['アン'],
 		kunyomi: ['やす-い']
 	},
