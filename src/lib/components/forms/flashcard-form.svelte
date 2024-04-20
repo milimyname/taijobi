@@ -1,5 +1,9 @@
 <script lang="ts">
-	import { clickedEditFlashcard, currentFlashcardTypeStore } from '$lib/utils/stores';
+	import {
+		clickedEditFlashcard,
+		currentFlashcardTypeStore,
+		clickedAddFlashcardCollection
+	} from '$lib/utils/stores';
 	import * as Select from '$lib/components/ui/select';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
@@ -133,7 +137,11 @@
 		<input type="hidden" name="id" bind:value={$formData.id} />
 	</div>
 
-	{#if $clickedEditFlashcard}
+	{#if !$clickedEditFlashcard && $clickedAddFlashcardCollection}
+		<button formaction="?/add" class="cursor-not-allowed">
+			<slot name="add" />
+		</button>
+	{:else if $clickedEditFlashcard}
 		<div class="grid grid-cols-3 gap-2">
 			<button formaction="?/delete">
 				<slot name="delete" />
@@ -144,7 +152,7 @@
 			</button>
 		</div>
 	{:else}
-		<button formaction="?/add" class="cursor-not-allowed">
+		<button formaction="?/add">
 			<slot name="add" />
 		</button>
 	{/if}

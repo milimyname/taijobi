@@ -95,6 +95,10 @@
 			return data.flashcards;
 		} catch (error) {
 			console.error(error);
+
+			toast.error(
+				'Failed to fetch flashcards. Please try again or sign in to see more flashcards.'
+			);
 		}
 	}
 
@@ -107,7 +111,7 @@
 		if (letter === '' && word) {
 			const foundFlashcards = await fetchFlashcards(word);
 
-			if (foundFlashcards.length === 0)
+			if (foundFlashcards?.length === 0 || !foundFlashcards)
 				return toast.error(
 					'This word is not found. Find it by breaking down to kanji or please leave a feedback by clicking the 🐞 above'
 				);
