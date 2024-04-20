@@ -176,7 +176,7 @@
 				{currentFlashcardFurigana}
 			/>
 
-			{#if ($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin}
+			{#if data.isLoggedIn && (($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal) || $page.data.isAdmin)}
 				<div class="flex items-center justify-center sm:mx-auto sm:w-[600px] lg:-order-1">
 					<EditButton form={form.form} currentFlashcard={flashcards[currentIndex]} />
 				</div>
