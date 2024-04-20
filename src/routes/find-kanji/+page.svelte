@@ -127,8 +127,6 @@
 			return goto(`/flashcards/${foundWord?.flashcardBox}`);
 		}
 
-		console.log('letter:', word, letter);
-
 		// If the letter is a katakana or hiragana, redirect to the alphabets page
 		if (letter && (isKatakana(letter) || isHiragana(letter))) {
 			const isKatakanaLetter = isKatakana(letter);
