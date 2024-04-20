@@ -23,8 +23,6 @@
 
 	export let form: SuperForm<Infer<FlashcardCollectionSchema>>;
 
-	const { form: formData } = form;
-
 	function onClose() {
 		$clickedAddFlashcardCollection = false;
 		$clickedAddFlahcardBox = false;
@@ -56,8 +54,6 @@
 		$clickedAddFlahcardBox = false;
 		$clickedEditFlashcard = false;
 	}
-
-	$: disabled = $formData.name === '';
 </script>
 
 {#if $isDesktop}
@@ -102,10 +98,10 @@
 					<Button formaction="?/delete" variant="destructive" class="w-full">Delete</Button>
 				</div>
 				<div slot="update">
-					<Button formaction="?/update" class="w-full" {disabled}>Update</Button>
+					<Button formaction="?/update" class="w-full">Update</Button>
 				</div>
 				<div slot="add">
-					<Button formaction="?/add" class="w-full" {disabled}>Add</Button>
+					<Button formaction="?/add" class="w-full">Add</Button>
 				</div>
 			</FlashcardCollectionForm>
 		</Dialog.Content>
