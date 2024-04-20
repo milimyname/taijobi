@@ -12,6 +12,7 @@
 	import { innerWidthStore, searchKanji, kanjiStore } from '$lib/utils/stores';
 	import { isKanji, isKatakana, isHiragana } from 'wanakana';
 	import { goto } from '$app/navigation';
+	import type { RecordModel } from 'pocketbase';
 
 	let canvas: HTMLCanvasElement;
 	let ctx: Ctx;
@@ -52,9 +53,9 @@
 							reject(error); // Reject the promise with an error message on failure
 						} else {
 							// Get only first letter from the results
-							const newResults = new Set(results.map((result) => result[0]));
+							// const newResults = new Set(results.map((result) => result[0]));
 
-							recognizedLetters = [...recognizedLetters, ...newResults];
+							recognizedLetters = [...recognizedLetters, ...results];
 							resolve(results); // Resolve the promise with the recognition results on success
 						}
 					}
@@ -79,9 +80,52 @@
 		);
 	}
 
-	function goToKanji(event: MouseEvent | TouchEvent) {
+	// Fetch flashcards from the server
+	async function fetchFlashcards(search: string) {
+		try {
+			const res = await fetch('/api/flashcard', {
+				method: 'POST',
+				body: JSON.stringify({ search })
+			});
+
+			if (!res.ok) return new Error('Failed to fetch flashcards');
+
+			const data = await res.json();
+
+			return data.flashcards;
+		} catch (error) {
+			console.error(error);
+		}
+	}
+
+	async function goToKanji(event: MouseEvent | TouchEvent) {
 		const target = event.target as HTMLButtonElement;
-		const letter = target.textContent?.trim();
+		const word = target.textContent?.trim();
+		let letter = word?.length === 1 ? word : '';
+
+		// Check if it is a word
+		if (letter === '' && word) {
+			const foundFlashcards = await fetchFlashcards(word);
+
+			if (foundFlashcards.length === 0)
+				return toast.error(
+					'This word is not found. Find it by breaking down to kanji or please leave a feedback by clicking the 🐞 above'
+				);
+
+			const foundWord = foundFlashcards.find((flashcard: RecordModel) => {
+				if (flashcard.name === word) return true;
+				else return true;
+			});
+
+			if (!foundWord)
+				return toast.error(
+					'This word is not found. Find it by breaking down to kanji or please leave a feedback by clicking the 🐞 above'
+				);
+
+			toast.success(`Found the word: ${foundWord.name}. Redirecting to the flashcard page...`);
+
+			return goto(`/flashcards/${foundWord?.flashcardBox}`);
+		}
 
 		// If the letter is a katakana or hiragana, redirect to the alphabets page
 		if (letter && (isKatakana(letter) || isHiragana(letter))) {
