@@ -37,8 +37,8 @@ export type Card = {
 
 export type FlashcardType = {
 	name: string;
-	onyomi: string;
-	kunyomi: string;
+	onyomi?: string;
+	kunyomi?: string;
 	meaning: string;
 	notes?: string;
 	customFurigana?: string;
@@ -46,6 +46,7 @@ export type FlashcardType = {
 	id?: string;
 	type?: string;
 	furigana?: string;
+	flashcardBox?: string;
 };
 
 export type ProgressDataItem = {

@@ -141,7 +141,7 @@
 
 	$: flashcards.length === 0 && (isLoading = false);
 
-	$: if ($searchedWordStore?.type) {
+	$: if ($searchedWordStore) {
 		// Find the index of the searched word
 		const seachedIndex = flashcards.findIndex(
 			(flashcard) => flashcard.name === $searchedWordStore.name

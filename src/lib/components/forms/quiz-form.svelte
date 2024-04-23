@@ -149,7 +149,7 @@
 
 		<Form.Field {form} name="timeLimit" class="flex items-center justify-between">
 			<Form.Control let:attrs>
-				<Form.Label class="flex-1">Time limit (🚧)</Form.Label>
+				<Form.Label class="flex-1">Time limit</Form.Label>
 				<Switch {...attrs} bind:checked={$formData.timeLimit} />
 			</Form.Control>
 		</Form.Field>

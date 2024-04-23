@@ -85,7 +85,7 @@
 						$clickedKanjiForm = true;
 					}}
 				>
-					<Dices class="h-4 w-4" />
+					<Dices class="size-4" />
 				</button>
 			{/if}
 		{:else}

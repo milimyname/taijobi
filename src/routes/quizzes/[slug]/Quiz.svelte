@@ -1,6 +1,14 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 	import { cn, getFlashcardWidth, getFlashcardHeight } from '$lib/utils';
-	import { innerWidthStore, innerHeightStore } from '$lib/utils/stores';
+	import {
+		innerWidthStore,
+		innerHeightStore,
+		searchKanji,
+		searchedWordStore
+	} from '$lib/utils/stores';
+	import { ChevronRight } from 'lucide-svelte';
 	import { tweened } from 'svelte/motion';
 
 	export let flashcard: {
@@ -11,8 +19,23 @@
 	export let selectAnswer: (e: any, name: string) => void;
 	export let ratio: number;
 	export let type: string;
+	export let timeLeft: number | undefined;
+	export let duration: number;
+	export let nextQuestion: () => void;
+	export let flashcardBox: string;
 
 	let tweenedRatio = tweened(0);
+
+	function handleNavigation() {
+		let callback = encodeURIComponent($page.url.pathname);
+		if ('onyomi' in flashcard || 'kunyomi' in flashcard) {
+			$searchKanji = flashcard.name;
+			goto(`/alphabets/kanji?callback=${callback}`);
+		} else {
+			$searchedWordStore = { name: flashcard.name, meaning: flashcard.meaning };
+			goto(`/flashcards/${flashcardBox}?callback=${callback}`);
+		}
+	}
 
 	$: $tweenedRatio = ratio;
 </script>
@@ -23,6 +46,10 @@
 			width: ${getFlashcardWidth($innerWidthStore)}px`}
 		class="relative my-auto flex items-center justify-center rounded-xl border p-10 shadow-sm lg:my-0"
 	>
+		<div
+			class="absolute left-0 top-0 h-2 overflow-hidden rounded-t-xl bg-primary"
+			style={`width: ${((timeLeft ?? 0) / duration) * 100}%;`}
+		/>
 		{#if type === 'name'}
 			<h2 class={flashcard.meaning.length > 2 ? 'text-2xl sm:text-4xl' : 'text-5xl sm:text-8xl'}>
 				{flashcard.meaning}
@@ -32,10 +59,27 @@
 				{flashcard.name}
 			</h2>
 		{/if}
+
 		<div
 			class="absolute bottom-0 left-0 h-2 rounded-b-xl bg-black"
 			style={`width: ${$tweenedRatio * 100}%`}
 		/>
+
+		{#if timeLeft === 0}
+			<button
+				class="flx absolute bottom-3 left-1/2 z-30 w-fit -translate-x-1/2 gap-2 rounded-full border bg-white p-2 px-4 shadow-sm transition-all xm:bottom-5 xm:right-5"
+				on:click={handleNavigation}
+			>
+				<div class="shrink-0">See it</div>
+			</button>
+
+			<button
+				class="absolute bottom-3 right-2 z-30 rounded-full border bg-white p-2 shadow-sm transition-all xm:bottom-5 xm:right-5"
+				on:click={nextQuestion}
+			>
+				<ChevronRight class="size-4" />
+			</button>
+		{/if}
 	</div>
 	<div
 		style={`width: ${getFlashcardWidth($innerWidthStore)}px;`}
@@ -46,10 +90,8 @@
 	>
 		{#each shuffledOptions as option}
 			<button
-				class="w-full justify-self-center rounded-xl border-2 border-black bg-white p-2 sm:p-4"
-				on:click|preventDefault={(e) => {
-					selectAnswer(e, option);
-				}}
+				class="quiz-btn w-full justify-self-center rounded-xl border-2 border-black bg-white p-2 disabled:cursor-not-allowed sm:p-4"
+				on:click|preventDefault={(e) => selectAnswer(e, option)}
 			>
 				{option}
 			</button>

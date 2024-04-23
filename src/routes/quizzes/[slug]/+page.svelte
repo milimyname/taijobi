@@ -8,6 +8,7 @@
 	import { browser } from '$app/environment';
 	import { replaceStateWithQuery } from '$lib/utils';
 	import { Confetti } from 'svelte-confetti';
+	import QuizDialog from './QuizDialog.svelte';
 
 	export let data;
 
@@ -19,6 +20,9 @@
 	let correctAnswers = 0;
 	let flashcards: any[];
 	let isWon = false;
+	let duration = 10; // Time limit in seconds (e.g., 300 seconds for 5 minutes)
+	let timeLeft = duration;
+	let timer: ReturnType<typeof setInterval>;
 
 	$: if (browser && currentFlashcard && !data.isKanjiQuiz)
 		replaceStateWithQuery({
@@ -106,8 +110,8 @@
 				{
 					name: currentFlashcard.name,
 					meaning: currentFlashcard.meaning,
-					kunyomi: currentFlashcard.kunyomi,
-					onyomi: currentFlashcard.onyomi,
+					kunyomi: currentFlashcard.kunyomi || '',
+					onyomi: currentFlashcard.onyomi || '',
 					score: 1
 				}
 			];
@@ -119,8 +123,8 @@
 				{
 					name: currentFlashcard.name,
 					meaning: currentFlashcard.meaning,
-					kunyomi: currentFlashcard.kunyomi,
-					onyomi: currentFlashcard.onyomi,
+					kunyomi: currentFlashcard.kunyomi || '',
+					onyomi: currentFlashcard.onyomi || '',
 					score: 0
 				}
 			];
@@ -158,8 +162,8 @@
 					{
 						name: currentFlashcard.name,
 						meaning: currentFlashcard.meaning,
-						kunyomi: currentFlashcard.kunyomi,
-						onyomi: currentFlashcard.onyomi,
+						kunyomi: currentFlashcard.kunyomi || '',
+						onyomi: currentFlashcard.onyomi || '',
 						score: 0
 					}
 				];
@@ -177,19 +181,39 @@
 		}
 
 		// Move to the next question
+		nextQuestion();
+	}
+
+	function removeBackground() {
+		const buttons = document.querySelectorAll('.quiz-btn') as NodeListOf<HTMLButtonElement>;
+		buttons.forEach((button) => {
+			button.classList.remove(
+				'bg-success',
+				'bg-error',
+				'text-white',
+				'!bg-[#D80032]',
+				'!bg-[#47A992]'
+			);
+			// button.classList.add('bg-white', 'text-black');
+
+			// Enable the buttons
+			button.disabled = false;
+		});
+	}
+
+	function nextQuestion() {
+		clearInterval(timer);
+
+		timeLeft = duration;
+		// Move to the next question
 		setTimeout(() => {
 			if (data.flashcards.length > currentQuestion) {
 				currentQuestion++;
 				localStorage.setItem(`currentQuestion_${data.quiz.id}`, '' + currentQuestion);
 			}
 
-			// Remove the background color from the previous question
-			const buttons = document.querySelectorAll('button');
-			buttons.forEach((button) => {
-				button.classList.remove('bg-success', 'bg-error', 'text-white');
-				button.classList.add('bg-white');
-			});
-		}, 250);
+			removeBackground();
+		}, 1000);
 	}
 
 	$: if (currentFlashcard && !isWon) {
@@ -199,7 +223,51 @@
 		shuffleArray(shuffledOptions);
 	}
 
-	$: if (isWon) setTimeout(() => (isWon = false), 5000);
+	// $: if (isWon) setTimeout(() => (isWon = false), 5000);
+
+	function showCorrectAnswer() {
+		const buttons = document.querySelectorAll('.quiz-btn') as NodeListOf<HTMLButtonElement>;
+
+		buttons.forEach((button) => {
+			// Assuming the button's textContent includes the answer text
+			const btnText = button.textContent?.trim();
+			if (
+				btnText === currentFlashcard.name?.trim() ||
+				btnText === currentFlashcard.meaning?.trim() ||
+				btnText === currentFlashcard.onyomi?.trim() ||
+				btnText === currentFlashcard.kunyomi?.trim()
+			) {
+				button.classList.add('!bg-[#47A992]', 'text-white');
+			} else {
+				button.classList.add('!bg-[#D80032]', 'text-white');
+			}
+
+			button.disabled = true;
+		});
+	}
+
+	function startOver() {
+		currentQuestion = 0;
+		progressData = [];
+		correctAnswers = 0;
+		isWon = false;
+		localStorage.removeItem(`quizProgress_${data.quiz.id}`);
+		localStorage.removeItem(`flashcards_${data.quiz.id}`);
+		localStorage.removeItem(`currentQuestion_${data.quiz.id}`);
+	}
+
+	// If the user runs out of time, show the correct answer
+	$: if (timeLeft === 0) {
+		showCorrectAnswer();
+		clearInterval(timer);
+	}
+
+	$: if (timeLeft === duration && !isWon && data.quiz.timeLimit) {
+		timer = setInterval(() => {
+			if (timeLeft > 0) timeLeft--;
+			else clearInterval(timer);
+		}, 1000);
+	}
 </script>
 
 {#if isWon}
@@ -216,6 +284,7 @@
 			fallDistance="100vh"
 		/>
 	</div>
+	<QuizDialog {isWon} {startOver} {correctAnswers} total={data.flashcards.length} />
 {/if}
 
 {#if currentFlashcard}
@@ -223,7 +292,11 @@
 		<Quiz
 			flashcard={flashcards[currentQuestion]}
 			ratio={currentQuestion / flashcards.length}
+			timeLeft={data.quiz.timeLimit ? timeLeft : undefined}
+			{duration}
+			{nextQuestion}
 			type={data.quiz.type}
+			flashcardBox={data.quiz.flashcardBox}
 			{shuffledOptions}
 			{selectAnswer}
 		/>
@@ -231,7 +304,11 @@
 		<Quiz
 			flashcard={data.flashcards[currentQuestion]}
 			ratio={currentQuestion / data.flashcards.length}
+			timeLeft={data.quiz.timeLimit ? timeLeft : undefined}
+			{duration}
+			{nextQuestion}
 			type={data.quiz.type}
+			flashcardBox={data.quiz.flashcardBox}
 			{shuffledOptions}
 			{selectAnswer}
 		/>
