@@ -44,7 +44,7 @@ export const load = async ({ params, locals }) => {
 	// Otherwise, slice the items from startCount to maxCount
 	let items;
 
-	if (quiz.startCount === 1 && quiz.maxCount === 10) items = quiz.flashcards;
+	if (quiz.startCount === 1 && quiz.maxCount === 10) items = quiz.flashcards.slice(0, 10);
 	else if (quiz.startCount > quiz.flashcards.length) items = quiz.flashcards;
 	else items = quiz.flashcards.slice(+quiz.startCount, +quiz.maxCount);
 
