@@ -9,7 +9,7 @@
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index';
 	import { Button } from '$lib/components/ui/button';
 	import { getFlashcardWidth } from '$lib/utils';
-	import { innerWidthStore, searchKanji, kanjiStore } from '$lib/utils/stores';
+	import { innerWidthStore, searchKanji, kanjiStore, searchedWordStore } from '$lib/utils/stores';
 	import { isKanji, isKatakana, isHiragana } from 'wanakana';
 	import { goto } from '$app/navigation';
 	import type { RecordModel } from 'pocketbase';
@@ -52,9 +52,6 @@
 							console.error('Recognition error:', error);
 							reject(error); // Reject the promise with an error message on failure
 						} else {
-							// Get only first letter from the results
-							// const newResults = new Set(results.map((result) => result[0]));
-
 							recognizedLetters = [...recognizedLetters, ...results];
 							resolve(results); // Resolve the promise with the recognition results on success
 						}
@@ -70,7 +67,7 @@
 	function findKanji() {
 		toast.promise(recognize(), {
 			loading: 'Processing image...',
-			success: 'Successfully recognized the character!',
+			success: 'Successfully recognized it!',
 			error: 'Failed to recognize the character. Please try again.'
 		});
 
@@ -127,6 +124,8 @@
 				);
 
 			toast.success(`Found the word: ${foundWord.name}. Redirecting to the flashcard page...`);
+
+			$searchedWordStore = foundWord;
 
 			return goto(`/flashcards/${foundWord?.flashcardBox}`);
 		}
