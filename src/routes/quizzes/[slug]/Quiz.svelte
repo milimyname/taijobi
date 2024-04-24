@@ -44,10 +44,10 @@
 	<div
 		style={`height: ${getFlashcardHeight($innerWidthStore, $innerHeightStore)}px;
 			width: ${getFlashcardWidth($innerWidthStore)}px`}
-		class="relative my-auto flex items-center justify-center rounded-xl border p-10 shadow-sm lg:my-0"
+		class="relative my-auto flex items-center justify-center overflow-hidden rounded-xl border p-10 shadow-sm lg:my-0"
 	>
 		<div
-			class="absolute left-0 top-0 h-2 overflow-hidden rounded-t-xl bg-primary"
+			class="absolute left-0 top-0 h-2 rounded-b-xl rounded-l-xl bg-primary"
 			style={`width: ${((timeLeft ?? 0) / duration) * 100}%;`}
 		/>
 		{#if type === 'name'}
@@ -61,7 +61,7 @@
 		{/if}
 
 		<div
-			class="absolute bottom-0 left-0 h-2 rounded-b-xl bg-black"
+			class="absolute bottom-0 left-0 h-2 rounded-l-xl rounded-t-xl bg-black"
 			style={`width: ${$tweenedRatio * 100}%`}
 		/>
 

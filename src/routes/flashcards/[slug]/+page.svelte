@@ -17,7 +17,7 @@
 	import { getLocalStorageItem } from '$lib/utils/localStorage';
 	import { onMount } from 'svelte';
 	import LetterDrawingFlashcard from './LetterDrawingFlashcard.svelte';
-	import { Plus } from 'lucide-svelte';
+	import { Plus, Dices } from 'lucide-svelte';
 	import type { FlashcardType } from '$lib/utils/ambient.d.ts';
 	import { browser } from '$app/environment';
 	import * as Carousel from '$lib/components/ui/carousel/index';
@@ -37,6 +37,7 @@
 	let currentIndex = 0;
 	let flashcards: FlashcardType[] = [];
 	let isLoading = false;
+	let callback: string;
 
 	let islocalBoxTypeOriginal = getLocalStorageItem('flashcardsBoxType') !== 'original';
 
@@ -112,6 +113,9 @@
 		setTimeout(() => {
 			embla.scrollTo(currentIndex);
 		}, 100);
+
+		const urlParams = new URLSearchParams($page.url.search);
+		callback = decodeURIComponent(urlParams.get('callback') || '/');
 	});
 
 	$: if (browser && currentIndex >= 0 && flashcards.length > 0) {
@@ -176,11 +180,21 @@
 				{currentFlashcardFurigana}
 			/>
 
-			{#if data.isLoggedIn && (($flashcardsBoxType !== 'original' && !islocalBoxTypeOriginal) || $page.data.isAdmin)}
-				<div class="flex items-center justify-center sm:mx-auto sm:w-[600px] lg:-order-1">
+			<div class="flex items-center justify-center sm:mx-auto sm:w-[600px] lg:-order-1">
+				{#if callback !== '/'}
+					<button
+						class="mr-2 flex items-center gap-2 rounded-full border px-4 py-2"
+						on:click={() => goto(callback)}
+					>
+						<Dices class="size-5" />
+						<span>Return to Quiz</span>
+					</button>
+				{/if}
+
+				{#if data.isLoggedIn && (($flashcardsBoxType !== 'original' && !islocalBoxTypeOriginal) || $page.data.isAdmin)}
 					<EditButton form={form.form} currentFlashcard={flashcards[currentIndex]} />
-				</div>
-			{/if}
+				{/if}
+			</div>
 		{:else}
 			<LetterDrawingFlashcard {embla} />
 		{/if}
