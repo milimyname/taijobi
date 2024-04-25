@@ -37,7 +37,7 @@
 	let currentIndex = 0;
 	let flashcards: FlashcardType[] = [];
 	let isLoading = false;
-	let callback: string;
+	let callback: string = '/';
 
 	let islocalBoxTypeOriginal = getLocalStorageItem('flashcardsBoxType') !== 'original';
 
