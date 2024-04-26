@@ -59,7 +59,7 @@
 				>
 					<FolderPlus />
 				</button>
-			{:else if $flashcardsBoxType !== 'original'}
+			{:else if $flashcardsBoxType && $flashcardsBoxType !== 'original'}
 				<button
 					on:click={handleAddFlashcardCollection}
 					class="add-btn transition-all hover:scale-110 active:scale-110"

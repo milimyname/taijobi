@@ -73,7 +73,7 @@
 	$: {
 		slicedFlashcard = $currentFlashcard
 			.split('')
-			.filter((char) => !/[ ?。~、-0-9]/.test(char) && !isRomaji(char));
+			.filter((char) => !/[ ?。~、\-0-9]/.test(char) && !isRomaji(char));
 		index = 0;
 		clearCanvas(ctx, canvas);
 	}
