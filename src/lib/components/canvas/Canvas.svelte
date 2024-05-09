@@ -3,7 +3,7 @@
 	import { IS_DESKTOP } from '$lib/utils/constants';
 	import { innerWidthStore, lastPoint, strokeColor, innerHeightStore } from '$lib/utils/stores';
 	import { onMount } from 'svelte';
-	import { getFlashcardHeight, getFlashcardWidth } from '$lib/utils';
+	import { cn, getFlashcardHeight, getFlashcardWidth } from '$lib/utils';
 
 	export let rotationY: number = 0;
 	export let canvas: HTMLCanvasElement;
@@ -61,6 +61,13 @@
 		ctx.lineJoin = 'round';
 		ctx.lineCap = 'round';
 	}
+
+	// Skeleton sizes for the flashcard
+	let width = 350;
+	let height = 400;
+
+	$: if ($innerWidthStore) width = getFlashcardWidth($innerWidthStore);
+	$: if ($innerHeightStore) height = getFlashcardHeight($innerWidthStore, $innerHeightStore);
 </script>
 
 <canvas
@@ -73,10 +80,11 @@
 	on:touchend={stopDrawing}
 	on:touchmove|preventDefault={drawOnCanvas}
 	on:touchcancel={stopDrawing}
-	width={getFlashcardWidth($innerWidthStore)}
-	height={getFlashcardHeight($innerWidthStore, $innerHeightStore)}
+	{width}
+	{height}
 	style={`transform: rotateY(${-rotationY}deg); transform-style: preserve-3d; backface-visibility: hidden;`}
-	class="relative z-10 mx-auto cursor-pointer
-				{rotationY > 90 ? 'hidden' : 'block'} 
-			 rounded-xl border shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200"
+	class={cn(
+		'relative z-10 mx-auto block cursor-pointer rounded-xl border shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200',
+		rotationY > 90 && 'hidden'
+	)}
 />

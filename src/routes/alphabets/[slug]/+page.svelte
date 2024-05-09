@@ -119,6 +119,9 @@
 			$clickedQuizForm = false;
 			$selectedQuizItems = [];
 			goto(`/quizzes/${form.data.id}`);
+		},
+		onSubmit: async () => {
+			$clickedQuizForm = false;
 		}
 	});
 </script>
