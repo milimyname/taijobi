@@ -6,7 +6,9 @@
 		currentAlphabet,
 		selectQuizItemsForm,
 		selectedQuizItems,
-		swapFlashcards
+		swapFlashcards,
+		startRangeQuizForm,
+		endRangeQuizForm
 	} from '$lib/utils/stores';
 	import { cn, isDesktop } from '$lib/utils';
 	import * as Tabs from '$lib/components/ui/tabs';
@@ -154,7 +156,7 @@
 												type="number"
 												min={1}
 												max={+$maxFlashcards - 10}
-												bind:value={$formData.startCount}
+												bind:value={$startRangeQuizForm}
 											/>
 										</Form.Control>
 										<Form.FieldErrors />
@@ -168,7 +170,7 @@
 												type="number"
 												min={10}
 												max={$maxFlashcards}
-												bind:value={$formData.maxCount}
+												bind:value={$endRangeQuizForm}
 											/>
 										</Form.Control>
 										<Form.FieldErrors />
@@ -258,7 +260,7 @@
 													type="number"
 													min={1}
 													max={+$maxFlashcards - 10}
-													bind:value={$formData.startCount}
+													bind:value={$startRangeQuizForm}
 												/>
 											</Form.Control>
 											<Form.FieldErrors />
@@ -272,7 +274,7 @@
 													type="number"
 													min={10}
 													max={$maxFlashcards}
-													bind:value={$formData.maxCount}
+													bind:value={$endRangeQuizForm}
 												/>
 											</Form.Control>
 											<Form.FieldErrors />

@@ -14,7 +14,9 @@
 		selectedQuizItems,
 		flashcardBoxes,
 		currentAlphabet,
-		currentBoxId
+		currentBoxId,
+		startRangeQuizForm,
+		endRangeQuizForm
 	} from '$lib/utils/stores.js';
 	import FlashcardCollection from './FlashcardCollection.svelte';
 	import { quintOut } from 'svelte/easing';
@@ -57,6 +59,12 @@
 		validators: zodClient(quizSchema),
 		onError: (error) => {
 			if (error) $clickedQuizForm = true;
+		},
+		onSubmit: ({ formData }) => {
+			// !IMPORTANT:
+			// It is a workaround since it cannot capture the form data from nested drawer/dialog components
+			formData.set('startCount', $startRangeQuizForm);
+			formData.set('maxCount', $endRangeQuizForm);
 		},
 		onUpdated: ({ form }) => {
 			if (!form.valid) return;

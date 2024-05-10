@@ -224,8 +224,8 @@ export const actions = {
 				choice: form.data.choice,
 				type: form.data.type,
 				userId: locals.pb.authStore.model?.id,
-				maxCount: +form.data.maxCount,
-				startCount: +form.data.startCount,
+				maxCount: selectedQuizItems && +form.data.startCount === 1 ? 0 : +form.data.maxCount,
+				startCount: selectedQuizItems && +form.data.startCount === 1 ? 0 : +form.data.startCount,
 				flashcardBox: form.data.flashcardBox,
 				timeLimit: form.data.timeLimit,
 				flashcards

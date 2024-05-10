@@ -219,6 +219,9 @@ export const progressSlider = writable(1);
 export const currentAlphabet = writable('');
 export const uploadingProfilePic = writable(false);
 
+export const startRangeQuizForm = writable('1');
+export const endRangeQuizForm = writable('10');
+
 /*
 
 
