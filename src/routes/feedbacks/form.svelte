@@ -5,7 +5,6 @@
 	import { Button } from '$lib/components/ui/button';
 	import { type SuperForm, type Infer } from 'sveltekit-superforms';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { Input } from '$lib/components/ui/input';
 
 	export let form: SuperForm<Infer<FeedbackSchema>>;
 
@@ -38,26 +37,10 @@
 	)}
 >
 	<div class="flex flex-col gap-5">
-		<Form.Field {form} name="name">
-			<Form.Control let:attrs>
-				<Form.Label>Name</Form.Label>
-				<Input {...attrs} bind:value={$formData.name} />
-			</Form.Control>
-			<Form.FieldErrors />
-		</Form.Field>
-
 		<Form.Field {form} name="description">
 			<Form.Control let:attrs>
 				<Form.Label>Description</Form.Label>
 				<Textarea {...attrs} class="resize-none" bind:value={$formData.description} />
-			</Form.Control>
-			<Form.FieldErrors />
-		</Form.Field>
-
-		<Form.Field {form} name="device">
-			<Form.Control let:attrs>
-				<Form.Label>Device Model</Form.Label>
-				<Input {...attrs} bind:value={$formData.device} />
 			</Form.Control>
 			<Form.FieldErrors />
 		</Form.Field>

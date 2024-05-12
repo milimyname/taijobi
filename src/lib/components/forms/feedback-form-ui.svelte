@@ -1,13 +1,12 @@
 <script lang="ts">
-	import * as Dialog from '$lib/components/ui/dialog';
-	import * as Drawer from '$lib/components/ui/drawer';
 	import Form from '$lib/components/forms/feedback-form.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { clickedFeedback, openSearch } from '$lib/utils/stores';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import { isDesktop } from '$lib/utils';
 	import { Search } from 'lucide-svelte';
+	import * as DrawerDialog from '$lib/components/ui/drawerDialog';
+	import { goto } from '$app/navigation';
 
 	let animationText = '';
 	let isReversing = false;
@@ -56,81 +55,54 @@
 	$: if ($openSearch) $openSearch = true;
 </script>
 
-{#if $isDesktop}
-	<Dialog.Root bind:open={$clickedFeedback}>
-		{#if !hide}
-			<Dialog.Trigger asChild let:builder>
-				<Button
-					variant="none"
-					builders={[builder]}
-					class="feedback-btn absolute left-1/2 top-12 z-20 -translate-x-1/2 -translate-y-1/2 border-none px-4 py-2"
-				>
-					{animationText}
-				</Button>
-				<button
-					on:click|stopPropagation={() => ($openSearch = true)}
-					class="search-btn absolute left-1/2 top-12 z-20 ml-10 h-10 -translate-x-1/2 -translate-y-1/2 rounded-md border-none px-4 py-2"
-				>
-					<Search class="size-4" />
-				</button>
-			</Dialog.Trigger>
-		{/if}
-		<Dialog.Overlay class="fixed inset-0 bg-black bg-opacity-30" />
-		<Dialog.Content class="z-[100] sm:max-w-[425px]">
-			<Dialog.Header>
-				<Dialog.Title>Leave a feedback or report a bug!</Dialog.Title>
-				<Dialog.Description>
-					<p class="text-sm">
-						You can see them here
-						<a href="/feedbacks" on:click={() => ($clickedFeedback = false)} class="underline">
-							My Feedbacks
-						</a>
-					</p>
-				</Dialog.Description>
-			</Dialog.Header>
-			<Form />
-		</Dialog.Content>
-	</Dialog.Root>
-{:else}
-	<Drawer.Root open={$clickedFeedback} onOutsideClick={onOutsideClickDrawer}>
-		{#if !hide}
-			<Dialog.Trigger asChild let:builder>
-				<Button
-					variant="none"
-					builders={[builder]}
-					class="feedback-btn absolute left-1/2 top-10 z-20 -translate-x-1/2 -translate-y-1/2 bg-white px-4 py-2"
-				>
-					{animationText}
-				</Button>
-				<button
-					on:click|stopPropagation={() => ($openSearch = true)}
-					class="search-btn absolute left-1/2 top-10 z-20 ml-10 h-10 -translate-x-1/2 -translate-y-1/2 rounded-md bg-white px-4 py-2"
-				>
-					<Search class="size-4" />
-				</button>
-			</Dialog.Trigger>
-		{/if}
-		<Drawer.Portal>
-			<Drawer.Content>
-				<Drawer.Header class="text-left">
-					<Drawer.Title>Leave a feedback or report a bug!</Drawer.Title>
-					<Drawer.Description>
-						<p class="text-sm">
-							You can see them here
-							<a href="/feedbacks" on:click={() => ($clickedFeedback = false)} class="underline">
-								My Feedbacks
-							</a>
-						</p>
-					</Drawer.Description>
-				</Drawer.Header>
-				<Form />
+<DrawerDialog.Root open={$clickedFeedback} onOutsideClick={onOutsideClickDrawer}>
+	{#if !hide}
+		<DrawerDialog.Trigger asChild let:builder>
+			<Button
+				variant="none"
+				builders={[builder]}
+				class="feedback-btn absolute left-1/2 top-10 z-20 -translate-x-1/2 -translate-y-1/2 bg-white px-4 py-2"
+			>
+				{animationText}
+			</Button>
+			<button
+				on:click|stopPropagation={() => ($openSearch = true)}
+				class="search-btn absolute left-1/2 top-10 z-20 ml-10 h-10 -translate-x-1/2 -translate-y-1/2 rounded-md bg-white px-4 py-2"
+			>
+				<Search class="size-4" />
+			</button>
+		</DrawerDialog.Trigger>
+	{/if}
 
-				<Drawer.Footer>
-					<Drawer.Close asChild let:builder>
-						<Button builders={[builder]} variant="outline">Cancel</Button>
-					</Drawer.Close>
-				</Drawer.Footer>
-			</Drawer.Content>
-		</Drawer.Portal>
-	</Drawer.Root>
-{/if}
+	<DrawerDialog.Content>
+		<DrawerDialog.Header class="text-left">
+			<DrawerDialog.Title>Leave a feedback or report a bug!</DrawerDialog.Title>
+			<DrawerDialog.Description>
+				<p class="text-sm">
+					You can see them here
+					<DrawerDialog.Close>
+						<button
+							on:click={() => {
+								$clickedFeedback = false;
+								goto('/feedbacks');
+							}}
+							class="underline"
+						>
+							My Feedbacks
+						</button>
+					</DrawerDialog.Close>
+				</p>
+			</DrawerDialog.Description>
+		</DrawerDialog.Header>
+		<Form>
+			<DrawerDialog.Close asChild let:builder>
+				<Button builders={[builder]} class="w-full">Add</Button>
+			</DrawerDialog.Close>
+		</Form>
+		<DrawerDialog.Footer className="md:hidden">
+			<DrawerDialog.Close asChild let:builder>
+				<Button builders={[builder]} variant="outline">Cancel</Button>
+			</DrawerDialog.Close>
+		</DrawerDialog.Footer>
+	</DrawerDialog.Content>
+</DrawerDialog.Root>

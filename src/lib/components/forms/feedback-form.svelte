@@ -3,37 +3,22 @@
 	import { clickedFeedback } from '$lib/utils/stores';
 	import { enhance } from '$app/forms';
 	import { Label } from '$lib/components/ui/label';
-	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { Button } from '$lib/components/ui/button';
-
-	function handleSubmit(event: SubmitEvent) {
-		event.preventDefault();
-		$clickedFeedback = false;
-	}
 </script>
 
 <form
 	method="POST"
 	use:enhance
-	on:submit={handleSubmit}
+	on:submit={() => ($clickedFeedback = false)}
 	enctype="multipart/form-data"
 	action="/feedbacks?/create"
 	class="feedback-form z-100 flex w-full flex-col gap-5 rounded-t-2xl bg-white
             {!$isDesktop && 'px-4'}"
 >
-	<div class=" flex flex-col gap-5">
-		<fieldset class=" flex w-full flex-col gap-2">
-			<Label for="name">Feedback name</Label>
-			<Input type="text" name="name" required />
-		</fieldset>
+	<div class="flex flex-col gap-5">
 		<fieldset class=" flex w-full flex-col gap-2">
 			<Label for="description">Description</Label>
 			<Textarea name="description" maxlength={1000} rows={3} required />
-		</fieldset>
-		<fieldset class=" flex w-full flex-col gap-2">
-			<Label for="device">Device model</Label>
-			<Input name="device" />
 		</fieldset>
 		<input
 			type="file"
@@ -48,5 +33,7 @@
 		/>
 	</div>
 
-	<Button type="submit">Add</Button>
+	<button>
+		<slot />
+	</button>
 </form>
