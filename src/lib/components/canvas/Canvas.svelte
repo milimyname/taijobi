@@ -103,6 +103,6 @@
 		rotationY > 90 && 'hidden'
 	)}
 />
-<button on:click={undoLastStroke} class="mt-2 rounded bg-red-500 p-2 text-white">
+<!-- <button on:click={undoLastStroke} class="mt-2 rounded bg-red-500 p-2 text-white">
 	Undo Last Stroke
-</button>
+</button> -->
