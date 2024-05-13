@@ -57,8 +57,12 @@
 		<input type="hidden" name="id" bind:value={$formData.id} />
 
 		<div class="flex w-full {!$isDesktop && 'flex-col gap-2'} justify-between">
-			<Form.Button variant="destructive" formaction="?/delete">Delete</Form.Button>
-			<Form.Button formaction="?/update">Update</Form.Button>
+			<button formaction="?/delete">
+				<slot name="delete" />
+			</button>
+			<button formaction="?/update">
+				<slot name="update" />
+			</button>
 		</div>
 	</div>
 </form>

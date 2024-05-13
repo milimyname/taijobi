@@ -53,7 +53,7 @@ export const flashcardCollectionSchema = z.object({
 export type FlashcardCollectionSchema = typeof flashcardCollectionSchema;
 
 export const feedbackSchema = z.object({
-	name: z.string().nonempty({ message: 'Name is required.' }),
+	name: z.string().optional(),
 	description: z.string().max(1000),
 	device: z.string().optional(),
 	userId: z.string(),

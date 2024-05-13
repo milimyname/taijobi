@@ -4,13 +4,11 @@
 	import { ArrowLeft } from 'lucide-svelte';
 	import { superForm } from 'sveltekit-superforms';
 	import { pocketbase } from '$lib/utils/pocketbase';
-	import * as Drawer from '$lib/components/ui/drawer';
-	import * as Dialog from '$lib/components/ui/dialog';
-	import { isDesktop } from '$lib/utils';
 	import Form from './form.svelte';
 	import { feedbackSchema } from '$lib/utils/zodSchema';
 	import { Button } from '$lib/components/ui/button';
 	import { zodClient } from 'sveltekit-superforms/adapters';
+	import * as DrawerDialog from '$lib/components/ui/drawerDialog';
 
 	export let data;
 
@@ -24,7 +22,10 @@
 	});
 
 	function onCloseDrawer() {
-		superFrm.reset();
+		setTimeout(() => {
+			$clickedReport = false;
+			superFrm.reset();
+		}, 100);
 	}
 </script>
 
@@ -68,46 +69,43 @@
 	</section>
 </main>
 
-{#if $isDesktop}
-	<Dialog.Root bind:open={$clickedReport}>
-		<Dialog.Overlay class="fixed inset-0 bg-black bg-opacity-30" />
-		<Dialog.Content class="z-[1000] sm:max-w-[425px]">
-			<Dialog.Header>
-				<Dialog.Title>Feedback</Dialog.Title>
-				<Dialog.Description>
-					<p class="text-sm">
-						You can see them here
-						<a href="/feedbacks" on:click={() => ($clickedReport = false)} class="underline">
+<DrawerDialog.Root open={$clickedReport} onClose={onCloseDrawer}>
+	<DrawerDialog.Content>
+		<DrawerDialog.Header class="text-left">
+			<DrawerDialog.Title>Leave a feedback or report a bug!</DrawerDialog.Title>
+			<DrawerDialog.Description>
+				<p class="text-sm">
+					Feedback
+					<DrawerDialog.Close>
+						<button
+							on:click={() => {
+								$clickedReport = false;
+								goto('/feedbacks');
+							}}
+							class="underline"
+						>
 							My Feedbacks
-						</a>
-					</p>
-				</Dialog.Description>
-			</Dialog.Header>
-			<Form form={superFrm} />
-		</Dialog.Content>
-	</Dialog.Root>
-{:else}
-	<Drawer.Root bind:open={$clickedReport} onClose={onCloseDrawer}>
-		<Drawer.Portal>
-			<Drawer.Content class="z-[100]">
-				<Drawer.Header class="text-left">
-					<Drawer.Title>Feedback</Drawer.Title>
-					<Drawer.Description>
-						<p class="text-sm">
-							You can see them here
-							<a href="/feedbacks" on:click={() => ($clickedReport = false)} class="underline">
-								My Feedbacks
-							</a>
-						</p>
-					</Drawer.Description>
-				</Drawer.Header>
-				<Form form={superFrm} />
-				<Drawer.Footer>
-					<Drawer.Close asChild let:builder>
-						<Button builders={[builder]} variant="outline">Cancel</Button>
-					</Drawer.Close>
-				</Drawer.Footer>
-			</Drawer.Content>
-		</Drawer.Portal>
-	</Drawer.Root>
-{/if}
+						</button>
+					</DrawerDialog.Close>
+				</p>
+			</DrawerDialog.Description>
+		</DrawerDialog.Header>
+		<Form form={superFrm}>
+			<div slot="delete">
+				<DrawerDialog.Close asChild let:builder>
+					<Button builders={[builder]} class="w-full" variant="destructive">Delete</Button>
+				</DrawerDialog.Close>
+			</div>
+			<div slot="update">
+				<DrawerDialog.Close asChild let:builder>
+					<Button builders={[builder]} class="w-full">Update</Button>
+				</DrawerDialog.Close>
+			</div>
+		</Form>
+		<DrawerDialog.Footer className="md:hidden">
+			<DrawerDialog.Close asChild let:builder>
+				<Button builders={[builder]} variant="outline">Cancel</Button>
+			</DrawerDialog.Close>
+		</DrawerDialog.Footer>
+	</DrawerDialog.Content>
+</DrawerDialog.Root>

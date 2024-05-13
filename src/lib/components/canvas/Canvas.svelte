@@ -8,12 +8,12 @@
 	export let rotationY: number = 0;
 	export let canvas: HTMLCanvasElement;
 	export let ctx: Ctx;
-
 	let isDrawing = false;
+	let strokes: { points: { x: number; y: number }[]; color: string }[] = [];
 
-	function startDrawing(event: any) {
+	function startDrawing(event: MouseEvent | TouchEvent) {
 		isDrawing = true;
-		$lastPoint = getXY(event);
+		strokes.push({ points: [getXY(event)], color: $strokeColor });
 		event.preventDefault();
 	}
 
@@ -21,34 +21,49 @@
 		isDrawing = false;
 	}
 
-	function drawOnCanvas(event: any) {
+	function drawOnCanvas(event: MouseEvent | TouchEvent) {
 		if (!isDrawing) return;
-		ctx.beginPath();
-		ctx.moveTo($lastPoint.x, $lastPoint.y);
-		let currentPoint = getXY(event);
-		ctx.lineTo(currentPoint.x, currentPoint.y);
+		const currentStroke = strokes[strokes.length - 1];
+		const newPoint = getXY(event);
+		currentStroke.points.push(newPoint);
 
-		ctx.strokeStyle = $strokeColor; // Set the stroke color
-		ctx.stroke();
-		$lastPoint = currentPoint;
+		redrawCanvas();
 	}
 
 	function getXY(event: any) {
-		let rect = canvas.getBoundingClientRect();
-		if (event.touches) {
-			// If it is a touch event
-			return {
-				x: event.touches[0].clientX - rect.left,
-				y: event.touches[0].clientY - rect.top
-			};
-		} else {
-			// If it is a mouse event
-			return {
-				x: event.clientX - rect.left,
-				y: event.clientY - rect.top
-			};
+		const rect = canvas.getBoundingClientRect();
+		const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
+		const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY;
+		return {
+			x: clientX - rect.left,
+			y: clientY - rect.top
+		};
+	}
+
+	function redrawCanvas() {
+		ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+		for (let stroke of strokes) {
+			ctx.beginPath();
+			for (let i = 0; i < stroke.points.length; i++) {
+				const point = stroke.points[i];
+				if (i === 0) {
+					ctx.moveTo(point.x, point.y);
+				} else {
+					ctx.lineTo(point.x, point.y);
+				}
+			}
+			ctx.strokeStyle = stroke.color;
+			ctx.stroke();
 		}
 	}
+
+	function undoLastStroke() {
+		if (strokes.length > 0) {
+			strokes.pop();
+			redrawCanvas();
+		}
+	}
+
 	onMount(() => {
 		ctx = canvas.getContext('2d') as Ctx;
 		ctx.lineWidth = $innerWidthStore > IS_DESKTOP ? 12 : 10;
@@ -88,3 +103,6 @@
 		rotationY > 90 && 'hidden'
 	)}
 />
+<button on:click={undoLastStroke} class="mt-2 rounded bg-red-500 p-2 text-white">
+	Undo Last Stroke
+</button>
