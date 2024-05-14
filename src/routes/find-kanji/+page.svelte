@@ -13,6 +13,7 @@
 	import { isKanji, isKatakana, isHiragana } from 'wanakana';
 	import { goto } from '$app/navigation';
 	import type { RecordModel } from 'pocketbase';
+	import { page } from '$app/stores';
 
 	let canvas: HTMLCanvasElement;
 	let ctx: Ctx;
@@ -102,6 +103,7 @@
 	async function goToKanji(event: MouseEvent | TouchEvent) {
 		const target = event.target as HTMLButtonElement;
 		const word = target.textContent?.trim();
+		let callback = encodeURIComponent($page.url.pathname);
 		let letter = word?.length === 1 ? word : '';
 
 		// Check if it is a word
@@ -127,7 +129,7 @@
 
 			$searchedWordStore = foundWord;
 
-			return goto(`/flashcards/${foundWord?.flashcardBox}`);
+			return goto(`/flashcards/${foundWord?.flashcardBox}?callback=${callback}`);
 		}
 
 		// If the letter is a katakana or hiragana, redirect to the alphabets page
@@ -154,7 +156,7 @@
 		// Redirect to the kanji page
 		$searchKanji = letter;
 
-		goto('/alphabets/kanji');
+		return goto('/alphabets/kanji');
 	}
 </script>
 

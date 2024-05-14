@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Flashcard from './flashcard-plain.svelte';
 	import Skeleton from './flashcard-skeleton.svelte';
+	import CallBackButton from './callback-btn.svelte';
 	import {
 		clickedAddFlashcardCollection,
 		flashcardsBoxType,
@@ -37,7 +38,6 @@
 	let currentIndex = 0;
 	let flashcards: FlashcardType[] = [];
 	let isLoading = false;
-	let callback: string = '/';
 
 	let islocalBoxTypeOriginal = getLocalStorageItem('flashcardsBoxType') !== 'original';
 
@@ -113,9 +113,6 @@
 		setTimeout(() => {
 			embla.scrollTo(currentIndex);
 		}, 100);
-
-		const urlParams = new URLSearchParams($page.url.search);
-		callback = decodeURIComponent(urlParams.get('callback') || '/');
 	});
 
 	$: if (browser && currentIndex >= 0 && flashcards.length > 0) {
@@ -181,15 +178,7 @@
 			/>
 
 			<div class="flex items-center justify-center sm:mx-auto sm:w-[600px] lg:-order-1">
-				{#if callback !== '/'}
-					<button
-						class="mr-2 flex items-center gap-2 rounded-full border px-4 py-2"
-						on:click={() => goto(callback)}
-					>
-						<Dices class="size-5" />
-						<span>Return to Quiz</span>
-					</button>
-				{/if}
+				<CallBackButton />
 
 				{#if data.isLoggedIn && (($flashcardsBoxType !== 'original' && !islocalBoxTypeOriginal) || $page.data.isAdmin)}
 					<EditButton form={form.form} currentFlashcard={flashcards[currentIndex]} />
