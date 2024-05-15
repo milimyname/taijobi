@@ -31,6 +31,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const isDesktop = mediaQuery('(min-width: 768px)');
+export const isMinScreenLG = mediaQuery('(min-width: 1024px)');
 
 // Get 3 random kanji characterS
 export const getRandomKanji = () => {

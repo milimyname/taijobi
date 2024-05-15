@@ -9,11 +9,12 @@
 		showProgressSlider,
 		innerHeightStore,
 		innerWidthStore,
-		currentFlashcardTypeStore
+		currentFlashcardTypeStore,
+		canIdrawMultipleTimes
 	} from '$lib/utils/stores';
 	import { quintOut, cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
-	import { RotateCcw, Box, PenTool, Volume2 } from 'lucide-svelte';
+	import { RotateCcw, Box, PenTool, Volume2, GalleryHorizontalEnd } from 'lucide-svelte';
 	import { cn, getFlashcardHeight, getFlashcardWidth, isNonJapanase } from '$lib/utils';
 	import { browser } from '$app/environment';
 	import { replaceStateWithQuery } from '$lib/utils';
@@ -104,11 +105,11 @@
 			{currentIndex + 1}
 		</span>
 
-		<div class="flex gap-5">
+		<div class="absolute bottom-3 left-2 z-30 flex flex-col-reverse gap-3 xm:bottom-5 xm:left-5">
 			{#if !isNonJapanase($currentFlashcard)}
 				<button
 					class={cn(
-						'absolute bottom-3 left-2 z-30 rounded-full border bg-white p-2 shadow-sm transition-all xm:bottom-5 xm:left-5',
+						'rounded-full border bg-white p-2 shadow-sm transition-all',
 						showCustomContent && 'hidden'
 					)}
 					on:click={() => {
@@ -123,7 +124,7 @@
 			{#if $page.data.isLoggedIn}
 				<button
 					class={cn(
-						'absolute bottom-14 left-2 z-30 rounded-full border bg-white p-2 shadow-sm transition-all xm:bottom-[4rem] xm:left-5',
+						'rounded-full border bg-white p-2 shadow-sm transition-all',
 						showCustomContent && 'hidden'
 					)}
 					on:click={async () => {
@@ -134,11 +135,23 @@
 					<Volume2 class="size-4" />
 				</button>
 			{/if}
+
+			<button
+				class={cn(
+					'rounded-full border bg-white p-2 shadow-sm transition-all',
+					showCustomContent && 'hidden'
+				)}
+				on:click={() => ($canIdrawMultipleTimes = true)}
+			>
+				<GalleryHorizontalEnd class="size-4" />
+			</button>
 		</div>
 
 		<button
-			class="{showCustomContent && 'hidden'} 
-						absolute bottom-3 right-2 z-30 rounded-full border bg-white p-2 shadow-sm transition-all xm:bottom-5 xm:right-5"
+			class={cn(
+				'absolute bottom-3 right-2 z-30 rounded-full border bg-white p-2 shadow-sm transition-all xm:bottom-5 xm:right-5',
+				showCustomContent && 'hidden'
+			)}
 			on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
 		>
 			<RotateCcw class="size-4" />

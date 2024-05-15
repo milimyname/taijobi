@@ -131,7 +131,7 @@
 <section class="flex h-full flex-col gap-4 sm:gap-5 lg:justify-center">
 	<div style="perspective: 3000px;" class="my-auto lg:my-0">
 		<div>
-			<Canvas rotationY={$rotateYCard} {canvas} {ctx} />
+			<Canvas rotationY={$rotateYCard} {canvas} />
 
 			<!-- SVG  -->
 			<Letter rotationY={$rotateYCard} saved={data.flashcard} />

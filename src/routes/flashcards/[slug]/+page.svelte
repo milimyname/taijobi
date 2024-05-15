@@ -10,7 +10,8 @@
 		showLetterDrawing,
 		currentFlashcardTypeStore,
 		searchedWordStore,
-		clickedEditFlashcard
+		clickedEditFlashcard,
+		canIdrawMultipleTimes
 	} from '$lib/utils/stores';
 	import FlashcardForm from '$lib/components/forms/flashcard-form-ui.svelte';
 	import { page } from '$app/stores';
@@ -29,6 +30,8 @@
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { flashcardSchema } from '$lib/utils/zodSchema';
 	import { goto } from '$app/navigation';
+	import CarouselWithThumbnails from './carousel-thumbnails.svelte';
+
 	export let data;
 
 	let embla: CarouselAPI;
@@ -169,7 +172,7 @@
 	)}
 >
 	{#if flashcards.length > 0}
-		{#if !$showLetterDrawing}
+		{#if !$showLetterDrawing && !$canIdrawMultipleTimes}
 			<Flashcard
 				wordFlashcard={flashcards.at(currentIndex)}
 				{currentIndex}
@@ -184,47 +187,55 @@
 					<EditButton form={form.form} currentFlashcard={flashcards[currentIndex]} />
 				{/if}
 			</div>
-		{:else}
-			<LetterDrawingFlashcard {embla} />
 		{/if}
 
-		<Carousel.Root
-			bind:api={embla}
-			opts={{
-				dragFree: true,
-				loop: true
-			}}
-			plugins={[WheelGesturesPlugin()]}
-			class="flaschards-carousel fixed bottom-5 w-2/3 sm:bottom-10 lg:sticky lg:bottom-0 lg:w-5/6"
-		>
-			<Carousel.Content>
-				{#each flashcards as flashcard, index}
-					<Carousel.Item
-						class={cn(
-							'basis-auto scale-75 cursor-pointer text-center text-2xl opacity-50 sm:text-4xl',
-							$currentIndexStore === index && '!scale-100  opacity-100',
-							flashcards.length < 5 && 'basis-full',
-							flashcards.length > 6 && flashcards.length < 10 && 'md:basis-1/3',
-							// flashcards.length > 10 && 'md:basis-1/3',
-							// flashcard.name.length < 3 && 'basis-full',
-							// flashcard.name.length > 5 && flashcard.name.length < 10 && 'basis-full',
-							$currentFlashcardTypeStore === 'kanji' && 'basis-1/3'
-						)}
-					>
-						<button
-							on:click={() => {
-								$currentIndexStore = index;
-								embla.scrollTo(index);
-							}}
+		{#if $showLetterDrawing}
+			<LetterDrawingFlashcard  {embla} />
+		{/if}
+
+		{#if $canIdrawMultipleTimes}
+			<CarouselWithThumbnails {currentIndex} />
+		{/if}
+
+		{#if !$canIdrawMultipleTimes}
+			<Carousel.Root
+				bind:api={embla}
+				opts={{
+					dragFree: true,
+					loop: true
+				}}
+				plugins={[WheelGesturesPlugin()]}
+				class="flaschards-carousel fixed bottom-5 w-2/3 sm:bottom-10 lg:sticky lg:bottom-0 lg:w-5/6"
+			>
+				<Carousel.Content>
+					{#each flashcards as flashcard, index}
+						<Carousel.Item
+							class={cn(
+								'basis-auto scale-75 cursor-pointer text-center text-2xl opacity-50 sm:text-4xl',
+								$currentIndexStore === index && '!scale-100  opacity-100',
+								flashcards.length < 5 && 'basis-full',
+								flashcards.length > 6 && flashcards.length < 10 && 'md:basis-1/3',
+								// flashcards.length > 10 && 'md:basis-1/3',
+								// flashcard.name.length < 3 && 'basis-full',
+								// flashcard.name.length > 5 && flashcard.name.length < 10 && 'basis-full',
+								$currentFlashcardTypeStore === 'kanji' && 'basis-1/3'
+							)}
 						>
-							{flashcard.name}
-						</button>
-					</Carousel.Item>
-				{/each}
-			</Carousel.Content>
-			<Carousel.Previous />
-			<Carousel.Next />
-		</Carousel.Root>
+							<button
+								on:click={() => {
+									$currentIndexStore = index;
+									embla.scrollTo(index);
+								}}
+							>
+								{flashcard.name}
+							</button>
+						</Carousel.Item>
+					{/each}
+				</Carousel.Content>
+				<Carousel.Previous />
+				<Carousel.Next />
+			</Carousel.Root>
+		{/if}
 	{:else if !isLoading}
 		<button
 			class="add-form-btn flex h-80 w-1/2 items-center justify-center rounded-xl border-4 border-blue-400 text-center text-xl font-bold text-blue-500 hover:border-blue-500"

@@ -1,24 +1,36 @@
 <script lang="ts">
 	import type { Ctx } from '$lib/utils/ambient.d.ts';
 	import { IS_DESKTOP } from '$lib/utils/constants';
-	import { innerWidthStore, lastPoint, strokeColor, innerHeightStore } from '$lib/utils/stores';
+	import {
+		innerWidthStore,
+		lastPoint,
+		strokeColor,
+		innerHeightStore,
+		canIdrawMultipleTimes
+	} from '$lib/utils/stores';
 	import { onMount } from 'svelte';
 	import { cn, getFlashcardHeight, getFlashcardWidth } from '$lib/utils';
 
 	export let rotationY: number = 0;
 	export let canvas: HTMLCanvasElement;
-	export let ctx: Ctx;
+	export let canvasId: string = '';
 
+	let ctx: Ctx;
 	let isDrawing = false;
 
 	function startDrawing(event: any) {
 		isDrawing = true;
+
+		if ($canIdrawMultipleTimes) saveDrawing();
+
 		$lastPoint = getXY(event);
 		event.preventDefault();
 	}
 
 	function stopDrawing() {
 		isDrawing = false;
+
+		if ($canIdrawMultipleTimes) saveDrawing();
 	}
 
 	function drawOnCanvas(event: any) {
@@ -49,6 +61,11 @@
 			};
 		}
 	}
+
+	function saveDrawing() {
+		localStorage.setItem(canvasId, canvas.toDataURL());
+	}
+
 	onMount(() => {
 		ctx = canvas.getContext('2d') as Ctx;
 		ctx.lineWidth = $innerWidthStore > IS_DESKTOP ? 12 : 10;

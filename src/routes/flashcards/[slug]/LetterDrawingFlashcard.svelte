@@ -98,7 +98,7 @@
 
 	<button
 		class={cn(
-			'absolute bottom-3 left-2 z-40 block rounded-full border bg-white p-2 shadow-sm transition-all sm:bottom-5 sm:left-5',
+			'absolute bottom-3 left-3 z-40 block rounded-full border bg-white p-2 shadow-sm transition-all xm:bottom-5 xm:left-5',
 			$rotateYCard > 5 && $rotateYCard < 175 && 'hidden'
 		)}
 		on:click={() => ($showLetterDrawing = false)}
@@ -106,13 +106,13 @@
 		<FileText class="size-4" />
 	</button>
 
-	<Canvas rotationY={$rotateYCard} {canvas} {ctx} />
+	<Canvas rotationY={$rotateYCard} {canvas} />
 
 	<Letter rotationY={$rotateYCard} />
 
 	<button
 		class={cn(
-			'absolute bottom-3 right-2 z-40 block rounded-full border bg-white p-2 shadow-sm transition-all sm:bottom-5 sm:right-5',
+			'absolute bottom-3 right-2 z-40 block rounded-full border bg-white p-2 shadow-sm transition-all xm:bottom-5 xm:right-5',
 			$rotateYCard > 5 && $rotateYCard < 175 && 'hidden'
 		)}
 		on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}

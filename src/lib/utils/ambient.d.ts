@@ -20,6 +20,7 @@ export type Ctx = {
 	beginPath: () => void;
 	moveTo: (arg0: number, arg1: number) => void;
 	lineTo: (arg0: number, arg1: number) => void;
+	drawImage: (arg0: HTMLImageElement, arg1: number, arg2: number) => void;
 	stroke: () => void;
 	lineWidth: number;
 	lineJoin: string;
