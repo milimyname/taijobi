@@ -15,18 +15,7 @@ export type KanjiObject = {
 	onyomi: string[];
 };
 
-export type Ctx = {
-	strokeStyle: string;
-	beginPath: () => void;
-	moveTo: (arg0: number, arg1: number) => void;
-	lineTo: (arg0: number, arg1: number) => void;
-	drawImage: (arg0: HTMLImageElement, arg1: number, arg2: number) => void;
-	stroke: () => void;
-	lineWidth: number;
-	lineJoin: string;
-	lineCap: string;
-	clearRect: (arg0: number, arg1: number, arg2: number, arg3: number) => void;
-};
+export type Ctx = CanvasRenderingContext2D;
 
 export type Card = {
 	id: string;

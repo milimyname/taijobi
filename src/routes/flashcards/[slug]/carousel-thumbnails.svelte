@@ -1,35 +1,50 @@
 <script lang="ts">
-	import Canvas from '$lib/components/canvas/Canvas.svelte';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Carousel from '$lib/components/ui/carousel/index.js';
-	import { clearCanvas } from '$lib/utils/actions';
-	import type { Ctx } from '$lib/utils/ambient.d.ts';
 	import { CircleX } from 'lucide-svelte';
-	import { onMount } from 'svelte';
 	import { type CarouselAPI } from '$lib/components/ui/carousel/context';
 	import { page } from '$app/stores';
-	import { isMinScreenLG } from '$lib/utils';
+	import { Hand, PenTool, ArrowLeft } from 'lucide-svelte';
+	import { fabric } from 'fabric';
+	import { IS_DESKTOP } from '$lib/utils/constants';
+	import {
+		innerWidthStore,
+		strokeColor,
+		innerHeightStore,
+		currentFlashcard,
+		canIdrawMultipleTimes
+	} from '$lib/utils/stores';
+	import { onDestroy, onMount } from 'svelte';
+	import { cn, getFlashcardHeight, getFlashcardWidth } from '$lib/utils';
 
 	export let currentIndex: number;
+
+	let rotationY: number = 0;
+	let canvasId = `${$page.params.slug}-${currentIndex}-${0}`;
+	let isDrawingMode = true;
+
+	// Skeleton sizes for the flashcard
+	let width = 350;
+	let height = 400;
 
 	let canvasCarouselApi: CarouselAPI;
 	let imageCarouselApi: CarouselAPI;
 
-	let canvas: HTMLCanvasElement;
-	let ctx: Ctx;
-	let current = 0;
 	const numOfItems = 5; // Number of carousel items
 	let savedDrawings: string[] = [];
+	let fabricCanvas: fabric.Canvas;
+	let fabricCanvasMap = new Map();
 
 	// Function to load saved drawings from localStorage
-	function loadDrawing(id: string, ctx: Ctx) {
+	function loadDrawing(id: string) {
 		const dataUrl = localStorage.getItem(id);
 		if (dataUrl) {
-			const img = new Image();
-			img.src = dataUrl;
-			img.onload = () => {
-				ctx.drawImage(img, 0, 0);
-			};
+			fabric.Image.fromURL(dataUrl, (img) => {
+				// Remove the previous image from the canvas
+				fabricCanvas.clear();
+				fabricCanvas.add(img);
+				fabricCanvas.renderAll();
+			});
 		}
 	}
 
@@ -38,7 +53,6 @@
 		const canvas = document.createElement('canvas');
 		canvas.width = 800;
 		canvas.height = 600;
-		const ctx = canvas.getContext('2d');
 
 		return canvas.toDataURL();
 	}
@@ -53,18 +67,83 @@
 		}
 	}
 
-	// Function to handle image click
-	function handleImageClick(index: number) {
-		console.log('image clicked', index);
-		canvasCarouselApi.scrollTo(index);
+	function saveDrawing() {
+		localStorage.setItem(canvasId, fabricCanvas.toDataURL());
+	}
+
+	const initializeFabricCanvas = () => {
+		for (let i = 0; i < numOfItems; i++) {
+			fabricCanvas = new fabric.Canvas(`${$page.params.slug}-${currentIndex}-${i}`, {
+				isDrawingMode
+			});
+
+			fabricCanvas.freeDrawingBrush.width = $innerWidthStore > IS_DESKTOP ? 12 : 10;
+			fabricCanvas.freeDrawingBrush.color = $strokeColor;
+			fabricCanvas.isDrawingMode = isDrawingMode;
+
+			fabric.Object.prototype.transparentCorners = false;
+
+			if (!fabricCanvas) return;
+
+			// Add flashcard name to the canvas
+			const text = new fabric.Text($currentFlashcard, {
+				left: fabricCanvas.width / 2,
+				top: fabricCanvas.height / 2,
+				fontSize: 40,
+				fill: 'black',
+				opacity: 0.2,
+				selectable: true,
+				hasBorders: true,
+				originX: 'center',
+				originY: 'center'
+			});
+
+			fabricCanvas.add(text);
+			fabricCanvas.renderAll();
+
+			// Set up event handlers for drawing and constraining movement
+			fabricCanvas.on('object:moving', (e) => {
+				const obj = e.target as fabric.Object;
+				obj.setCoords(); // Update the coordinates of the object
+
+				// Check if the object has top and left properties
+				if (!obj.top || !obj.left) return;
+
+				// Constrain the object within the canvas boundaries
+				if (
+					obj.getBoundingRect().left < 0 ||
+					obj.getBoundingRect().top < 0 ||
+					obj.getBoundingRect().top + obj.getBoundingRect().height > fabricCanvas.getHeight() ||
+					obj.getBoundingRect().left + obj.getBoundingRect().width > fabricCanvas.getWidth()
+				) {
+					obj.top = Math.min(
+						obj.top,
+						fabricCanvas.getHeight() - (obj.getBoundingRect().height ?? 0)
+					);
+					obj.left = Math.min(obj.left, fabricCanvas.getWidth() - obj.getBoundingRect().width);
+					obj.top = Math.max(obj.top, 0);
+					obj.left = Math.max(obj.left, 0);
+				}
+			});
+
+			window.addEventListener('resize', handleResize);
+			fabricCanvas.on('object:added', saveDrawing);
+			fabricCanvasMap.set(`${$page.params.slug}-${currentIndex}-${i}`, fabricCanvas);
+		}
+	};
+
+	function handleResize() {
+		fabricCanvas.setWidth(width);
+		fabricCanvas.setHeight(height);
+		fabricCanvas.renderAll();
 	}
 
 	// Get canvas and context
 	onMount(() => {
-		canvas = document.querySelector('canvas') as HTMLCanvasElement;
-		ctx = canvas.getContext('2d') as Ctx;
-		loadDrawing(`${$page.params.slug}-${currentIndex}-${0}`, ctx);
+		fabricCanvas = fabricCanvasMap.get(canvasId);
+		loadDrawing(canvasId);
 		updateSavedDrawings();
+		initializeFabricCanvas();
 	});
 
 	const addThumbBtnsClickHandlers = () => {
@@ -85,12 +164,12 @@
 
 	$: if (canvasCarouselApi) {
 		canvasCarouselApi.on('select', () => {
-			current = canvasCarouselApi.selectedScrollSnap() + 1;
+			const current = canvasCarouselApi.selectedScrollSnap();
+			canvasId = `${$page.params.slug}-${currentIndex}-${current}`;
 			// update canvas and context
-			canvas = document.querySelectorAll('canvas')[current - 1] as HTMLCanvasElement;
-			ctx = canvas.getContext('2d') as Ctx;
+			fabricCanvas = fabricCanvasMap.get(canvasId);
 
-			loadDrawing(`${$page.params.slug}-${currentIndex}-${current - 1}`, ctx);
+			loadDrawing(canvasId);
 			updateSavedDrawings();
 		});
 	}
@@ -100,13 +179,61 @@
 			canvasCarouselApi.scrollTo(imageCarouselApi.selectedScrollSnap());
 		});
 
-		imageCarouselApi.on('pointerDown', () => {
-			canvasCarouselApi.scrollTo(imageCarouselApi.selectedScrollSnap());
-		});
-
 		addThumbBtnsClickHandlers();
 	}
+
+	function clearFabricCanvas() {
+		fabricCanvas.clear();
+		saveDrawing();
+	}
+
+	onDestroy(() => {
+		window.removeEventListener('resize', handleResize);
+	});
+
+	$: if ($innerWidthStore || $innerHeightStore) {
+		width = getFlashcardWidth($innerWidthStore);
+		height = getFlashcardHeight($innerWidthStore, $innerHeightStore);
+	}
+
+	$: if (fabricCanvas) {
+		fabricCanvas.freeDrawingBrush.width = $innerWidthStore > IS_DESKTOP ? 12 : 10;
+		fabricCanvas.freeDrawingBrush.color = $strokeColor;
+		fabricCanvas.isDrawingMode = isDrawingMode;
+	}
 </script>
+
+<!-- Toggle Drawing Mode -->
+<div class="flex items-center justify-center gap-2">
+	<button
+		on:click={() => {
+			$canIdrawMultipleTimes = false;
+		}}
+		class="block rounded-full border bg-white p-2 shadow-sm transition-all"
+	>
+		<ArrowLeft class="size-5" />
+	</button>
+
+	<button
+		on:click={() => {
+			isDrawingMode = !isDrawingMode;
+		}}
+		class="block rounded-full border bg-white p-2 shadow-sm transition-all"
+	>
+		{#if isDrawingMode}
+			<PenTool class="size-5" />
+		{:else}
+			<Hand class="size-5" />
+		{/if}
+	</button>
+
+	<button
+		on:click|preventDefault={clearFabricCanvas}
+		class="block rounded-full border bg-white p-2 shadow-sm transition-all"
+	>
+		<CircleX class="size-5" />
+	</button>
+</div>
 
 <Carousel.Root
 	bind:api={canvasCarouselApi}
@@ -119,21 +246,15 @@
 		{#each Array(numOfItems) as _, i (i)}
 			<Carousel.Item>
 				<div style="perspective: 3000px;" class="mx-auto w-fit">
-					<Canvas {canvas} canvasId={`${$page.params.slug}-${currentIndex}-${i}`} />
-
-					{#if $isMinScreenLG}
-						<button
-							on:click|preventDefault={() => {
-								clearCanvas(ctx, canvas);
-							}}
-							class="fixed bottom-5 left-5 z-30 block rounded-full border bg-white p-2 shadow-sm transition-all"
-						>
-							<CircleX />
-						</button>
-
-						<!-- <Carousel.Previous />
-						<Carousel.Next /> -->
-					{/if}
+					<canvas
+						id={`${$page.params.slug}-${currentIndex}-${i}`}
+						{width}
+						{height}
+						class={cn(
+							'relative z-10 mx-auto block cursor-pointer rounded-xl border shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200',
+							rotationY > 90 && 'hidden'
+						)}
+					/>
 				</div>
 			</Carousel.Item>
 		{/each}
@@ -153,12 +274,7 @@
 			<Carousel.Item
 				class="flex basis-auto cursor-pointer items-center justify-center  first:pl-0 md:pl-10"
 			>
-				<Card.Root
-					class="size-20"
-					on:click={() => {
-						handleImageClick(i);
-					}}
-				>
+				<Card.Root class="size-20">
 					<Card.Content class="flex items-center justify-center p-6">
 						<img {src} alt="Saved Drawing {i}" class="size-full object-cover" />
 					</Card.Content>

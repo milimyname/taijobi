@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import type { Ctx } from '$lib/utils/ambient.d.ts';
 	import Canvas from '$lib/components/canvas/Canvas.svelte';
 	import { clearCanvas } from '$lib/utils/actions';
 	import { CircleX, CirclePlus } from 'lucide-svelte';
@@ -16,14 +15,14 @@
 	import { page } from '$app/stores';
 
 	let canvas: HTMLCanvasElement;
-	let ctx: Ctx;
+	let ctx: CanvasRenderingContext2D;
 	let recognizedLetters: string[] = [];
 	let handwritingInstance: any;
 
 	// Get canvas and context
 	onMount(() => {
 		canvas = document.querySelector('canvas') as HTMLCanvasElement;
-		ctx = canvas.getContext('2d') as Ctx;
+		ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
 
 		if (canvas) {
 			handwritingInstance = new handwriting.Canvas(canvas, 'light');
@@ -197,7 +196,7 @@
 
 	<div style="perspective: 3000px;">
 		<div>
-			<Canvas {canvas} {ctx} />
+			<Canvas {canvas} />
 
 			<button
 				on:click|preventDefault={() => {

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { Ctx } from '$lib/utils/ambient.d.ts';
 	import { onMount } from 'svelte';
 	import { ArrowRight, ArrowLeft, RotateCcw, Heart } from 'lucide-svelte';
 	import {
@@ -43,8 +42,6 @@
 	});
 	// Get the alphabet store length
 	let alphabetLength: number;
-	let canvas: HTMLCanvasElement;
-	let ctx: Ctx;
 
 	let savedKanji: boolean = false;
 
@@ -100,10 +97,9 @@
 	};
 
 	// Get canvas and context
-	onMount(() => {
-		canvas = document.querySelector('canvas') as HTMLCanvasElement;
-		ctx = canvas.getContext('2d') as Ctx;
-	});
+	// onMount(() => {
+	// 	canvas = document.querySelector('canvas') as HTMLCanvasElement;
+	// });
 
 	$: $currentAlphabet = $page.url.pathname.split('/')[2] as 'hiragana' | 'katakana' | 'kanji';
 
@@ -131,7 +127,7 @@
 <section class="flex h-full flex-col gap-4 sm:gap-5 lg:justify-center">
 	<div style="perspective: 3000px;" class="my-auto lg:my-0">
 		<div>
-			<Canvas rotationY={$rotateYCard} {canvas} />
+			<Canvas rotationY={$rotateYCard} />
 
 			<!-- SVG  -->
 			<Letter rotationY={$rotateYCard} saved={data.flashcard} />
@@ -196,7 +192,7 @@
 		>
 			<button
 				on:click|preventDefault={() => {
-					clearCanvas(ctx, canvas);
+					clearCanvas($currentAlphabet);
 					$progressSlider > 1 ? $progressSlider-- : $progressSlider;
 					$searchKanji = '';
 				}}
@@ -237,7 +233,7 @@
 			{#if alphabetLength !== $progressSlider && $kanjiLength !== $progressSlider}
 				<button
 					on:click|preventDefault={() => {
-						clearCanvas(ctx, canvas);
+						clearCanvas($currentAlphabet);
 						$progressSlider < alphabetLength ? $progressSlider++ : $progressSlider;
 						$searchKanji = '';
 					}}
@@ -248,7 +244,7 @@
 			{:else}
 				<button
 					on:click|preventDefault={() => {
-						clearCanvas(ctx, canvas);
+						clearCanvas($currentAlphabet);
 						$progressSlider = 1;
 						$searchKanji = '';
 					}}

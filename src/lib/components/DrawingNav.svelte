@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { fly } from 'svelte/transition';
 	import { sineIn } from 'svelte/easing';
-	import type { Ctx } from '$lib/utils/ambient.d.ts';
 	import { animateSVG, isLongPress, strokeColor, showProgressSlider } from '$lib/utils/stores';
 	import {
 		handleUserIconClick,
@@ -15,12 +14,12 @@
 	import { cn } from '$lib/utils';
 
 	let longPressTimer: any;
-	let canvas: HTMLCanvasElement, ctx: Ctx;
+	let canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D;
 
 	// Get canvas and context
 	onMount(() => {
 		canvas = document.querySelector('canvas') as HTMLCanvasElement;
-		ctx = canvas.getContext('2d') as Ctx;
+		ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
 	});
 
 	// When the progress changes, clear the canvas

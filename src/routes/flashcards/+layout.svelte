@@ -6,7 +6,8 @@
 		flashcardsBoxType,
 		currentIndexStore,
 		showLetterDrawing,
-		selectedQuizItems
+		selectedQuizItems,
+		canIdrawMultipleTimes
 	} from '$lib/utils/stores';
 	import { page } from '$app/stores';
 	import { ArrowLeft, FolderPlus } from 'lucide-svelte';
@@ -39,6 +40,7 @@
 				$currentIndexStore = 0;
 				$showLetterDrawing = false;
 				$selectedQuizItems = [];
+				$canIdrawMultipleTimes = false;
 
 				// Clear the local storage for the flashcards box type
 				localStorage.removeItem('flashcardsBoxType');

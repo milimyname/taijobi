@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { Ctx } from '$lib/utils/ambient.d.ts';
 	import {
 		currentAlphabet,
 		currentFlashcard,
@@ -38,14 +37,14 @@
 	});
 	// Get the alphabet store length
 	let canvas: HTMLCanvasElement;
-	let ctx: Ctx;
+	let ctx: CanvasRenderingContext2D;
 	let slicedFlashcard: string[];
 	let index: number = 0;
 
 	// Get canvas and context
 	onMount(() => {
 		canvas = document.querySelector('canvas') as HTMLCanvasElement;
-		ctx = canvas.getContext('2d') as Ctx;
+		ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
 
 		$currentLetter = slicedFlashcard[index];
 	});
