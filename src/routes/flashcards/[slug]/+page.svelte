@@ -190,7 +190,7 @@
 		{/if}
 
 		{#if $showLetterDrawing}
-			<LetterDrawingFlashcard  {embla} />
+			<LetterDrawingFlashcard {embla} />
 		{/if}
 
 		{#if $canIdrawMultipleTimes}

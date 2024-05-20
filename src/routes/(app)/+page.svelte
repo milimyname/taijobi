@@ -36,7 +36,7 @@
 		{/if}
 
 		<a
-			href="/find-kanji"
+			href="/find"
 			class="w-full rounded-lg border-2 border-black bg-alphabetGreen p-4 text-center text-xl sm:p-10 sm:text-4xl"
 		>
 			Find it
@@ -58,10 +58,10 @@
 	</div>
 	<div class="flex flex-col gap-2">
 		<a
-			href="/quizzes"
+			href="/games"
 			class="w-full rounded-lg border-2 border-black bg-alphabetGreen p-4 text-center text-xl sm:p-10 sm:text-4xl"
 		>
-			Quizzes
+			Games
 		</a>
 	</div>
 </section>

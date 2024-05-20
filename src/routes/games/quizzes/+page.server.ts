@@ -41,7 +41,7 @@ export const load = async ({ locals, parent }) => {
 	// Get a quiz
 	let quizzes = await locals.pb.collection('quizzes').getFullList({
 		filter: `userId = "${id}"`,
-		fields: 'name,type,maxCount,id'
+		fields: 'name,type,maxCount,id,created'
 	});
 
 	// Add hiragana and katakana quizzes
