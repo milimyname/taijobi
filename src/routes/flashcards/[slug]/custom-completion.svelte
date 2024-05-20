@@ -84,6 +84,8 @@
 	$: if (activeTab === 'conjugation' || wordFlashcard) loadWordFlashcard();
 	$: if (activeTab === 'sentence' && wordFlashcard) exampleSentences = [];
 
+	$: if (wordFlashcard?.notes === '') activeTab = 'conjugation';
+
 	$: if (wordFlashcard)
 		selectedValue = {
 			value: '',
