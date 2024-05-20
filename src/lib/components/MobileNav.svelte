@@ -73,7 +73,7 @@
 	>
 		<div class="-mb-52 h-17 w-full rounded-4xl border-4 border-[#F86F03] bg-white shadow-xl">
 			<a
-				href="/quizzes"
+				href="/games/quizzes"
 				class="flex justify-between p-4"
 				on:click={() => {
 					$showAppNav = false;

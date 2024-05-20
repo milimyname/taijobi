@@ -174,7 +174,7 @@
 					{#if anyProgress}
 						<button
 							class="self-center rounded-full font-bold"
-							on:click={() => goto(`/quizzes/${quiz.id}`)}
+							on:click={() => goto(`/games/quizzes/${quiz.id}`)}
 						>
 							Continue from {JSON.parse(anyProgress).length}
 						</button>

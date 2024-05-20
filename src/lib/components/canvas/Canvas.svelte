@@ -6,7 +6,6 @@
 
 	export let rotationY: number = 0;
 	export let canvas: HTMLCanvasElement;
-	export let canvasId: string = '';
 
 	let ctx: CanvasRenderingContext2D;
 	let isDrawing = false;
@@ -49,10 +48,6 @@
 				y: event.clientY - rect.top
 			};
 		}
-	}
-
-	function saveDrawing() {
-		localStorage.setItem(canvasId, canvas.toDataURL());
 	}
 
 	onMount(() => {

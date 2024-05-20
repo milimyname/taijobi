@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { ArrowRight, ArrowLeft, RotateCcw, Heart } from 'lucide-svelte';
 	import {
 		progressSlider,
@@ -33,8 +32,11 @@
 	import { quizSchema } from '$lib/utils/zodSchema';
 	import { goto } from '$app/navigation';
 	import { zodClient } from 'sveltekit-superforms/adapters';
+	import { onMount } from 'svelte';
 
 	export let data;
+
+	let canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D;
 
 	const rotateYCard = tweened(0, {
 		duration: 2000,
@@ -97,9 +99,10 @@
 	};
 
 	// Get canvas and context
-	// onMount(() => {
-	// 	canvas = document.querySelector('canvas') as HTMLCanvasElement;
-	// });
+	onMount(() => {
+		canvas = document.querySelector('canvas') as HTMLCanvasElement;
+		ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+	});
 
 	$: $currentAlphabet = $page.url.pathname.split('/')[2] as 'hiragana' | 'katakana' | 'kanji';
 
@@ -114,7 +117,7 @@
 
 			$clickedQuizForm = false;
 			$selectedQuizItems = [];
-			goto(`/quizzes/${form.data.id}`);
+			goto(`/games/quizzes/${form.data.id}`);
 		},
 		onSubmit: async () => {
 			$clickedQuizForm = false;
@@ -127,7 +130,7 @@
 <section class="flex h-full flex-col gap-4 sm:gap-5 lg:justify-center">
 	<div style="perspective: 3000px;" class="my-auto lg:my-0">
 		<div>
-			<Canvas rotationY={$rotateYCard} />
+			<Canvas rotationY={$rotateYCard} {canvas} />
 
 			<!-- SVG  -->
 			<Letter rotationY={$rotateYCard} saved={data.flashcard} />
@@ -192,7 +195,7 @@
 		>
 			<button
 				on:click|preventDefault={() => {
-					clearCanvas($currentAlphabet);
+					clearCanvas(ctx, canvas);
 					$progressSlider > 1 ? $progressSlider-- : $progressSlider;
 					$searchKanji = '';
 				}}
@@ -233,7 +236,7 @@
 			{#if alphabetLength !== $progressSlider && $kanjiLength !== $progressSlider}
 				<button
 					on:click|preventDefault={() => {
-						clearCanvas($currentAlphabet);
+						clearCanvas(ctx, canvas);
 						$progressSlider < alphabetLength ? $progressSlider++ : $progressSlider;
 						$searchKanji = '';
 					}}
@@ -244,7 +247,7 @@
 			{:else}
 				<button
 					on:click|preventDefault={() => {
-						clearCanvas($currentAlphabet);
+						clearCanvas(ctx, canvas);
 						$progressSlider = 1;
 						$searchKanji = '';
 					}}

@@ -15,8 +15,6 @@ export type KanjiObject = {
 	onyomi: string[];
 };
 
-export type Ctx = CanvasRenderingContext2D;
-
 export type Card = {
 	id: string;
 	name: string;

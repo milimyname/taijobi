@@ -71,7 +71,7 @@
 
 			$clickedQuizForm = false;
 			$selectedQuizItems = [];
-			goto(`/quizzes/${form.data.id}`);
+			goto(`/games/quizzes/${form.data.id}`);
 		}
 	});
 

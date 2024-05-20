@@ -127,6 +127,6 @@ export const actions = {
 			return setError(form, 'name', `Error creating quiz. Please try again.`);
 		}
 
-		throw redirect(303, `/quizzes/${quiz.id}`);
+		throw redirect(303, `/games/quizzes/${quiz.id}`);
 	}
 };
