@@ -41,6 +41,10 @@
 			return;
 
 		if ($page.url.pathname.slice(1) === 'flashcards') $clickedFeedback = false;
+
+		setTimeout(() => {
+			$clickedFeedback = false;
+		}, 100);
 	}
 
 	onMount(() => performAnimation());
@@ -57,20 +61,17 @@
 
 <DrawerDialog.Root open={$clickedFeedback} onOutsideClick={onOutsideClickDrawer}>
 	{#if !hide}
-		<DrawerDialog.Trigger asChild let:builder>
-			<Button
-				variant="none"
-				builders={[builder]}
-				class="feedback-btn absolute left-1/2 top-10 z-20 -translate-x-1/2 -translate-y-1/2 bg-white px-4 py-2"
+		<DrawerDialog.Trigger asChild>
+			<div
+				class="feedback-btn absolute left-1/2 top-10 z-10 flex -translate-x-1/2 -translate-y-1/2 justify-center gap-5 px-4 py-2"
 			>
-				{animationText}
-			</Button>
-			<button
-				on:click|stopPropagation={() => ($openSearch = true)}
-				class="search-btn absolute left-1/2 top-10 z-20 ml-10 h-10 -translate-x-1/2 -translate-y-1/2 rounded-md bg-white px-4 py-2"
-			>
-				<Search class="size-4" />
-			</button>
+				<button on:click={() => ($clickedFeedback = !$clickedFeedback)}>
+					{animationText}
+				</button>
+				<button on:click|stopPropagation={() => ($openSearch = true)} class="search-btn">
+					<Search class="size-4" />
+				</button>
+			</div>
 		</DrawerDialog.Trigger>
 	{/if}
 
