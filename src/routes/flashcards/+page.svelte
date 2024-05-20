@@ -213,14 +213,19 @@
 
 							goto(`/flashcards/${box.id}`);
 						}}
-						class="flex h-60 flex-none basis-1/2 flex-col items-center justify-between rounded-xl bg-blue-400 text-center text-xl font-bold text-white sm:h-80 sm:basis-1/3"
+						class="flex h-60 flex-none basis-1/2 flex-col items-center justify-between overflow-y-scroll rounded-xl bg-blue-400 text-center text-white sm:h-80 sm:basis-1/3"
 					>
-						<span class="p-4">
-							{box.name}
-						</span>
+						<div class="space-y-2 p-4">
+							<span class="text-xl font-bold">
+								{box.name}
+							</span>
 
+							<p>
+								{box.description}
+							</p>
+						</div>
 						{#if $flashcardsBoxType !== 'original' || data.isAdmin || box.count > 20}
-							<div class="flex w-full justify-around rounded-t-xl bg-blue-500 p-4">
+							<div class="sticky bottom-0 flex w-full justify-around rounded-t-xl bg-blue-500 p-4">
 								{#if $flashcardsBoxType !== 'original' || data.isAdmin}
 									<button
 										class="flex w-full justify-center"

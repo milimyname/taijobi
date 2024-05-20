@@ -83,7 +83,7 @@
 
 			fabric.Object.prototype.transparentCorners = false;
 
-			if (!fabricCanvas) return;
+			if (!fabricCanvas || !fabricCanvas.width || !fabricCanvas.height) return;
 
 			// Add flashcard name to the canvas
 			const text = new fabric.Text($currentFlashcard, {
