@@ -49,27 +49,29 @@
 		}
 	];
 
-	$: quizzes = data.quizzes;
+	let quizzes: RecordModel[] = data.quizzes;
 
 	$: selectedType = types.find((t) => t.value === value) ?? null;
 
-	$: if (selectedType)
-		quizzes = data.quizzes.filter((quiz: RecordModel) => quiz.type === selectedType.value);
+	$: quizzes = (() => {
+		// First, filter by selectedType if any, then apply hiddenExamples filter
+		let filteredQuizzes = data.quizzes
+			.filter((quiz: RecordModel) => !selectedType || quiz.type === selectedType.value)
+			.filter(
+				(quiz: RecordModel) => !hiddenExamples || (quiz.id !== 'hiragana' && quiz.id !== 'katakana')
+			);
 
-	$: if (sortedByDate)
-		quizzes = quizzes.sort(
-			(a: RecordModel, b: RecordModel) => new Date(b.created) - new Date(a.created)
-		);
-	else
-		quizzes = quizzes.sort(
-			(a: RecordModel, b: RecordModel) => new Date(a.created) - new Date(b.created)
-		);
-
-	$: if (hiddenExamples) {
-		quizzes = quizzes.filter(
-			(quiz: RecordModel) => quiz.id !== 'hiragana' && quiz.id !== 'katakana'
-		);
-	}
+		// Then, sort the filtered quizzes based on sortedByDate
+		return sortedByDate
+			? filteredQuizzes.sort(
+					(a: RecordModel, b: RecordModel) =>
+						Number(new Date(b.created)) - Number(new Date(a.created))
+				)
+			: filteredQuizzes.sort(
+					(a: RecordModel, b: RecordModel) =>
+						Number(new Date(a.created)) - Number(new Date(b.created))
+				);
+	})();
 
 	// We want to refocus the trigger button when the user selects
 	// an item from the list so users can continue navigating the
@@ -85,7 +87,11 @@
 <section class="flex w-full max-w-4xl flex-col justify-center gap-5 overflow-y-scroll">
 	<div class="flex flex-wrap gap-2">
 		<Button size="sm" variant="outline" on:click={() => (hiddenExamples = !hiddenExamples)}>
-			<span> Hide Examples </span>
+			{#if hiddenExamples}
+				<span>Show examples</span>
+			{:else}
+				<span>Hide examples</span>
+			{/if}
 		</Button>
 		<Button size="sm" variant="outline" on:click={() => (sortedByDate = !sortedByDate)}>
 			<ArrowDownUp class="mr-2 size-4" />
@@ -113,6 +119,14 @@
 									<Command.Item
 										value={type.value}
 										onSelect={(currentValue) => {
+											// if the user selects the same value, clear it and show all items
+											if (currentValue === value) {
+												value = '';
+												closeAndFocusTrigger(ids.trigger);
+												quizzes = data.quizzes;
+												return;
+											}
+
 											value = currentValue;
 											closeAndFocusTrigger(ids.trigger);
 										}}

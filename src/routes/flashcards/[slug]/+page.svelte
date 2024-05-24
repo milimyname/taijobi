@@ -214,7 +214,7 @@
 								'basis-auto scale-75 cursor-pointer text-center text-2xl opacity-50 sm:text-4xl',
 								$currentIndexStore === index && '!scale-100  opacity-100',
 								flashcards.length < 5 && 'basis-full',
-								flashcards.length > 6 && flashcards.length < 10 && 'md:basis-1/3',
+								// flashcards.length > 6 && flashcards.length < 10 && 'md:basis-1/3',
 								// flashcards.length > 10 && 'md:basis-1/3',
 								// flashcard.name.length < 3 && 'basis-full',
 								// flashcard.name.length > 5 && flashcard.name.length < 10 && 'basis-full',

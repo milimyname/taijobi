@@ -69,7 +69,7 @@
 	</section>
 </main>
 
-<DrawerDialog.Root open={$clickedReport} onClose={onCloseDrawer}>
+<DrawerDialog.Root open={$clickedReport} onClose={onCloseDrawer} onOutsideClick={onCloseDrawer}>
 	<DrawerDialog.Content>
 		<DrawerDialog.Header class="text-left">
 			<DrawerDialog.Title>Leave a feedback or report a bug!</DrawerDialog.Title>
