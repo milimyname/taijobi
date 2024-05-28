@@ -12,6 +12,9 @@
 	import { page } from '$app/stores';
 	import { ArrowLeft, FolderPlus } from 'lucide-svelte';
 	import { getLocalStorageItem } from '$lib/utils/localStorage.js';
+	import { goto } from '$app/navigation';
+	import { NUM_OF_THUMBAILS } from '$lib/utils/constants';
+	import { removeAllItemsWithPrefixFromLocalStorage } from '$lib/utils';
 
 	export let data;
 
@@ -33,10 +36,15 @@
 	class="flex h-[100dvh] select-none flex-col items-center overflow-hidden bg-white p-2 transition-all sm:px-3 sm:py-5"
 >
 	<nav class="flex w-full justify-between px-2 py-3 xm:p-5">
-		<a
-			href={$page.route.id && $page.route.id.length < 12 ? '/' : '/flashcards'}
+		<button
 			class="go-back-btn group flex items-center gap-2"
 			on:click={() => {
+				// Remove the flashcards box type from the local storage
+				removeAllItemsWithPrefixFromLocalStorage(`${$page.params.slug}`);
+
+				// Reset the store values
+				if ($canIdrawMultipleTimes) return ($canIdrawMultipleTimes = false);
+
 				$currentIndexStore = 0;
 				$showLetterDrawing = false;
 				$selectedQuizItems = [];
@@ -44,6 +52,8 @@
 
 				// Clear the local storage for the flashcards box type
 				localStorage.removeItem('flashcardsBoxType');
+
+				goto($page.route.id && $page.route.id.length < 12 ? '/' : '/flashcards');
 			}}
 			data-sveltekit-preload-data
 		>
@@ -51,7 +61,7 @@
 				class="size-4 transition-transform  group-hover:-translate-x-2  group-active:-translate-x-2 "
 			/>
 			<span>Back</span>
-		</a>
+		</button>
 
 		{#if data.isLoggedIn}
 			{#if data.isAdmin}

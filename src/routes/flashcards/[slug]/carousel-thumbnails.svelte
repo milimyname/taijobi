@@ -4,9 +4,9 @@
 	import { CircleX } from 'lucide-svelte';
 	import { type CarouselAPI } from '$lib/components/ui/carousel/context';
 	import { page } from '$app/stores';
-	import { Hand, PenTool, ArrowLeft } from 'lucide-svelte';
+	import { Hand, PenTool, FileText } from 'lucide-svelte';
 	import { fabric } from 'fabric';
-	import { IS_DESKTOP } from '$lib/utils/constants';
+	import { IS_DESKTOP, NUM_OF_THUMBAILS } from '$lib/utils/constants';
 	import {
 		innerWidthStore,
 		strokeColor,
@@ -22,6 +22,7 @@
 	let rotationY: number = 0;
 	let canvasId = `${$page.params.slug}-${currentIndex}-${0}`;
 	let isDrawingMode = true;
+	let current = 0;
 
 	// Skeleton sizes for the flashcard
 	let width = 350;
@@ -30,20 +31,22 @@
 	let canvasCarouselApi: CarouselAPI;
 	let imageCarouselApi: CarouselAPI;
 
-	const numOfItems = 5; // Number of carousel items
 	let savedDrawings: string[] = [];
 	let fabricCanvas: fabric.Canvas;
 	let fabricCanvasMap = new Map();
 
 	// Function to load saved drawings from localStorage
 	function loadDrawing(id: string) {
-		const dataUrl = localStorage.getItem(id);
-		if (dataUrl) {
-			fabric.Image.fromURL(dataUrl, (img) => {
-				// Remove the previous image from the canvas
-				fabricCanvas.clear();
-				fabricCanvas.add(img);
+		const jsonCanvas = localStorage.getItem(id);
+		if (jsonCanvas && fabricCanvas) {
+			// Clear the canvas first
+			fabricCanvas.clear();
+			// console.log('Loading drawing from localStorage');
+
+			// Load the JSON string back into the canvas
+			fabricCanvas.loadFromJSON(jsonCanvas, function () {
 				fabricCanvas.renderAll();
+				// This callback ensures that everything is rendered properly after loading
 			});
 		}
 	}
@@ -60,19 +63,39 @@
 	// Function to load saved drawings from localStorage
 	function updateSavedDrawings() {
 		savedDrawings = [];
-		for (let i = 0; i < numOfItems; i++) {
-			const dataUrl = localStorage.getItem(`${$page.params.slug}-${currentIndex}-${i}`);
-			if (dataUrl) savedDrawings.push(dataUrl);
-			else savedDrawings.push(createPlaceholderImage());
+		for (let i = 0; i < NUM_OF_THUMBAILS; i++) {
+			const json = localStorage.getItem(`${$page.params.slug}-${currentIndex}-${i}`);
+			if (json) {
+				// Create a new Fabric canvas and load serialized data
+				const tempCanvas = document.createElement('canvas');
+				// Add width and height to the canvas 80 px
+
+				tempCanvas.width = 800;
+				tempCanvas.height = 600;
+
+				const tempFabricCanvas = new fabric.Canvas(tempCanvas);
+
+				tempFabricCanvas.loadFromJSON(json, () => {
+					// After data is loaded and canvas is ready
+					const url = tempFabricCanvas.toDataURL();
+					savedDrawings.push(url);
+					tempFabricCanvas.dispose(); // Clean up
+					tempCanvas.remove();
+				});
+			} else {
+				savedDrawings.push(createPlaceholderImage());
+			}
 		}
 	}
 
 	function saveDrawing() {
-		localStorage.setItem(canvasId, fabricCanvas.toDataURL());
+		// Serialize the canvas to JSON
+		const jsonCanvas = fabricCanvas.toJSON();
+		localStorage.setItem(canvasId, JSON.stringify(jsonCanvas));
 	}
 
 	const initializeFabricCanvas = () => {
-		for (let i = 0; i < numOfItems; i++) {
+		for (let i = 0; i < NUM_OF_THUMBAILS; i++) {
 			fabricCanvas = new fabric.Canvas(`${$page.params.slug}-${currentIndex}-${i}`, {
 				isDrawingMode
 			});
@@ -86,19 +109,26 @@
 			if (!fabricCanvas || !fabricCanvas.width || !fabricCanvas.height) return;
 
 			// Add flashcard name to the canvas
-			const text = new fabric.Text($currentFlashcard, {
-				left: fabricCanvas.width / 2,
-				top: fabricCanvas.height / 2,
-				fontSize: 40,
-				fill: 'black',
-				opacity: 0.2,
-				selectable: true,
-				hasBorders: true,
-				originX: 'center',
-				originY: 'center'
+			const letterSpacing = 50; // Increase the spacing between letters
+			const startX = fabricCanvas.width / 2 - ($currentFlashcard.length * letterSpacing) / 2; // Adjust starting position based on text length
+
+			// Add each letter of the flashcard name to the canvas
+			$currentFlashcard.split('').forEach((char, index) => {
+				const text = new fabric.Text(char, {
+					// Position each letter next to the previous one
+					left: startX + index * letterSpacing, // Adjust spacing based on your needs
+					top: fabricCanvas.height ? fabricCanvas.height / 2 : 0,
+					fontSize: 24,
+					fill: 'black',
+					opacity: 0.3,
+					selectable: true,
+					originX: 'center',
+					originY: 'center'
+				});
+
+				fabricCanvas.add(text);
 			});
 
-			fabricCanvas.add(text);
 			fabricCanvas.renderAll();
 
 			// Set up event handlers for drawing and constraining movement
@@ -130,6 +160,9 @@
 			fabricCanvas.on('object:added', saveDrawing);
 			fabricCanvasMap.set(`${$page.params.slug}-${currentIndex}-${i}`, fabricCanvas);
 		}
+
+		// Set current fabric canvas to the first one
+		fabricCanvas = fabricCanvasMap.get(canvasId);
 	};
 
 	function handleResize() {
@@ -138,13 +171,10 @@
 		fabricCanvas.renderAll();
 	}
 
-	// Get canvas and context
-	onMount(() => {
-		fabricCanvas = fabricCanvasMap.get(canvasId);
-		loadDrawing(canvasId);
-		updateSavedDrawings();
-		initializeFabricCanvas();
-	});
+	function clearFabricCanvas() {
+		fabricCanvas.clear();
+		saveDrawing();
+	}
 
 	const addThumbBtnsClickHandlers = () => {
 		const slidesThumbs = imageCarouselApi.slideNodes();
@@ -162,14 +192,26 @@
 		};
 	};
 
+	onDestroy(() => {
+		window.removeEventListener('resize', handleResize);
+	});
+
+	// Get canvas
+	onMount(() => {
+		loadDrawing(canvasId);
+		updateSavedDrawings();
+		initializeFabricCanvas();
+	});
+
 	$: if (canvasCarouselApi) {
+		loadDrawing(canvasId);
+
 		canvasCarouselApi.on('select', () => {
-			const current = canvasCarouselApi.selectedScrollSnap();
+			current = canvasCarouselApi.selectedScrollSnap();
 			canvasId = `${$page.params.slug}-${currentIndex}-${current}`;
 			// update canvas and context
 			fabricCanvas = fabricCanvasMap.get(canvasId);
 
-			loadDrawing(canvasId);
 			updateSavedDrawings();
 		});
 	}
@@ -181,15 +223,6 @@
 
 		addThumbBtnsClickHandlers();
 	}
-
-	function clearFabricCanvas() {
-		fabricCanvas.clear();
-		saveDrawing();
-	}
-
-	onDestroy(() => {
-		window.removeEventListener('resize', handleResize);
-	});
 
 	$: if ($innerWidthStore || $innerHeightStore) {
 		width = getFlashcardWidth($innerWidthStore);
@@ -211,13 +244,11 @@
 		}}
 		class="block rounded-full border bg-white p-2 shadow-sm transition-all"
 	>
-		<ArrowLeft class="size-5" />
+		<FileText class="size-5" />
 	</button>
 
 	<button
-		on:click={() => {
-			isDrawingMode = !isDrawingMode;
-		}}
+		on:click={() => (isDrawingMode = !isDrawingMode)}
 		class="block rounded-full border bg-white p-2 shadow-sm transition-all"
 	>
 		{#if isDrawingMode}
@@ -243,7 +274,7 @@
 	class="w-full"
 >
 	<Carousel.Content>
-		{#each Array(numOfItems) as _, i (i)}
+		{#each Array(NUM_OF_THUMBAILS) as _, i (i)}
 			<Carousel.Item>
 				<div style="perspective: 3000px;" class="mx-auto w-fit">
 					<canvas
@@ -269,10 +300,13 @@
 	}}
 	class="flex w-full justify-center"
 >
-	<Carousel.Content>
+	<Carousel.Content class="flex gap-4 md:gap-10">
 		{#each savedDrawings as src, i (i)}
 			<Carousel.Item
-				class="flex basis-auto cursor-pointer items-center justify-center  first:pl-0 md:pl-10"
+				class={cn(
+					'flex basis-auto cursor-pointer items-center justify-center  border border-transparent pl-0',
+					i === current && 'rounded-lg border border-primary'
+				)}
 			>
 				<Card.Root class="size-20">
 					<Card.Content class="flex items-center justify-center p-6">

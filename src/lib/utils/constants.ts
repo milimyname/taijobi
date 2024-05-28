@@ -19,3 +19,6 @@ export const months = [
 	'Nov',
 	'Dec'
 ];
+
+// used for the number of thumbails to show in the carousel
+export const NUM_OF_THUMBAILS = 5;

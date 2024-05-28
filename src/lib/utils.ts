@@ -148,3 +148,15 @@ export const flyAndScale = (
 		easing: cubicOut
 	};
 };
+
+// Function to remove all local storage items that start with a specific prefix
+export function removeAllItemsWithPrefixFromLocalStorage(prefix: string) {
+	// Retrieve all keys from localStorage
+	const keys = Object.keys(localStorage);
+
+	// Filter keys that start with the specified prefix
+	const keysToRemove = keys.filter((key) => key.startsWith(prefix));
+
+	// Remove each key that matches the prefix
+	keysToRemove.forEach((key) => localStorage.removeItem(key));
+}
