@@ -18,6 +18,24 @@
 	class={cn('quiz-form z-[1000] flex w-full flex-col', !$isDesktop && 'px-4')}
 >
 	<div class="mb-auto flex flex-col gap-2">
+		<div class="flex gap-2">
+			<Form.Field {form} name="kanjiCount">
+				<Form.Control let:attrs>
+					<Form.Label>Number of Kanji</Form.Label>
+					<Input {...attrs} bind:value={$formData.kanjiCount} disabled />
+				</Form.Control>
+				<Form.FieldErrors />
+			</Form.Field>
+
+			<Form.Field {form} name="quizCount">
+				<Form.Control let:attrs>
+					<Form.Label>Created Quizzes</Form.Label>
+					<Input {...attrs} bind:value={$formData.quizCount} disabled />
+				</Form.Control>
+				<Form.FieldErrors />
+			</Form.Field>
+		</div>
+
 		<Form.Field {form} name="name">
 			<Form.Control let:attrs>
 				<Form.Label>Name</Form.Label>

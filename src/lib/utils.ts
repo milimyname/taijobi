@@ -160,3 +160,9 @@ export function removeAllItemsWithPrefixFromLocalStorage(prefix: string) {
 	// Remove each key that matches the prefix
 	keysToRemove.forEach((key) => localStorage.removeItem(key));
 }
+
+export function countKanji(text: string) {
+	const kanjiRegex = /[\u4E00-\u9FFF\u3400-\u4DBF]/g;
+	const matches = text.match(kanjiRegex);
+	return matches ? matches.length : 0;
+}

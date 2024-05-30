@@ -2,6 +2,8 @@ import { superValidate, setError } from 'sveltekit-superforms';
 import { fail } from '@sveltejs/kit';
 import { flashcardCollectionSchema, quizSchema } from '$lib/utils/zodSchema';
 import { zod } from 'sveltekit-superforms/adapters';
+import type { RecordModel } from 'pocketbase';
+import { countKanji } from '$lib/utils';
 
 export const load = async ({ locals, parent }) => {
 	// Get all the flashcards collection
@@ -53,6 +55,8 @@ export const load = async ({ locals, parent }) => {
 	// Get all the flashcard from the server
 	const flashcards = await locals.pb.collection('flashcardCount').getFullList();
 
+	const flashcardBoxes: RecordModel[] = [];
+
 	// Add the "count" field to each flashcardBox object
 	flashcardCollections.forEach((collection) => {
 		if (!collection.expand) return;
@@ -64,10 +68,44 @@ export const load = async ({ locals, parent }) => {
 			return 0;
 		});
 
+		// Get the flashcard boxes
+		flashcardBoxes.push(...collection.expand.flashcardBoxes);
+
 		collection.expand.flashcardBoxes.forEach((box: { count: number; id: string }) => {
 			box.count = flashcards.filter((flashcard) => flashcard.id === box.id)[0].count;
 		});
 	});
+
+	// TODO: Optimize this code
+	for (const box of flashcardBoxes) {
+		if (box.kanjiCount !== 0 || box.quizCount !== 0) continue;
+
+		let kanjiCount = 0;
+		let quizCount = 0;
+
+		// Get the flashcards from the server
+		const flashcards = await locals.pb.collection('flashcard').getFullList({
+			filter: `flashcardBox = "${box.id}"`
+		});
+
+		// Get the kanji count
+		for (const flashcard of flashcards) {
+			if (countKanji(flashcard.name)) kanjiCount++;
+		}
+
+		// Get the quiz count
+		const quizzes = await locals.pb.collection('quizzes').getFullList({
+			filter: `flashcardBox = "${box.id}"`
+		});
+
+		quizCount = quizzes.length;
+
+		// Update the flashcard box
+		await locals.pb.collection('flashcardBoxes').update(box.id, {
+			kanjiCount,
+			quizCount
+		});
+	}
 
 	return {
 		form: await superValidate(zod(flashcardCollectionSchema), {
@@ -216,6 +254,20 @@ export const actions = {
 				filter: `flashcardBox = "${form.data.flashcardBox}"`,
 				fields: 'name,meaning'
 			});
+		}
+
+		try {
+			// Get all quizzes in the box
+			const quizzes = await locals.pb.collection('quizzes').getFullList({
+				filter: `flashcardBox = "${form.data.flashcardBox}" && userId = "${locals.pb.authStore.model?.id}"`
+			});
+
+			// Update the flashcard box
+			await locals.pb.collection('flashcardBoxes').update(form.data.flashcardBox, {
+				quizCount: quizzes.length + 1
+			});
+		} catch (e) {
+			console.log('error', e);
 		}
 
 		try {

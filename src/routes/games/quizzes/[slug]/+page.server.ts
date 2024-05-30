@@ -3,7 +3,6 @@ import { katakana } from '$lib/static/katakana';
 import { shuffleArray } from '$lib/utils/actions';
 import { toRomaji } from 'wanakana';
 
-/** @type {import('./$types').PageServerLoad} */
 export const load = async ({ params, locals }) => {
 	if (params.slug === 'hiragana' || params.slug === 'katakana') {
 		// Return hiragana and katakana as items

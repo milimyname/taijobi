@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import { goto, invalidateAll } from '$app/navigation';
+	import { goto } from '$app/navigation';
 	import { pocketbase } from '$lib/utils/pocketbase';
 	import { Badge } from '$lib/components/ui/badge/index';
 	import Onyomi from '$lib/icons/Onyomi.svelte';
@@ -81,6 +81,32 @@
 		tick().then(() => {
 			document.getElementById(triggerId)?.focus();
 		});
+	}
+
+	async function deleteQuiz(quiz: RecordModel) {
+		try {
+			// Update quiz count in flashcardBox
+			const flashcardBox = await pocketbase.collection('flashcardBoxes').getOne(quiz.flashcardBox);
+
+			await pocketbase.collection('flashcardBoxes').update(flashcardBox.id, {
+				quizCount: flashcardBox.quizCount - 1
+			});
+		} catch (error) {
+			console.error(error);
+		}
+
+		try {
+			localStorage.removeItem(`flashcards_${quiz.id}`);
+			localStorage.removeItem(`currentQuestion_${quiz.id}`);
+			localStorage.removeItem(`quizProgress_${quiz.id}`);
+
+			await pocketbase.collection('quizzes').delete(quiz.id);
+		} catch (error) {
+			console.error(error);
+		}
+
+		// Remove from the list
+		quizzes = quizzes.filter((q) => q.id !== quiz.id);
 	}
 </script>
 
@@ -198,13 +224,7 @@
 						<button
 							class="self-center rounded-full font-bold text-red-600"
 							on:click|preventDefault={async () => {
-								localStorage.removeItem(`flashcards_${quiz.id}`);
-								localStorage.removeItem(`currentQuestion_${quiz.id}`);
-								localStorage.removeItem(`quizProgress_${quiz.id}`);
-
-								await pocketbase.collection('quizzes').delete(quiz.id);
-
-								invalidateAll();
+								await deleteQuiz(quiz);
 							}}
 						>
 							Delete

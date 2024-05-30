@@ -47,6 +47,8 @@ export const flashcardCollectionSchema = z.object({
 	description: z.string().max(100).optional(),
 	type: z.string().optional(),
 	id: z.string().optional(),
+	kanjiCount: z.number().optional(),
+	quizCount: z.number().optional(),
 	flashcardCollection: z.string().optional()
 });
 

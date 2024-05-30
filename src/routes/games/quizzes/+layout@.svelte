@@ -13,7 +13,7 @@
 >
 	<nav class="flex w-full py-5 md:px-5">
 		<a
-			href={$page.route.id && $page.route.id.length < 12 ? '/' : '/games'}
+			href={$page.params.slug ? '/games/quizzes' : '/games'}
 			class="group flex items-center gap-2"
 			data-sveltekit-preload-data
 		>

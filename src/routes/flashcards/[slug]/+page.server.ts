@@ -3,12 +3,30 @@ import { fail } from '@sveltejs/kit';
 import { flashcardSchema } from '$lib/utils/zodSchema';
 import { isKanji } from 'wanakana';
 import { zod } from 'sveltekit-superforms/adapters';
+import { countKanji } from '$lib/utils';
+import type PocketBase from 'pocketbase';
 
 export const load = async () => {
 	return {
 		form: await superValidate(zod(flashcardSchema))
 	};
 };
+
+async function updateKanjiCount(pb: PocketBase, slug: string) {
+	try {
+		// Get all flashcards in the box
+		const flashcards = await pb.collection('flashcard').getFullList({
+			filter: `flashcardBox = "${slug}"`
+		});
+
+		// Update the flashcard box
+		await pb.collection('flashcardBoxes').update(slug, {
+			kanjiCount: flashcards.reduce((acc, flashcard) => acc + countKanji(flashcard.name), 0)
+		});
+	} catch (e) {
+		console.log('error', e);
+	}
+}
 
 export const actions = {
 	add: async ({ request, locals, params }) => {
@@ -28,7 +46,7 @@ export const actions = {
 		}
 
 		try {
-			// Create user
+			// Create flashcard
 			await locals.pb.collection('flashcard').create({
 				name: form.data.name
 					.replace(/\/.*?\//g, '')
@@ -38,31 +56,37 @@ export const actions = {
 				romanji: form.data.romanji,
 				furigana: form.data.name,
 				type: form.data.type,
-				flashcardBox: params.slug,
-				notes: form.data.notes
+				notes: form.data.notes,
+				flashcardBox: params.slug
 			});
 		} catch (e) {
 			return setError(form, 'name', 'Flashcard name is already taken.');
 		}
 
+		// Update the flashcard box
+		await updateKanjiCount(locals.pb, params.slug);
+
 		return { form };
 	},
-	delete: async ({ request, locals }) => {
+	delete: async ({ request, locals, params }) => {
 		const form = await superValidate(request, zod(flashcardSchema));
 
 		// Convenient validation check:
 		if (!form.valid || !form.data.id) return fail(400, { form });
 
 		try {
-			// Create user
+			// Delete the flashcard
 			await locals.pb.collection('flashcard').delete(form.data.id);
 		} catch (_) {
 			return setError(form, 'name', 'Flashcard cannot be deleted now.');
 		}
 
+		// Update the flashcard box
+		await updateKanjiCount(locals.pb, params.slug);
+
 		return { form };
 	},
-	update: async ({ request, locals }) => {
+	update: async ({ request, locals, params }) => {
 		const form = await superValidate(request, zod(flashcardSchema));
 
 		// Convenient validation check:
@@ -73,7 +97,7 @@ export const actions = {
 			return setError(form, 'name', 'Flashcard name must be one kanji.');
 
 		try {
-			// Create user
+			// Update the flashcard
 			await locals.pb.collection('flashcard').update(form.data.id, {
 				name: form.data.name.replace(/ ?\/.*?\/ ?/g, '').trim(),
 				meaning: form.data.meaning,
@@ -85,6 +109,9 @@ export const actions = {
 		} catch (_) {
 			return setError(form, 'name', 'Flashcard cannot be edited now.');
 		}
+
+		// Update the flashcard box
+		await updateKanjiCount(locals.pb, params.slug);
 
 		return { form };
 	}

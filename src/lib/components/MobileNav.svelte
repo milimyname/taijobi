@@ -73,7 +73,7 @@
 	>
 		<div class="-mb-52 h-17 w-full rounded-4xl border-4 border-[#F86F03] bg-white shadow-xl">
 			<a
-				href="/games/quizzes"
+				href="/"
 				class="flex justify-between p-4"
 				on:click={() => {
 					$showAppNav = false;
@@ -86,7 +86,7 @@
 		</div>
 		<div class="-mb-36 h-52 w-full rounded-4xl border-4 border-[#8294C4] bg-white shadow-xl">
 			<a
-				href="/"
+				href="/games/quizzes"
 				class="flex justify-between p-4"
 				on:click={() => {
 					$showAppNav = false;
