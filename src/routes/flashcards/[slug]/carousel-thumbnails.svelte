@@ -4,7 +4,7 @@
 	import { CircleX } from 'lucide-svelte';
 	import { type CarouselAPI } from '$lib/components/ui/carousel/context';
 	import { page } from '$app/stores';
-	import { Hand, PenTool, FileText } from 'lucide-svelte';
+	import { Hand, PenTool, FileText, Undo2 } from 'lucide-svelte';
 	import { fabric } from 'fabric';
 	import { IS_DESKTOP, NUM_OF_THUMBAILS } from '$lib/utils/constants';
 	import {
@@ -16,6 +16,7 @@
 	} from '$lib/utils/stores';
 	import { onDestroy, onMount } from 'svelte';
 	import { cn, getFlashcardHeight, getFlashcardWidth } from '$lib/utils';
+	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 
 	export let currentIndex: number;
 
@@ -158,6 +159,7 @@
 
 			window.addEventListener('resize', handleResize);
 			fabricCanvas.on('object:added', saveDrawing);
+			fabricCanvas.on('object:added', updateSavedDrawings);
 			fabricCanvasMap.set(`${$page.params.slug}-${currentIndex}-${i}`, fabricCanvas);
 		}
 
@@ -174,6 +176,15 @@
 	function clearFabricCanvas() {
 		fabricCanvas.clear();
 		saveDrawing();
+	}
+
+	function removeLastStroke() {
+		const objects = fabricCanvas.getObjects();
+		if (objects.length > 0) {
+			fabricCanvas.remove(objects[objects.length - 1]);
+			saveDrawing();
+			updateSavedDrawings();
+		}
 	}
 
 	const addThumbBtnsClickHandlers = () => {
@@ -238,32 +249,65 @@
 
 <!-- Toggle Drawing Mode -->
 <div class="flex items-center justify-center gap-2">
-	<button
-		on:click={() => {
-			$canIdrawMultipleTimes = false;
-		}}
-		class="block rounded-full border bg-white p-2 shadow-sm transition-all"
-	>
-		<FileText class="size-5" />
-	</button>
+	<Tooltip.Root>
+		<Tooltip.Trigger>
+			<button
+				on:click={() => ($canIdrawMultipleTimes = false)}
+				class="block rounded-full border bg-white p-2 shadow-sm transition-all"
+			>
+				<FileText class="size-5" />
+			</button>
+		</Tooltip.Trigger>
+		<Tooltip.Content>
+			<p>Back to Flashcard</p>
+		</Tooltip.Content>
+	</Tooltip.Root>
 
-	<button
-		on:click={() => (isDrawingMode = !isDrawingMode)}
-		class="block rounded-full border bg-white p-2 shadow-sm transition-all"
-	>
-		{#if isDrawingMode}
-			<PenTool class="size-5" />
-		{:else}
-			<Hand class="size-5" />
-		{/if}
-	</button>
+	<Tooltip.Root>
+		<Tooltip.Trigger>
+			<button
+				on:click={() => (isDrawingMode = !isDrawingMode)}
+				class="block rounded-full border bg-white p-2 shadow-sm transition-all"
+			>
+				{#if isDrawingMode}
+					<PenTool class="size-5" />
+				{:else}
+					<Hand class="size-5" />
+				{/if}
+			</button>
+		</Tooltip.Trigger>
+		<Tooltip.Content>
+			<p>{isDrawingMode ? 'Drawing Mode' : 'Move Mode'}</p>
+		</Tooltip.Content>
+	</Tooltip.Root>
 
-	<button
-		on:click|preventDefault={clearFabricCanvas}
-		class="block rounded-full border bg-white p-2 shadow-sm transition-all"
-	>
-		<CircleX class="size-5" />
-	</button>
+	<Tooltip.Root>
+		<Tooltip.Trigger>
+			<button
+				on:click={removeLastStroke}
+				class="block rounded-full border bg-white p-2 shadow-sm transition-all"
+			>
+				<Undo2 class="size-5" />
+			</button>
+		</Tooltip.Trigger>
+		<Tooltip.Content>
+			<p>Undo</p>
+		</Tooltip.Content>
+	</Tooltip.Root>
+
+	<Tooltip.Root>
+		<Tooltip.Trigger>
+			<button
+				on:click|preventDefault={clearFabricCanvas}
+				class="block rounded-full border bg-white p-2 shadow-sm transition-all"
+			>
+				<CircleX class="size-5" />
+			</button>
+		</Tooltip.Trigger>
+		<Tooltip.Content>
+			<p>Clear All</p>
+		</Tooltip.Content>
+	</Tooltip.Root>
 </div>
 
 <Carousel.Root
