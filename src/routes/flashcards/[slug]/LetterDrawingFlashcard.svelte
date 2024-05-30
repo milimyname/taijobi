@@ -6,7 +6,8 @@
 		currentLetter,
 		innerWidthStore,
 		animateSVG,
-		showLetterDrawing
+		showLetterDrawing,
+		strokes
 	} from '$lib/utils/stores';
 	import { onMount } from 'svelte';
 	import { cubicOut } from 'svelte/easing';
@@ -22,9 +23,10 @@
 		Eraser,
 		ChevronLast,
 		ChevronFirst,
-		FileText
+		FileText,
+		Undo2
 	} from 'lucide-svelte';
-	import { clearCanvas } from '$lib/utils/actions';
+	import { clearCanvas, redrawCanvas } from '$lib/utils/actions';
 	import BacksideCard from '$lib/components/canvas/BacksideCard.svelte';
 	import { cn, getFlashcardWidth, isNonJapanase } from '$lib/utils';
 	import { type CarouselAPI } from '$lib/components/ui/carousel/context';
@@ -40,6 +42,13 @@
 	let ctx: CanvasRenderingContext2D;
 	let slicedFlashcard: string[];
 	let index: number = 0;
+
+	function undoLastStroke() {
+		if ($strokes.length > 0) {
+			$strokes.pop();
+			redrawCanvas(canvas);
+		}
+	}
 
 	// Get canvas and context
 	onMount(() => {
@@ -59,7 +68,7 @@
 		$currentLetter = $currentFlashcard;
 
 		index = 0;
-		clearCanvas(ctx, canvas);
+		clearCanvas(canvas);
 	}
 
 	// Set the current alphabet if the flashcard contains more than one character
@@ -74,7 +83,7 @@
 			.split('')
 			.filter((char) => !/[ ?。~、\-0-9]/.test(char) && !isRomaji(char));
 		index = 0;
-		clearCanvas(ctx, canvas);
+		clearCanvas(canvas);
 	}
 
 	// Disable the letter drawing if the flashcard is not Japanese
@@ -84,7 +93,7 @@
 <div style="perspective: 3000px; position: relative; transform: rotateY(${-$rotateYCard}deg);">
 	<span
 		class={cn(
-			'absolute right-3 top-3 z-40 block text-lg font-medium sm:right-5 sm:top-5',
+			'absolute left-1/2 top-3 z-40 block -translate-x-1/2 text-lg font-medium sm:top-5',
 			$rotateYCard > 5 && 'hidden'
 		)}
 	>
@@ -120,120 +129,107 @@
 	</button>
 
 	<BacksideCard rotateYCard={$rotateYCard} />
-</div>
 
-<div
-	style={`width: ${getFlashcardWidth($innerWidthStore)}px;`}
-	class="my-5 flex items-center justify-between sm:mx-auto lg:-order-1 lg:my-0"
->
-	{#if $currentFlashcard.length > 1}
-		{#if index === 0}
-			<button
-				on:click|preventDefault={() => {
-					clearCanvas(ctx, canvas);
+	<div class={cn($rotateYCard > 5 && 'hidden')}>
+		{#if $currentFlashcard.length > 1}
+			{#if index === 0}
+				<button
+					on:click|preventDefault={() => {
+						clearCanvas(canvas);
 
-					// Go to the previous flashcard
-					$currentIndexStore -= 1;
-					$showLetterDrawing = false;
-					embla.scrollPrev();
-				}}
-				class="previousLetter rounded-full border bg-white p-2 shadow-sm transition-all"
-			>
-				<ChevronFirst class="size-4" />
-			</button>
+						// Go to the previous flashcard
+						$currentIndexStore -= 1;
+						$showLetterDrawing = false;
+						embla.scrollPrev();
+					}}
+					class="previousLetter absolute -left-3 top-1/2 z-40 rounded-full border bg-white p-2 shadow-sm transition-all"
+				>
+					<ChevronFirst class="size-4" />
+				</button>
+			{:else}
+				<button
+					on:click|preventDefault={() => {
+						index > 0 ? (index -= 1) : null;
+						clearCanvas(canvas);
+					}}
+					class="previousLetter absolute -left-3 top-1/2 z-40 rounded-full border bg-white p-2 shadow-sm transition-all"
+				>
+					<ArrowLeft class="size-4" />
+				</button>
+			{/if}
+
+			{#if slicedFlashcard.length - 1 !== index}
+				<button
+					on:click|preventDefault={() => {
+						index < slicedFlashcard.length - 1 ? (index += 1) : null;
+						clearCanvas(canvas);
+					}}
+					class="previousLetter absolute -right-3 top-1/2 z-40 rounded-full border bg-white p-2 shadow-sm transition-all"
+				>
+					<ArrowRight class="size-4" />
+				</button>
+			{:else}
+				<button
+					on:click|preventDefault={() => {
+						clearCanvas(canvas);
+
+						// Go to the next flashcard
+						$currentIndexStore += 1;
+						$showLetterDrawing = false;
+						embla.scrollNext();
+					}}
+					class={cn(
+						'previousLetter absolute -right-3 top-1/2 z-40 rounded-full border bg-white p-2 opacity-100 shadow-sm transition-all',
+						$currentIndexStore + 1 === embla.scrollSnapList().length &&
+							'pointer-events-none opacity-0'
+					)}
+				>
+					<ChevronLast class="size-4" />
+				</button>
+			{/if}
 		{:else}
 			<button
-				on:click|preventDefault={() => {
-					index > 0 ? (index -= 1) : null;
-					clearCanvas(ctx, canvas);
-				}}
-				class="previousLetter rounded-full border bg-white p-2 shadow-sm transition-all"
-			>
-				<ArrowLeft class="size-4" />
-			</button>
-		{/if}
-
-		<div class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white">
-			<button on:click|preventDefault={() => clearCanvas(ctx, canvas)}>
-				<Eraser class="size-4" />
-			</button>
-			<button
-				on:click|preventDefault={() => {
-					$animateSVG = !$animateSVG;
-					// setTimeout(() => ($animateSVG = true), 250);
-				}}
-				class="transition-transform active:rotate-180"
-			>
-				<RefreshCcw class="size-4" />
-			</button>
-		</div>
-
-		{#if slicedFlashcard.length - 1 !== index}
-			<button
-				on:click|preventDefault={() => {
-					index < slicedFlashcard.length - 1 ? (index += 1) : null;
-					clearCanvas(ctx, canvas);
-				}}
-				class="previousLetter rounded-full border bg-white p-2 shadow-sm transition-all"
+				class="previousLetter absolute -right-3 top-1/2 z-40 rounded-full border bg-white p-2 opacity-0 shadow-sm transition-all"
 			>
 				<ArrowRight class="size-4" />
 			</button>
-		{:else}
+
 			<button
 				on:click|preventDefault={() => {
-					clearCanvas(ctx, canvas);
+					clearCanvas(canvas);
 
 					// Go to the next flashcard
 					$currentIndexStore += 1;
 					$showLetterDrawing = false;
-					embla.scrollNext();
+					embla.scrollTo($currentIndexStore);
 				}}
-				class={cn(
-					'previousLetter rounded-full border bg-white p-2 opacity-100 shadow-sm transition-all',
-					$currentIndexStore + 1 === embla.scrollSnapList().length &&
-						'pointer-events-none opacity-0'
-				)}
+				class="previousLetter absolute -right-1 top-1/2 z-40 rounded-full border bg-white p-2 shadow-sm transition-all"
 			>
 				<ChevronLast class="size-4" />
 			</button>
 		{/if}
-	{:else}
-		<button
-			class="previousLetter rounded-full border bg-white p-2 opacity-0 shadow-sm transition-all"
-		>
-			<ArrowRight class="size-4" />
-		</button>
-		<div class="flex items-center justify-center">
-			<div
-				class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white"
-			>
-				<button on:click|preventDefault={() => clearCanvas(ctx, canvas)}>
-					<Eraser class="size-4" />
-				</button>
-				<button
-					on:click|preventDefault={() => {
-						$animateSVG = !$animateSVG;
-						// setTimeout(() => ($animateSVG = true), 250);
-					}}
-					class="transition-transform active:rotate-180"
-				>
-					<RefreshCcw class="size-4" />
-				</button>
-			</div>
-		</div>
+	</div>
+</div>
 
+<div
+	style={`width: ${getFlashcardWidth($innerWidthStore)}px;`}
+	class="flex items-center justify-center sm:mx-auto lg:-order-1"
+>
+	<div class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white">
+		<button on:click|preventDefault={() => undoLastStroke()}>
+			<Undo2 class="size-4" />
+		</button>
+		<button on:click|preventDefault={() => clearCanvas(canvas)}>
+			<Eraser class="size-4" />
+		</button>
 		<button
 			on:click|preventDefault={() => {
-				clearCanvas(ctx, canvas);
-
-				// Go to the next flashcard
-				$currentIndexStore += 1;
-				$showLetterDrawing = false;
-				embla.scrollTo($currentIndexStore);
+				$animateSVG = !$animateSVG;
+				// setTimeout(() => ($animateSVG = true), 250);
 			}}
-			class="previousLetter rounded-full border bg-white p-2 shadow-sm transition-all"
+			class="transition-transform active:rotate-180"
 		>
-			<ChevronLast class="size-4" />
+			<RefreshCcw class="size-4" />
 		</button>
-	{/if}
+	</div>
 </div>

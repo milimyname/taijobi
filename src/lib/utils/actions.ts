@@ -3,7 +3,8 @@ import {
 	showNav,
 	isLongPress,
 	lastPoint,
-	uploadingProfilePic
+	uploadingProfilePic,
+	strokes
 } from '$lib/utils/stores';
 import { pocketbase } from './pocketbase';
 import type { CropperDetails } from '$lib/utils/ambient.d.ts';
@@ -32,14 +33,41 @@ export const handleCancelPress = (longPressTimer: any) => {
 	clearTimeout(longPressTimer);
 };
 
-export function clearCanvas(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
-	if (!canvas || !ctx) return;
+export function clearCanvas(canvas: HTMLCanvasElement) {
+	if (!canvas) return;
+
+	const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
 
 	// Clear the entire canvas
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 	// Reset the lastPoint
 	lastPoint.set({ x: 0, y: 0 });
+
+	strokes.set([]);
+}
+
+export function redrawCanvas(canvas: HTMLCanvasElement) {
+	const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+
+	let localStrokes: { points: { x: number; y: number }[]; color: string }[] = [];
+
+	strokes.subscribe((n) => (localStrokes = n));
+
+	ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+	for (const stroke of localStrokes) {
+		ctx.beginPath();
+		for (let i = 0; i < stroke.points.length; i++) {
+			const point = stroke.points[i];
+			if (i === 0) {
+				ctx.moveTo(point.x, point.y);
+			} else {
+				ctx.lineTo(point.x, point.y);
+			}
+		}
+		ctx.strokeStyle = stroke.color;
+		ctx.stroke();
+	}
 }
 
 export function getRandomNumber(min: number, max: number) {

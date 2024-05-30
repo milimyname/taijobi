@@ -195,11 +195,11 @@
 		>
 			<button
 				on:click|preventDefault={() => {
-					clearCanvas(ctx, canvas);
+					clearCanvas(canvas);
 					$progressSlider > 1 ? $progressSlider-- : $progressSlider;
 					$searchKanji = '';
 				}}
-				class="previousLetter h-fit w-fit rounded-full border bg-white p-2 shadow-sm transition-all"
+				class="previousLetter rounded-full border bg-white p-2 shadow-sm transition-all"
 			>
 				<ArrowLeft class="size-4" />
 			</button>
@@ -236,7 +236,7 @@
 			{#if alphabetLength !== $progressSlider && $kanjiLength !== $progressSlider}
 				<button
 					on:click|preventDefault={() => {
-						clearCanvas(ctx, canvas);
+						clearCanvas(canvas);
 						$progressSlider < alphabetLength ? $progressSlider++ : $progressSlider;
 						$searchKanji = '';
 					}}
@@ -247,7 +247,7 @@
 			{:else}
 				<button
 					on:click|preventDefault={() => {
-						clearCanvas(ctx, canvas);
+						clearCanvas(canvas);
 						$progressSlider = 1;
 						$searchKanji = '';
 					}}

@@ -1,19 +1,28 @@
 <script lang="ts">
 	import { IS_DESKTOP } from '$lib/utils/constants';
-	import { innerWidthStore, lastPoint, strokeColor, innerHeightStore } from '$lib/utils/stores';
+	import {
+		innerWidthStore,
+		lastPoint,
+		strokeColor,
+		innerHeightStore,
+		strokes
+	} from '$lib/utils/stores';
 	import { onMount } from 'svelte';
 	import { cn, getFlashcardHeight, getFlashcardWidth } from '$lib/utils';
+	import { redrawCanvas } from '$lib/utils/actions';
 
 	export let rotationY: number = 0;
 	export let canvas: HTMLCanvasElement;
 
 	let ctx: CanvasRenderingContext2D;
-	let isDrawing = false;
 
-	function startDrawing(event: any) {
+	let isDrawing = true;
+
+	function startDrawing(event: MouseEvent | TouchEvent) {
 		isDrawing = true;
 
 		$lastPoint = getXY(event);
+		$strokes.push({ points: [getXY(event)], color: $strokeColor });
 		event.preventDefault();
 	}
 
@@ -21,33 +30,24 @@
 		isDrawing = false;
 	}
 
-	function drawOnCanvas(event: any) {
+	function drawOnCanvas(event: MouseEvent | TouchEvent) {
 		if (!isDrawing) return;
-		ctx.beginPath();
-		ctx.moveTo($lastPoint.x, $lastPoint.y);
-		let currentPoint = getXY(event);
-		ctx.lineTo(currentPoint.x, currentPoint.y);
+		const currentStroke = $strokes[$strokes.length - 1];
+		const newPoint = getXY(event);
 
-		ctx.strokeStyle = $strokeColor; // Set the stroke color
-		ctx.stroke();
-		$lastPoint = currentPoint;
+		currentStroke?.points.push(newPoint);
+
+		redrawCanvas(canvas);
 	}
 
 	function getXY(event: any) {
-		let rect = canvas.getBoundingClientRect();
-		if (event.touches) {
-			// If it is a touch event
-			return {
-				x: event.touches[0].clientX - rect.left,
-				y: event.touches[0].clientY - rect.top
-			};
-		} else {
-			// If it is a mouse event
-			return {
-				x: event.clientX - rect.left,
-				y: event.clientY - rect.top
-			};
-		}
+		const rect = canvas.getBoundingClientRect();
+		const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
+		const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY;
+		return {
+			x: clientX - rect.left,
+			y: clientY - rect.top
+		};
 	}
 
 	onMount(() => {

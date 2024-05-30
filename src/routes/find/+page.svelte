@@ -200,7 +200,7 @@
 
 			<button
 				on:click|preventDefault={() => {
-					clearCanvas(ctx, canvas);
+					clearCanvas(canvas);
 					// CLear handwritingInstance
 					handwritingInstance.erase();
 

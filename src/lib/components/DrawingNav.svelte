@@ -56,7 +56,7 @@
 					x: 100,
 					easing: sineIn
 				}}
-				on:click|preventDefault={() => clearCanvas(ctx, canvas)}
+				on:click|preventDefault={() => clearCanvas(canvas)}
 			>
 				<Eraser class="size-5 sm:size-6" />
 			</button>
