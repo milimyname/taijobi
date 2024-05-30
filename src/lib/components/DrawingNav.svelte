@@ -1,20 +1,34 @@
 <script lang="ts">
 	import { fly } from 'svelte/transition';
 	import { sineIn } from 'svelte/easing';
-	import { animateSVG, isLongPress, strokeColor, showProgressSlider } from '$lib/utils/stores';
+	import {
+		animateSVG,
+		isLongPress,
+		strokeColor,
+		showProgressSlider,
+		strokes
+	} from '$lib/utils/stores';
 	import {
 		handleUserIconClick,
 		handleLongPress,
 		handleCancelPress,
-		clearCanvas
+		clearCanvas,
+		redrawCanvas
 	} from '$lib/utils/actions';
 	import { onMount } from 'svelte';
-	import { Brush, Eraser, RefreshCcw, MoveHorizontal } from 'lucide-svelte';
+	import { Brush, Eraser, RefreshCcw, MoveHorizontal, Undo2 } from 'lucide-svelte';
 	import { page } from '$app/stores';
 	import { cn } from '$lib/utils';
 
 	let longPressTimer: any;
 	let canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D;
+
+	function undoLastStroke() {
+		if ($strokes.length > 0) {
+			$strokes.pop();
+			redrawCanvas(canvas);
+		}
+	}
 
 	// Get canvas and context
 	onMount(() => {
@@ -48,6 +62,9 @@
 		</button>
 
 		{#if !$isLongPress}
+			<button on:click|preventDefault={() => undoLastStroke()}>
+				<Undo2 class="size-5 sm:size-6" />
+			</button>
 			<button
 				transition:fly={{
 					delay: 0,
