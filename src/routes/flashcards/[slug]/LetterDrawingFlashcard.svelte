@@ -30,6 +30,7 @@
 	import BacksideCard from '$lib/components/canvas/BacksideCard.svelte';
 	import { cn, getFlashcardWidth, isNonJapanase } from '$lib/utils';
 	import { type CarouselAPI } from '$lib/components/ui/carousel/context';
+	import CanvasPanel from '$lib/components/canvas/CanvasPanel.svelte';
 
 	export let embla: CarouselAPI;
 
@@ -42,13 +43,6 @@
 	let ctx: CanvasRenderingContext2D;
 	let slicedFlashcard: string[];
 	let index: number = 0;
-
-	function undoLastStroke() {
-		if ($strokes.length > 0) {
-			$strokes.pop();
-			redrawCanvas(canvas);
-		}
-	}
 
 	// Get canvas and context
 	onMount(() => {
@@ -211,25 +205,4 @@
 	</div>
 </div>
 
-<div
-	style={`width: ${getFlashcardWidth($innerWidthStore)}px;`}
-	class="flex items-center justify-center sm:mx-auto lg:-order-1"
->
-	<div class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white">
-		<button on:click|preventDefault={() => undoLastStroke()}>
-			<Undo2 class="size-4" />
-		</button>
-		<button on:click|preventDefault={() => clearCanvas(canvas)}>
-			<Eraser class="size-4" />
-		</button>
-		<button
-			on:click|preventDefault={() => {
-				$animateSVG = !$animateSVG;
-				// setTimeout(() => ($animateSVG = true), 250);
-			}}
-			class="transition-transform active:rotate-180"
-		>
-			<RefreshCcw class="size-4" />
-		</button>
-	</div>
-</div>
+<CanvasPanel {canvas} />

@@ -2,27 +2,32 @@
 	import { onMount } from 'svelte';
 	import Canvas from '$lib/components/canvas/Canvas.svelte';
 	import { clearCanvas } from '$lib/utils/actions';
-	import { CircleX, CirclePlus } from 'lucide-svelte';
+	import { Eraser, Plus } from 'lucide-svelte';
 	import handwriting from '$lib/utils/handwriting.js';
 	import { toast } from 'svelte-sonner';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index';
 	import { Button } from '$lib/components/ui/button';
 	import { getFlashcardWidth } from '$lib/utils';
-	import { innerWidthStore, searchKanji, kanjiStore, searchedWordStore } from '$lib/utils/stores';
+	import {
+		innerWidthStore,
+		searchKanji,
+		kanjiStore,
+		searchedWordStore,
+		strokes
+	} from '$lib/utils/stores';
 	import { isKanji, isKatakana, isHiragana } from 'wanakana';
 	import { goto } from '$app/navigation';
 	import type { RecordModel } from 'pocketbase';
 	import { page } from '$app/stores';
+	import CanvasPanel from '$lib/components/canvas/CanvasPanel.svelte';
 
 	let canvas: HTMLCanvasElement;
-	let ctx: CanvasRenderingContext2D;
 	let recognizedLetters: string[] = [];
 	let handwritingInstance: any;
 
 	// Get canvas and context
 	onMount(() => {
 		canvas = document.querySelector('canvas') as HTMLCanvasElement;
-		ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
 
 		if (canvas) {
 			handwritingInstance = new handwriting.Canvas(canvas, 'light');
@@ -157,6 +162,15 @@
 
 		return goto('/alphabets/kanji');
 	}
+
+	// If nothing drawn into the canvas, write please write a letter in Japanese
+	$: if ($strokes.length === 0 && canvas) {
+		const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+		ctx.font = '24px sans-serif';
+		ctx.fillStyle = 'black';
+		ctx.textAlign = 'center';
+		ctx.fillText('Please write a letter in Japanese', canvas.width / 2, canvas.height / 2);
+	}
 </script>
 
 <section class="flex h-full flex-col justify-center gap-4 sm:gap-5">
@@ -195,28 +209,24 @@
 	{/if}
 
 	<div style="perspective: 3000px;">
-		<div>
-			<Canvas {canvas} />
-
-			<button
-				on:click|preventDefault={() => {
-					clearCanvas(canvas);
-					// CLear handwritingInstance
-					handwritingInstance.erase();
-
-					recognizedLetters = [];
-				}}
-				class="fixed bottom-5 left-5 z-30 block rounded-full border bg-white p-2 shadow-sm transition-all"
-			>
-				<CircleX />
-			</button>
-
-			<button
-				on:click={findKanji}
-				class="fixed bottom-5 right-5 z-30 block rounded-full border bg-white p-2 shadow-sm transition-all"
-			>
-				<CirclePlus />
-			</button>
-		</div>
+		<Canvas {canvas} />
 	</div>
+
+	<CanvasPanel {canvas} showAnimation={false}>
+		<button
+			slot="remove"
+			on:click|preventDefault={() => {
+				clearCanvas(canvas);
+				// CLear handwritingInstance
+				handwritingInstance.erase();
+
+				recognizedLetters = [];
+			}}
+		>
+			<Eraser class="size-4" />
+		</button>
+		<button slot="find" class="mr-4 rounded-full border p-2 shadow-sm" on:click={findKanji}>
+			<Plus class="size-5" />
+		</button>
+	</CanvasPanel>
 </section>
