@@ -8,9 +8,7 @@
 	<meta name="description" content="Quizzes" />
 </svelte:head>
 
-<main
-	class="flex min-h-screen select-none flex-col items-center overflow-hidden bg-white px-3 py-5"
->
+<main class="flex h-dvh select-none flex-col items-center overflow-hidden bg-white px-3 py-5">
 	<nav class="flex w-full py-5 md:px-5">
 		<a
 			href={$page.params.slug ? '/games/quizzes' : '/games'}

@@ -11,8 +11,7 @@
 		currentFlashcardTypeStore,
 		searchedWordStore,
 		clickedEditFlashcard,
-		canIdrawMultipleTimes,
-		innerWidthStore
+		canIdrawMultipleTimes
 	} from '$lib/utils/stores';
 	import FlashcardForm from '$lib/components/forms/flashcard-form-ui.svelte';
 	import { page } from '$app/stores';
@@ -25,7 +24,7 @@
 	import { browser } from '$app/environment';
 	import * as Carousel from '$lib/components/ui/carousel/index';
 	import { type CarouselAPI } from '$lib/components/ui/carousel/context';
-	import { cn, getFlashcardWidth } from '$lib/utils';
+	import { cn } from '$lib/utils';
 	import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures';
 	import { superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
@@ -36,7 +35,6 @@
 	export let data;
 
 	let embla: CarouselAPI;
-	let flashcardCarousel: CarouselAPI;
 
 	// Get the alphabet store length
 	let currentFlashcardFurigana: string;
@@ -145,11 +143,6 @@
 			$currentFlashcard = flashcards[currentIndex].name;
 		});
 	}
-	$: if (flashcardCarousel) {
-		flashcardCarousel.on('select', () => {
-			embla.scrollTo(flashcardCarousel.selectedScrollSnap());
-		});
-	}
 
 	$: flashcards.length === 0 && (isLoading = false);
 
@@ -181,29 +174,12 @@
 >
 	{#if flashcards.length > 0}
 		{#if !$showLetterDrawing && !$canIdrawMultipleTimes}
-			<Carousel.Root
-				bind:api={flashcardCarousel}
-				opts={{
-					loop: true
-				}}
-				plugins={[WheelGesturesPlugin()]}
-			>
-				<Carousel.Content
-					class="mr-8 space-x-40"
-					style={`width: ${getFlashcardWidth($innerWidthStore)}px`}
-				>
-					{#each flashcards as flashcard}
-						<Carousel.Item class="">
-							<Flashcard
-								wordFlashcard={flashcard}
-								{currentIndex}
-								longWord={$currentFlashcard.length > 8}
-								{currentFlashcardFurigana}
-							/>
-						</Carousel.Item>
-					{/each}
-				</Carousel.Content>
-			</Carousel.Root>
+			<Flashcard
+				wordFlashcard={flashcards[currentIndex]}
+				{currentIndex}
+				longWord={$currentFlashcard.length > 8}
+				{currentFlashcardFurigana}
+			/>
 
 			<div class="flex items-center justify-center sm:mx-auto sm:w-[600px] lg:-order-1">
 				<CallBackButton />
