@@ -37,7 +37,7 @@
 	});
 
 	// When the progress changes, clear the canvas
-	$: if ($showProgressSlider) clearCanvas(ctx, canvas);
+	$: if ($showProgressSlider) clearCanvas(canvas);
 </script>
 
 {#if !$showProgressSlider}
