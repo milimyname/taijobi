@@ -50,7 +50,7 @@
 				<Input
 					{...attrs}
 					bind:value={$formData.name}
-					disabled={$page.data.isAdmin || $flashcardsBoxType === 'original'}
+					disabled={!$page.data.isAdmin && $flashcardsBoxType === 'original'}
 				/>
 			</Form.Control>
 			<Form.FieldErrors />
@@ -63,7 +63,7 @@
 					{...attrs}
 					class="resize-none"
 					bind:value={$formData.description}
-					disabled={$page.data.isAdmin || $flashcardsBoxType === 'original'}
+					disabled={!$page.data.isAdmin && $flashcardsBoxType === 'original'}
 				/>
 			</Form.Control>
 			<Form.FieldErrors />
