@@ -111,37 +111,38 @@
 
 			// Add flashcard name to the canvas
 			const letterSpacing = 50; // Increase the spacing between letters
-			const lineSpacing = 50; // Vertical spacing between lines
 			const charsPerLine = 9; // Number of characters per line
 
-			$currentFlashcard.split('').forEach((char, index) => {
-				// Calculate which line this character should be on
-				const line = Math.floor(index / charsPerLine);
+			// Skip last 2 canvases
+			if (i < NUM_OF_THUMBAILS - 2) {
+				$currentFlashcard.split('').forEach((char, index) => {
+					// Calculate which line this character should be on
+					const line = Math.floor(index / charsPerLine);
 
-				if (!fabricCanvas.width || !fabricCanvas.height) return;
+					if (!fabricCanvas.width || !fabricCanvas.height) return;
 
-				// Calculate the horizontal start of this line
-				const startX =
-					fabricCanvas.width / 2 -
-					(Math.min($currentFlashcard.length - line * charsPerLine, charsPerLine) * letterSpacing) /
-						2;
+					// Calculate the horizontal start of this line
+					const startX =
+						fabricCanvas.width / 2 -
+						(Math.min($currentFlashcard.length - line * charsPerLine, charsPerLine) *
+							letterSpacing) /
+							2;
 
-				// Position each letter next to the previous one within the line, and adjust for new lines
-				const text = new fabric.Text(char, {
-					left: startX + (index % charsPerLine) * letterSpacing, // Adjust spacing based on your needs
-					top: (fabricCanvas.height ? fabricCanvas.height / 2 : 0) + line * lineSpacing, // Adjust vertical position for each line
-					fontSize: 24,
-					fill: 'black',
-					opacity: 0.3,
-					selectable: true,
-					originX: 'center',
-					originY: 'center'
+					// Position each letter next to the previous one within the line, and adjust for new lines
+					const text = new fabric.Text(char, {
+						left: startX + (index % charsPerLine) * letterSpacing, // Adjust spacing based on your needs
+						top: 30,
+						fontSize: 24,
+						fill: 'black',
+						opacity: 0.3,
+						selectable: true
+					});
+
+					fabricCanvas.add(text);
 				});
 
-				fabricCanvas.add(text);
-			});
-
-			fabricCanvas.renderAll();
+				fabricCanvas.renderAll();
+			}
 
 			// Set up event handlers for drawing and constraining movement
 			fabricCanvas.on('object:moving', (e) => {
