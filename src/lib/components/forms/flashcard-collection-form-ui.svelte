@@ -9,7 +9,8 @@
 		swapFlashcards,
 		selectQuizItemsForm,
 		selectedQuizItems,
-		currentBoxId
+		currentBoxId,
+		flashcardsBoxType
 	} from '$lib/utils/stores';
 	import QuizItems from './quiz-items.svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
@@ -54,6 +55,13 @@
 		$clickedAddFlahcardBox = false;
 		$clickedEditFlashcard = false;
 	}
+
+	$: isSwappable =
+		(!$clickedAddFlashcardCollection &&
+			$maxFlashcards !== '0' &&
+			$flashcardBoxes.length > 1 &&
+			$flashcardsBoxType !== 'original') ||
+		$page.data.isAdmin;
 </script>
 
 {#if $isDesktop}
@@ -87,7 +95,7 @@
 						Add a new {$clickedAddFlashcardCollection ? 'collection' : 'box'}
 					{/if}
 				</Dialog.Title>
-				{#if !$clickedAddFlashcardCollection && $maxFlashcards !== '0' && $flashcardBoxes.length > 1}
+				{#if isSwappable}
 					<button class="ml-auto mr-5 text-sm underline" on:click={() => ($swapFlashcards = true)}>
 						Swap
 					</button>
@@ -120,7 +128,7 @@
 							{/if}
 						</Drawer.Title>
 
-						{#if !$clickedAddFlashcardCollection && $maxFlashcards !== '0' && $flashcardBoxes.length > 1}
+						{#if isSwappable}
 							<Drawer.NestedRoot>
 								<Drawer.Trigger
 									class="w-min items-center text-sm underline"

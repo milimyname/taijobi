@@ -130,31 +130,25 @@
 								{box.description}
 							</p>
 						</div>
-						{#if $flashcardsBoxType !== 'original' || data.isAdmin}
-							<div class="sticky bottom-0 flex w-full justify-around rounded-t-xl bg-blue-500 p-4">
-								{#if $flashcardsBoxType !== 'original' || data.isAdmin}
-									<button
-										class={cn('flex w-full justify-center', box.count < 10 && 'justify-end')}
-										on:click|stopPropagation={() => {
-											clickOnEdit(collection, box);
-										}}
-									>
-										<Settings />
-									</button>
-								{/if}
+						<div class="sticky bottom-0 flex w-full justify-around rounded-t-xl bg-blue-500 p-4">
+							<button
+								class={cn('flex w-full justify-center', box.count < 10 && 'justify-end')}
+								on:click|stopPropagation={() => clickOnEdit(collection, box)}
+							>
+								<Settings />
+							</button>
 
-								{#if box.count > 10}
-									<button
-										class="flex w-full justify-center"
-										on:click|stopPropagation={() => {
-											clickOnQuizForm(collection, box);
-										}}
-									>
-										<Dices />
-									</button>
-								{/if}
-							</div>
-						{/if}
+							{#if box.count > 10}
+								<button
+									class="flex w-full justify-center"
+									on:click|stopPropagation={() => {
+										clickOnQuizForm(collection, box);
+									}}
+								>
+									<Dices />
+								</button>
+							{/if}
+						</div>
 					</button>
 				{/each}
 			{/if}
