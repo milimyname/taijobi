@@ -33,7 +33,7 @@
 </svelte:head>
 
 <main
-	class="flex h-[100dvh] select-none flex-col items-center overflow-hidden bg-white p-2 transition-all sm:px-3 sm:py-5"
+	class="flex h-dvh flex-col items-center overflow-hidden bg-white p-2 transition-all sm:px-3 sm:py-5"
 >
 	<nav class="flex w-full justify-between px-2 py-3 xm:p-5">
 		<button

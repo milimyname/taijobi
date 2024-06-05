@@ -14,7 +14,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		if (!data) return json({ message: 'No results found' });
 
 		const examples = await Promise.all(
-			data.results.slice(0, 5).map(async (message) => {
+			data.results.slice(0, 10).map(async (message) => {
 				const furigana = await kuroshiro.convert(message.kanji, {
 					to: 'hiragana',
 					mode: 'furigana'

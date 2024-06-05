@@ -33,6 +33,8 @@
 			if (!res.ok) throw new Error('Failed to fetch word flashcard');
 			const data = await res.json();
 
+			console.log(data);
+
 			// Verb conjugation
 			if (Array.isArray(data)) {
 				conjugationData = [
@@ -71,6 +73,13 @@
 
 			if (data.length === 0) throw new Error('No examples found');
 
+			// Check if examples are repeated, don't add them
+			if (examples.length !== 0) {
+				const filteredData = data.filter((d) => !examples.some((e) => e.english === d.english));
+				examples = [...examples, ...filteredData];
+				return;
+			}
+
 			examples = [...examples, ...data];
 		} catch (e) {
 			console.error(e);
@@ -103,6 +112,8 @@
 	}
 
 	function onOutsideClickDrawer() {
+		if ($isDesktop) return ($showCustomContent = false);
+
 		setTimeout(() => ($showCustomContent = false), 100);
 	}
 
@@ -113,6 +124,10 @@
 	$: if (wordFlashcard?.notes === '') activeTab = 'conjugation';
 
 	$: if (wordFlashcard) examples = [];
+
+	$: if (!conjugationData) activeTab = 'sentence';
+
+	$: console.log({ $showCustomContent });
 </script>
 
 {#if audioSource}
@@ -133,7 +148,9 @@
 					<Tabs.Trigger value="note" disabled={!wordFlashcard?.notes}>
 						<Scroll class="size-5" />
 					</Tabs.Trigger>
-					<Tabs.Trigger value="conjugation"><WholeWord class="size-5" /></Tabs.Trigger>
+					<Tabs.Trigger value="conjugation" disabled={conjugationData?.error}>
+						<WholeWord class="size-5" />
+					</Tabs.Trigger>
 					<Tabs.Trigger value="sentence" disabled={wordFlashcard?.type === 'phrase'}>
 						<Text class="size-5" />
 					</Tabs.Trigger>
@@ -141,7 +158,7 @@
 				<Tabs.Content value="note" class="px-5">{wordFlashcard?.notes}</Tabs.Content>
 				<Tabs.Content value="p" class="px-5">{wordFlashcard?.notes}</Tabs.Content>
 				<Tabs.Content value="conjugation" class="px-5">
-					{#if conjugationData}
+					{#if conjugationData && !conjugationData?.error}
 						{#if conjugationData?.te}
 							<div class={cn(!conjugationData?.error && 'grid grid-cols-2 gap-1 sm:gap-2')}>
 								{#each Object.entries(conjugationData) as [key, value], i}

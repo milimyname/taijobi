@@ -63,7 +63,6 @@
 	<aside
 		class="fixed bottom-5 left-0 flex w-full justify-center p-5 pb-0 lg:sticky lg:h-full lg:w-full lg:justify-between lg:p-0"
 	>
-	
 		<nav
 			class={cn(
 				'z-40 flex items-center justify-between gap-40 rounded-full bg-primary p-2 text-white transition-all lg:h-full lg:flex-col lg:justify-center lg:gap-10 lg:p-5',
