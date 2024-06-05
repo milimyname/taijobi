@@ -69,3 +69,4 @@ export const startRangeQuizForm = writable('1');
 export const endRangeQuizForm = writable('10');
 
 export const strokes = writable<{ points: { x: number; y: number }[]; color: string }[]>([]);
+export const showCustomContent = writable(false);

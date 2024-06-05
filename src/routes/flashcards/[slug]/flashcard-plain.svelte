@@ -10,7 +10,8 @@
 		innerHeightStore,
 		innerWidthStore,
 		currentFlashcardTypeStore,
-		canIdrawMultipleTimes
+		canIdrawMultipleTimes,
+		showCustomContent
 	} from '$lib/utils/stores';
 	import { quintOut, cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
@@ -31,7 +32,6 @@
 		duration: 2000,
 		easing: cubicOut
 	});
-	let showCustomContent: boolean = false;
 	let kanjiFlashcard: FlashcardType;
 	let audioSource = '';
 	let audioElement: HTMLAudioElement;
@@ -76,6 +76,8 @@
 	<audio src={audioSource} bind:this={audioElement} />
 {/if}
 
+<CustomCompletion {wordFlashcard} />
+
 <div
 	style={`transform: rotateY(${-$rotateYCard}deg); transform-style: preserve-3d; backface-visibility: hidden; 
 				height: ${getFlashcardHeight($innerWidthStore, $innerHeightStore)}px;
@@ -109,7 +111,7 @@
 			<button
 				class={cn(
 					'rounded-full border bg-white p-2 shadow-sm transition-all',
-					showCustomContent && 'hidden'
+					$showCustomContent && 'hidden'
 				)}
 				on:click={() => {
 					$showLetterDrawing = true;
@@ -124,7 +126,7 @@
 			<button
 				class={cn(
 					'rounded-full border bg-white p-2 shadow-sm transition-all',
-					showCustomContent && 'hidden'
+					$showCustomContent && 'hidden'
 				)}
 				on:click={async () => {
 					if (audioSource === '') await convertTextToSpeech();
@@ -138,7 +140,7 @@
 		<button
 			class={cn(
 				'rounded-full border bg-white p-2 shadow-sm transition-all',
-				showCustomContent && 'hidden'
+				$showCustomContent && 'hidden'
 			)}
 			on:click={() => ($canIdrawMultipleTimes = true)}
 		>
@@ -149,7 +151,7 @@
 	<button
 		class={cn(
 			'absolute bottom-3 right-2 z-30 rounded-full border bg-white p-2 shadow-sm transition-all xm:bottom-5 xm:right-5',
-			showCustomContent && 'hidden'
+			$showCustomContent && 'hidden'
 		)}
 		on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
 	>
@@ -206,10 +208,11 @@
 
 			{#if wordFlashcard?.notes && wordFlashcard?.notes.length > 0}
 				<button
-					class="fixed bottom-0 left-0 z-10 rounded-tr-xl {showCustomContent
-						? 'bg-white text-black'
-						: 'bg-blue-200'} p-5"
-					on:click|preventDefault={() => (showCustomContent = !showCustomContent)}
+					class={cn(
+						'fixed bottom-0 left-0 z-10 rounded-tr-xl bg-white p-5 text-black',
+						$showCustomContent && 'bg-blue-200'
+					)}
+					on:click|preventDefault={() => ($showCustomContent = !$showCustomContent)}
 				>
 					<Box class="size-6" />
 				</button>
@@ -230,8 +233,10 @@
 				{/if}
 			{/if}
 			<button
-				class="{showCustomContent && 'hidden'}
-								fixed bottom-5 right-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all"
+				class={cn(
+					'fixed bottom-5 right-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all',
+					$showCustomContent && 'hidden'
+				)}
 				on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
 			>
 				<RotateCcw class="size-4" />
@@ -261,34 +266,22 @@
 					<p class=" text-sm text-gray-300">Romanji/Furigana</p>
 				</div>
 			{/if}
+
 			<button
-				class="flashcard-completion-btn fixed bottom-0 left-0 z-10 rounded-tr-xl {showCustomContent
-					? 'bg-white text-black'
-					: 'bg-blue-200'} p-5"
-				on:click|preventDefault={() => (showCustomContent = !showCustomContent)}
+				class={cn(
+					'flashcard-completion-btn fixed bottom-0 left-0 z-10 rounded-tr-xl bg-white p-5 text-black',
+					!$showCustomContent && 'bg-blue-200'
+				)}
+				on:click|preventDefault={() => ($showCustomContent = !$showCustomContent)}
 			>
 				<Box class="size-6" />
 			</button>
 
-			{#if showCustomContent}
-				<div
-					use:clickOutside={() => (showCustomContent = false)}
-					class="z-4 absolute bottom-0 left-0 h-5/6 w-full rounded-xl bg-primary p-4 text-xl text-white"
-					transition:fly={{
-						delay: 0,
-						duration: 1000,
-						opacity: 0,
-						y: 400,
-						easing: quintOut
-					}}
-				>
-					<CustomCompletion {wordFlashcard} />
-				</div>
-			{/if}
-
 			<button
-				class="{showCustomContent && 'hidden'}
-								fixed bottom-5 right-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all"
+				class={cn(
+					'fixed bottom-5 right-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all',
+					$showCustomContent && 'hidden'
+				)}
 				on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
 			>
 				<RotateCcw class="size-4" />

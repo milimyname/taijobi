@@ -2,20 +2,23 @@
 	import * as Tabs from '$lib/components/ui/tabs';
 	import { WholeWord, Text, Scroll, Volume2 } from 'lucide-svelte';
 	import type { FlashcardType } from '$lib/utils/ambient.d.ts';
-	import { cn } from '$lib/utils';
-	import * as Select from '$lib/components/ui/select';
-	import { page } from '$app/stores';
+	import { cn, isDesktop } from '$lib/utils';
+	import * as DrawerDialog from '$lib/components/ui/drawerDialog';
+	import Button from '$lib/components/ui/button/button.svelte';
+	import { showCustomContent } from '$lib/utils/stores';
+	import { toast } from 'svelte-sonner';
 
 	export let wordFlashcard: FlashcardType | undefined;
+
+	type ResponseType = { kana: string; kanji: string; english: string; furigana: string };
 
 	let audioSource: string = '';
 	let audioElement: HTMLAudioElement;
 	let activeTab: string | undefined = wordFlashcard?.notes ? 'note' : 'conjugation';
 	let conjugationData: any;
-	let exampleSentences: { sentence: string; meaning: string; furigana: string }[] = [];
-	let selectedValue: { value: unknown; label?: string };
+	let examples: ResponseType[] = [];
 
-	async function loadWordFlashcard() {
+	async function conjugate() {
 		try {
 			const res = await fetch(`/api/conjugation`, {
 				method: 'POST',
@@ -28,8 +31,23 @@
 			});
 
 			if (!res.ok) throw new Error('Failed to fetch word flashcard');
+			const data = await res.json();
 
-			conjugationData = await res.json();
+			// Verb conjugation
+			if (Array.isArray(data)) {
+				conjugationData = [
+					{
+						name: '',
+						positive: 'Affirmative',
+						negative: 'Negative'
+					},
+					...data
+				];
+				return;
+			}
+
+			// Adjective conjugation
+			conjugationData = data;
 		} catch (e) {
 			console.error(e);
 		}
@@ -37,25 +55,28 @@
 
 	async function generateExampleSentences() {
 		try {
-			const res = await fetch('/api/openai', {
+			const res = await fetch('/api/jisho', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					input: selectedValue?.value,
-					type: 'text'
+					input: wordFlashcard?.name
 				})
 			});
 
 			if (!res.ok) throw new Error('Failed to fetch sentence examples');
 
-			// Stream processing
-			const data = await res.json();
+			const data: ResponseType[] = await res.json();
 
-			exampleSentences = [...exampleSentences, ...data.exampleSentences];
+			if (data.length === 0) throw new Error('No examples found');
+
+			examples = [...examples, ...data];
 		} catch (e) {
 			console.error(e);
+			toast.error(
+				'No examples found. Please try again or leave a feedback by clicking the 🐞 above. PS: Only words can have examples'
+			);
 		}
 	}
 
@@ -81,103 +102,116 @@
 		}
 	}
 
-	$: if (activeTab === 'conjugation' || wordFlashcard) loadWordFlashcard();
-	$: if (activeTab === 'sentence' && wordFlashcard) exampleSentences = [];
+	function onOutsideClickDrawer() {
+		setTimeout(() => ($showCustomContent = false), 100);
+	}
+
+	$: if (activeTab === 'conjugation' || wordFlashcard) conjugate();
+
+	$: if (activeTab === 'sentence' && wordFlashcard) generateExampleSentences();
 
 	$: if (wordFlashcard?.notes === '') activeTab = 'conjugation';
 
-	$: if (wordFlashcard)
-		selectedValue = {
-			value: '',
-			label: ''
-		};
+	$: if (wordFlashcard) examples = [];
 </script>
 
 {#if audioSource}
 	<audio src={audioSource} bind:this={audioElement} />
 {/if}
 
-<Tabs.Root
-	value={activeTab}
-	onValueChange={(v) => (activeTab = v)}
-	class="h-full overflow-y-scroll"
+<DrawerDialog.Root
+	open={$showCustomContent}
+	onOutsideClick={onOutsideClickDrawer}
+	onClose={onOutsideClickDrawer}
 >
-	<Tabs.List class="sticky top-0 mx-auto flex w-fit">
-		<Tabs.Trigger value="note" disabled={!wordFlashcard?.notes}>
-			<Scroll class="size-5" />
-		</Tabs.Trigger>
-		<Tabs.Trigger value="conjugation"><WholeWord class="size-5" /></Tabs.Trigger>
-		<Tabs.Trigger value="sentence" disabled={!$page.data.isLoggedIn}>
-			<Text class="size-5" />
-		</Tabs.Trigger>
-	</Tabs.List>
-	<Tabs.Content value="note">{wordFlashcard?.notes}</Tabs.Content>
-	<Tabs.Content value="conjugation">
-		<div class={cn(!conjugationData?.error && 'grid grid-cols-3 gap-1 sm:gap-2')}>
-			{#if conjugationData}
-				{#each Object.keys(conjugationData) as key}
-					<div class={cn('flex flex-col', key === 'Imperative' && 'col-[3/3]')}>
-						<span class="text-sm font-semibold">{key}</span>
-						<span>{conjugationData[key]}</span>
-					</div>
-				{/each}
-			{:else}
-				<p>Loading...</p>
-			{/if}
-		</div>
-	</Tabs.Content>
-	<Tabs.Content value="sentence" class="space-y-2 pb-14">
-		{#if exampleSentences}
-			{#each exampleSentences as { furigana, sentence, meaning }}
-				<div class="flex gap-2">
-					<div class="flex flex-col gap-1">
-						<span>{@html furigana}</span>
-						<span class="text-sm">{meaning}</span>
-					</div>
-
-					<button
-						on:click={async () => {
-							await convertTextToSpeech(sentence);
-
-							if (audioElement) audioElement.play();
-						}}
-					>
-						<Volume2 class="size-5" />
-					</button>
-				</div>
-			{/each}
-		{:else}
-			<p>Loading...</p>
-		{/if}
-	</Tabs.Content>
-</Tabs.Root>
-
-{#if activeTab === 'sentence'}
-	<Select.Root
-		selected={selectedValue}
-		onSelectedChange={async (item) => {
-			selectedValue = {
-				value: item?.value,
-				label: item?.label
-			};
-			await generateExampleSentences();
-		}}
+	<DrawerDialog.Content
+		class={cn('fixed bottom-0 left-0 right-0 h-fit max-h-[96%]', $isDesktop && 'left-1/2  h-1/2')}
 	>
-		<Select.Trigger
-			class="flashcard-completion-btn absolute bottom-3 right-1/2 flex w-[180px] translate-x-1/2 gap-2 bg-white text-black"
-		>
-			<Select.Value />
-		</Select.Trigger>
-		<Select.Content class="flashcard-completion-btn">
-			{#if !conjugationData?.error}
-				{#each [wordFlashcard?.name, ...Object.values(conjugationData)] as conjugation}
-					<Select.Item value={conjugation}>
-						{conjugation}
-					</Select.Item>
-				{/each}
-			{:else}
-				<Select.Item value={wordFlashcard?.name}>{wordFlashcard?.name}</Select.Item>
-			{/if}
-		</Select.Content>
-	</Select.Root>
-{/if}
+		<div class="-mt-2 flex w-full flex-col overflow-y-auto">
+			<Tabs.Root value={activeTab} onValueChange={(v) => (activeTab = v)}>
+				<Tabs.List class="sticky mx-auto flex w-fit">
+					<Tabs.Trigger value="note" disabled={!wordFlashcard?.notes}>
+						<Scroll class="size-5" />
+					</Tabs.Trigger>
+					<Tabs.Trigger value="conjugation"><WholeWord class="size-5" /></Tabs.Trigger>
+					<Tabs.Trigger value="sentence" disabled={wordFlashcard?.type === 'phrase'}>
+						<Text class="size-5" />
+					</Tabs.Trigger>
+				</Tabs.List>
+				<Tabs.Content value="note" class="px-5">{wordFlashcard?.notes}</Tabs.Content>
+				<Tabs.Content value="p" class="px-5">{wordFlashcard?.notes}</Tabs.Content>
+				<Tabs.Content value="conjugation" class="px-5">
+					{#if conjugationData}
+						{#if conjugationData?.te}
+							<div class={cn(!conjugationData?.error && 'grid grid-cols-2 gap-1 sm:gap-2')}>
+								{#each Object.entries(conjugationData) as [key, value], i}
+									<p>{key}</p>
+									<p class="text-lg font-semibold">
+										{value}
+									</p>
+								{/each}
+							</div>
+						{:else}
+							<div class={cn(!conjugationData?.error && 'grid grid-cols-3 gap-1 sm:gap-2')}>
+								{#each conjugationData as data, i}
+									<p class="text-[10px]">{data?.name}</p>
+
+									{#if data?.positive_furigana}
+										<p class={cn('text-[10px]', i !== 0 && 'text-sm font-semibold')}>
+											{@html data?.positive_furigana}
+										</p>
+									{:else}
+										<p class={cn('text-[10px]', i !== 0 && 'text-sm font-semibold')}>
+											{data?.positive}
+										</p>
+									{/if}
+									{#if data?.negative_furigana}
+										<p class={cn('text-[10px]', i !== 0 && 'text-sm font-semibold')}>
+											{@html data?.negative_furigana}
+										</p>
+									{:else}
+										<p class={cn('text-[10px]', i !== 0 && 'text-sm font-semibold')}>
+											{data?.negative}
+										</p>
+									{/if}
+								{/each}
+							</div>
+						{/if}
+					{:else}
+						<p>Loading...</p>
+					{/if}
+				</Tabs.Content>
+				<Tabs.Content value="sentence" class="space-y-5 px-5 pb-14">
+					{#if examples.length !== 0}
+						{#each examples as { furigana, kanji, english }}
+							<div class="grid grid-cols-[1fr_20px] items-start gap-2">
+								<div class="space-y-2">
+									<p class="text-lg">{@html furigana}</p>
+									<p class="text-sm">{english}</p>
+								</div>
+
+								<button
+									class="mt-2.5"
+									on:click={async () => {
+										await convertTextToSpeech(kanji);
+
+										if (audioElement) audioElement.play();
+									}}
+								>
+									<Volume2 class="size-5" />
+								</button>
+							</div>
+						{/each}
+					{:else}
+						<p>Loading...</p>
+					{/if}
+				</Tabs.Content>
+			</Tabs.Root>
+			<DrawerDialog.Footer className="md:hidden">
+				<DrawerDialog.Close asChild let:builder>
+					<Button builders={[builder]} variant="outline">Cancel</Button>
+				</DrawerDialog.Close>
+			</DrawerDialog.Footer>
+		</div>
+	</DrawerDialog.Content>
+</DrawerDialog.Root>
