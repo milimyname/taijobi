@@ -117,7 +117,7 @@
 		setTimeout(() => ($showCustomContent = false), 100);
 	}
 
-	$: if (activeTab === 'conjugation' || wordFlashcard) conjugate();
+	$: if ($showCustomContent && (activeTab === 'conjugation' || wordFlashcard)) conjugate();
 
 	$: if (activeTab === 'sentence' && wordFlashcard) generateExampleSentences();
 
@@ -125,9 +125,7 @@
 
 	$: if (wordFlashcard) examples = [];
 
-	$: if (!conjugationData) activeTab = 'sentence';
-
-	$: console.log({ $showCustomContent });
+	$: if (conjugationData?.error) activeTab = 'sentence';
 </script>
 
 {#if audioSource}

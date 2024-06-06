@@ -6,7 +6,7 @@ import { classifyWord, conjugateAdjective, conjugateVerb } from './common.js';
 export async function POST({ request }) {
 	const { word } = await request.json();
 
-	if (!word) return json({ message: 'No input term provided' });
+	if (!word) return json({ error: 'No input term provided' });
 
 	const wordType = classifyWord(word);
 

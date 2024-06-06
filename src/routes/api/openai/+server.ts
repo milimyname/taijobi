@@ -22,8 +22,8 @@ export async function POST({ request, locals }) {
 					Please respond with a JSON object in array format with translation and sentence properties.
 					Example:
 						{
-							"sentence": "家に着く前に電話します。",
-							"meaning": "I will call before arriving home."
+							"kanji": "家に着く前に電話します。",
+							"english": "I will call before arriving home."
 						}
 					`
 			},
@@ -48,9 +48,9 @@ export async function POST({ request, locals }) {
 
 		if (parsedData[0]?.sentences) parsedData = parsedData[0].sentences;
 
-		const proccesesMessages = await Promise.all(
+		const examples = await Promise.all(
 			parsedData.map(async (message) => {
-				const furigana = await kuroshiro.convert(message.sentence, {
+				const furigana = await kuroshiro.convert(message.kanji, {
 					to: 'hiragana',
 					mode: 'furigana'
 				});
@@ -63,7 +63,7 @@ export async function POST({ request, locals }) {
 		);
 
 		// Return the response from OpenAI
-		return json({ exampleSentences: proccesesMessages });
+		return json(examples);
 	}
 
 	if (type === 'audio') {
