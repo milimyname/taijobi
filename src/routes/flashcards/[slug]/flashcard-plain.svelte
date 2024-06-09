@@ -26,7 +26,7 @@
 	export let wordFlashcard: FlashcardType | undefined;
 	export let currentFlashcardFurigana: string;
 	export let currentIndex: number;
-	export let longWord: boolean;
+	export let longWord: number;
 
 	const rotateYCard = tweened(0, {
 		duration: 2000,
@@ -83,9 +83,9 @@
 				height: ${getFlashcardHeight($innerWidthStore, $innerHeightStore)}px;
 				width: ${getFlashcardWidth($innerWidthStore)}px `}
 	class={cn(
-		'relative z-10 flex cursor-pointer items-center justify-center rounded-xl border shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200',
+		'relative z-10 flex cursor-pointer items-center justify-center overflow-x-auto rounded-xl border shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200',
 		$rotateYCard > 90 && 'hidden',
-		longWord && 'py-10 sm:py-32'
+		longWord > 8 && 'py-10 sm:py-32'
 	)}
 >
 	{#if $currentFlashcardTypeStore === 'kanji'}
@@ -93,11 +93,21 @@
 			{$currentFlashcard}
 		</span>
 	{:else if $currentFlashcardTypeStore === 'phrase'}
-		<p class="text-balance px-10 text-center text-5xl leading-normal tracking-widest">
+		<p
+			class={cn(
+				'text-balance px-10 text-center text-5xl leading-normal tracking-widest',
+				longWord > 15 && 'text-xl'
+			)}
+		>
 			{@html currentFlashcardFurigana}
 		</p>
 	{:else}
-		<p class="vertical text-balance text-5xl leading-normal tracking-widest">
+		<p
+			class={cn(
+				'vertical text-balance text-5xl leading-normal tracking-widest',
+				longWord > 15 && 'text-xl'
+			)}
+		>
 			{@html currentFlashcardFurigana}
 		</p>
 	{/if}

@@ -24,9 +24,9 @@
 	class={cn('quiz-form z-[1000] flex w-full flex-col', !$isDesktop && 'px-4')}
 >
 	<div class="mb-auto flex flex-col gap-2">
-		{#if !$clickedAddFlashcardCollection}
+		{#if $clickedEditFlashcard}
 			<div class="flex gap-2">
-				<Form.Field {form} name="kanjiCount">
+				<Form.Field {form} name="kanjiCount" class="w-full">
 					<Form.Control let:attrs>
 						<Form.Label>Number of Kanji</Form.Label>
 						<Input {...attrs} bind:value={$formData.kanjiCount} disabled />
@@ -34,7 +34,7 @@
 					<Form.FieldErrors />
 				</Form.Field>
 
-				<Form.Field {form} name="quizCount">
+				<Form.Field {form} name="quizCount" class="w-full">
 					<Form.Control let:attrs>
 						<Form.Label>Created Quizzes</Form.Label>
 						<Input {...attrs} bind:value={$formData.quizCount} disabled />

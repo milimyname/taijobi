@@ -11,11 +11,6 @@ export async function POST({ request }) {
 	switch (wordType) {
 		case 'verb': {
 			const conjuctive = getConjuctiveForm(word);
-			console.log({
-				word,
-				wordType,
-				conjuctive
-			});
 			return json(await conjugateVerb(conjuctive));
 		}
 		case 'adjective':

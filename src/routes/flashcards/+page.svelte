@@ -5,11 +5,13 @@
 		clickedAddFlashcardCollection,
 		currentFlashcardCollectionId,
 		clickedAddFlahcardBox,
+		clickedEditFlashcard,
 		clickedQuizForm,
 		skippedFlashcard,
 		selectedQuizItems,
 		startRangeQuizForm,
-		endRangeQuizForm
+		endRangeQuizForm,
+		newFlashcardBoxId
 	} from '$lib/utils/stores.js';
 	import FlashcardCollection from './FlashcardCollection.svelte';
 	import { goto } from '$app/navigation';
@@ -20,6 +22,7 @@
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import type { RecordModel } from 'pocketbase';
 	import Collections from './Collections.svelte';
+	import { toast } from 'svelte-sonner';
 
 	export let data;
 
@@ -28,6 +31,7 @@
 		data.flashcardCollections.length > 5 ? 5 : data.flashcardCollections.length;
 
 	let savedCollection: RecordModel;
+	let visibleCards: RecordModel[] = [];
 
 	// Flashcard collection form:
 	const superFrmCollection = superForm(data.form, {
@@ -73,7 +77,21 @@
 		onUpdated: ({ form }) => {
 			// Keep the form open if there is an error
 			if (form.errors.name) $clickedAddFlahcardBox = true;
-			else $clickedAddFlahcardBox = false;
+
+			// Send a toast message when a new flashcard box is added
+			if ($clickedAddFlahcardBox && !$clickedEditFlashcard) {
+				toast.success('Flashcard box added successfully', {
+					action: {
+						label: 'See it now',
+						onClick: () => {
+							goto(`/flashcards/${form.data.id}`);
+						}
+					}
+				});
+				$newFlashcardBoxId = form.data.id;
+			}
+
+			$clickedAddFlahcardBox = false;
 		}
 	});
 
@@ -98,16 +116,6 @@
 		}, 100);
 	}
 
-	$: if ($skippedFlashcard) {
-		setTimeout(() => discardCard(), 200);
-		$skippedFlashcard = false;
-	}
-
-	// Show the first 5 cards by updatedAt
-	$: visibleCards = data.flashcardCollections.slice(0, visibleCardsCount).sort((a, b) => {
-		return +new Date(b.updatedAt) - +new Date(a.updatedAt);
-	});
-
 	onMount(() => {
 		const savedId = localStorage.getItem('currentFlashcardCollectionId');
 		if (savedId !== null) $currentFlashcardCollectionId = savedId;
@@ -119,6 +127,16 @@
 
 			visibleCards = [...visibleCards.slice(0, visibleCards.length - 1), savedCollection];
 		}
+	});
+
+	$: if ($skippedFlashcard) {
+		setTimeout(() => discardCard(), 200);
+		$skippedFlashcard = false;
+	}
+
+	// Show the first 5 cards by updatedAt
+	$: visibleCards = data.flashcardCollections.slice(0, visibleCardsCount).sort((a, b) => {
+		return +new Date(b.updatedAt) - +new Date(a.updatedAt);
 	});
 </script>
 

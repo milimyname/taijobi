@@ -4,7 +4,7 @@
 		clickedAddFlashcardCollection,
 		currentFlashcardTypeStore
 	} from '$lib/utils/stores';
-	import { ArrowUpCircle, Dices } from 'lucide-svelte';
+	import { ArrowUpCircle } from 'lucide-svelte';
 	import type { FlashcardType } from '$lib/utils/ambient.d.ts';
 
 	export let form: any;

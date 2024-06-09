@@ -155,6 +155,9 @@ export const actions = {
 				await locals.pb.collection('flashcardCollections').update(form.data.flashcardCollection, {
 					'flashcardBoxes+': flashcardBox.id
 				});
+
+				// Set the id of the flashcard box
+				form.data.id = flashcardBox.id;
 			} catch (_) {
 				return setError(form, 'name', 'Flashcardbox already exists');
 			}

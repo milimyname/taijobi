@@ -12,7 +12,8 @@
 		showCollections,
 		clickedEditFlashcard,
 		clickedFeedback,
-		openSearch
+		openSearch,
+		newFlashcardBoxId
 	} from '$lib/utils/stores';
 	import { IS_DESKTOP } from '$lib/utils/constants';
 	import { FolderEdit } from 'lucide-svelte';
@@ -84,7 +85,7 @@
 		}
 	}
 
-	function onClick(event: MouseEvent) {
+	function onClick() {
 		if (
 			(!isDragging && index !== totalCount - 1) ||
 			$clickedAddFlashcardCollection ||
@@ -164,6 +165,12 @@
 
 		if ((event.target as Element).closest('.search-btn')) {
 			return ($openSearch = true);
+		}
+
+		// Go to a newly created flashcard box
+		if ((event.target as Element).closest('.toaster')) {
+			goto(`/flashcards/${$newFlashcardBoxId}`);
+			return;
 		}
 
 		isDragging = true;

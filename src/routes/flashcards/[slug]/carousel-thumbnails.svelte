@@ -109,17 +109,35 @@
 
 			if (!fabricCanvas || !fabricCanvas.width || !fabricCanvas.height) return;
 
-			// Add flashcard name to the canvas
-			const letterSpacing = 50; // Increase the spacing between letters
-			const charsPerLine = 9; // Number of characters per line
+			const canvasWidth = fabricCanvas.width;
+			const canvasHeight = fabricCanvas.height;
+			const padding = 10; // padding from the edges
+			let fontSize = 32;
+			let letterSpacing = fontSize;
+			let charsPerLine = Math.floor((canvasWidth - 2 * padding) / letterSpacing);
+
+			// Adjust font size and spacing if needed to fit within the canvas
+			while (
+				($currentFlashcard.length / charsPerLine) * letterSpacing + 2 * padding > canvasHeight &&
+				fontSize > 12
+			) {
+				fontSize -= 1;
+				letterSpacing = fontSize;
+				charsPerLine = Math.floor((canvasWidth - 2 * padding) / letterSpacing);
+			}
+
+			// Calculate the starting Y position to vertically center the text block
+			const totalLines = Math.ceil($currentFlashcard.length / charsPerLine);
+			const startY = padding;
 
 			// Skip last 2 canvases
 			if (i < NUM_OF_THUMBAILS - 2) {
 				$currentFlashcard.split('').forEach((char, index) => {
-					// Calculate which line this character should be on
-					const line = Math.floor(index / charsPerLine);
-
 					if (!fabricCanvas.width || !fabricCanvas.height) return;
+
+					// Calculate which line and column this character should be on
+					const line = Math.floor(index / charsPerLine);
+					const column = index % charsPerLine;
 
 					// Calculate the horizontal start of this line
 					const startX =
@@ -128,11 +146,11 @@
 							letterSpacing) /
 							2;
 
-					// Position each letter next to the previous one within the line, and adjust for new lines
+					// Position each letter in the grid
 					const text = new fabric.Text(char, {
-						left: startX + (index % charsPerLine) * letterSpacing, // Adjust spacing based on your needs
-						top: 30,
-						fontSize: 24,
+						left: startX + column * letterSpacing,
+						top: startY + line * letterSpacing,
+						fontSize: fontSize,
 						fill: 'black',
 						opacity: 0.3,
 						selectable: true
@@ -140,7 +158,6 @@
 
 					fabricCanvas.add(text);
 				});
-
 				fabricCanvas.renderAll();
 			}
 
