@@ -1,634 +1,56 @@
 import { kuroshiro } from '$lib/server/kuroshiro';
+import codec from 'kamiya-codec';
 
-function conjugatedIkuAndAru(verb: string) {
-	// Special Irrgeular Verbs ある
-	if (verb === 'ある') {
-		return {
-			Affirmative: {
-				Present: {
-					word: 'ある',
-					furigana: 'ある'
-				},
-				Present_Polite: {
-					word: 'あります',
-					furigana: 'あります'
-				},
-				Past: {
-					word: 'あった',
-					furigana: 'あった'
-				},
-				Past_Polite: {
-					word: 'ありました',
-					furigana: 'ありました'
-				},
-				Te: {
-					word: 'あって',
-					furigana: 'あって'
-				},
-				Potential: {
-					word: 'あれる',
-					furigana: 'あれる'
-				},
-				Passive: {
-					word: 'あられる',
-					furigana: 'あられる'
-				},
-				Causative: {
-					word: 'あらせる',
-					furigana: 'あらせる'
-				},
-				Causative_Passive: {
-					word: 'あらせられる',
-					furigana: 'あらせられる'
-				},
-				Imperative: {
-					word: 'あれ',
-					furigana: 'あれ'
-				},
-				Ba: {
-					word: 'あれば',
-					furigana: 'あれば'
-				}
-			},
-			Negative: {
-				Present: {
-					word: 'ない',
-					furigana: 'ない'
-				},
-				Present_Polite: {
-					word: 'ありません',
-					furigana: 'ありません'
-				},
-				Past: {
-					word: 'なかった',
-					furigana: 'なかった'
-				},
-				Past_Polite: {
-					word: 'ありませんでした',
-					furigana: 'ありませんでした'
-				},
-				Te: {
-					word: 'なくて',
-					furigana: 'なくて'
-				},
-				Potential: {
-					word: 'あり得ない',
-					furigana: 'あり得ない'
-				},
-				Passive: {
-					word: 'あられない',
-					furigana: 'あられない'
-				},
-				Causative: {
-					word: 'あらせない',
-					furigana: 'あらせない'
-				},
-				Causative_Passive: {
-					word: 'あらせられない',
-					furigana: 'あらせられない'
-				},
-				Imperative: {
-					word: 'あるな',
-					furigana: 'あるな'
-				},
-				Ba: {
-					word: 'なければ',
-					furigana: 'なければ'
-				}
-			}
-		};
-	}
-
-	// 行く (iku) is an irregular verb
-	if (verb === 'いく') {
-		return {
-			Affirmative: {
-				Present: {
-					word: '行く',
-					furigana: '行く'
-				},
-				Present_Polite: {
-					word: '行きます',
-					furigana: '行きます'
-				},
-				Past: {
-					word: '行った',
-					furigana: '行った'
-				},
-				Past_Polite: {
-					word: '行きました',
-					furigana: '行きました'
-				},
-				Te: {
-					word: '行って',
-					furigana: '行って'
-				},
-				Potential: {
-					word: '行ける',
-					furigana: '行ける'
-				},
-				Passive: {
-					word: '行かれる',
-					furigana: '行かれる'
-				},
-				Causative: {
-					word: '行かせる',
-					furigana: '行かせる'
-				},
-				Causative_Passive: {
-					word: '行かせられる',
-					furigana: '行かせられる'
-				},
-				Imperative: {
-					word: '行け',
-					furigana: '行け'
-				},
-				Ba: {
-					word: '行けば',
-					furigana: '行けば'
-				}
-			},
-			Negative: {
-				Present: {
-					word: '行かない',
-					furigana: '行かない'
-				},
-				Present_Polite: {
-					word: '行きません',
-					furigana: '行きません'
-				},
-				Past: {
-					word: '行かなかった',
-					furigana: '行かなかった'
-				},
-				Past_Polite: {
-					word: '行きませんでした',
-					furigana: '行きませんでした'
-				},
-				Te: {
-					word: '行かなくて',
-					furigana: '行かなくて'
-				},
-				Potential: {
-					word: '行けない',
-					furigana: '行けない'
-				},
-				Passive: {
-					word: '行かれない',
-					furigana: '行かれない'
-				},
-				Causative: {
-					word: '行かせない',
-					furigana: '行かせない'
-				},
-				Causative_Passive: {
-					word: '行かせられない',
-					furigana: '行かせられない'
-				},
-				Imperative: {
-					word: '行くな',
-					furigana: '行くな'
-				},
-				Ba: {
-					word: '行かなければ',
-					furigana: '行かなければ'
-				}
-			}
-		};
-	}
+async function convertToFurigana(word: string) {
+	return await kuroshiro.convert(word, { to: 'hiragana', mode: 'furigana' });
 }
 
-export async function conjugateVerb(verb: string, word?: string) {
-	// Convert to dictionary form (assumes verb is given in polite non-past, e.g., 食べます -> 食べる)
-	let dictionaryForm;
-	if (verb.endsWith('ます')) {
-		dictionaryForm = verb.slice(0, -2) + 'る';
-	} else {
-		dictionaryForm = verb; // assuming the verb is already in dictionary form
-	}
-
-	// Determine the verb group
-	let group;
-	if (dictionaryForm === 'くる') {
-		group = 3; // くる is an irregular verb
-	} else if (dictionaryForm === 'する') {
-		group = 4; // する is an irregular verb
-	} else if (
-		dictionaryForm.endsWith('る') &&
-		(dictionaryForm.includes('いる') || dictionaryForm.includes('える'))
-	) {
-		group = 2; // Group 2 verbs
-	} else {
-		group = 1; // Group 1 verbs
-	}
-
-	const stem = dictionaryForm.slice(0, -1); // Remove last character to get the stem
-
-	// Special Irrgeular Verbs ある or いく
-	if (verb === 'ある' || verb === 'いく') return conjugatedIkuAndAru(verb);
-
-	const furiganaStem = word?.slice(0, -1) || ''; // Remove last character to get the stem
-
-	const furigana = await kuroshiro.convert(furiganaStem, { to: 'hiragana', mode: 'furigana' });
-
-	// Conjugate based on the group
-	switch (group) {
-		case 1: {
-			// Group 1: う-verbs (Godan)
-			const lastKana = dictionaryForm.slice(-1);
-			const kanaMap: { [key: string]: string } = {
-				う: 'って',
-				つ: 'って',
-				る: 'って',
-				ぶ: 'んで',
-				む: 'んで',
-				ぬ: 'んで',
-				く: 'いて',
-				ぐ: 'いで',
-				す: 'して'
-			};
-			const teEnding = kanaMap[lastKana] || 'って';
-
-			return [
-				{
-					name: 'Present',
-					positive: dictionaryForm,
-					positive_furigana: word,
-					negative: `${stem}ない`,
-					negative_furigana: furigana + `${stem}ない`
-				},
-				{
-					name: 'Present Polite',
-					positive: `${stem}ます`,
-					positive_furigana: furigana + `${stem}ます`,
-					negative: `${stem}ません`,
-					negative_furigana: furigana + `${stem}ません`
-				},
-
-				{
-					name: 'Past',
-					positive: `${stem}${teEnding.slice(0, -1)}た`,
-					positive_furigana: furigana + `${stem}${teEnding.slice(0, -1)}た`,
-					negative: `${stem}なかった`,
-					negative_furigana: furigana + `${stem}なかった`
-				},
-				{
-					name: 'Past Polite',
-					positive: `${stem}ました`,
-					positive_furigana: furigana + `${stem}ました`,
-					negative: `${stem}ませんでした`,
-					negative_furigana: furigana + `${stem}ませんでした`
-				},
-				{
-					name: 'Te',
-					positive: `${stem}${teEnding}`,
-					positive_furigana: furigana + `${stem}${teEnding}`,
-					negative: `${stem}なくて`,
-					negative_furigana: furigana + `${stem}なくて`
-				},
-				{
-					name: 'Potential',
-					positive: `${stem.slice(0, -1)}える`,
-					positive_furigana: furigana + `${stem.slice(0, -1)}える`,
-					negative: `${stem.slice(0, -1)}えない`
-				},
-				{
-					name: 'Passive',
-					positive: `${stem.slice(0, -1)}られる`,
-					positive_furigana: furigana + `${stem.slice(0, -1)}られる`,
-					negative: `${stem.slice(0, -1)}られない`
-				},
-				{
-					name: 'Causative',
-					positive: `${stem.slice(0, -1)}せる`,
-					positive_furigana: furigana + `${stem.slice(0, -1)}せる`,
-					negative: `${stem.slice(0, -1)}せない`
-				},
-				{
-					name: 'Causative Passive',
-					positive: `${stem.slice(0, -1)}せられる`,
-					positive_furigana: furigana + `${stem.slice(0, -1)}せられる`,
-					negative: `${stem.slice(0, -1)}せられない`
-				},
-				{
-					name: 'Imperative',
-					positive: `${stem}ろ`,
-					positive_furigana: furigana + `${stem}ろ`,
-					negative: `${stem}るな`
-				},
-				{
-					name: 'Ba',
-					positive: `${stem}${teEnding.slice(0, -1)}ば`,
-					positive_furigana: furigana + `${stem}${teEnding.slice(0, -1)}ば`,
-					negative: `${stem}なければ`
-				}
-			];
-
-			break;
-		}
-		case 2: {
-			// Group 2: る-verbs (Ichidan)
-			return [
-				{
-					name: 'Present',
-					positive: dictionaryForm,
-					positive_furigana: word,
-					negative: `${stem}ない`,
-					negative_furigana: furigana + `${stem}ない`
-				},
-				{
-					name: 'Present Polite',
-					positive: `${stem}ます`,
-					positive_furigana: furigana + `${stem}ます`,
-					negative: `${stem}ません`,
-					negative_furigana: furigana + `${stem}ません`
-				},
-
-				{
-					name: 'Past',
-					positive: `${stem}た`,
-					positive_furigana: furigana + `${stem}た`,
-					negative: `${stem}なかった`,
-					negative_furigana: furigana + `${stem}なかった`
-				},
-				{
-					name: 'Past Polite',
-					positive: `${stem}ました`,
-					positive_furigana: furigana + `${stem}ました`,
-					negative: `${stem}ませんでした`,
-					negative_furigana: furigana + `${stem}ませんでした`
-				},
-				{
-					name: 'Te',
-					positive: `${stem}て`,
-					positive_furigana: furigana + `${stem}て`,
-					negative: `${stem}なくて`,
-					negative_furigana: furigana + `${stem}なくて`
-				},
-				{
-					name: 'Potential',
-					positive: `${stem}られる`,
-					positive_furigana: furigana + `${stem}られる`,
-					negative: `${stem}られない`
-				},
-				{
-					name: 'Passive',
-					positive: `${stem}られる`,
-					positive_furigana: furigana + `${stem}られる`,
-					negative: `${stem}られない`
-				},
-				{
-					name: 'Causative',
-					positive: `${stem}させる`,
-					positive_furigana: furigana + `${stem}させる`,
-					negative: `${stem}させない`
-				},
-				{
-					name: 'Causative Passive',
-					positive: `${stem}させられる`,
-					positive_furigana: furigana + `${stem}させら`,
-					negative: `${stem}させられない`,
-					negative_furigana: furigana + `${stem}させられない`
-				},
-				{
-					name: 'Imperative',
-					positive: `${stem}ろ`,
-					positive_furigana: furigana + `${stem}ろ`,
-					negative: `${stem}るな`
-				},
-				{
-					name: 'Ba',
-					positive: `${stem}れば`,
-					positive_furigana: furigana + `${stem}れば`,
-					negative: `${stem}なければ`
-				}
-			];
-
-			break;
-		}
-		case 3: {
-			// Irregular: 来る (kuru)
-
-			return [
-				{
-					name: 'Present',
-					positive: 'くる',
-					positive_furigana: furigana + '来る',
-					negative: 'こない',
-					negative_furigana: furigana + '来ない'
-				},
-				{
-					name: 'Present Polite',
-					positive: 'きます',
-					positive_furigana: furigana + '来ます',
-					negative: 'きません',
-					negative_furigana: furigana + '来ません'
-				},
-
-				{
-					name: 'Past',
-					positive: 'きた',
-					positive_furigana: furigana + '来た',
-					negative: 'こなかった',
-					negative_furigana: furigana + '来なかった'
-				},
-				{
-					name: 'Past Polite',
-					positive: 'きました',
-					positive_furigana: furigana + '来ました',
-					negative: 'きませんでした',
-					negative_furigana: furigana + '来ませんでした'
-				},
-				{
-					name: 'Te',
-					positive: 'きて',
-					positive_furigana: furigana + '来て',
-					negative: 'こなくて',
-					negative_furigana: furigana + '来なくて'
-				},
-				{
-					name: 'Potential',
-					positive: 'これる',
-					positive_furigana: furigana + '来られる',
-					negative: 'これない',
-					negative_furigana: furigana + '来られない'
-				},
-				{
-					name: 'Passive',
-					positive: 'られる',
-					positive_furigana: furigana + '来られる',
-					negative: 'られない',
-					negative_furigana: furigana + '来られない'
-				},
-				{
-					name: 'Causative',
-					positive: 'させる',
-					positive_furigana: furigana + '来させる',
-					negative: 'させない',
-					negative_furigana: furigana + '来させない'
-				},
-				{
-					name: 'Causative Passive',
-					positive: 'させられる',
-					positive_furigana: furigana + '来させられる',
-					negative: 'させられない',
-					negative_furigana: furigana + '来させられない'
-				},
-				{
-					name: 'Imperative',
-					positive: '来い',
-					positive_furigana: furigana + '来い',
-					negative: '来るな',
-					negative_furigana: furigana + '来るな'
-				},
-				{
-					name: 'Ba',
-					positive: 'くれば',
-					positive_furigana: furigana + '来れば',
-					negative: 'こなければ',
-					negative_furigana: furigana + '来なければ'
-				}
-			];
-
-			break;
-		}
-		case 4: {
-			// Irregular: する (suru)
-
-			return [
-				{
-					name: 'Present',
-					positive: 'する',
-					positive_furigana: 'する',
-					negative: 'しない',
-					negative_furigana: 'しない'
-				},
-				{
-					name: 'Present Polite',
-					positive: 'します',
-					positive_furigana: 'します',
-					negative: 'しません',
-					negative_furigana: 'しません'
-				},
-
-				{
-					name: 'Past',
-					positive: 'した',
-					positive_furigana: 'した',
-					negative: 'しなかった',
-					negative_furigana: 'しなかった'
-				},
-				{
-					name: 'Past Polite',
-					positive: 'しました',
-					positive_furigana: 'しました',
-					negative: 'しませんでした',
-					negative_furigana: 'しませんでした'
-				},
-				{
-					name: 'Te',
-					positive: 'して',
-					positive_furigana: 'して',
-					negative: 'しなくて',
-					negative_furigana: 'しなくて'
-				},
-				{
-					name: 'Potential',
-					positive: 'できる',
-					positive_furigana: 'できる',
-					negative: 'できない',
-					negative_furigana: 'できない'
-				},
-				{
-					name: 'Passive',
-					positive: 'される',
-					positive_furigana: 'される',
-					negative: 'されない',
-					negative_furigana: 'されない'
-				},
-				{
-					name: 'Causative',
-					positive: 'させる',
-					positive_furigana: 'させる',
-					negative: 'させない',
-					negative_furigana: 'させない'
-				},
-				{
-					name: 'Causative Passive',
-					positive: 'させられる',
-					positive_furigana: 'させられる',
-					negative: 'させられない',
-					negative_furigana: 'させられない'
-				},
-				{
-					name: 'Imperative',
-					positive: 'しろ',
-					positive_furigana: 'しろ',
-					negative: 'するな',
-					negative_furigana: 'するな'
-				},
-				{
-					name: 'Ba',
-					positive: 'すれば',
-					positive_furigana: 'すれば',
-					negative: 'しなければ',
-					negative_furigana: 'しなければ'
-				}
-			];
-
-			break;
-		}
-	}
-}
-
-export function conjugateAdjective(adjective: string) {
-	let root: string;
-	let present: string, adverb: string, noun: string;
-	let te: string, past: string, negative: string, past_negative: string;
-
-	// Handling i-adjectives
-	if (adjective.endsWith('い') && !adjective.endsWith('ない')) {
-		root = adjective.slice(0, -1); // Remove the last character 'い'
-
-		present = adjective; // The adjective itself is the present form
-		adverb = `${root}く`; // Adverbial form by changing 'い' to 'く'
-		noun = `${root}さ`; // Noun form by changing 'い' to 'さ'
-		te = `${root}くて`; // Te-form by adding 'て' to adverbial form
-		past = `${root}かった`; // Past form by adding 'かった' to root
-		negative = `${root}くない`; // Negative form by adding 'ない' to adverbial form
-		past_negative = `${root}くなかった`; // Past negative form by adding 'なかった' to adverbial form
-	} else if (adjective.endsWith('な')) {
-		// Simplified check for na-adjectives
-		root = adjective.slice(0, -1); // Assume adjective form minus 'な' is the root
-
-		present = `${adjective}だ`; // Present form is the adjective with 'だ' for declarative mood
-		adverb = `${root}に`; // Adverbial form by changing 'な' to 'に'
-		noun = adjective; // The adjective itself can act as a noun form
-		te = `${adjective}で`; // Te-form uses the whole adjective plus 'で'
-		past = `${adjective}だった`; // Past form is the adjective with 'だった'
-		negative = `${adjective}ではない`; // Negative form adds 'ではない'
-		past_negative = `${adjective}ではなかった`; // Past negative form adds 'ではなかった'
-	} else {
-		// Default handling if not clearly i-adjective or na-adjective
-		// Assuming as na-adjective for safety
-		present = `${adjective}だ`;
-		adverb = `${adjective}に`;
-		noun = adjective;
-		te = `${adjective}で`;
-		past = `${adjective}だった`;
-		negative = `${adjective}ではない`;
-		past_negative = `${adjective}ではなかった`;
-	}
-
-	return {
-		present,
-		adverb,
-		noun,
-		te,
-		past,
-		negative,
-		past_negative
+export function getConjuctiveForm(verb: string) {
+	const group3 = {
+		します: 'する',
+		きます: 'くる'
 	};
+
+	if (group3[verb]) {
+		return group3[verb];
+	}
+
+	const stem = verb.slice(0, -2); // Remove ます
+	const lastChar = verb[verb.length - 3]; // Last char of the stem
+
+	const group1 = {
+		き: 'く',
+		ぎ: 'ぐ',
+		し: 'す',
+		ち: 'つ',
+		に: 'ぬ',
+		ひ: 'ふ',
+		み: 'む',
+		り: 'る',
+		い: 'う',
+		び: 'ぶ'
+	};
+
+	const group2 = {
+		べ: 'べる',
+		け: 'ける',
+		め: 'める',
+		れ: 'れる',
+		え: 'える',
+		ぎ: 'ぎる',
+		し: 'しる',
+		ち: 'ちる',
+		に: 'にる',
+		み: 'みる'
+	};
+
+	// Check if only 3 letter word, return the stem + る
+	if (stem.length === 1) return stem + 'る';
+
+	if (group1[lastChar]) return stem.slice(0, -1) + group1[lastChar];
+	else if (group2[lastChar]) return stem + 'る';
+
+	return verb; // Return the same if no match found
 }
 
 export function classifyWord(word: string) {
@@ -683,4 +105,301 @@ export function classifyWord(word: string) {
 	}
 
 	return 'unknown'; // Fallback case
+}
+
+function determineVerbType(verb: string) {
+	if (verb.endsWith('る')) {
+		const stem = verb.slice(0, -1);
+		const group2Endings = [
+			'え',
+			'け',
+			'せ',
+			'て',
+			'ね',
+			'へ',
+			'め',
+			'れ',
+			'げ',
+			'じ',
+			'ぢ',
+			'び',
+			'ぴ',
+			'み'
+		];
+		if (group2Endings.includes(stem.slice(-1))) {
+			return 'ichidan';
+		}
+		return 'godan';
+	}
+	if (verb === 'する' || verb === 'くる') {
+		return 'irregular';
+	}
+	return 'godan';
+}
+
+function getPassiveForm(verb: string) {
+	const verbType = determineVerbType(verb);
+
+	if (verbType === 'godan') {
+		const stem = verb.slice(0, -1);
+		const lastChar = verb.slice(-1);
+		const passiveStem =
+			stem +
+			{
+				う: 'わ',
+				く: 'か',
+				ぐ: 'が',
+				す: 'さ',
+				つ: 'た',
+				ぬ: 'な',
+				ぶ: 'ば',
+				む: 'ま',
+				る: 'ら'
+			}[lastChar];
+		return passiveStem + 'れる';
+	} else if (verbType === 'ichidan') {
+		return verb.slice(0, -1) + 'られる';
+	} else if (verbType === 'irregular' && verb === 'する') {
+		return 'される';
+	} else if (verbType === 'irregular' && verb === 'くる') {
+		return 'こられる';
+	}
+
+	return verb;
+}
+
+function getCausativeForm(verb: string, shortened = false) {
+	const verbType = determineVerbType(verb);
+
+	if (verbType === 'godan') {
+		const stem = verb.slice(0, -1);
+		const lastChar = verb.slice(-1);
+		const causativeStem =
+			stem +
+			{
+				う: 'わ',
+				く: 'か',
+				ぐ: 'が',
+				す: 'さ',
+				つ: 'た',
+				ぬ: 'な',
+				ぶ: 'ば',
+				む: 'ま',
+				る: 'ら'
+			}[lastChar];
+		return shortened ? causativeStem + 'す' : causativeStem + 'せる';
+	} else if (verbType === 'ichidan') {
+		return verb.slice(0, -1) + (shortened ? 'さす' : 'させる');
+	} else if (verbType === 'irregular' && verb === 'する') {
+		return shortened ? 'さす' : 'させる';
+	} else if (verbType === 'irregular' && verb === 'くる') {
+		return shortened ? 'こさす' : 'こさせる';
+	}
+
+	return verb;
+}
+
+export async function conjugateVerb(plain: string) {
+	const [, nai] = codec.conjugate(plain, 'Negative', true);
+
+	const [, masu] = codec.conjugate(plain, 'Conjunctive', true);
+	const [masen, masendeshita] = codec.conjugateAuxiliaries(plain, ['Masu'], 'Negative');
+
+	const [mashita] = codec.conjugateAuxiliaries(plain, ['Masu'], 'Ta', true);
+
+	const [ta] = codec.conjugate(plain, 'Ta', true);
+	const [nakatta] = codec.conjugateAuxiliaries(plain, ['Nai'], 'Ta');
+
+	const [te] = codec.conjugate(plain, 'Te', true);
+	const [nakute] = codec.conjugateAuxiliaries(plain, ['Nai'], 'Te');
+
+	const [rero] = codec.conjugateAuxiliaries(plain, ['Potential'], 'Dictionary');
+	const [, renai] = codec.conjugateAuxiliaries(plain, ['Potential'], 'Negative');
+
+	const passive = getPassiveForm(plain);
+	const [, passiveNegative] = codec.conjugate(passive, 'Negative', true);
+
+	const causative = getCausativeForm(plain);
+	const [, causativeNegative] = codec.conjugate(causative, 'Negative', true);
+
+	const [sasu] = codec.conjugateAuxiliaries(plain, ['ShortenedCausative'], 'Dictionary', true);
+	const [, sanai] = codec.conjugateAuxiliaries(plain, ['ShortenedCausative'], 'Negative', true);
+
+	const [serareru] = codec.conjugateAuxiliaries(plain, ['CausativePassive'], 'Dictionary', true);
+	const [, serarenai] = codec.conjugateAuxiliaries(plain, ['CausativePassive'], 'Negative', true);
+
+	const [sareru] = codec.conjugateAuxiliaries(
+		plain,
+		['ShortenedCausativePassive'],
+		'Dictionary',
+		true
+	);
+	const [, sarenai] = codec.conjugateAuxiliaries(
+		plain,
+		['ShortenedCausativePassive'],
+		'Negative',
+		true
+	);
+
+	const [ro] = codec.conjugate(plain, 'Imperative', true);
+	const rona = plain + 'な';
+
+	const [, reba] = codec.conjugate(plain, 'Conditional', true);
+	const [nakereba] = codec.conjugateAuxiliaries(plain, ['Nai'], 'Conditional', true);
+
+	return [
+		{
+			name: 'Present',
+			positive: plain,
+			positive_furigana: await convertToFurigana(plain),
+			negative: nai,
+			negative_furigana: await convertToFurigana(nai)
+		},
+		{
+			name: 'Present Polite',
+			positive: masu,
+			positive_furigana: await kuroshiro.convert(masu, { to: 'hiragana', mode: 'furigana' }),
+			negative: masen,
+			negative_furigana: await kuroshiro.convert(masen, {
+				to: 'hiragana',
+				mode: 'furigana'
+			})
+		},
+		{
+			name: 'Past',
+			positive: ta,
+			positive_furigana: await convertToFurigana(ta),
+			negative: nakatta,
+			negative_furigana: await convertToFurigana(nakatta)
+		},
+		{
+			name: 'Past Polite',
+			positive: mashita,
+			positive_furigana: await convertToFurigana(mashita),
+			negative: masendeshita,
+			negative_furigana: await convertToFurigana(masendeshita)
+		},
+		{
+			name: 'Te',
+			positive: te,
+			positive_furigana: await convertToFurigana(te),
+			negative: nakute,
+			negative_furigana: await convertToFurigana(nakute)
+		},
+		{
+			name: 'Potential',
+			positive: rero,
+			positive_furigana: await convertToFurigana(rero),
+			negative: renai,
+			negative_furigana: await convertToFurigana(renai)
+		},
+		{
+			name: 'Passive',
+			positive: passive,
+			positive_furigana: await convertToFurigana(passive),
+			negative: passiveNegative,
+			negative_furigana: await convertToFurigana(passiveNegative)
+		},
+		{
+			name: 'Causative',
+			positive: causative,
+			positive_furigana: await convertToFurigana(causative),
+			negative: causativeNegative,
+			negative_furigana: await convertToFurigana(causativeNegative)
+		},
+		{
+			name: 'Shortened Causative',
+			positive: sasu,
+			positive_furigana: await convertToFurigana(sasu),
+			negative: sanai,
+			negative_furigana: await convertToFurigana(sanai)
+		},
+		{
+			name: 'Causative Passive',
+			positive: serareru,
+			positive_furigana: await convertToFurigana(serareru),
+			negative: serarenai,
+			negative_furigana: await convertToFurigana(serarenai)
+		},
+		{
+			name: 'Shortened Causative Passive',
+			positive: sareru,
+			positive_furigana: await convertToFurigana(sareru),
+			negative: sarenai,
+			negative_furigana: await convertToFurigana(sarenai)
+		},
+		{
+			name: 'Imperative',
+			positive: ro,
+			positive_furigana: await convertToFurigana(ro),
+			negative: rona,
+			negative_furigana: await convertToFurigana(rona)
+		},
+		{
+			name: 'Conditional',
+			positive: reba,
+			positive_furigana: await convertToFurigana(reba),
+			negative: nakereba,
+			negative_furigana: await convertToFurigana(nakereba)
+		}
+	];
+}
+
+// TODO: Tooltips
+// 静かなではない (shizuka na de wa nai): Informal, slightly unnatural; commonly split into ではない or じゃない.
+// 静かなでない (shizuka na de nai): Informal and somewhat colloquial.
+// 静かなじゃない (shizuka na ja nai): Commonly used in casual speech.
+// 静かなではありません (shizuka na de wa arimasen): Formal, used in polite conversation and writing.
+export async function conjugateAdjective(adjective: string) {
+	const isIAdj = adjective.trim().endsWith('い');
+
+	const present = codec.adjConjugate(adjective, 'Present', isIAdj);
+	const negative = codec.adjConjugate(adjective, 'Negative', isIAdj);
+
+	const past = codec.adjConjugate(adjective, 'Past', isIAdj);
+	const negativePast = codec.adjConjugate(adjective, 'NegativePast', isIAdj);
+
+	const adverbial = codec.adjConjugate(adjective, 'Adverbial', isIAdj);
+
+	const noun = codec.adjConjugate(adjective, 'Noun', isIAdj);
+
+	const te = codec.adjConjugate(adjective, 'ConjunctiveTe', isIAdj);
+
+	return [
+		{
+			name: 'Present',
+			positive: present.join('<br>'),
+			positive_furigana: await convertToFurigana(present.join('<br>')),
+			negative: isIAdj ? negative[0] : negative.join('<br>'),
+			negative_furigana: isIAdj
+				? await convertToFurigana(negative[0])
+				: await convertToFurigana(negative.join('<br>'))
+		},
+		{
+			name: 'Past',
+			positive: isIAdj ? past[0] : past.join('<br>'),
+			positive_furigana: isIAdj
+				? await convertToFurigana(past[0])
+				: await convertToFurigana(past.join('<br>')),
+			negative: isIAdj ? negativePast[0] : negativePast.join('<br>'),
+			negative_furigana: isIAdj
+				? await convertToFurigana(negativePast[0])
+				: await convertToFurigana(negativePast.join('<br>'))
+		},
+		{
+			name: 'Adverb',
+			positive: adverbial[0],
+			negative: '-'
+		},
+		{
+			name: 'Noun',
+			positive: noun[0],
+			negative: '-'
+		},
+		{
+			name: 'Te',
+			positive: isIAdj ? te[1] : te[0],
+			negative: ''
+		}
+	];
 }

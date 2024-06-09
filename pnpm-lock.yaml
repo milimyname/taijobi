@@ -47,9 +47,15 @@ importers:
       jsdom:
         specifier: ^24.0.0
         version: 24.0.0
+      kamiya-codec:
+        specifier: ^4.11.0
+        version: 4.11.0
       kuroshiro-analyzer-kuromoji:
         specifier: ^1.1.0
         version: 1.1.0
+      linkedom:
+        specifier: ^0.18.3
+        version: 0.18.3
       lucide-svelte:
         specifier: ^0.378.0
         version: 0.378.0(svelte@4.2.16)
@@ -1108,6 +1114,9 @@ packages:
     engines: {node: '>=4'}
     hasBin: true
 
+  cssom@0.5.0:
+    resolution: {integrity: sha512-iKuQcq+NdHqlAcwUY0o/HL69XQrUaQdMjmStJ8JFmUaiiQErlhrmuigkg/CU4E2J0IyUKUrMAgl36TvN67MqTw==}
+
   cssstyle@4.0.1:
     resolution: {integrity: sha512-8ZYiJ3A/3OkDd093CBT/0UKDWry7ak4BdPTFP2+QEP7cmhouyq/Up709ASSj2cK02BbZiMgk7kYjZNS4QP5qrQ==}
     engines: {node: '>=18'}
@@ -1469,8 +1478,14 @@ packages:
   html-entities@1.4.0:
     resolution: {integrity: sha512-8nxjcBcd8wovbeKx7h3wTji4e6+rhaVuPNpMqwWgnHh+N9ToqsCs6XztWRBPQ+UtzsoMAdKZtUENoVzU/EMtZA==}
 
+  html-escaper@3.0.3:
+    resolution: {integrity: sha512-RuMffC89BOWQoY0WKGpIhn5gX3iI54O6nRA0yC124NYVtzjmFWBIiFd8M0x+ZdX0P9R4lADg1mgP8C7PxGOWuQ==}
+
   htmlparser2@8.0.2:
     resolution: {integrity: sha512-GYdjWKDkbRLkZ5geuHs5NY1puJ+PXwP7+fHPRz06Eirsb9ugf6d8kkXav6ADhcODhFFPMIXyxkxSuMf3D6NCFA==}
+
+  htmlparser2@9.1.0:
+    resolution: {integrity: sha512-5zfg6mHUoaer/97TxnGpxmbR7zJtPwIYFMZ/H5ucTlPZhKvtum05yiPK3Mgai3a0DyVxv7qYqoweaEd2nrYQzQ==}
 
   http-proxy-agent@7.0.2:
     resolution: {integrity: sha512-T1gkAiYYDWYx3V5Bmyu7HcfcvL7mUrTWiM6yOfa3PIphViJ/gFPbvidQ+veqSOHci/PxBcDabeUNCzpOODJZig==}
@@ -1594,6 +1609,9 @@ packages:
   just-clone@6.2.0:
     resolution: {integrity: sha512-1IynUYEc/HAwxhi3WDpIpxJbZpMCvvrrmZVqvj9EhpvbH8lls7HhdhiByjL7DkAaWlLIzpC0Xc/VPvy/UxLNjA==}
 
+  kamiya-codec@4.11.0:
+    resolution: {integrity: sha512-UcgUeEkBzOakim8WdEC3NLMjBy8ZhDfNLAYKHPbnSvJuLgUUm5AQMFA+TiU/rlw3ee9Z8J3ZuncqCPWBiZ3kWQ==}
+
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
@@ -1624,6 +1642,9 @@ packages:
 
   lines-and-columns@1.2.4:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
+
+  linkedom@0.18.3:
+    resolution: {integrity: sha512-z8i9nX5rbiO3keLJ+rJabVmJ/nCdYzQRONPU0L9c6buYErX5yxb0pQX+sWdX8r0QvpaZrjAtjM0scbX10xYH9Q==}
 
   locate-character@3.0.0:
     resolution: {integrity: sha512-SW13ws7BjaeJ6p7Q6CO2nchbYEc3X3J6WrmTTDto7yMPqVSZTUyY5Tjbid+Ab8gLnATtygYtiDIJGQRRn2ZOiA==}
@@ -2368,6 +2389,9 @@ packages:
     resolution: {integrity: sha512-vcI4UpRgg81oIRUFwR0WSIHKt11nJ7SAVlYNIu+QpqeyXP+gpQJy/Z4+F0aGxSE4MqwjyXvW/TzgkLAx2AGHwQ==}
     engines: {node: '>=14.17'}
     hasBin: true
+
+  uhyphen@0.2.0:
+    resolution: {integrity: sha512-qz3o9CHXmJJPGBdqzab7qAYuW8kQGKNEuoHFYrBwV6hWIMcpAmxDLXojcHfFr9US1Pe6zUswEIJIbLI610fuqA==}
 
   undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
@@ -3420,6 +3444,8 @@ snapshots:
 
   cssesc@3.0.0: {}
 
+  cssom@0.5.0: {}
+
   cssstyle@4.0.1:
     dependencies:
       rrweb-cssom: 0.6.0
@@ -3840,7 +3866,16 @@ snapshots:
 
   html-entities@1.4.0: {}
 
+  html-escaper@3.0.3: {}
+
   htmlparser2@8.0.2:
+    dependencies:
+      domelementtype: 2.3.0
+      domhandler: 5.0.3
+      domutils: 3.1.0
+      entities: 4.5.0
+
+  htmlparser2@9.1.0:
     dependencies:
       domelementtype: 2.3.0
       domhandler: 5.0.3
@@ -3988,6 +4023,8 @@ snapshots:
 
   just-clone@6.2.0: {}
 
+  kamiya-codec@4.11.0: {}
+
   keyv@4.5.4:
     dependencies:
       json-buffer: 3.0.1
@@ -4016,6 +4053,14 @@ snapshots:
   lilconfig@3.1.1: {}
 
   lines-and-columns@1.2.4: {}
+
+  linkedom@0.18.3:
+    dependencies:
+      css-select: 5.1.0
+      cssom: 0.5.0
+      html-escaper: 3.0.3
+      htmlparser2: 9.1.0
+      uhyphen: 0.2.0
 
   locate-character@3.0.0: {}
 
@@ -4693,6 +4738,8 @@ snapshots:
     optional: true
 
   typescript@5.4.5: {}
+
+  uhyphen@0.2.0: {}
 
   undici-types@5.26.5: {}
 

@@ -33,8 +33,6 @@
 			if (!res.ok) throw new Error('Failed to fetch word flashcard');
 			const data = await res.json();
 
-			console.log(data);
-
 			// Verb conjugation
 			if (Array.isArray(data)) {
 				conjugationData = [
@@ -157,41 +155,30 @@
 				<Tabs.Content value="p" class="px-5">{wordFlashcard?.notes}</Tabs.Content>
 				<Tabs.Content value="conjugation" class="px-5">
 					{#if conjugationData && !conjugationData?.error}
-						{#if conjugationData?.te}
-							<div class={cn(!conjugationData?.error && 'grid grid-cols-2 gap-1 sm:gap-2')}>
-								{#each Object.entries(conjugationData) as [key, value], i}
-									<p>{key}</p>
-									<p class="text-lg font-semibold">
-										{value}
-									</p>
-								{/each}
-							</div>
-						{:else}
-							<div class={cn(!conjugationData?.error && 'grid grid-cols-3 gap-1 sm:gap-2')}>
-								{#each conjugationData as data, i}
-									<p class="text-[10px]">{data?.name}</p>
+						<div class={cn(!conjugationData?.error && 'grid grid-cols-3 gap-1 sm:gap-2')}>
+							{#each conjugationData as data, i}
+								<p class="text-[10px]">{data?.name}</p>
 
-									{#if data?.positive_furigana}
-										<p class={cn('text-[10px]', i !== 0 && 'text-sm font-semibold')}>
-											{@html data?.positive_furigana}
-										</p>
-									{:else}
-										<p class={cn('text-[10px]', i !== 0 && 'text-sm font-semibold')}>
-											{data?.positive}
-										</p>
-									{/if}
-									{#if data?.negative_furigana}
-										<p class={cn('text-[10px]', i !== 0 && 'text-sm font-semibold')}>
-											{@html data?.negative_furigana}
-										</p>
-									{:else}
-										<p class={cn('text-[10px]', i !== 0 && 'text-sm font-semibold')}>
-											{data?.negative}
-										</p>
-									{/if}
-								{/each}
-							</div>
-						{/if}
+								{#if data?.positive_furigana}
+									<p class={cn('text-[10px]', i !== 0 && 'text-sm font-semibold')}>
+										{@html data?.positive_furigana}
+									</p>
+								{:else}
+									<p class={cn('text-[10px]', i !== 0 && 'text-sm font-semibold')}>
+										{data?.positive}
+									</p>
+								{/if}
+								{#if data?.negative_furigana}
+									<p class={cn('text-[10px]', i !== 0 && 'text-sm font-semibold')}>
+										{@html data?.negative_furigana}
+									</p>
+								{:else}
+									<p class={cn('text-[10px]', i !== 0 && 'text-sm font-semibold')}>
+										{data?.negative}
+									</p>
+								{/if}
+							{/each}
+						</div>
 					{:else}
 						<p>Loading...</p>
 					{/if}
