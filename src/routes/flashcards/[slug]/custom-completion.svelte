@@ -136,11 +136,14 @@
 	onClose={onOutsideClickDrawer}
 >
 	<DrawerDialog.Content
-		class={cn('fixed bottom-0 left-0 right-0 h-fit max-h-[96%]', $isDesktop && 'left-1/2  h-1/2')}
+		class={cn(
+			'fixed bottom-0 left-0 right-0 max-h-[96%] w-full',
+			$isDesktop && 'left-1/2  h-2/3 max-w-2xl'
+		)}
 	>
 		<div class="-mt-2 flex w-full flex-col overflow-y-auto">
 			<Tabs.Root value={activeTab} onValueChange={(v) => (activeTab = v)}>
-				<Tabs.List class="sticky mx-auto flex w-fit">
+				<Tabs.List class="sticky top-0 mx-auto flex w-fit">
 					<Tabs.Trigger value="note" disabled={!wordFlashcard?.notes}>
 						<Scroll class="size-5" />
 					</Tabs.Trigger>
@@ -152,28 +155,47 @@
 					</Tabs.Trigger>
 				</Tabs.List>
 				<Tabs.Content value="note" class="px-5">{wordFlashcard?.notes}</Tabs.Content>
-				<Tabs.Content value="p" class="px-5">{wordFlashcard?.notes}</Tabs.Content>
 				<Tabs.Content value="conjugation" class="px-5">
 					{#if conjugationData && !conjugationData?.error}
 						<div class={cn(!conjugationData?.error && 'grid grid-cols-3 gap-1 sm:gap-2')}>
 							{#each conjugationData as data, i}
-								<p class="text-[10px]">{data?.name}</p>
+								<p class="lg:text-md text-[10px]">{data?.name}</p>
 
 								{#if data?.positive_furigana}
-									<p class={cn('text-[10px]', i !== 0 && 'text-sm font-semibold')}>
+									<p
+										class={cn(
+											'lg:text-md text-[10px]',
+											i !== 0 && 'text-sm font-semibold lg:text-lg'
+										)}
+									>
 										{@html data?.positive_furigana}
 									</p>
 								{:else}
-									<p class={cn('text-[10px]', i !== 0 && 'text-sm font-semibold')}>
+									<p
+										class={cn(
+											'lg:text-md text-[10px]',
+											i !== 0 && 'text-sm font-semibold lg:text-lg'
+										)}
+									>
 										{data?.positive}
 									</p>
 								{/if}
 								{#if data?.negative_furigana}
-									<p class={cn('text-[10px]', i !== 0 && 'text-sm font-semibold')}>
+									<p
+										class={cn(
+											'lg:text-md text-[10px]',
+											i !== 0 && 'text-sm font-semibold lg:text-lg'
+										)}
+									>
 										{@html data?.negative_furigana}
 									</p>
 								{:else}
-									<p class={cn('text-[10px]', i !== 0 && 'text-sm font-semibold')}>
+									<p
+										class={cn(
+											'lg:text-md text-[10px]',
+											i !== 0 && 'text-sm font-semibold lg:text-lg'
+										)}
+									>
 										{data?.negative}
 									</p>
 								{/if}
@@ -188,7 +210,7 @@
 						{#each examples as { furigana, kanji, english }}
 							<div class="grid grid-cols-[1fr_20px] items-start gap-2">
 								<div class="space-y-2">
-									<p class="text-lg">{@html furigana}</p>
+									<p class="text-lg lg:text-2xl">{@html furigana}</p>
 									<p class="text-sm">{english}</p>
 								</div>
 

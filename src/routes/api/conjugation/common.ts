@@ -8,7 +8,7 @@ async function convertToFurigana(word: string) {
 export function getConjuctiveForm(verb: string) {
 	const group3 = {
 		します: 'する',
-		きます: 'くる'
+		きます: 'くる',
 	};
 
 	if (group3[verb]) {
@@ -28,7 +28,7 @@ export function getConjuctiveForm(verb: string) {
 		み: 'む',
 		り: 'る',
 		い: 'う',
-		び: 'ぶ'
+		び: 'ぶ',
 	};
 
 	const group2 = {
@@ -41,7 +41,7 @@ export function getConjuctiveForm(verb: string) {
 		し: 'しる',
 		ち: 'ちる',
 		に: 'にる',
-		み: 'みる'
+		み: 'みる',
 	};
 
 	// Check if only 3 letter word, return the stem + る
@@ -72,7 +72,7 @@ export function classifyWord(word: string) {
 		'ねる',
 		'べる',
 		'める',
-		'るる'
+		'るる',
 	];
 
 	// Check for adjectives
@@ -124,7 +124,7 @@ function determineVerbType(verb: string) {
 			'ぢ',
 			'び',
 			'ぴ',
-			'み'
+			'み',
 		];
 		if (group2Endings.includes(stem.slice(-1))) {
 			return 'ichidan';
@@ -154,7 +154,7 @@ function getPassiveForm(verb: string) {
 				ぬ: 'な',
 				ぶ: 'ば',
 				む: 'ま',
-				る: 'ら'
+				る: 'ら',
 			}[lastChar];
 		return passiveStem + 'れる';
 	} else if (verbType === 'ichidan') {
@@ -185,7 +185,7 @@ function getCausativeForm(verb: string, shortened = false) {
 				ぬ: 'な',
 				ぶ: 'ば',
 				む: 'ま',
-				る: 'ら'
+				る: 'ら',
 			}[lastChar];
 		return shortened ? causativeStem + 'す' : causativeStem + 'せる';
 	} else if (verbType === 'ichidan') {
@@ -232,13 +232,13 @@ export async function conjugateVerb(plain: string) {
 		plain,
 		['ShortenedCausativePassive'],
 		'Dictionary',
-		true
+		true,
 	);
 	const [, sarenai] = codec.conjugateAuxiliaries(
 		plain,
 		['ShortenedCausativePassive'],
 		'Negative',
-		true
+		true,
 	);
 
 	const [ro] = codec.conjugate(plain, 'Imperative', true);
@@ -247,101 +247,107 @@ export async function conjugateVerb(plain: string) {
 	const [, reba] = codec.conjugate(plain, 'Conditional', true);
 	const [nakereba] = codec.conjugateAuxiliaries(plain, ['Nai'], 'Conditional', true);
 
+	// Convert the base verb only once
+	const baseVerbFurigana = await convertToFurigana(plain);
+
+	const firstEnding = baseVerbFurigana.split('</ruby>')[0];
+
+	async function getLastEnding(verb: string) {
+		return (await convertToFurigana(verb)).split('</ruby>')[1];
+	}
+
 	return [
 		{
 			name: 'Present',
 			positive: plain,
-			positive_furigana: await convertToFurigana(plain),
+			positive_furigana: baseVerbFurigana,
 			negative: nai,
-			negative_furigana: await convertToFurigana(nai)
+			negative_furigana: firstEnding + (await getLastEnding(nai)),
 		},
 		{
 			name: 'Present Polite',
 			positive: masu,
-			positive_furigana: await kuroshiro.convert(masu, { to: 'hiragana', mode: 'furigana' }),
+			positive_furigana: firstEnding + (await getLastEnding(masu)),
 			negative: masen,
-			negative_furigana: await kuroshiro.convert(masen, {
-				to: 'hiragana',
-				mode: 'furigana'
-			})
+			negative_furigana: firstEnding + (await getLastEnding(masen)),
 		},
 		{
 			name: 'Past',
 			positive: ta,
-			positive_furigana: await convertToFurigana(ta),
+			positive_furigana: firstEnding + (await getLastEnding(ta)),
 			negative: nakatta,
-			negative_furigana: await convertToFurigana(nakatta)
+			negative_furigana: firstEnding + (await getLastEnding(nakatta)),
 		},
 		{
 			name: 'Past Polite',
 			positive: mashita,
-			positive_furigana: await convertToFurigana(mashita),
+			positive_furigana: firstEnding + (await getLastEnding(mashita)),
 			negative: masendeshita,
-			negative_furigana: await convertToFurigana(masendeshita)
+			negative_furigana: firstEnding + (await getLastEnding(masendeshita)),
 		},
 		{
 			name: 'Te',
 			positive: te,
-			positive_furigana: await convertToFurigana(te),
+			positive_furigana: firstEnding + (await getLastEnding(te)),
 			negative: nakute,
-			negative_furigana: await convertToFurigana(nakute)
+			negative_furigana: firstEnding + (await getLastEnding(nakute)),
 		},
 		{
 			name: 'Potential',
 			positive: rero,
-			positive_furigana: await convertToFurigana(rero),
+			positive_furigana: firstEnding + (await getLastEnding(rero)),
 			negative: renai,
-			negative_furigana: await convertToFurigana(renai)
+			negative_furigana: firstEnding + (await getLastEnding(renai)),
 		},
 		{
 			name: 'Passive',
 			positive: passive,
-			positive_furigana: await convertToFurigana(passive),
+			positive_furigana: firstEnding + (await getLastEnding(passive)),
 			negative: passiveNegative,
-			negative_furigana: await convertToFurigana(passiveNegative)
+			negative_furigana: firstEnding + (await getLastEnding(passiveNegative)),
 		},
 		{
 			name: 'Causative',
 			positive: causative,
-			positive_furigana: await convertToFurigana(causative),
+			positive_furigana: firstEnding + (await getLastEnding(causative)),
 			negative: causativeNegative,
-			negative_furigana: await convertToFurigana(causativeNegative)
+			negative_furigana: firstEnding + (await getLastEnding(causativeNegative)),
 		},
 		{
 			name: 'Shortened Causative',
 			positive: sasu,
-			positive_furigana: await convertToFurigana(sasu),
+			positive_furigana: firstEnding + (await getLastEnding(sasu)),
 			negative: sanai,
-			negative_furigana: await convertToFurigana(sanai)
+			negative_furigana: firstEnding + (await getLastEnding(sanai)),
 		},
 		{
 			name: 'Causative Passive',
 			positive: serareru,
-			positive_furigana: await convertToFurigana(serareru),
+			positive_furigana: firstEnding + (await getLastEnding(serareru)),
 			negative: serarenai,
-			negative_furigana: await convertToFurigana(serarenai)
+			negative_furigana: firstEnding + (await getLastEnding(serarenai)),
 		},
 		{
 			name: 'Shortened Causative Passive',
 			positive: sareru,
-			positive_furigana: await convertToFurigana(sareru),
+			positive_furigana: firstEnding + (await getLastEnding(sareru)),
 			negative: sarenai,
-			negative_furigana: await convertToFurigana(sarenai)
+			negative_furigana: firstEnding + (await getLastEnding(sarenai)),
 		},
 		{
 			name: 'Imperative',
 			positive: ro,
-			positive_furigana: await convertToFurigana(ro),
+			positive_furigana: firstEnding + (await getLastEnding(ro)),
 			negative: rona,
-			negative_furigana: await convertToFurigana(rona)
+			negative_furigana: firstEnding + (await getLastEnding(rona)),
 		},
 		{
 			name: 'Conditional',
 			positive: reba,
-			positive_furigana: await convertToFurigana(reba),
+			positive_furigana: firstEnding + (await getLastEnding(reba)),
 			negative: nakereba,
-			negative_furigana: await convertToFurigana(nakereba)
-		}
+			negative_furigana: firstEnding + (await getLastEnding(nakereba)),
+		},
 	];
 }
 
@@ -373,7 +379,7 @@ export async function conjugateAdjective(adjective: string) {
 			negative: isIAdj ? negative[0] : negative.join('<br>'),
 			negative_furigana: isIAdj
 				? await convertToFurigana(negative[0])
-				: await convertToFurigana(negative.join('<br>'))
+				: await convertToFurigana(negative.join('<br>')),
 		},
 		{
 			name: 'Past',
@@ -384,22 +390,22 @@ export async function conjugateAdjective(adjective: string) {
 			negative: isIAdj ? negativePast[0] : negativePast.join('<br>'),
 			negative_furigana: isIAdj
 				? await convertToFurigana(negativePast[0])
-				: await convertToFurigana(negativePast.join('<br>'))
+				: await convertToFurigana(negativePast.join('<br>')),
 		},
 		{
 			name: 'Adverb',
 			positive: adverbial[0],
-			negative: '-'
+			negative: '-',
 		},
 		{
 			name: 'Noun',
 			positive: noun[0],
-			negative: '-'
+			negative: '-',
 		},
 		{
 			name: 'Te',
 			positive: isIAdj ? te[1] : te[0],
-			negative: ''
-		}
+			negative: '',
+		},
 	];
 }

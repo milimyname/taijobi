@@ -20,7 +20,6 @@
 	import { browser } from '$app/environment';
 	import { replaceStateWithQuery } from '$lib/utils';
 	import CustomCompletion from './custom-completion.svelte';
-	import { clickOutside } from '$lib/utils/clickOutside';
 	import { page } from '$app/stores';
 
 	export let wordFlashcard: FlashcardType | undefined;

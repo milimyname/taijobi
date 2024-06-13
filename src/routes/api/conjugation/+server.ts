@@ -1,5 +1,5 @@
-import { json } from '@sveltejs/kit';
 import { classifyWord, conjugateVerb, getConjuctiveForm, conjugateAdjective } from './common';
+import { json } from '@sveltejs/kit';
 
 export async function POST({ request }) {
 	const { word } = await request.json();

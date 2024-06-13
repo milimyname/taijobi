@@ -11,6 +11,14 @@
 			Quizzes
 		</a>
 	</div>
+	<div class="flex flex-col gap-2">
+		<a
+			href="/games/conjugate"
+			class="w-full rounded-lg border-2 border-black bg-alphabetGreen p-4 text-center text-xl sm:p-10 sm:text-4xl"
+		>
+			Conjugate
+		</a>
+	</div>
 </section>
 
 <section
@@ -23,7 +31,7 @@
 			href="/find"
 			class="w-full rounded-lg border-2 border-black bg-alphabetGreen p-4 text-center text-xl sm:p-10 sm:text-4xl"
 		>
-			Find it
+			Find
 		</a>
 	</div>
 </section>
