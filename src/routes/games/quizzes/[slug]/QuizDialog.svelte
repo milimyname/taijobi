@@ -1,56 +1,54 @@
 <script lang="ts">
-	import * as Dialog from '$lib/components/ui/dialog';
-	import * as Drawer from '$lib/components/ui/drawer';
+	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { isDesktop } from '$lib/utils';
+	import * as DrawerDialog from '$lib/components/ui/drawerDialog';
+	import type { ProgressDataItem } from '$lib/utils/ambient';
 
 	export let isWon: boolean;
 	export let correctAnswers: number;
 	export let total: number;
 	export let startOver: () => void;
+	export let progressData: ProgressDataItem[];
+
+	function onCloseDrawer() {
+		setTimeout(() => {
+			open = false;
+		}, 100);
+	}
 
 	$: open = isWon;
 </script>
 
-{#if $isDesktop}
-	<Dialog.Root bind:open>
-		<Dialog.Content class="z-[100] sm:max-w-[425px]">
-			<Dialog.Header>
-				<Dialog.Title>Quiz Result</Dialog.Title>
-				<Dialog.Description>
-					{#if correctAnswers === total}
-						You got all {total} questions correct!
+<DrawerDialog.Root {open} onOutsideClick={onCloseDrawer} onClose={onCloseDrawer}>
+	<DrawerDialog.Content className="px-5 space-y-5">
+		<DrawerDialog.Header class="text-left p-0">
+			<DrawerDialog.Title>Quiz Result</DrawerDialog.Title>
+			<DrawerDialog.Description>
+				{#if correctAnswers === total}
+					You got all {total} questions correct!
+				{:else}
+					You got {correctAnswers} out of {total} questions correct.
+				{/if}
+			</DrawerDialog.Description>
+		</DrawerDialog.Header>
+		{#if progressData.length > 0}
+			<div class="grid grid-cols-2 gap-2">
+				{#each progressData as item}
+					<span>{item.name}</span>
+					{#if item.score === 1}
+						<Badge variant="outline" class="w-fit justify-self-end">Correct</Badge>
 					{:else}
-						You got {correctAnswers} out of {total} questions correct.
+						<Badge variant="destructive" class="w-fit justify-self-end">Incorrect</Badge>
 					{/if}
-				</Dialog.Description>
-			</Dialog.Header>
+				{/each}
+			</div>
+		{/if}
+		<Button on:click={startOver} class="max-sm:hidden">Start Over</Button>
+		<DrawerDialog.Footer className="md:hidden px-0">
 			<Button on:click={startOver}>Start Over</Button>
-		</Dialog.Content>
-	</Dialog.Root>
-{:else}
-	<Drawer.Root {open}>
-		<Drawer.Portal>
-			<Drawer.Content class="h-fit">
-				<Drawer.Header class="text-left">
-					<Drawer.Title class="w-full">Quiz Results</Drawer.Title>
-					<Drawer.Description>
-						{#if correctAnswers === total}
-							You got all {total} questions correct!
-						{:else}
-							You got {correctAnswers} out of {total} questions correct.
-						{/if}
-					</Drawer.Description>
-				</Drawer.Header>
-
-				<Drawer.Footer class="h-fit">
-					<Button on:click={startOver}>Start Over</Button>
-
-					<Drawer.Close asChild let:builder>
-						<Button builders={[builder]} variant="outline">Cancel</Button>
-					</Drawer.Close>
-				</Drawer.Footer>
-			</Drawer.Content>
-		</Drawer.Portal>
-	</Drawer.Root>
-{/if}
+			<DrawerDialog.Close asChild let:builder>
+				<Button builders={[builder]} variant="outline">Cancel</Button>
+			</DrawerDialog.Close>
+		</DrawerDialog.Footer>
+	</DrawerDialog.Content>
+</DrawerDialog.Root>

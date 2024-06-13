@@ -28,7 +28,7 @@
 		replaceStateWithQuery({
 			game: 'quiz',
 			alphabet: $page.params.slug,
-			letter: currentFlashcard.name
+			letter: currentFlashcard.name,
 		});
 
 	const generateShuffledOptions = (options: FlashcardType[]): string[] => {
@@ -41,7 +41,7 @@
 			name: 'name',
 			meaning: 'meaning',
 			onyomi: 'onyomi',
-			kunyomi: 'kunyomi'
+			kunyomi: 'kunyomi',
 		};
 
 		const selectedProperty = typeToPropertyMap[data.quiz.type];
@@ -58,14 +58,14 @@
 			case '2':
 				return [
 					getPropertyValue(currentFlashcard, selectedProperty),
-					getPropertyValue(otherOptions[0], selectedProperty)
+					getPropertyValue(otherOptions[0], selectedProperty),
 				];
 			case '4':
 				return [
 					getPropertyValue(currentFlashcard, selectedProperty),
 					getPropertyValue(otherOptions[0], selectedProperty),
 					getPropertyValue(otherOptions[1], selectedProperty),
-					getPropertyValue(otherOptions[2], selectedProperty)
+					getPropertyValue(otherOptions[2], selectedProperty),
 				];
 			default:
 				return [];
@@ -112,8 +112,8 @@
 					meaning: currentFlashcard.meaning,
 					kunyomi: currentFlashcard.kunyomi || '',
 					onyomi: currentFlashcard.onyomi || '',
-					score: 1
-				}
+					score: 1,
+				},
 			];
 			correctAnswers++;
 		} else {
@@ -125,8 +125,8 @@
 					meaning: currentFlashcard.meaning,
 					kunyomi: currentFlashcard.kunyomi || '',
 					onyomi: currentFlashcard.onyomi || '',
-					score: 0
-				}
+					score: 0,
+				},
 			];
 		}
 
@@ -141,12 +141,12 @@
 						progressData,
 						correctAnswers,
 						total: data.flashcards.length,
-						completed: true
+						completed: true,
 					});
 
 					// Update the quiz's score
 					await pocketbase.collection('quizzes').update($page.params.slug, {
-						score: data.quiz.score + 1
+						score: data.quiz.score + 1,
 					});
 				} catch (error) {
 					console.log(error);
@@ -156,21 +156,21 @@
 			// Reset the quiz
 			isWon = true;
 
-			setTimeout(() => {
-				currentQuestion = 0;
-				progressData = [
-					{
-						name: currentFlashcard.name,
-						meaning: currentFlashcard.meaning,
-						kunyomi: currentFlashcard.kunyomi || '',
-						onyomi: currentFlashcard.onyomi || '',
-						score: 0
-					}
-				];
-			}, 200);
-			// Clear local storage
-			localStorage.removeItem(`quizProgress_${data.quiz.id}`);
-			localStorage.removeItem(`flashcards_${data.quiz.id}`);
+			// setTimeout(() => {
+			// 	currentQuestion = 0;
+			// 	progressData = [
+			// 		{
+			// 			name: currentFlashcard.name,
+			// 			meaning: currentFlashcard.meaning,
+			// 			kunyomi: currentFlashcard.kunyomi || '',
+			// 			onyomi: currentFlashcard.onyomi || '',
+			// 			score: 0,
+			// 		},
+			// 	];
+			// }, 200);
+			// // Clear local storage
+			// localStorage.removeItem(`quizProgress_${data.quiz.id}`);
+			// localStorage.removeItem(`flashcards_${data.quiz.id}`);
 
 			setTimeout(() => {
 				localStorage.removeItem(`currentQuestion_${data.quiz.id}`);
@@ -192,7 +192,7 @@
 				'bg-error',
 				'text-white',
 				'!bg-[#D80032]',
-				'!bg-[#47A992]'
+				'!bg-[#47A992]',
 			);
 			// button.classList.add('bg-white', 'text-black');
 
@@ -272,7 +272,7 @@
 
 {#if isWon}
 	<div
-		class="pointer-events-none fixed -top-1/2 left-0 flex h-screen w-screen justify-center overflow-hidden"
+		class="pointer-events-none fixed -top-1/2 left-0 flex z-[100] h-screen w-screen justify-center overflow-hidden"
 	>
 		<Confetti
 			x={[-5, 5]}
@@ -284,7 +284,7 @@
 			fallDistance="100vh"
 		/>
 	</div>
-	<QuizDialog {isWon} {startOver} {correctAnswers} total={data.flashcards.length} />
+	<QuizDialog {isWon} {startOver} {correctAnswers} {progressData} total={data.flashcards.length} />
 {/if}
 
 {#if currentFlashcard}
