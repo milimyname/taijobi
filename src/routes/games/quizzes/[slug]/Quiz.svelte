@@ -6,7 +6,7 @@
 		innerWidthStore,
 		innerHeightStore,
 		searchKanji,
-		searchedWordStore
+		searchedWordStore,
 	} from '$lib/utils/stores';
 	import { ChevronRight } from 'lucide-svelte';
 	import { tweened } from 'svelte/motion';
@@ -37,7 +37,11 @@
 		}
 	}
 
+	$: clicked = false;
+
 	$: $tweenedRatio = ratio;
+
+	$: console.log({ timeLeft, duration });
 </script>
 
 <section class="flex h-full flex-col items-center justify-center gap-4 sm:gap-5">
@@ -85,13 +89,21 @@
 		style={`width: ${getFlashcardWidth($innerWidthStore)}px;`}
 		class={cn(
 			'grid grid-cols-2 justify-center gap-2 text-sm sm:gap-5 sm:text-lg',
-			type === 'name' && 'text-xl sm:text-4xl'
+			type === 'name' && 'text-xl sm:text-4xl',
 		)}
 	>
 		{#each shuffledOptions as option}
 			<button
+				disabled={clicked}
 				class="quiz-btn w-full justify-self-center rounded-xl border-2 border-black bg-white p-2 disabled:cursor-not-allowed sm:p-4"
-				on:click|preventDefault={(e) => selectAnswer(e, option)}
+				on:click|preventDefault={(e) => {
+					clicked = true;
+					selectAnswer(e, option);
+
+					setTimeout(() => {
+						clicked = false;
+					}, 1000);
+				}}
 			>
 				{option}
 			</button>

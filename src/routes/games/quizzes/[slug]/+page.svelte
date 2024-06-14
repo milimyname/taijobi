@@ -156,22 +156,6 @@
 			// Reset the quiz
 			isWon = true;
 
-			// setTimeout(() => {
-			// 	currentQuestion = 0;
-			// 	progressData = [
-			// 		{
-			// 			name: currentFlashcard.name,
-			// 			meaning: currentFlashcard.meaning,
-			// 			kunyomi: currentFlashcard.kunyomi || '',
-			// 			onyomi: currentFlashcard.onyomi || '',
-			// 			score: 0,
-			// 		},
-			// 	];
-			// }, 200);
-			// // Clear local storage
-			// localStorage.removeItem(`quizProgress_${data.quiz.id}`);
-			// localStorage.removeItem(`flashcards_${data.quiz.id}`);
-
 			setTimeout(() => {
 				localStorage.removeItem(`currentQuestion_${data.quiz.id}`);
 			}, 260);
@@ -194,7 +178,6 @@
 				'!bg-[#D80032]',
 				'!bg-[#47A992]',
 			);
-			// button.classList.add('bg-white', 'text-black');
 
 			// Enable the buttons
 			button.disabled = false;

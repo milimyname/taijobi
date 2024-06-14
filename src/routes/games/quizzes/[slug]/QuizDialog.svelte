@@ -36,9 +36,9 @@
 				{#each progressData as item}
 					<span>{item.name}</span>
 					{#if item.score === 1}
-						<Badge variant="outline" class="w-fit justify-self-end">Correct</Badge>
+						<Badge variant="outline" class="size-fit my-auto justify-self-end">Correct</Badge>
 					{:else}
-						<Badge variant="destructive" class="w-fit justify-self-end">Incorrect</Badge>
+						<Badge variant="destructive" class="size-fit my-auto justify-self-end">Incorrect</Badge>
 					{/if}
 				{/each}
 			</div>
