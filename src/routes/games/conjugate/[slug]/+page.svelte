@@ -1,8 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { shuffleArray } from '$lib/utils/actions';
-	import Quiz from './Quiz.svelte';
+	import Quiz from './conjugation-input.svelte';
 	import { page } from '$app/stores';
+	import Confetti from 'svelte-confetti';
+	import type { ProgressDataItem } from '$lib/utils/ambient.d.ts';
+	import QuizDrawerDialog from '$lib/components/drawer-dialogs/quiz-drawer-dialog.svelte';
 
 	export let data;
 
@@ -27,6 +30,9 @@
 	let question: VerbConjugationResult;
 	let isCorrect: boolean | null;
 	let isNewQuestion = false;
+	let isWon = false;
+	let correctAnswers = 0;
+	let progressData: ProgressDataItem[] = [];
 
 	// Set randomaly if the question is negative or positive
 	let isNegative = Math.random() < 0.5;
@@ -69,15 +75,68 @@
 		currentVerbIndex++;
 		isNegative = Math.random() < 0.5;
 
+		if (currentVerbIndex >= conjugationsList.length) {
+			isWon = true;
+			return;
+		}
+
 		setupNewQuestion();
 	}
 
 	function checkAnswer(answerType: string) {
 		isCorrect = isNegative ? question.negative === answerType : question.positive === answerType;
 
-		console.log(isCorrect, question);
+		if (isCorrect) {
+			correctAnswers++;
+			progressData = [
+				...progressData,
+				{
+					name: isNegative ? question.negative : question.positive + ' (' + question.name + ')',
+					score: 1,
+				},
+			];
+		} else {
+			progressData = [
+				...progressData,
+				{
+					name: isNegative ? question.negative : question.positive + ' (' + question.name + ')',
+					score: 0,
+				},
+			];
+		}
+	}
+
+	function startOver() {
+		currentQuestionIndex = 0;
+		currentVerbIndex = 0;
+		correctAnswers = 0;
+		progressData = [];
+		isWon = false;
 	}
 </script>
+
+{#if isWon}
+	<div
+		class="pointer-events-none fixed -top-1/2 left-0 flex z-[100] h-screen w-screen justify-center overflow-hidden"
+	>
+		<Confetti
+			x={[-5, 5]}
+			y={[0, 0.1]}
+			delay={[0, 100]}
+			infinite
+			duration={1000}
+			amount={1000}
+			fallDistance="100vh"
+		/>
+	</div>
+	<QuizDrawerDialog
+		{isWon}
+		{startOver}
+		{correctAnswers}
+		{progressData}
+		total={conjugationsList.length}
+	/>
+{/if}
 
 <Quiz
 	{question}
@@ -87,4 +146,5 @@
 	{isNegative}
 	{isNewQuestion}
 	{nextQuestion}
+	{isWon}
 />

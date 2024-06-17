@@ -14,6 +14,7 @@
 	export let isNewQuestion: boolean;
 	export let isNegative: boolean;
 	export let nextQuestion: () => void;
+	export let isWon: boolean;
 
 	let inputValue = '';
 	let isSubmitted = false;
@@ -39,6 +40,12 @@
 		isNewQuestion = false;
 		inputValue = '';
 		isCorrect = null;
+
+		// Focus on the input field
+		setTimeout(() => {
+			const input = document.querySelector('.conjugation-input') as HTMLInputElement;
+			if (input) input.focus();
+		}, 100);
 	}
 
 	$: $tweenedRatio = ratio;
@@ -83,12 +90,15 @@
 			type="text"
 			placeholder="Enter your answer"
 			bind:value={inputValue}
+			class="conjugation-input"
 			disabled={isSubmitted || isNewQuestion}
 			on:keydown={(e) => e.key === 'Enter' && onSubmit()}
 		/>
 
 		{#if isNewQuestion}
-			<Button size="sm" class="absolute h-full right-0" on:click={reset}>New Question</Button>
+			<Button disabled={isWon} size="sm" class="absolute h-full right-0" on:click={reset}>
+				New Question
+			</Button>
 		{:else}
 			<Button
 				disabled={!inputValue || isSubmitted}

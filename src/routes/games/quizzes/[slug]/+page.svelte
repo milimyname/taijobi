@@ -8,7 +8,7 @@
 	import { browser } from '$app/environment';
 	import { replaceStateWithQuery } from '$lib/utils';
 	import { Confetti } from 'svelte-confetti';
-	import QuizDialog from './QuizDialog.svelte';
+	import QuizDrawerDialog from '$lib/components/drawer-dialogs/quiz-drawer-dialog.svelte';
 
 	export let data;
 
@@ -267,7 +267,13 @@
 			fallDistance="100vh"
 		/>
 	</div>
-	<QuizDialog {isWon} {startOver} {correctAnswers} {progressData} total={data.flashcards.length} />
+	<QuizDrawerDialog
+		{isWon}
+		{startOver}
+		{correctAnswers}
+		{progressData}
+		total={data.flashcards.length}
+	/>
 {/if}
 
 {#if currentFlashcard}

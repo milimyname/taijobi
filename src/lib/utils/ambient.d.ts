@@ -40,9 +40,9 @@ export type FlashcardType = {
 export type ProgressDataItem = {
 	name: string;
 	score: number;
-	meaning: string;
-	onyomi: string;
-	kunyomi: string;
+	meaning?: string;
+	onyomi?: string;
+	kunyomi?: string;
 };
 
 export type KanjiInfo = {
