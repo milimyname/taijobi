@@ -1,5 +1,6 @@
 import { kuroshiro } from '$lib/server/kuroshiro';
 import codec from 'kamiya-codec';
+import { isHiragana } from 'wanakana';
 
 async function convertToFurigana(word: string) {
 	return await kuroshiro.convert(word, { to: 'hiragana', mode: 'furigana' });
@@ -15,8 +16,10 @@ export function getConjuctiveForm(verb: string) {
 		return group3[verb];
 	}
 
-	const stem = verb.slice(0, -2); // Remove ます
-	const lastChar = verb[verb.length - 3]; // Last char of the stem
+	// Removing 'ます' to get the stem
+	const stem = verb.slice(0, -2);
+	// Getting the last character before 'ます'
+	const lastChar = verb[verb.length - 3];
 
 	const group1 = {
 		き: 'く',
@@ -31,26 +34,25 @@ export function getConjuctiveForm(verb: string) {
 		び: 'ぶ',
 	};
 
-	const group2 = {
+	// Check if it is an ichidan verb (e.g., めます -> める)
+	const ichidanVerbs = {
 		べ: 'べる',
 		け: 'ける',
-		め: 'める',
+		め: 'めer',
 		れ: 'れる',
 		え: 'える',
-		ぎ: 'ぎる',
-		し: 'しる',
-		ち: 'ちる',
-		に: 'にる',
-		み: 'みる',
 	};
 
-	// Check if only 3 letter word, return the stem + る
-	if (stem.length === 1) return stem + 'る';
+	if (ichidanVerbs[lastChar]) {
+		return stem + ichidanVerbs[lastChar].slice(1);
+	}
 
-	if (group1[lastChar]) return stem.slice(0, -1) + group1[lastChar];
-	else if (group2[lastChar]) return stem + 'る';
+	// For group 1 verbs
+	if (group1[lastChar]) {
+		return stem.slice(0, -1) + group1[lastChar];
+	}
 
-	return verb; // Return the same if no match found
+	return verb; // Fallback: return the input verb if no pattern matches
 }
 
 export function classifyWord(word: string) {
@@ -262,91 +264,134 @@ export async function conjugateVerb(plain: string) {
 			positive: plain,
 			positive_furigana: baseVerbFurigana,
 			negative: nai,
-			negative_furigana: firstEnding + (await getLastEnding(nai)),
+			// negative_furigana: firstEnding + (await getLastEnding(nai)),
+			negative_furigana: !isHiragana(firstEnding) ? firstEnding + (await getLastEnding(nai)) : nai,
 		},
 		{
 			name: 'Present Polite',
 			positive: masu,
-			positive_furigana: firstEnding + (await getLastEnding(masu)),
+			positive_furigana: !isHiragana(firstEnding)
+				? firstEnding + (await getLastEnding(masu))
+				: masu,
 			negative: masen,
-			negative_furigana: firstEnding + (await getLastEnding(masen)),
+			negative_furigana: !isHiragana(firstEnding)
+				? firstEnding + (await getLastEnding(masen))
+				: masen,
 		},
 		{
 			name: 'Past',
 			positive: ta,
-			positive_furigana: firstEnding + (await getLastEnding(ta)),
+			positive_furigana: !isHiragana(firstEnding) ? firstEnding + (await getLastEnding(ta)) : ta,
 			negative: nakatta,
-			negative_furigana: firstEnding + (await getLastEnding(nakatta)),
+			negative_furigana: !isHiragana(firstEnding)
+				? firstEnding + (await getLastEnding(nakatta))
+				: nakatta,
 		},
 		{
 			name: 'Past Polite',
 			positive: mashita,
-			positive_furigana: firstEnding + (await getLastEnding(mashita)),
+			positive_furigana: !isHiragana(firstEnding)
+				? firstEnding + (await getLastEnding(mashita))
+				: mashita,
 			negative: masendeshita,
-			negative_furigana: firstEnding + (await getLastEnding(masendeshita)),
+			negative_furigana: !isHiragana(firstEnding)
+				? firstEnding + (await getLastEnding(masendeshita))
+				: masendeshita,
 		},
 		{
 			name: 'Te',
 			positive: te,
-			positive_furigana: firstEnding + (await getLastEnding(te)),
+			positive_furigana: !isHiragana(firstEnding) ? firstEnding + (await getLastEnding(te)) : te,
 			negative: nakute,
-			negative_furigana: firstEnding + (await getLastEnding(nakute)),
+			negative_furigana: !isHiragana(firstEnding)
+				? firstEnding + (await getLastEnding(nakute))
+				: nakute,
 		},
 		{
 			name: 'Potential',
 			positive: rero,
-			positive_furigana: firstEnding + (await getLastEnding(rero)),
+			positive_furigana: !isHiragana(firstEnding)
+				? firstEnding + (await getLastEnding(rero))
+				: rero,
 			negative: renai,
-			negative_furigana: firstEnding + (await getLastEnding(renai)),
+			negative_furigana: !isHiragana(firstEnding)
+				? firstEnding + (await getLastEnding(renai))
+				: renai,
 		},
 		{
 			name: 'Passive',
 			positive: passive,
-			positive_furigana: firstEnding + (await getLastEnding(passive)),
+			positive_furigana: !isHiragana(firstEnding)
+				? firstEnding + (await getLastEnding(passive))
+				: passive,
 			negative: passiveNegative,
-			negative_furigana: firstEnding + (await getLastEnding(passiveNegative)),
+			negative_furigana: !isHiragana(firstEnding)
+				? firstEnding + (await getLastEnding(passiveNegative))
+				: passiveNegative,
 		},
 		{
 			name: 'Causative',
 			positive: causative,
-			positive_furigana: firstEnding + (await getLastEnding(causative)),
+			positive_furigana: !isHiragana(firstEnding)
+				? firstEnding + (await getLastEnding(causative))
+				: causative,
 			negative: causativeNegative,
-			negative_furigana: firstEnding + (await getLastEnding(causativeNegative)),
+			negative_furigana: !isHiragana(firstEnding)
+				? firstEnding + (await getLastEnding(causativeNegative))
+				: causativeNegative,
 		},
 		{
 			name: 'Shortened Causative',
 			positive: sasu,
-			positive_furigana: firstEnding + (await getLastEnding(sasu)),
+			positive_furigana: !isHiragana(firstEnding)
+				? firstEnding + (await getLastEnding(sasu))
+				: sasu,
 			negative: sanai,
-			negative_furigana: firstEnding + (await getLastEnding(sanai)),
+			negative_furigana: !isHiragana(firstEnding)
+				? firstEnding + (await getLastEnding(sanai))
+				: sanai,
 		},
 		{
 			name: 'Causative Passive',
 			positive: serareru,
-			positive_furigana: firstEnding + (await getLastEnding(serareru)),
+			positive_furigana: !isHiragana(firstEnding)
+				? firstEnding + (await getLastEnding(serareru))
+				: serareru,
 			negative: serarenai,
-			negative_furigana: firstEnding + (await getLastEnding(serarenai)),
+			negative_furigana: !isHiragana(firstEnding)
+				? firstEnding + (await getLastEnding(serarenai))
+				: serarenai,
 		},
 		{
 			name: 'Shortened Causative Passive',
 			positive: sareru,
-			positive_furigana: firstEnding + (await getLastEnding(sareru)),
+			positive_furigana: !isHiragana(firstEnding)
+				? firstEnding + (await getLastEnding(sareru))
+				: sareru,
 			negative: sarenai,
-			negative_furigana: firstEnding + (await getLastEnding(sarenai)),
+			negative_furigana: !isHiragana(firstEnding)
+				? firstEnding + (await getLastEnding(sarenai))
+				: sarenai,
 		},
 		{
 			name: 'Imperative',
 			positive: ro,
-			positive_furigana: firstEnding + (await getLastEnding(ro)),
+			positive_furigana: !isHiragana(firstEnding) ? firstEnding + (await getLastEnding(ro)) : ro,
 			negative: rona,
-			negative_furigana: firstEnding + (await getLastEnding(rona)),
+			negative_furigana: !isHiragana(firstEnding)
+				? firstEnding + (await getLastEnding(rona))
+				: rona,
 		},
 		{
 			name: 'Conditional',
 			positive: reba,
-			positive_furigana: firstEnding + (await getLastEnding(reba)),
+			positive_furigana: !isHiragana(firstEnding)
+				? firstEnding + (await getLastEnding(reba))
+				: reba,
 			negative: nakereba,
-			negative_furigana: firstEnding + (await getLastEnding(nakereba)),
+			negative_furigana: !isHiragana(firstEnding)
+				? firstEnding + (await getLastEnding(nakereba))
+				: nakereba,
 		},
 	];
 }

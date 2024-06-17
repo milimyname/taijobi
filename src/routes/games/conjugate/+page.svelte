@@ -99,9 +99,7 @@
 			<ArrowDownUp class="mr-2 size-4" />
 			<span>Sorted by date</span>
 		</Button>
-		<Button size="icon" class="size-8">
-			<span>+</span>
-		</Button>
+		<Button size="sm">Create</Button>
 	</div>
 	<div class="grid grid-flow-row gap-4 md:grid-cols-3">
 		{#each conjugations as conjugation}
