@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const loginSchema = z.object({
 	email: z.string().min(3).max(32),
-	password: z.string().min(8).max(32)
+	password: z.string().min(8).max(32),
 });
 
 export type LoginSchema = typeof loginSchema;
@@ -10,13 +10,13 @@ export type LoginSchema = typeof loginSchema;
 export const signupSchema = z.object({
 	email: z.string().email(),
 	password: z.string().min(8).max(32),
-	confirmPassword: z.string().min(8).max(32)
+	confirmPassword: z.string().min(8).max(32),
 });
 
 export type SignupSchema = typeof signupSchema;
 
 export const resetPasswordSchema = z.object({
-	email: z.string().min(3).max(32)
+	email: z.string().min(3).max(32),
 });
 
 export type ResetPasswordSchema = typeof resetPasswordSchema;
@@ -24,7 +24,7 @@ export type ResetPasswordSchema = typeof resetPasswordSchema;
 export const profileDataSchema = z.object({
 	username: z.string().min(3).max(32).optional(),
 	email: z.string().email().optional(),
-	avatar: z.string().url().optional()
+	avatar: z.string().url().optional(),
 });
 
 export type ProfileDataSchema = typeof profileDataSchema;
@@ -37,7 +37,7 @@ export const flashcardSchema = z.object({
 	romanji: z.string().optional(),
 	furigana: z.string().optional(),
 	flashcardBox: z.string().optional(),
-	id: z.string().optional()
+	id: z.string().optional(),
 });
 
 export type FlashcardSchema = typeof flashcardSchema;
@@ -49,18 +49,16 @@ export const flashcardCollectionSchema = z.object({
 	id: z.string().optional(),
 	kanjiCount: z.number().optional(),
 	quizCount: z.number().optional(),
-	flashcardCollection: z.string().optional()
+	flashcardCollection: z.string().optional(),
 });
 
 export type FlashcardCollectionSchema = typeof flashcardCollectionSchema;
 
 export const feedbackSchema = z.object({
-	name: z.string().optional(),
 	description: z.string().max(1000),
-	device: z.string().optional(),
 	userId: z.string(),
 	image: z.string().optional(),
-	id: z.string().optional()
+	id: z.string().optional(),
 });
 
 export type FeedbackSchema = typeof feedbackSchema;
@@ -77,7 +75,7 @@ export const quizSchema = z.object({
 	timeLimit: z.boolean().default(false),
 	id: z.string().optional(),
 	flashcards: z.string().optional(),
-	selectedQuizItems: z.string().optional()
+	selectedQuizItems: z.string().optional(),
 });
 
 export type QuizSchema = typeof quizSchema;
@@ -85,12 +83,12 @@ export type QuizSchema = typeof quizSchema;
 export const quizProgressSchema = z.object({
 	progressData: z.string(),
 	quizId: z.string(),
-	userId: z.string()
+	userId: z.string(),
 });
 
 export type QuizProgressSchema = typeof quizProgressSchema;
 
 export const openaiSchema = z.object({
 	input: z.string().min(1, { message: 'Input is required.' }),
-	type: z.string().min(1, { message: 'Type is required.' })
+	type: z.string().min(1, { message: 'Type is required.' }),
 });

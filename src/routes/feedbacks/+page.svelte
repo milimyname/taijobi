@@ -1,16 +1,19 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { clickedReport } from '$lib/utils/stores';
-	import { ArrowLeft } from 'lucide-svelte';
+	import { clickedReport, clickedFeedback } from '$lib/utils/stores';
+	import { ArrowDownUp, ArrowLeft } from 'lucide-svelte';
 	import { superForm } from 'sveltekit-superforms';
 	import { pocketbase } from '$lib/utils/pocketbase';
-	import Form from './form.svelte';
 	import { feedbackSchema } from '$lib/utils/zodSchema';
 	import { Button } from '$lib/components/ui/button';
 	import { zodClient } from 'sveltekit-superforms/adapters';
-	import * as DrawerDialog from '$lib/components/ui/drawerDialog';
+	import type { RecordModel } from 'pocketbase';
+	import Badge from '$lib/components/ui/badge/badge.svelte';
+	import FeedbackDrawerDialog from '$lib/components/drawer-dialogs/feedback-drawer-dialog.svelte';
 
 	export let data;
+
+	let sortedByDate = false;
 
 	const superFrm = superForm(data.form, {
 		validators: zodClient(feedbackSchema),
@@ -18,19 +21,45 @@
 			// Keep the form open if there is an error
 			if (form.errors.name || form.errors.description) $clickedReport = true;
 			else $clickedReport = false;
-		}
+		},
 	});
 
-	function onCloseDrawer() {
-		setTimeout(() => {
-			$clickedReport = false;
-			superFrm.reset();
-		}, 100);
+	function onClickFeedback(feedback: RecordModel) {
+		$clickedReport = true;
+
+		superFrm.form.update((form) => {
+			return {
+				...form,
+				name: feedback.name,
+				description: feedback.description,
+				device: feedback.device,
+				image: pocketbase.files.getUrl(feedback, feedback.image),
+				id: feedback.id,
+			};
+		});
 	}
+
+	$: feedbacks = (() => {
+		// Then, sort the filtered quizzes based on sortedByDate
+
+		if (!data.feedbacks) return [];
+
+		return sortedByDate
+			? data.feedbacks.sort(
+					(a: RecordModel, b: RecordModel) =>
+						Number(new Date(b.created)) - Number(new Date(a.created)),
+				)
+			: data.feedbacks.sort(
+					(a: RecordModel, b: RecordModel) =>
+						Number(new Date(a.created)) - Number(new Date(b.created)),
+				);
+	})();
 </script>
 
+<FeedbackDrawerDialog form={superFrm} />
+
 <main
-	class="flex h-[100dvh] select-none flex-col items-center overflow-hidden bg-white p-2 transition-all sm:px-3 sm:py-5"
+	class="flex h-dvh flex-col items-center overflow-hidden bg-white p-2 transition-all sm:px-3 sm:py-5"
 >
 	<nav class="flex w-full justify-between px-2 py-3 xm:p-5">
 		<button on:click|preventDefault={() => goto('/')} class="flex items-center gap-2">
@@ -40,72 +69,26 @@
 			<span>Back</span>
 		</button>
 	</nav>
-	<section class="flex w-full max-w-xl flex-col gap-2 text-white">
-		{#each data.feedbacks as feedback}
-			<button
-				class="flex w-full flex-col gap-5 rounded-lg bg-black p-4"
-				on:click={() => {
-					$clickedReport = true;
-
-					superFrm.form.update((form) => {
-						return {
-							...form,
-							name: feedback.name,
-							description: feedback.description,
-							device: feedback.device,
-							image: pocketbase.files.getUrl(feedback, feedback.image),
-							id: feedback.id
-						};
-					});
-				}}
-			>
-				<div class="flex w-full justify-between">
-					<h4 class="text-xl font-medium">{feedback.name}</h4>
-					<p class="text-sm">{feedback.device}</p>
-				</div>
-				<p class="line-clamp-3 text-left text-sm">{feedback.description}</p>
-			</button>
-		{/each}
+	<section class="flex w-full max-w-xl flex-col gap-2">
+		<div class="flex flex-wrap gap-2">
+			<Button size="sm" variant="outline" on:click={() => (sortedByDate = !sortedByDate)}>
+				<ArrowDownUp class="mr-2 size-4" />
+				<span>Sorted by date</span>
+			</Button>
+			<Button size="sm" on:click={() => ($clickedFeedback = true)}>Create</Button>
+		</div>
+		<div class="grid grid-flow-row gap-4 md:grid-cols-3">
+			{#each feedbacks as feedback}
+				<button
+					class="w-full flex flex-col gap-2 justify-between rounded-lg border p-4"
+					on:click={() => onClickFeedback(feedback)}
+				>
+					<p class="line-clamp-3 text-left text-sm">{feedback.description}</p>
+					<Badge variant="outline" class="w-fit"
+						>{new Date(feedback.created).toLocaleDateString()}</Badge
+					>
+				</button>
+			{/each}
+		</div>
 	</section>
 </main>
-
-<DrawerDialog.Root open={$clickedReport} onClose={onCloseDrawer} onOutsideClick={onCloseDrawer}>
-	<DrawerDialog.Content>
-		<DrawerDialog.Header class="text-left">
-			<DrawerDialog.Title>Leave a feedback or report a bug!</DrawerDialog.Title>
-			<DrawerDialog.Description>
-				<p class="text-sm">
-					Feedback
-					<DrawerDialog.Close>
-						<button
-							on:click={() => {
-								$clickedReport = false;
-								goto('/feedbacks');
-							}}
-							class="underline"
-						>
-							My Feedbacks
-						</button>
-					</DrawerDialog.Close>
-				</p>
-			</DrawerDialog.Description>
-		</DrawerDialog.Header>
-		<Form form={superFrm}>
-			<div slot="delete">
-				<DrawerDialog.Close asChild let:builder>
-					<Button builders={[builder]} class="w-full" variant="destructive">Delete</Button>
-				</DrawerDialog.Close>
-			</div>
-			<div slot="update">
-				<DrawerDialog.Close asChild let:builder>
-					<Button builders={[builder]} class="w-full">Update</Button>
-				</DrawerDialog.Close>
-			</div>
-		</Form>
-		<DrawerDialog.Footer className="md:hidden">
-			<DrawerDialog.Close asChild let:builder>
-				<Button builders={[builder]} variant="outline">Cancel</Button>
-			</DrawerDialog.Close>
-		</DrawerDialog.Footer>
-	</DrawerDialog.Content>
-</DrawerDialog.Root>
