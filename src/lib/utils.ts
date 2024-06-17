@@ -1,17 +1,17 @@
-import { type ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-import { cubicOut } from 'svelte/easing';
-import type { TransitionConfig } from 'svelte/transition';
-import { mediaQuery } from 'svelte-legos';
+import { kanji } from '$lib/static/kanji';
 import {
 	IS_DESKTOP,
 	XM_SMALL_SCREEN,
 	CANVAS_LG_HEIGHT,
 	CANVAS_LG_WIDTH,
-	CANVAS_SM_WIDTH
+	CANVAS_SM_WIDTH,
 } from '$lib/utils/constants';
+import { type ClassValue, clsx } from 'clsx';
+import { mediaQuery } from 'svelte-legos';
+import { cubicOut } from 'svelte/easing';
+import type { TransitionConfig } from 'svelte/transition';
+import { twMerge } from 'tailwind-merge';
 import { isKanji, isKatakana, isHiragana } from 'wanakana';
-import { kanji } from '$lib/static/kanji';
 
 // Check if a string does not contain any Japanese characters
 export const isNonJapanase = (str: string) => {
@@ -48,22 +48,22 @@ export const getRandomKanji = () => {
 			meaning: kanjiArray[randomIndex][1].meaning,
 			onyomi: kanjiArray[randomIndex][1].onyomi,
 			kunyomi: kanjiArray[randomIndex][1].kunyomi,
-			id: Math.random().toString(36).substr(2, 9)
+			id: Math.random().toString(36).substr(2, 9),
 		},
 		{
 			name: kanjiArray[randomIndex + 1][0],
 			meaning: kanjiArray[randomIndex + 1][1].meaning,
 			onyomi: kanjiArray[randomIndex + 1][1].onyomi,
 			kunyomi: kanjiArray[randomIndex + 1][1].kunyomi,
-			id: Math.random().toString(36).substr(2, 9)
+			id: Math.random().toString(36).substr(2, 9),
 		},
 		{
 			name: kanjiArray[randomIndex + 2][0],
 			meaning: kanjiArray[randomIndex + 2][1].meaning,
 			onyomi: kanjiArray[randomIndex + 2][1].onyomi,
 			kunyomi: kanjiArray[randomIndex + 2][1].kunyomi,
-			id: Math.random().toString(36).substr(2, 9)
-		}
+			id: Math.random().toString(36).substr(2, 9),
+		},
 	];
 };
 
@@ -110,7 +110,7 @@ type FlyAndScaleParams = {
 
 export const flyAndScale = (
 	node: Element,
-	params: FlyAndScaleParams = { y: -8, x: 0, start: 0.95, duration: 150 }
+	params: FlyAndScaleParams = { y: -8, x: 0, start: 0.95, duration: 150 },
 ): TransitionConfig => {
 	const style = getComputedStyle(node);
 	const transform = style.transform === 'none' ? '' : style.transform;
@@ -142,10 +142,10 @@ export const flyAndScale = (
 
 			return styleToString({
 				transform: `${transform} translate3d(${x}px, ${y}px, 0) scale(${scale})`,
-				opacity: t
+				opacity: t,
 			});
 		},
-		easing: cubicOut
+		easing: cubicOut,
 	};
 };
 
