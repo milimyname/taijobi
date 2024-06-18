@@ -3,7 +3,7 @@
 		clickedEditFlashcard,
 		currentFlashcardCollectionId,
 		flashcardsBoxType,
-		clickedAddFlashcardCollection
+		clickedAddFlashcardCollection,
 	} from '$lib/utils/stores';
 	import { type FlashcardCollectionSchema } from '$lib/utils/zodSchema';
 	import { type SuperForm, type Infer } from 'sveltekit-superforms';
@@ -24,7 +24,7 @@
 	class={cn('quiz-form z-[1000] flex w-full flex-col', !$isDesktop && 'px-4')}
 >
 	<div class="mb-auto flex flex-col gap-2">
-		{#if $clickedEditFlashcard}
+		{#if $clickedEditFlashcard && !$clickedAddFlashcardCollection}
 			<div class="flex gap-2">
 				<Form.Field {form} name="kanjiCount" class="w-full">
 					<Form.Control let:attrs>

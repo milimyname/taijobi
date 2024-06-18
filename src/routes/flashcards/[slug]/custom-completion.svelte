@@ -23,11 +23,11 @@
 			const res = await fetch(`/api/conjugation`, {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/json'
+					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
-					word: wordFlashcard?.name
-				})
+					word: wordFlashcard?.name,
+				}),
 			});
 
 			if (!res.ok) throw new Error('Failed to fetch word flashcard');
@@ -39,9 +39,9 @@
 					{
 						name: '',
 						positive: 'Affirmative',
-						negative: 'Negative'
+						negative: 'Negative',
 					},
-					...data
+					...data,
 				];
 				return;
 			}
@@ -58,11 +58,11 @@
 			const res = await fetch('/api/jisho', {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/json'
+					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
-					input: wordFlashcard?.name
-				})
+					input: wordFlashcard?.name,
+				}),
 			});
 
 			if (!res.ok) throw new Error('Failed to fetch sentence examples');
@@ -82,7 +82,7 @@
 		} catch (e) {
 			console.error(e);
 			toast.error(
-				'No examples found. Please try again or leave a feedback by clicking the 🐞 above. PS: Only words can have examples'
+				'No examples found. Please try again or leave a feedback by clicking the 🐞 above. PS: Only words can have examples',
 			);
 		}
 	}
@@ -92,9 +92,9 @@
 			const res = await fetch('/api/openai', {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/json'
+					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify({ input, type: 'audio' })
+				body: JSON.stringify({ input, type: 'audio' }),
 			});
 
 			if (!res.ok) throw new Error('Failed to fetch audio');
@@ -138,7 +138,7 @@
 	<DrawerDialog.Content
 		class={cn(
 			'fixed bottom-0 left-0 right-0 max-h-[96%] w-full',
-			$isDesktop && 'left-1/2  h-2/3 max-w-2xl'
+			$isDesktop && 'left-1/2  min-w-fit max-w-2xl',
 		)}
 	>
 		<div class="-mt-2 flex w-full flex-col overflow-y-auto">
@@ -165,7 +165,7 @@
 									<p
 										class={cn(
 											'lg:text-md text-[10px]',
-											i !== 0 && 'text-sm font-semibold lg:text-lg'
+											i !== 0 && 'text-sm font-semibold lg:text-lg',
 										)}
 									>
 										{@html data?.positive_furigana}
@@ -174,7 +174,7 @@
 									<p
 										class={cn(
 											'lg:text-md text-[10px]',
-											i !== 0 && 'text-sm font-semibold lg:text-lg'
+											i !== 0 && 'text-sm font-semibold lg:text-lg',
 										)}
 									>
 										{data?.positive}
@@ -184,7 +184,7 @@
 									<p
 										class={cn(
 											'lg:text-md text-[10px]',
-											i !== 0 && 'text-sm font-semibold lg:text-lg'
+											i !== 0 && 'text-sm font-semibold lg:text-lg',
 										)}
 									>
 										{@html data?.negative_furigana}
@@ -193,7 +193,7 @@
 									<p
 										class={cn(
 											'lg:text-md text-[10px]',
-											i !== 0 && 'text-sm font-semibold lg:text-lg'
+											i !== 0 && 'text-sm font-semibold lg:text-lg',
 										)}
 									>
 										{data?.negative}

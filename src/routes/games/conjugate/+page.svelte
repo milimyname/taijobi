@@ -108,7 +108,9 @@
 				on:click={() => goto(`/games/conjugate/${conjugation.id}`)}
 			>
 				<div class="flex w-full justify-between">
-					<h4 class="text-xl font-medium truncate">Quiz: {conjugation.name}</h4>
+					<h4 class="text-xl font-medium truncate">
+						Quiz: Quiz: Quiz: Quiz: Quiz: Quiz: Quiz: {conjugation.name}
+					</h4>
 
 					<div class="flex items-center gap-2">
 						<Badge variant="outline">

@@ -10,7 +10,7 @@
 		selectQuizItemsForm,
 		selectedQuizItems,
 		currentBoxId,
-		flashcardsBoxType
+		flashcardsBoxType,
 	} from '$lib/utils/stores';
 	import QuizItems from './quiz-items.svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
@@ -61,7 +61,7 @@
 			$maxFlashcards !== '0' &&
 			$flashcardBoxes.length > 1 &&
 			$flashcardsBoxType !== 'original') ||
-		$page.data.isAdmin;
+		($page.data.isAdmin && !$clickedAddFlashcardCollection);
 </script>
 
 {#if $isDesktop}

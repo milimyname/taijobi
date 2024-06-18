@@ -6,8 +6,12 @@ async function convertToFurigana(word: string) {
 	return await kuroshiro.convert(word, { to: 'hiragana', mode: 'furigana' });
 }
 
+type Key_Value = {
+	[key: string]: string;
+};
+
 export function getConjuctiveForm(verb: string) {
-	const group3 = {
+	const group3: Key_Value = {
 		します: 'する',
 		きます: 'くる',
 	};
@@ -21,7 +25,7 @@ export function getConjuctiveForm(verb: string) {
 	// Getting the last character before 'ます'
 	const lastChar = verb[verb.length - 3];
 
-	const group1 = {
+	const group1: Key_Value = {
 		き: 'く',
 		ぎ: 'ぐ',
 		し: 'す',
@@ -35,7 +39,7 @@ export function getConjuctiveForm(verb: string) {
 	};
 
 	// Check if it is an ichidan verb (e.g., めます -> める)
-	const ichidanVerbs = {
+	const ichidanVerbs: Key_Value = {
 		べ: 'べる',
 		け: 'ける',
 		め: 'めer',
@@ -205,7 +209,7 @@ export async function conjugateVerb(plain: string) {
 	const [, nai] = codec.conjugate(plain, 'Negative', true);
 
 	const [, masu] = codec.conjugate(plain, 'Conjunctive', true);
-	const [masen, masendeshita] = codec.conjugateAuxiliaries(plain, ['Masu'], 'Negative');
+	const [masen, masendeshita] = codec.conjugateAuxiliaries(plain, ['Masu'], 'Negative', true);
 
 	const [mashita] = codec.conjugateAuxiliaries(plain, ['Masu'], 'Ta', true);
 
@@ -264,7 +268,6 @@ export async function conjugateVerb(plain: string) {
 			positive: plain,
 			positive_furigana: baseVerbFurigana,
 			negative: nai,
-			// negative_furigana: firstEnding + (await getLastEnding(nai)),
 			negative_furigana: !isHiragana(firstEnding) ? firstEnding + (await getLastEnding(nai)) : nai,
 		},
 		{
