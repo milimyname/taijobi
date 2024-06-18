@@ -11,7 +11,7 @@
 		currentFlashcardTypeStore,
 		searchedWordStore,
 		clickedEditFlashcard,
-		canIdrawMultipleTimes
+		canIdrawMultipleTimes,
 	} from '$lib/utils/stores';
 	import FlashcardForm from '$lib/components/forms/flashcard-form-ui.svelte';
 	import { page } from '$app/stores';
@@ -97,7 +97,7 @@
 					$currentFlashcard = flashcards[currentIndex - 1].name;
 				}, 100);
 			}
-		}
+		},
 	});
 
 	onMount(async () => {
@@ -130,7 +130,7 @@
 			// Save current flashcard to local storage
 			localStorage.setItem(
 				`currentFlashcardIndexOfFlashcards-${$page.params.slug}`,
-				currentIndex.toString()
+				currentIndex.toString(),
 			);
 		}
 	}
@@ -149,7 +149,7 @@
 	$: if ($searchedWordStore) {
 		// Find the index of the searched word
 		const seachedIndex = flashcards.findIndex(
-			(flashcard) => flashcard.name === $searchedWordStore.name
+			(flashcard) => flashcard.name === $searchedWordStore.name,
 		);
 
 		if (seachedIndex !== -1) {
@@ -162,6 +162,9 @@
 			}, 100);
 		}
 	}
+
+	// Scroll to the current flashcard after multiple drawing state
+	$: if (!$canIdrawMultipleTimes && browser && currentIndex && embla) embla.scrollTo(currentIndex);
 </script>
 
 <FlashcardForm {form} />
@@ -169,7 +172,7 @@
 <section
 	class={cn(
 		'flex h-full w-full flex-col items-center justify-center gap-5 lg:flex-col-reverse',
-		!$showLetterDrawing && 'gap-5'
+		!$showLetterDrawing && 'gap-5',
 	)}
 >
 	{#if flashcards.length > 0}
@@ -203,7 +206,7 @@
 				bind:api={embla}
 				opts={{
 					dragFree: true,
-					loop: true
+					loop: true,
 				}}
 				plugins={[WheelGesturesPlugin()]}
 				class="flaschards-carousel fixed bottom-5 w-2/3 sm:bottom-10 lg:sticky lg:bottom-0 lg:w-5/6"
@@ -220,7 +223,7 @@
 								// flashcards.length > 10 && 'md:basis-1/3',
 								// flashcard.name.length < 3 && 'basis-full',
 								// flashcard.name.length > 5 && flashcard.name.length < 10 && 'basis-full',
-								$currentFlashcardTypeStore === 'kanji' && 'basis-1/3'
+								$currentFlashcardTypeStore === 'kanji' && 'basis-1/3',
 							)}
 						>
 							<button

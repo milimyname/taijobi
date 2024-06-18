@@ -42,7 +42,7 @@ export function getConjuctiveForm(verb: string) {
 	const ichidanVerbs: Key_Value = {
 		べ: 'べる',
 		け: 'ける',
-		め: 'めer',
+		め: 'める',
 		れ: 'れる',
 		え: 'える',
 	};
