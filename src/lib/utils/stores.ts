@@ -72,3 +72,4 @@ export const strokes = writable<{ points: { x: number; y: number }[]; color: str
 export const showCustomContent = writable(false);
 export const newFlashcardBoxId = writable('');
 export const openHistory = writable(false);
+export const openConjugation = writable(false);

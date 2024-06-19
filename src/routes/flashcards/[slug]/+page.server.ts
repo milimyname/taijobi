@@ -1,14 +1,15 @@
-import { superValidate, setError } from 'sveltekit-superforms';
-import { fail } from '@sveltejs/kit';
-import { flashcardSchema } from '$lib/utils/zodSchema';
-import { isKanji } from 'wanakana';
-import { zod } from 'sveltekit-superforms/adapters';
 import { countKanji } from '$lib/utils';
+import { flashcardSchema } from '$lib/utils/zodSchema';
+import { classifyWord } from '../../api/conjugation/common.js';
+import { fail } from '@sveltejs/kit';
 import type PocketBase from 'pocketbase';
+import { superValidate, setError } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
+import { isKanji } from 'wanakana';
 
 export const load = async () => {
 	return {
-		form: await superValidate(zod(flashcardSchema))
+		form: await superValidate(zod(flashcardSchema)),
 	};
 };
 
@@ -16,12 +17,12 @@ async function updateKanjiCount(pb: PocketBase, slug: string) {
 	try {
 		// Get all flashcards in the box
 		const flashcards = await pb.collection('flashcard').getFullList({
-			filter: `flashcardBox = "${slug}"`
+			filter: `flashcardBox = "${slug}"`,
 		});
 
 		// Update the flashcard box
 		await pb.collection('flashcardBoxes').update(slug, {
-			kanjiCount: flashcards.reduce((acc, flashcard) => acc + countKanji(flashcard.name), 0)
+			kanjiCount: flashcards.reduce((acc, flashcard) => acc + countKanji(flashcard.name), 0),
 		});
 	} catch (e) {
 		console.log('error', e);
@@ -47,17 +48,20 @@ export const actions = {
 
 		try {
 			// Create flashcard
+			const name = form.data.name
+				.replace(/\/.*?\//g, '')
+				.replace(/'/g, '')
+				.trim();
+
 			await locals.pb.collection('flashcard').create({
-				name: form.data.name
-					.replace(/\/.*?\//g, '')
-					.replace(/'/g, '')
-					.trim(),
+				name,
 				meaning: form.data.meaning,
 				romanji: form.data.romanji,
 				furigana: form.data.name,
 				type: form.data.type,
+				partOfSpeech: classifyWord(name),
 				notes: form.data.notes,
-				flashcardBox: params.slug
+				flashcardBox: params.slug,
 			});
 		} catch (e) {
 			return setError(form, 'name', 'Flashcard name is already taken.');
@@ -98,13 +102,15 @@ export const actions = {
 
 		try {
 			// Update the flashcard
+			const name = form.data.name.replace(/ ?\/.*?\/ ?/g, '').trim();
 			await locals.pb.collection('flashcard').update(form.data.id, {
-				name: form.data.name.replace(/ ?\/.*?\/ ?/g, '').trim(),
+				name,
 				meaning: form.data.meaning,
 				romanji: form.data.romanji || '',
 				furigana: form.data.name,
+				partOfSpeech: classifyWord(name),
 				type: form.data.type,
-				notes: form.data.notes || ''
+				notes: form.data.notes || '',
 			});
 		} catch (_) {
 			return setError(form, 'name', 'Flashcard cannot be edited now.');
@@ -114,5 +120,5 @@ export const actions = {
 		await updateKanjiCount(locals.pb, params.slug);
 
 		return { form };
-	}
+	},
 };

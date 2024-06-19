@@ -33,6 +33,7 @@ export const flashcardSchema = z.object({
 	name: z.string().nonempty({ message: 'Name is required.' }),
 	meaning: z.string().optional(),
 	type: z.string().nonempty({ message: 'Type is required.' }),
+	partOfSpeech: z.enum(['verb', 'adjective', 'unknown']),
 	notes: z.string().optional(),
 	romanji: z.string().optional(),
 	furigana: z.string().optional(),

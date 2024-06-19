@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { pocketbase } from '$lib/utils/pocketbase';
 	import { Badge } from '$lib/components/ui/badge/index';
 	import { ArrowDown01, ArrowDown10, Settings } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button/index';
@@ -9,6 +8,8 @@
 	import { VERB_CONJUGATION_TYPES } from '$lib/utils/constants';
 	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
+	import ConjugateDrawerDialog from './conjugate-drawer-dialog.svelte';
+	import { openConjugation } from '$lib/utils/stores';
 
 	export let data;
 
@@ -35,23 +36,15 @@
 		}, 100);
 	}
 
+	console.log(data);
+
 	$: conjugations = (() => {
 		// Apply hiddenExamples filter
-		// let filteredList = data.conjugationDemoList.filter(() => !hiddenExamples);
 		return data.conjugationDemoList.filter(() => !hiddenExamples);
-
-		// Then, sort the filtered quizzes based on sortedByDate
-		// return sortedByDate
-		// 	? filteredList.sort(
-		// 			(a: RecordModel, b: RecordModel) =>
-		// 				Number(new Date(b.created)) - Number(new Date(a.created)),
-		// 		)
-		// 	: filteredList.sort(
-		// 			(a: RecordModel, b: RecordModel) =>
-		// 				Number(new Date(a.created)) - Number(new Date(b.created)),
-		// 		);
 	})();
 </script>
+
+<ConjugateDrawerDialog flashcardBoxes={data?.ogFlashcardBoxes} />
 
 <DrawerDialog.Root open={showSettings} onOutsideClick={onOutsideClickDrawer} {onClose}>
 	<DrawerDialog.Content>
@@ -102,7 +95,7 @@
 				<ArrowDown01 class="size-5 mr-2" />
 			{/if} <span>Sorted by date</span>
 		</Button>
-		<Button size="sm">Create</Button>
+		<Button size="sm" on:click={() => ($openConjugation = true)}>Create</Button>
 	</div>
 	<div class="grid grid-flow-row gap-4 md:grid-cols-3">
 		{#each conjugations as conjugation}
@@ -112,7 +105,7 @@
 			>
 				<div class="flex w-full justify-between">
 					<h4 class="text-xl font-medium truncate">
-						Quiz: Quiz: Quiz: Quiz: Quiz: Quiz: Quiz: {conjugation.name}
+						{conjugation.name}
 					</h4>
 
 					<div class="flex items-center gap-2">
@@ -132,39 +125,6 @@
 							<Settings />
 						</Button>
 					</div>
-				</div>
-
-				<div class="flex justify-between">
-					<!-- <button
-						class="self-center rounded-full font-bold"
-						on:click={() => {
-							localStorage.removeItem(`flashcards_${quiz.id}`);
-							localStorage.removeItem(`currentQuestion_${quiz.id}`);
-							localStorage.removeItem(`quizProgress_${quiz.id}`);
-							goto(`/games/quizzes/${quiz.id}`);
-						}}
-					>
-						Restart
-					</button> -->
-					<!-- {#if anyProgress}
-						<button
-							class="self-center rounded-full font-bold"
-							on:click={() => goto(`/games/quizzes/${quiz.id}`)}
-						>
-							Continue from {JSON.parse(anyProgress).length}
-						</button>
-					{/if} -->
-
-					<!-- {#if conjugation.id !== 'demo'}
-						<button
-							class="self-center rounded-full font-bold text-red-600"
-							on:click|preventDefault={async () => {
-								await deleteQuiz(conjugation);
-							}}
-						>
-							Delete
-						</button>
-					{/if} -->
 				</div>
 			</button>
 		{/each}

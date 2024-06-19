@@ -5,7 +5,7 @@
 	import type { RecordModel } from 'pocketbase';
 	import * as Card from '$lib/components/ui/card';
 	import { openHistory } from '$lib/utils/stores';
-	import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte';
+	import { ScrollArea } from '$lib/components/ui/scroll-area/index';
 	import { goto } from '$app/navigation';
 	import { ArrowDown01, ArrowDown10 } from 'lucide-svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
