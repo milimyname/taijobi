@@ -1,8 +1,8 @@
-import { writable } from 'svelte/store';
-import type { FlashcardType } from '$lib/utils/ambient';
-import { kanji } from '$lib/static/kanji';
 import { hiragana } from '$lib/static/hiragana';
+import { kanji } from '$lib/static/kanji';
 import { katakana } from '$lib/static/katakana';
+import type { FlashcardType } from '$lib/utils/ambient';
+import { writable } from 'svelte/store';
 
 export const showNav = writable(false);
 export const showAppNav = writable(false);
@@ -71,3 +71,4 @@ export const endRangeQuizForm = writable('10');
 export const strokes = writable<{ points: { x: number; y: number }[]; color: string }[]>([]);
 export const showCustomContent = writable(false);
 export const newFlashcardBoxId = writable('');
+export const openHistory = writable(false);

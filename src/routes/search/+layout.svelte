@@ -4,7 +4,7 @@
 </script>
 
 <svelte:head>
-	<title>Search Word ${$searchedWordStore.name}</title>
+	<title>Search Word</title>
 	<meta name="description" content="Find a japanese word in Taijobi" />
 </svelte:head>
 
@@ -15,9 +15,7 @@
 		<a
 			href="/"
 			class="go-back-btn group flex items-center gap-2"
-			on:click={() => {
-				$searchedWordStore = {};
-			}}
+			on:click={() => ($searchedWordStore = {})}
 			data-sveltekit-preload-data
 		>
 			<ArrowLeft

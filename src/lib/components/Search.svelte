@@ -4,6 +4,9 @@
 	import { getRandomKanji } from '$lib/utils.js';
 	import * as Command from '$lib/components/ui/command';
 	import { page } from '$app/stores';
+	import { pocketbase } from '$lib/utils/pocketbase';
+	import Button from './ui/button/button.svelte';
+	import { goto } from '$app/navigation';
 
 	let search = '';
 	let fetchedData: any[] = getRandomKanji();
@@ -16,7 +19,7 @@
 		try {
 			const res = await fetch('/api/flashcard', {
 				method: 'POST',
-				body: JSON.stringify({ search })
+				body: JSON.stringify({ search }),
 			});
 
 			if (!res.ok) return new Error('Failed to fetch flashcards');
@@ -42,6 +45,32 @@
 			document.removeEventListener('keydown', handleKeydown);
 		};
 	});
+
+	async function handleClick() {
+		$openSearch = false;
+		$searchedWordStore = currentHoveredFlashcard;
+
+		// If it is a kanji, go to the kanji page
+		if (!$searchedWordStore.type) goto('/alphabets/kanji');
+
+		try {
+			const newSearch = await pocketbase.collection('searches').create({
+				flashcard: currentHoveredFlashcard.id,
+				user: $page.data.user.id,
+				searchQuery: search,
+			});
+
+			if (!newSearch) throw new Error('Failed to create search');
+
+			await pocketbase.collection('flashcard').update(currentHoveredFlashcard.id, {
+				'searches+': newSearch.id,
+			});
+
+			goto(`/search/${newSearch.id}`);
+		} catch (error) {
+			console.error(error);
+		}
+	}
 
 	$: if (search === '') fetchedData = getRandomKanji();
 
@@ -90,22 +119,15 @@
 
 					<h3>{currentHoveredFlashcard.meaning}</h3>
 
-					<a
-						href={`/search/${value}`}
-						on:click={() => {
-							$openSearch = false;
-							$searchedWordStore = currentHoveredFlashcard;
-						}}
-						class="text-center underline"
-					>
-						See more
+					<Button variant="none" on:click={handleClick} class="text-center underline">
+						<span>See more</span>
 
 						{#if currentHoveredFlashcard?.expand}
 							<span class="italic">
 								- Collection {currentHoveredFlashcard.expand.flashcardBox.name}</span
 							>
 						{/if}
-					</a>
+					</Button>
 				</div>
 			{/if}
 		</div>
