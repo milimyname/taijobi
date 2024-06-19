@@ -5,7 +5,7 @@
 	import { Badge } from '$lib/components/ui/badge/index';
 	import Onyomi from '$lib/icons/Onyomi.svelte';
 	import Kunyomi from '$lib/icons/Kunyomi.svelte';
-	import { Captions, Earth, ArrowDownUp } from 'lucide-svelte';
+	import { Captions, Earth, ArrowDown10, ArrowDown01 } from 'lucide-svelte';
 	import { type ComponentType, tick } from 'svelte';
 	import { cn } from '$lib/utils.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
@@ -30,23 +30,23 @@
 		{
 			value: 'name',
 			label: 'Name',
-			icon: Captions
+			icon: Captions,
 		},
 		{
 			value: 'meaning',
 			label: 'Meaning',
-			icon: Earth
+			icon: Earth,
 		},
 		{
 			value: 'onyomi',
 			label: 'Onyomi',
-			icon: Onyomi
+			icon: Onyomi,
 		},
 		{
 			value: 'kunyomi',
 			label: 'Kunyomi',
-			icon: Kunyomi
-		}
+			icon: Kunyomi,
+		},
 	];
 
 	let quizzes: RecordModel[] = data.quizzes;
@@ -58,18 +58,19 @@
 		let filteredQuizzes = data.quizzes
 			.filter((quiz: RecordModel) => !selectedType || quiz.type === selectedType.value)
 			.filter(
-				(quiz: RecordModel) => !hiddenExamples || (quiz.id !== 'hiragana' && quiz.id !== 'katakana')
+				(quiz: RecordModel) =>
+					!hiddenExamples || (quiz.id !== 'hiragana' && quiz.id !== 'katakana'),
 			);
 
 		// Then, sort the filtered quizzes based on sortedByDate
 		return sortedByDate
 			? filteredQuizzes.sort(
 					(a: RecordModel, b: RecordModel) =>
-						Number(new Date(b.created)) - Number(new Date(a.created))
+						Number(new Date(b.created)) - Number(new Date(a.created)),
 				)
 			: filteredQuizzes.sort(
 					(a: RecordModel, b: RecordModel) =>
-						Number(new Date(a.created)) - Number(new Date(b.created))
+						Number(new Date(a.created)) - Number(new Date(b.created)),
 				);
 	})();
 
@@ -89,7 +90,7 @@
 			const flashcardBox = await pocketbase.collection('flashcardBoxes').getOne(quiz.flashcardBox);
 
 			await pocketbase.collection('flashcardBoxes').update(flashcardBox.id, {
-				quizCount: flashcardBox.quizCount - 1
+				quizCount: flashcardBox.quizCount - 1,
 			});
 		} catch (error) {
 			console.error(error);
@@ -120,7 +121,11 @@
 			{/if}
 		</Button>
 		<Button size="sm" variant="outline" on:click={() => (sortedByDate = !sortedByDate)}>
-			<ArrowDownUp class="mr-2 size-4" />
+			{#if sortedByDate}
+				<ArrowDown10 class="size-5 mr-2" />
+			{:else}
+				<ArrowDown01 class="size-5 mr-2" />
+			{/if}
 			<span>Sorted by date</span>
 		</Button>
 		<div class="flex items-center space-x-4">
@@ -164,7 +169,7 @@
 												type.value !== selectedType?.value && 'text-foreground/40',
 												type.value !== selectedType?.value &&
 													(type.value === 'onyomi' || type.value === 'kunyomi') &&
-													'fill-foreground/40'
+													'fill-foreground/40',
 											)}
 										/>
 

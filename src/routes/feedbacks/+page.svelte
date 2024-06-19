@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { clickedReport, clickedFeedback } from '$lib/utils/stores';
-	import { ArrowDownUp, ArrowLeft } from 'lucide-svelte';
+	import { ArrowDown01, ArrowDown10, ArrowLeft } from 'lucide-svelte';
 	import { superForm } from 'sveltekit-superforms';
 	import { pocketbase } from '$lib/utils/pocketbase';
 	import { feedbackSchema } from '$lib/utils/zodSchema';
@@ -72,8 +72,11 @@
 	<section class="flex w-full max-w-xl flex-col gap-2">
 		<div class="flex flex-wrap gap-2">
 			<Button size="sm" variant="outline" on:click={() => (sortedByDate = !sortedByDate)}>
-				<ArrowDownUp class="mr-2 size-4" />
-				<span>Sorted by date</span>
+				{#if sortedByDate}
+					<ArrowDown10 class="size-5 mr-2" />
+				{:else}
+					<ArrowDown01 class="size-5 mr-2" />
+				{/if} <span>Sorted by date</span>
 			</Button>
 			<Button size="sm" on:click={() => ($clickedFeedback = true)}>Create</Button>
 		</div>

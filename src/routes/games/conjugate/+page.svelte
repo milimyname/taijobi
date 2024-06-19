@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { pocketbase } from '$lib/utils/pocketbase';
 	import { Badge } from '$lib/components/ui/badge/index';
-	import { ArrowDownUp, Settings } from 'lucide-svelte';
+	import { ArrowDown01, ArrowDown10, Settings } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button/index';
 	import type { RecordModel } from 'pocketbase';
 	import * as DrawerDialog from '$lib/components/ui/drawerDialog';
@@ -96,8 +96,11 @@
 			{/if}
 		</Button>
 		<Button size="sm" variant="outline" on:click={() => (sortedByDate = !sortedByDate)}>
-			<ArrowDownUp class="mr-2 size-4" />
-			<span>Sorted by date</span>
+			{#if sortedByDate}
+				<ArrowDown10 class="size-5 mr-2" />
+			{:else}
+				<ArrowDown01 class="size-5 mr-2" />
+			{/if} <span>Sorted by date</span>
 		</Button>
 		<Button size="sm">Create</Button>
 	</div>
