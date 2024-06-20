@@ -6,10 +6,9 @@
 	import * as Card from '$lib/components/ui/card';
 	import { openConjugation } from '$lib/utils/stores';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index';
-	import { goto } from '$app/navigation';
 	import * as Accordion from '$lib/components/ui/accordion';
 
-	export let flashcardBoxes: RecordModel[];
+	export let flashcardBoxes: RecordModel[] | undefined;
 
 	let custom = false;
 
@@ -17,7 +16,7 @@
 		setTimeout(() => ($openConjugation = false), 100);
 	}
 
-	$: sortedFlashcardBoxes = flashcardBoxes.filter((box) => {
+	$: sortedFlashcardBoxes = flashcardBoxes?.filter((box) => {
 		if (custom) return box.collectionType === 'custom' || box.collectionType === 'original';
 		else return box.collectionType === 'custom';
 	});

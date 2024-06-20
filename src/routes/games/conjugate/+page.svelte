@@ -36,8 +36,6 @@
 		}, 100);
 	}
 
-	console.log(data);
-
 	$: conjugations = (() => {
 		// Apply hiddenExamples filter
 		return data.conjugationDemoList.filter(() => !hiddenExamples);
