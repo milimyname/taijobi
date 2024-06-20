@@ -2,7 +2,6 @@
 	import { Badge } from '$lib/components/ui/badge/index';
 	import { ArrowDown01, ArrowDown10, Settings } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button/index';
-	import type { RecordModel } from 'pocketbase';
 	import * as DrawerDialog from '$lib/components/ui/drawerDialog';
 	import { goto } from '$app/navigation';
 	import { VERB_CONJUGATION_TYPES } from '$lib/utils/constants';
@@ -13,11 +12,18 @@
 
 	export let data;
 
+	type Conjugation = {
+		id: string;
+		name: string;
+		type: string;
+		data: string[];
+	};
+
 	let sortedByDate = false;
 	let hiddenExamples = false;
 	let showSettings = false;
 	let checkedList: string[] = [];
-	let selectedConjugation: RecordModel | null = null;
+	let selectedConjugation: Conjugation | null = null;
 
 	$: if (showSettings) {
 		const settings = localStorage.getItem(`conjugationSettings_${selectedConjugation?.id}`);
@@ -34,6 +40,12 @@
 		setTimeout(() => {
 			showSettings = false;
 		}, 100);
+	}
+
+	function onClickButton(e: MouseEvent | TouchEvent | PointerEvent, conjugation: Conjugation) {
+		e.stopPropagation();
+		showSettings = !showSettings;
+		selectedConjugation = conjugation;
 	}
 
 	$: conjugations = (() => {
@@ -114,11 +126,7 @@
 							size="icon"
 							variant="none"
 							class="size-5"
-							on:click={(e) => {
-								e.stopPropagation();
-								showSettings = !showSettings;
-								selectedConjugation = conjugation;
-							}}
+							on:click={(e) => onClickButton(e, conjugation)}
 						>
 							<Settings />
 						</Button>

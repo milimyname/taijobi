@@ -8,7 +8,7 @@
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index';
 	import * as Accordion from '$lib/components/ui/accordion';
 
-	export let flashcardBoxes: RecordModel[] | undefined;
+	export let flashcardBoxes: RecordModel[] = [];
 
 	let custom = false;
 
