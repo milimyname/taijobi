@@ -73,3 +73,6 @@ export const showCustomContent = writable(false);
 export const newFlashcardBoxId = writable('');
 export const openHistory = writable(false);
 export const openConjugation = writable(false);
+export const nestedSearchDrawerOpen = writable(false);
+// export const selectedSearchFlashcards = writable<z.infer<typeof searchCollectionSchema>[]>();
+export const selectedSearchFlashcards = writable<any[]>([]);

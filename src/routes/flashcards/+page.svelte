@@ -11,7 +11,7 @@
 		selectedQuizItems,
 		startRangeQuizForm,
 		endRangeQuizForm,
-		newFlashcardBoxId
+		newFlashcardBoxId,
 	} from '$lib/utils/stores.js';
 	import FlashcardCollection from './FlashcardCollection.svelte';
 	import { goto } from '$app/navigation';
@@ -43,7 +43,7 @@
 
 			// Set visible cards count to the total number of flashcard collections
 			visibleCardsCount = data.flashcardCollections.length;
-		}
+		},
 	});
 
 	let collectionFormData = superFrmCollection.form;
@@ -66,7 +66,7 @@
 			$clickedQuizForm = false;
 			$selectedQuizItems = [];
 			goto(`/games/quizzes/${form.data.id}`);
-		}
+		},
 	});
 
 	let quizFormData = superFrmQuiz.form;
@@ -75,24 +75,25 @@
 	const superFrmBox = superForm(data.boxForm, {
 		validators: zodClient(flashcardCollectionSchema),
 		onUpdated: ({ form }) => {
+			console.log(form);
 			// Keep the form open if there is an error
 			if (form.errors.name) $clickedAddFlahcardBox = true;
 
 			// Send a toast message when a new flashcard box is added
 			if ($clickedAddFlahcardBox && !$clickedEditFlashcard) {
-				toast.success('Flashcard box added successfully', {
+				toast('Flashcard box added successfully', {
 					action: {
 						label: 'See it now',
 						onClick: () => {
 							goto(`/flashcards/${form.data.id}`);
-						}
-					}
+						},
+					},
 				});
 				$newFlashcardBoxId = form.data.id;
 			}
 
 			$clickedAddFlahcardBox = false;
-		}
+		},
 	});
 
 	let boxFormData = superFrmBox.form;
@@ -102,7 +103,7 @@
 		const lastCard = data.flashcardCollections[data.flashcardCollections.length - 1];
 		data.flashcardCollections = data.flashcardCollections.slice(
 			0,
-			data.flashcardCollections.length - 1
+			data.flashcardCollections.length - 1,
 		);
 
 		setTimeout(() => {
@@ -122,7 +123,7 @@
 		// Reorder data flashcard collections based on the current flashcard collection id or local storage
 		if ($currentFlashcardCollectionId) {
 			savedCollection = data.flashcardCollections.find(
-				(collection) => collection.id === $currentFlashcardCollectionId
+				(collection) => collection.id === $currentFlashcardCollectionId,
 			) as RecordModel;
 
 			visibleCards = [...visibleCards.slice(0, visibleCards.length - 1), savedCollection];

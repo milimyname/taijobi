@@ -3,22 +3,56 @@
 		innerHeightStore,
 		innerWidthStore,
 		searchedWordStore,
-		searchKanji,
+		nestedSearchDrawerOpen,
 		openHistory,
+		selectedSearchFlashcards,
 	} from '$lib/utils/stores';
 	import { getFlashcardHeight, getFlashcardWidth } from '$lib/utils';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { History } from 'lucide-svelte';
 	import SearchDrawerDialog from './search-drawer-dialog.svelte';
 	import { goto } from '$app/navigation';
+	import { superForm } from 'sveltekit-superforms';
+	import { searchCollectionSchema } from '$lib/utils/zodSchema';
+	import { zodClient } from 'sveltekit-superforms/adapters';
+	import { setContext } from 'svelte';
+	import { toast } from 'svelte-sonner';
 
 	export let data;
-
-	$: $searchedWordStore = data.currentSearch?.expand?.flashcard;
 
 	function showHistory() {
 		$openHistory = true;
 	}
+
+	// Search for Flashcard collection form:
+	const superSearchForm = superForm(data.form, {
+		dataType: 'json',
+		validators: zodClient(searchCollectionSchema),
+		onUpdated: ({ form }) => {
+			// Keep the form open if there is an error
+			if (Object.keys(form.errors).length !== 0) return ($nestedSearchDrawerOpen = true);
+
+			// Close the form if there is no error
+			$nestedSearchDrawerOpen = false;
+			$selectedSearchFlashcards = [];
+			// Set it to the current flashcard collection
+			localStorage.setItem('currentFlashcardCollectionId', form.data.collectionId);
+			toast('Flashcard box created successfully', {
+				action: {
+					label: 'See it now',
+					onClick: () => {
+						goto(`/flashcards/${form.data.boxId}`);
+					},
+				},
+			});
+		},
+	});
+
+	// Set Contexts
+	setContext('flashcardCollections', data.flashcardCollections);
+	setContext('flashcardCollectionForm', superSearchForm);
+
+	$: $searchedWordStore = data.currentSearch?.expand?.flashcard;
 </script>
 
 <SearchDrawerDialog searches={data.searches} />
@@ -30,11 +64,7 @@
 				width: ${getFlashcardWidth($innerWidthStore)}px `}
 			class="relative z-10 flex cursor-pointer items-center justify-center rounded-xl border shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200"
 		>
-			{#if $searchedWordStore?.type === 'kanji'}
-				<span class="text-9xl sm:text-[14rem]">
-					{$searchedWordStore?.name}
-				</span>
-			{:else if $searchedWordStore?.type === 'phrase'}
+			{#if $searchedWordStore?.type === 'phrase'}
 				<p class="text-balance px-10 text-center text-5xl leading-normal tracking-widest">
 					{@html $searchedWordStore?.name}
 				</p>
@@ -57,11 +87,7 @@
 		</Button>
 		<Button
 			variant="outline"
-			on:click={() => {
-				if (!$searchedWordStore.type) $searchKanji = $searchedWordStore?.name;
-
-				goto(`/flashcards/${$searchedWordStore?.flashcardBox}`);
-			}}
+			on:click={() => goto(`/flashcards/${$searchedWordStore?.flashcardBox}`)}
 		>
 			Go to Flashcard
 		</Button>

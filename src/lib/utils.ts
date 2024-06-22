@@ -6,12 +6,14 @@ import {
 	CANVAS_LG_WIDTH,
 	CANVAS_SM_WIDTH,
 } from '$lib/utils/constants';
+import type { TypeToZod } from './utils/ambient';
 import { type ClassValue, clsx } from 'clsx';
 import { mediaQuery } from 'svelte-legos';
 import { cubicOut } from 'svelte/easing';
 import type { TransitionConfig } from 'svelte/transition';
 import { twMerge } from 'tailwind-merge';
 import { isKanji, isKatakana, isHiragana } from 'wanakana';
+import { z } from 'zod';
 
 // Check if a string does not contain any Japanese characters
 export const isNonJapanase = (str: string) => {
@@ -166,3 +168,7 @@ export function countKanji(text: string) {
 	const matches = text.match(kanjiRegex);
 	return matches ? matches.length : 0;
 }
+
+export const createZodObject = <T>(obj: TypeToZod<T>) => {
+	return z.object(obj);
+};

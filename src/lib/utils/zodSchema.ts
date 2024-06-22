@@ -1,3 +1,4 @@
+import { createZodObject } from '$lib/utils';
 import { z } from 'zod';
 
 export const loginSchema = z.object({
@@ -33,7 +34,6 @@ export const flashcardSchema = z.object({
 	name: z.string().nonempty({ message: 'Name is required.' }),
 	meaning: z.string().optional(),
 	type: z.string().nonempty({ message: 'Type is required.' }),
-	partOfSpeech: z.enum(['verb', 'adjective', 'unknown']),
 	notes: z.string().optional(),
 	romanji: z.string().optional(),
 	furigana: z.string().optional(),
@@ -47,13 +47,59 @@ export const flashcardCollectionSchema = z.object({
 	name: z.string().min(1).max(25),
 	description: z.string().max(100).optional(),
 	type: z.string().optional(),
-	id: z.string().optional(),
+	id: z.string().optional(), // it is used as flashcardBox id in search page
 	kanjiCount: z.number().optional(),
 	quizCount: z.number().optional(),
 	flashcardCollection: z.string().optional(),
 });
 
 export type FlashcardCollectionSchema = typeof flashcardCollectionSchema;
+
+// Refine this scame if collectionName is new-colletion,
+// then collectionName is required
+export const searchCollectionSchema = z
+	.object({
+		boxId: z.string().min(1),
+		collectionId: z.string().min(1),
+		boxName: z.string(),
+		collectionName: z.string(),
+		flashcards: z.array(
+			z.object({
+				id: z.string(),
+				name: z.string(),
+				type: z.string().optional(),
+				meaning: z.string().optional(),
+				romanji: z.string().optional(),
+				furigana: z.string().optional(),
+				partOfSpeech: z.string().optional(),
+			}),
+		),
+	})
+	.refine(
+		(data) => {
+			if (data.collectionId === '' || data.boxId === '') return false;
+			if (data.collectionId === '' && data.boxId === 'new-box') return false;
+			if (
+				data.collectionId === 'new-collection' &&
+				data.boxId === 'new-box' &&
+				data.collectionName === '' &&
+				data.boxName === ''
+			)
+				return false;
+			if (data.collectionId === 'new-collection' && data.collectionName === '') return false;
+			if (data.boxId === 'new-box' && data.boxName === '') return false;
+			if (data.collectionId !== 'new-collection' && data.boxId === 'new-box' && data.boxName === '')
+				return false;
+
+			return true;
+		},
+		{
+			message: 'Please provide all required fields.',
+			path: ['boxName'],
+		},
+	);
+
+export type SearchCollectionSchema = typeof searchCollectionSchema;
 
 export const feedbackSchema = z.object({
 	description: z.string().max(1000),

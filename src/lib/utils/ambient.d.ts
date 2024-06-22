@@ -52,3 +52,11 @@ export type KanjiInfo = {
 	onyomi: string[];
 	kunyomi: string[];
 };
+
+export type TypeToZod<T> = Required<{
+	[K in keyof T]: T[K] extends string | number | boolean | null | undefined
+		? undefined extends T[K]
+			? z.ZodDefault<z.ZodType<Exclude<T[K], undefined>>>
+			: z.ZodType<T[K]>
+		: z.ZodObject<TypeToZod<T[K]>>;
+}>;

@@ -1,9 +1,9 @@
-import { convertToRubyTag } from '$lib/utils/actions.js';
-import { isHiragana } from 'wanakana';
-import type { RecordModel } from 'pocketbase';
-import { json, type RequestHandler } from '@sveltejs/kit';
-import { kanji } from '$lib/static/kanji';
 import { kuroshiro } from '$lib/server/kuroshiro';
+import { kanji } from '$lib/static/kanji';
+import { convertToRubyTag } from '$lib/utils/actions.js';
+import { json, type RequestHandler } from '@sveltejs/kit';
+import type { RecordModel } from 'pocketbase';
+import { isHiragana } from 'wanakana';
 
 async function processFurigana(card: RecordModel, kuroshiro: Kuroshiro) {
 	// Custom furigana processing
@@ -14,7 +14,7 @@ async function processFurigana(card: RecordModel, kuroshiro: Kuroshiro) {
 		// Kuroshiro conversion for kanji cards
 		card.furigana = await kuroshiro.convert(card.name, {
 			to: 'hiragana',
-			mode: 'furigana'
+			mode: 'furigana',
 		});
 	}
 
@@ -37,22 +37,22 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 
 	const flashcards = await locals.pb.collection('flashcard').getFullList({
 		filter: `flashcardBox = "${flashcardBoxId}"`,
-		fields: `id, name, meaning, romanji, furigana, type, notes`
+		fields: `id, name, meaning, romanji, furigana, type, notes`,
 	});
 
 	const processedFlashcards = await Promise.all(
-		flashcards.map((card: RecordModel) => processFurigana(card, kuroshiro))
+		flashcards.map((card: RecordModel) => processFurigana(card, kuroshiro)),
 	);
 
 	return json({
-		flashcards: processedFlashcards
+		flashcards: processedFlashcards,
 	});
 };
 
 // Get kanji meaning or name by slug
 function getKanjiBySlug(slug: string) {
 	const foundKanji = Object.entries(kanji).find(
-		([key, value]) => value.meaning.includes(slug) || key.includes(slug)
+		([key, value]) => value.meaning.includes(slug) || key.includes(slug),
 	);
 
 	return foundKanji && { name: foundKanji[0], meaning: foundKanji[1].meaning };
@@ -74,12 +74,12 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		// Fetch flashcard collections
 		const flashcardCollections = await locals.pb.collection('flashcardCollections').getFullList({
 			filter: `userId = "${locals.pb.authStore.model?.id}" || type = "original"`,
-			expand: 'flashcardBoxes'
+			expand: 'flashcardBoxes',
 		});
 
 		// Get all flashcard box IDs
 		const flashcardBoxIds = flashcardCollections.flatMap((collection) =>
-			collection.flashcardBoxes.map((id: string) => id)
+			collection.flashcardBoxes.map((id: string) => id),
 		);
 
 		// Deduplicate the IDs if necessary
@@ -94,15 +94,15 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		// Fetch flashcards for each flashcard box
 		const flashcards = await locals.pb.collection('flashcard').getList(1, 100, {
 			filter: locals.pb.filter(finalFilter, {
-				search
+				search,
 			}),
 			expand: 'flashcardBox',
-			fields: `id, name, meaning, type, furigana, flashcardBox, expand.flashcardBox.name`
+			fields: `id, name, meaning, type, furigana, flashcardBox, expand.flashcardBox.name`,
 		});
 
 		// Process the furigana for each flashcard
 		const processedFlashcards = await Promise.all(
-			flashcards.items.map((card: RecordModel) => processFurigana(card, kuroshiro))
+			flashcards.items.map((card: RecordModel) => processFurigana(card, kuroshiro)),
 		);
 
 		// Get the kanji by slug

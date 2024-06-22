@@ -2,7 +2,7 @@
 	import {
 		clickedEditFlashcard,
 		currentFlashcardTypeStore,
-		clickedAddFlashcardCollection
+		clickedAddFlashcardCollection,
 	} from '$lib/utils/stores';
 	import * as Select from '$lib/components/ui/select';
 	import { Input } from '$lib/components/ui/input';
@@ -23,7 +23,7 @@
 
 	$: selected = {
 		value: $formData.type,
-		label: $formData.type
+		label: $formData.type,
 	};
 </script>
 
@@ -54,7 +54,7 @@
 								duration: 1000,
 								opacity: 0,
 								y: 1000,
-								easing: quintOut
+								easing: quintOut,
 							}}
 							class="z-2 absolute bottom-0 left-0 h-2/3 w-full rounded-md bg-blue-200 p-4 text-black"
 						>

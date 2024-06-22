@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { searchedWordStore, openSearch } from '$lib/utils/stores';
+	import { searchedWordStore, openSearch, searchKanji } from '$lib/utils/stores';
 	import { onMount } from 'svelte';
 	import { getRandomKanji } from '$lib/utils.js';
 	import * as Command from '$lib/components/ui/command';
@@ -51,7 +51,11 @@
 		$searchedWordStore = currentHoveredFlashcard;
 
 		// If it is a kanji, go to the kanji page
-		if (!$searchedWordStore.type) goto('/alphabets/kanji');
+		if (!$searchedWordStore.type) {
+			if (!$searchedWordStore.type) $searchKanji = $searchedWordStore?.name;
+			goto('/alphabets/kanji');
+			return;
+		}
 
 		try {
 			const newSearch = await pocketbase.collection('searches').create({

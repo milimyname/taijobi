@@ -13,13 +13,12 @@
 		flashcardBoxes,
 		clickedQuizForm,
 		currentAlphabet,
-		currentBoxId
+		currentBoxId,
 	} from '$lib/utils/stores';
 	import { Dices, Settings, Plus } from 'lucide-svelte';
 	import { quintOut } from 'svelte/easing';
 	import { fly } from 'svelte/transition';
 
-	/** @type {import('./$types').PageData} */
 	export let data;
 
 	export let quizFormData;
@@ -52,8 +51,8 @@
 				...$flashcardBoxes,
 				{
 					id: box.id,
-					name: box.name
-				}
+					name: box.name,
+				},
 			];
 		});
 
@@ -97,7 +96,7 @@
 			duration: 500,
 			opacity: 0,
 			y: 1000,
-			easing: quintOut
+			easing: quintOut,
 		}}
 	>
 		{#if $flashcardsBoxType !== 'original' || data.isAdmin}
