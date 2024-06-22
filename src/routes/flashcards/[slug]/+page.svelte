@@ -42,7 +42,7 @@
 	let flashcards: FlashcardType[] = [];
 	let isLoading = false;
 
-	let islocalBoxTypeOriginal = getLocalStorageItem('flashcardsBoxType') !== 'original';
+	let islocalBoxTypeOriginal = getLocalStorageItem('flashcardsBoxType');
 
 	// Fetch flashcards from the server
 	async function fetchFlashcards() {
@@ -165,6 +165,11 @@
 
 	// Scroll to the current flashcard after multiple drawing state
 	$: if (!$canIdrawMultipleTimes && browser && currentIndex && embla) embla.scrollTo(currentIndex);
+
+	$: showEdit =
+		data.isLoggedIn &&
+		(($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal !== 'original') ||
+			$page.data.isAdmin);
 </script>
 
 <FlashcardForm {form} />
@@ -187,7 +192,7 @@
 			<div class="flex items-center justify-center sm:mx-auto sm:w-[600px] lg:-order-1">
 				<CallBackButton />
 
-				{#if data.isLoggedIn && (($flashcardsBoxType !== 'original' && !islocalBoxTypeOriginal) || $page.data.isAdmin)}
+				{#if showEdit}
 					<EditButton form={form.form} currentFlashcard={flashcards[currentIndex]} />
 				{/if}
 			</div>
