@@ -56,16 +56,21 @@ async function createCopiedFlashcards(
 	try {
 		return await Promise.all(
 			flashcards.map((flashcard) =>
-				pb.collection('flashcard').create({
-					name: flashcard?.name,
-					meaning: flashcard?.meaning,
-					type: flashcard?.type,
-					romanji: flashcard?.romanji,
-					furigana: flashcard?.furigana,
-					partOfSpeech: flashcard?.partOfSpeech,
-					copiedFlashcard: flashcard?.id,
-					flashcardBox: boxId,
-				}),
+				pb.collection('flashcard').create(
+					{
+						name: flashcard?.name,
+						meaning: flashcard?.meaning,
+						type: flashcard?.type,
+						romanji: flashcard?.romanji,
+						furigana: flashcard?.furigana,
+						partOfSpeech: flashcard?.partOfSpeech,
+						copiedFlashcard: flashcard?.id,
+						flashcardBox: boxId,
+					},
+					{
+						requestKey: null,
+					},
+				),
 			),
 		);
 	} catch (error) {

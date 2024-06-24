@@ -97,7 +97,7 @@
 	/>
 	<Command.List>
 		<Command.Empty>No results found.</Command.Empty>
-		<div class="relative grid grid-cols-3">
+		<div class="relative grid grid-cols-3 h-screen">
 			{#if fetchedData.length > 0}
 				<Command.Group heading="Suggestions" class="border-r">
 					{#each fetchedData as flashcard}

@@ -3,7 +3,6 @@
 	import type { SuperForm, Infer } from 'sveltekit-superforms';
 	import * as Form from '$lib/components/ui/form';
 	import { Input } from '$lib/components/ui/input';
-	import { cn, isDesktop } from '$lib/utils';
 	import { getContext } from 'svelte';
 	import * as Select from '$lib/components/ui/select';
 
@@ -37,11 +36,7 @@
 	$: if ($formData.collectionId === 'new-collection') $formData.boxId = 'new-box';
 </script>
 
-<form
-	method="POST"
-	use:enhance
-	class={cn('search-form z-[1000] flex w-full flex-col', !$isDesktop && 'px-4')}
->
+<form method="POST" use:enhance class="search-form z-[1000] flex w-full flex-col px-5">
 	<div class="mb-auto flex flex-col gap-2">
 		<Form.Field {form} name="collectionId">
 			<Form.Control let:attrs>

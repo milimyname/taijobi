@@ -85,14 +85,16 @@
 		</DrawerDialog.Trigger>
 	</div>
 
-	<DrawerDialog.Content class="z-[101] max-md:px-0 drawerNested w-full md:max-w-xl px-4">
-		<DrawerDialog.Header class="text-left">
-			<DrawerDialog.Title>Add a new flashcards box</DrawerDialog.Title>
-			<DrawerDialog.Description>
-				Select a collection and a box to add the selected flashcards to.
-			</DrawerDialog.Description>
-			<ScrollArea class="" orientation="horizontal">
-				<div class="flex space-x-4 pb-2">
+	<DrawerDialog.Content class="z-[101] px-0 drawerNested w-full md:max-w-xl">
+		<DrawerDialog.Header class="text-left overflow-hidden px-0">
+			<div class="px-5">
+				<DrawerDialog.Title>Add a new flashcards box</DrawerDialog.Title>
+				<DrawerDialog.Description>
+					Select a collection and a box to add the selected flashcards to.
+				</DrawerDialog.Description>
+			</div>
+			<ScrollArea class="px-0" orientation="horizontal">
+				<div class="flex space-x-4 pb-3 pl-5">
 					{#each $selectedSearchFlashcards as box}
 						<Card.Root
 							class="cursor-pointer hover:shadow-md transition-shadow duration-300 ease-linear flex flex-col justify-between"
@@ -105,7 +107,7 @@
 								<Button
 									size="icon"
 									variant="none"
-									class="absolute right-2 top-1 size-fit"
+									class="absolute right-1.5 top-0.5 size-fit"
 									on:click={() => removeFlashcardFromSelected(box)}
 								>
 									<CircleX class="size-4 text-red-700" />
@@ -121,10 +123,8 @@
 				<DrawerDialog.Close asChild let:builder>
 					<Button builders={[builder]} class="w-full" {disabled}>Add</Button>
 				</DrawerDialog.Close>
-				<!-- <Button class="w-full" {disabled}>Add</Button> -->
 			</div>
 		</FormSearchDrawerDialog>
-
 		<DrawerDialog.Footer className="md:hidden px-5">
 			<DrawerDialog.Close asChild let:builder>
 				<Button builders={[builder]} variant="outline">Cancel</Button>
