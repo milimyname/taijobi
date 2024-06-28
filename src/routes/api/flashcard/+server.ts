@@ -1,6 +1,7 @@
 import { kuroshiro } from '$lib/server/kuroshiro';
 import { kanji } from '$lib/static/kanji';
 import { convertToRubyTag } from '$lib/utils/actions.js';
+import { getFlashcardPartOfSpeech, getFlashcardType } from '$lib/utils/flashcard';
 import { json, type RequestHandler } from '@sveltejs/kit';
 import type { RecordModel } from 'pocketbase';
 import { isHiragana } from 'wanakana';
@@ -59,15 +60,58 @@ function getKanjiBySlug(slug: string) {
 }
 
 // Get the flashcard box by slug and return the flashcards for command component
-export const POST: RequestHandler = async ({ locals, request }) => {
+export const POST: RequestHandler = async ({ locals, request, fetch }) => {
 	try {
 		// Check if the user is authenticated
 		if (!locals.pb.authStore.model) return json({ error: 'User not authenticated' });
 
-		const { search } = await request.json();
+		const { search, type } = await request.json();
 
 		// If search is not provided, return an error
-		if (!search) return json({ error: 'Search is required' });
+		if (!search) return json({ error: 'Queries are missing' });
+
+		if (type === 'search') {
+			const res = await fetch('/api/openai', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ input: search, type: 'search' }),
+			});
+
+			const data = await res.json();
+
+			console.log(data);
+
+			if (data.meaning === 'Does not exist') return json({ error: 'Flashcard not found' });
+
+			const type = getFlashcardType(data.type);
+			const partOfSpeech = getFlashcardPartOfSpeech(data.partOfSpeech);
+
+			// Create a flashcard if the search is a kanji
+			let flashcard = await locals.pb.collection('flashcard').create({
+				name: data.name,
+				meaning: data.meaning.includes(';') ? data.meaning.split(';').join(',') : data.meaning,
+				type,
+				romanji: data.romanji,
+				furigana: data.furigana,
+				partOfSpeech,
+			});
+
+			const newSearch = await locals.pb.collection('searches').create({
+				flashcard: flashcard.id,
+				user: locals.pb.authStore.model.id,
+				searchQuery: search,
+			});
+
+			flashcard = await locals.pb.collection('flashcard').update(flashcard.id, {
+				'searches+': newSearch.id,
+			});
+
+			console.log('new', flashcard);
+
+			return json({ flashcard });
+		}
 
 		console.time('searchFlashcards');
 
@@ -115,6 +159,49 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		}
 
 		console.timeEnd('searchFlashcards');
+
+		if (processedFlashcards.length === 0 && type === 'find') {
+			const res = await fetch('/api/openai', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ input: search, type: 'find' }),
+			});
+
+			const data = await res.json();
+
+			console.log(data);
+
+			if (data.meaning === 'Does not exist') return json({ error: 'Flashcard not found' });
+
+			const type = getFlashcardType(data.type);
+			const partOfSpeech = getFlashcardPartOfSpeech(data.partOfSpeech);
+
+			// Create a flashcard if the search is a kanji
+			let flashcard = await locals.pb.collection('flashcard').create({
+				name: data.name,
+				meaning: data.meaning.includes(';') ? data.meaning.split(';').join(',') : data.meaning,
+				type,
+				romanji: data.romanji,
+				furigana: data.furigana,
+				partOfSpeech,
+			});
+
+			const newSearch = await locals.pb.collection('searches').create({
+				flashcard: flashcard.id,
+				user: locals.pb.authStore.model.id,
+				searchQuery: search,
+			});
+
+			flashcard = await locals.pb.collection('flashcard').update(flashcard.id, {
+				'searches+': newSearch.id,
+			});
+
+			console.log('new', flashcard);
+
+			return json({ flashcards: newSearch });
+		}
 
 		return json({ flashcards: processedFlashcards });
 	} catch (error) {

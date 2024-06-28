@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Flashcard from './flashcard-plain.svelte';
 	import Skeleton from './flashcard-skeleton.svelte';
-	import CallBackButton from './callback-btn.svelte';
+	import CallBackButton from '$lib/components/callback-btn.svelte';
 	import {
 		clickedAddFlashcardCollection,
 		flashcardsBoxType,

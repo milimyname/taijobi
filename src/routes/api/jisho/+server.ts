@@ -1,7 +1,7 @@
-import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { kuroshiro } from '$lib/server/kuroshiro';
-import { jisho, type JishoAPIResult } from '$lib/utils/jisho';
+import { jisho } from '$lib/utils/jisho';
+import type { RequestHandler } from './$types';
+import { json } from '@sveltejs/kit';
 
 export const POST: RequestHandler = async ({ request, fetch }) => {
 	const { input } = await request.json();
@@ -17,14 +17,14 @@ export const POST: RequestHandler = async ({ request, fetch }) => {
 			data.results.slice(0, 10).map(async (message) => {
 				const furigana = await kuroshiro.convert(message.kanji, {
 					to: 'hiragana',
-					mode: 'furigana'
+					mode: 'furigana',
 				});
 
 				return {
 					...message,
-					furigana
+					furigana,
 				};
-			})
+			}),
 		);
 
 		if (examples.length > 0) return json(examples);
@@ -33,9 +33,9 @@ export const POST: RequestHandler = async ({ request, fetch }) => {
 		const res = await fetch('/api/openai', {
 			method: 'POST',
 			headers: {
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify({ input, type: 'text' })
+			body: JSON.stringify({ input, type: 'text' }),
 		});
 
 		if (!res.ok) return json({ error: 'No results found' });

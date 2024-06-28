@@ -121,7 +121,9 @@
 						)}
 					>
 						<Card.Header class="relative">
-							<Card.Title>{search?.expand?.flashcard?.name}</Card.Title>
+							<Card.Title class="line-clamp-3	hover:line-clamp-none">
+								{search?.expand?.flashcard?.name}
+							</Card.Title>
 
 							{#if sortedSearches.length > 0}
 								<Button
@@ -135,15 +137,15 @@
 								</Button>
 							{/if}
 						</Card.Header>
-						<Card.Content class="flex flex-wrap gap-1">
+						<Card.Content class="flex flex-wrap gap-1 overflow-auto">
 							<Tooltip.Root>
 								<Tooltip.Trigger>
-									<Badge>
+									<Badge class="truncate">
 										{search.searchQuery}
 									</Badge>
 								</Tooltip.Trigger>
 								<Tooltip.Content>
-									<p>Search Keyword</p>
+									<p>Search KeywCord</p>
 								</Tooltip.Content>
 							</Tooltip.Root>
 

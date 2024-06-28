@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { searchedWordStore, openSearch, searchKanji } from '$lib/utils/stores';
+	import { searchedWordStore, openSearch, searchKanji, flashcardBoxes } from '$lib/utils/stores';
 	import { onMount } from 'svelte';
-	import { getRandomKanji } from '$lib/utils.js';
+	import { cn, getRandomKanji } from '$lib/utils.js';
 	import * as Command from '$lib/components/ui/command';
 	import { page } from '$app/stores';
 	import { pocketbase } from '$lib/utils/pocketbase';
@@ -27,6 +27,24 @@
 			const data = await res.json();
 
 			fetchedData = data.flashcards;
+		} catch (error) {
+			console.error(error);
+		}
+	}
+	async function generateNew() {
+		if (search === '') return;
+
+		try {
+			const res = await fetch('/api/flashcard', {
+				method: 'POST',
+				body: JSON.stringify({ search, type: 'search' }),
+			});
+
+			if (!res.ok) return new Error('Failed to fetch flashcards');
+
+			const data = await res.json();
+
+			fetchedData = [...fetchedData, data.flashcard];
 		} catch (error) {
 			console.error(error);
 		}
@@ -80,11 +98,11 @@
 
 	$: if (search !== '') setTimeout(async () => await fetchFlashcards(), 100);
 
-	$: if (search !== '' && fetchedData.length === 0) value = '';
+	$: if (search !== '' && fetchedData && fetchedData.length === 0) value = '';
 
 	$: currentHoveredFlashcard = fetchedData?.find((flashcard) => flashcard.id === value);
 
-	$: fetchedData.length === 1 && (value = fetchedData[0].id);
+	$: fetchedData && fetchedData.length === 1 && (value = fetchedData[0].id);
 </script>
 
 <Command.Dialog bind:open={$openSearch} bind:value shouldFilter={false}>
@@ -96,9 +114,17 @@
 			: 'Search for a word...'}
 	/>
 	<Command.List>
-		<Command.Empty>No results found.</Command.Empty>
-		<div class="relative grid grid-cols-3 h-screen">
-			{#if fetchedData.length > 0}
+		<Command.Empty class="space-y-2 max-sm:h-[78dvh]">
+			<p class="text-xl h-full">No results found.</p>
+
+			<div class="px-4 sticky bottom-4">
+				<Button variant="outline" class="w-full" on:click={generateNew}
+					>Generate a new flashcard</Button
+				>
+			</div>
+		</Command.Empty>
+		{#if fetchedData && fetchedData.length > 0}
+			<div class="relative grid grid-cols-3 max-sm:h-[78dvh] h-fit">
 				<Command.Group heading="Suggestions" class="border-r">
 					{#each fetchedData as flashcard}
 						<Command.Item value={flashcard.id} class="flex flex-col items-start gap-0.5">
@@ -107,33 +133,43 @@
 						</Command.Item>
 					{/each}
 				</Command.Group>
-			{/if}
 
-			{#if currentHoveredFlashcard}
-				<div
-					class="sticky top-0 col-span-2 flex h-[60dvh] flex-col items-center justify-center gap-10 px-2 md:h-72"
-				>
-					{#if currentHoveredFlashcard.furigana}
-						<h2 class="text-center text-4xl">
-							{@html currentHoveredFlashcard.furigana}
-						</h2>
-					{:else}
-						<h2 class="text-4xl font-bold">{currentHoveredFlashcard.name}</h2>
-					{/if}
-
-					<h3>{currentHoveredFlashcard.meaning}</h3>
-
-					<Button variant="none" on:click={handleClick} class="text-center underline">
-						<span>See more</span>
-
-						{#if currentHoveredFlashcard?.expand}
-							<span class="italic">
-								- Collection {currentHoveredFlashcard.expand.flashcardBox.name}</span
-							>
+				{#if currentHoveredFlashcard}
+					<div
+						class="sticky top-0 col-span-2 flex flex-col items-center justify-center gap-10 px-2 md:h-72"
+					>
+						{#if currentHoveredFlashcard.furigana}
+							<h2 class="text-center text-4xl">
+								{@html currentHoveredFlashcard.furigana}
+							</h2>
+						{:else}
+							<h2 class="text-4xl font-bold">{currentHoveredFlashcard.name}</h2>
 						{/if}
-					</Button>
-				</div>
-			{/if}
-		</div>
+
+						<h3>{currentHoveredFlashcard.meaning}</h3>
+
+						{#if currentHoveredFlashcard?.flashcardBox === '' && currentHoveredFlashcard?.searches[0]}
+							<Button
+								variant="link"
+								href={`/search/${currentHoveredFlashcard?.searches[0]}`}
+								class="text-center underline"
+							>
+								Search it
+							</Button>
+						{:else}
+							<Button variant="none" on:click={handleClick} class="text-center underline">
+								<span>See more</span>
+
+								{#if currentHoveredFlashcard?.expand}
+									<span class="italic">
+										- Collection {currentHoveredFlashcard.expand.flashcardBox.name}</span
+									>
+								{/if}
+							</Button>
+						{/if}
+					</div>
+				{/if}
+			</div>
+		{/if}
 	</Command.List>
 </Command.Dialog>

@@ -6,6 +6,7 @@
 	import { tweened } from 'svelte/motion';
 	import { SendHorizonal } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
+	import { tokenize, toKana } from 'wanakana';
 
 	export let question;
 	export let checkAnswer: (answerType: string) => void;
@@ -47,6 +48,8 @@
 			if (input) input.focus();
 		}, 100);
 	}
+
+	$: console.log(toKana(inputValue));
 
 	$: $tweenedRatio = ratio;
 </script>
@@ -92,6 +95,7 @@
 			bind:value={inputValue}
 			class="conjugation-input"
 			disabled={isSubmitted || isNewQuestion}
+			on:change={() => (inputValue = toKana(inputValue))}
 			on:keydown={(e) => e.key === 'Enter' && onSubmit()}
 		/>
 

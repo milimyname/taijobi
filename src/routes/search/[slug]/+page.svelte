@@ -17,6 +17,7 @@
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { setContext } from 'svelte';
 	import { toast } from 'svelte-sonner';
+	import CallBackButton from '$lib/components/callback-btn.svelte';
 
 	export let data;
 
@@ -85,11 +86,16 @@
 			<History class="size-5 color-current mr-2" />
 			<span>See History</span>
 		</Button>
-		<Button
-			variant="outline"
-			on:click={() => goto(`/flashcards/${$searchedWordStore?.flashcardBox}`)}
-		>
-			Go to Flashcard
-		</Button>
+
+		{#if $searchedWordStore?.flashcardBox}
+			<Button
+				variant="outline"
+				on:click={() => goto(`/flashcards/${$searchedWordStore?.flashcardBox}`)}
+			>
+				Go to Flashcard
+			</Button>
+		{/if}
+
+		<CallBackButton />
 	</div>
 </section>

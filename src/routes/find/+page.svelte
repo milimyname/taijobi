@@ -13,13 +13,14 @@
 		searchKanji,
 		kanjiStore,
 		searchedWordStore,
-		strokes
+		strokes,
 	} from '$lib/utils/stores';
 	import { isKanji, isKatakana, isHiragana } from 'wanakana';
 	import { goto } from '$app/navigation';
 	import type { RecordModel } from 'pocketbase';
 	import { page } from '$app/stores';
 	import CanvasPanel from '$lib/components/canvas/CanvasPanel.svelte';
+	import { isJapanese } from 'wanakana';
 
 	let canvas: HTMLCanvasElement;
 	let recognizedLetters: string[] = [];
@@ -57,10 +58,13 @@
 							console.error('Recognition error:', error);
 							reject(error); // Reject the promise with an error message on failure
 						} else {
-							recognizedLetters = [...recognizedLetters, ...results];
+							recognizedLetters = [
+								...recognizedLetters,
+								...results.filter((letter) => isJapanese(letter)),
+							];
 							resolve(results); // Resolve the promise with the recognition results on success
 						}
-					}
+					},
 				);
 			} catch (err) {
 				const message = err instanceof Error ? err.message : 'An error occurred';
@@ -73,13 +77,11 @@
 		toast.promise(recognize(), {
 			loading: 'Processing image...',
 			success: 'Successfully recognized it!',
-			error: 'Failed to recognize the character. Please try again.'
+			error: 'Failed to recognize the character. Please try again.',
 		});
 
 		// Check if the recognized letter is a valid Japanese character
-		recognizedLetters = recognizedLetters.filter(
-			(letter) => isKanji(letter) || isKatakana(letter) || isHiragana(letter)
-		);
+		recognizedLetters = recognizedLetters.filter((letter) => isJapanese(letter));
 	}
 
 	// Fetch flashcards from the server
@@ -87,7 +89,7 @@
 		try {
 			const res = await fetch('/api/flashcard', {
 				method: 'POST',
-				body: JSON.stringify({ search })
+				body: JSON.stringify({ search, type: 'find' }),
 			});
 
 			if (!res.ok) return new Error('Failed to fetch flashcards');
@@ -99,7 +101,7 @@
 			console.error(error);
 
 			toast.error(
-				'Failed to fetch flashcards. Please try again or sign in to see more flashcards.'
+				'Failed to fetch flashcards. Please try again or sign in to see more flashcards.',
 			);
 		}
 	}
@@ -114,9 +116,17 @@
 		if (letter === '' && word) {
 			const foundFlashcards = await fetchFlashcards(word);
 
+			console.log('Found the word:', foundFlashcards);
+
+			if (!Array.isArray(foundFlashcards)) {
+				goto(`/search/${foundFlashcards?.id}?callback=${callback}`);
+
+				return;
+			}
+
 			if (foundFlashcards?.length === 0 || !foundFlashcards)
 				return toast.error(
-					'This word is not found. Find it by breaking down to kanji or please leave a feedback by clicking the 🐞 above'
+					'This word is not found. Find it by breaking down to kanji or please leave a feedback by clicking the 🐞 above',
 				);
 
 			const foundWord = foundFlashcards.find((flashcard: RecordModel) => {
@@ -126,7 +136,7 @@
 
 			if (!foundWord)
 				return toast.error(
-					'This word is not found. Find it by breaking down to kanji or please leave a feedback by clicking the 🐞 above'
+					'This word is not found. Find it by breaking down to kanji or please leave a feedback by clicking the 🐞 above',
 				);
 
 			toast.success(`Found the word: ${foundWord.name}. Redirecting to the flashcard page...`);
@@ -143,8 +153,8 @@
 			return toast.error('Please look for it in alphabets section.', {
 				action: {
 					label: isKatakanaLetter ? 'Katakana' : 'Hiragana',
-					onClick: () => goto(`/alphabets/${isKatakanaLetter ? 'katakana' : 'hiragana'}`)
-				}
+					onClick: () => goto(`/alphabets/${isKatakanaLetter ? 'katakana' : 'hiragana'}`),
+				},
 			});
 		}
 
@@ -152,8 +162,9 @@
 
 		// Check if the letter is available in the kanji store
 		if (!kanjiExists || !letter) {
+			const foundFlashcards = await fetchFlashcards(word);
 			return toast.error(
-				'This kanji is not available. Please leave a feedback by clicking the 🐞 above'
+				'This kanji is not available. Please leave a feedback by clicking the 🐞 above',
 			);
 		}
 
@@ -175,7 +186,7 @@
 
 <section class="flex h-full flex-col justify-center gap-4 sm:gap-5">
 	{#if recognizedLetters.length > 0}
-		<ScrollArea class="overflow-y-visible whitespace-nowrap" orientation="horizontal">
+		<ScrollArea class="overflow-y-visible whitespace-nowrap -order-1" orientation="horizontal">
 			<div
 				class="flex w-max space-x-4 pb-4"
 				style={`width: ${getFlashcardWidth($innerWidthStore)}px;`}
@@ -193,7 +204,7 @@
 		</ScrollArea>
 	{:else}
 		<div
-			class="invisible flex w-max space-x-4 pb-4 opacity-0"
+			class="invisible flex w-max space-x-4 pb-4 opacity-0 -order-1"
 			style={`width: ${getFlashcardWidth($innerWidthStore)}px;`}
 		>
 			{#each ['あ'] as letter}
