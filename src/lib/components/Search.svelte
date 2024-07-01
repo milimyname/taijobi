@@ -118,14 +118,17 @@
 			<p class="text-xl h-full">No results found.</p>
 
 			<div class="px-4 sticky bottom-4">
-				<Button variant="outline" class="w-full" on:click={generateNew}
-					>Generate a new flashcard</Button
-				>
+				<Button variant="outline" class="w-full" on:click={generateNew}>
+					Generate a new flashcard
+				</Button>
 			</div>
 		</Command.Empty>
 		{#if fetchedData && fetchedData.length > 0}
-			<div class="relative grid grid-cols-3 max-sm:h-[78dvh] h-fit">
-				<Command.Group heading="Suggestions" class="border-r">
+			<div class="relative grid grid-cols-3">
+				<Command.Group
+					heading="Suggestions"
+					class={cn('border-r', fetchedData.length < 4 && 'max-md:h-[78dvh] h-fit')}
+				>
 					{#each fetchedData as flashcard}
 						<Command.Item value={flashcard.id} class="flex flex-col items-start gap-0.5">
 							<h4 class="font-medium">{flashcard.name}</h4>
@@ -136,7 +139,7 @@
 
 				{#if currentHoveredFlashcard}
 					<div
-						class="sticky top-0 col-span-2 flex flex-col items-center justify-center gap-10 px-2 md:h-72"
+						class="sticky overflow-hidden max-md:h-[78dvh] h-fit top-0 col-span-2 flex flex-col items-center justify-center gap-10 px-2 md:h-72"
 					>
 						{#if currentHoveredFlashcard.furigana}
 							<h2 class="text-center text-4xl">
@@ -158,12 +161,12 @@
 							</Button>
 						{:else}
 							<Button variant="none" on:click={handleClick} class="text-center underline">
-								<span>See more</span>
-
 								{#if currentHoveredFlashcard?.expand}
 									<span class="italic">
-										- Collection {currentHoveredFlashcard.expand.flashcardBox.name}</span
-									>
+										Collection {currentHoveredFlashcard.expand.flashcardBox.name}
+									</span>
+								{:else}
+									<span class="italic">See it</span>
 								{/if}
 							</Button>
 						{/if}

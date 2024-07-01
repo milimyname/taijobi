@@ -81,7 +81,7 @@
 </script>
 
 <DrawerDialog.Root open={$openHistory} onOutsideClick={onClickOutSideClick} onClose={onCloseDrawer}>
-	<DrawerDialog.Content className="w-full  md:max-w-2xl p-0">
+	<DrawerDialog.Content className="w-full max-h-[90dvh] md:max-w-2xl p-0">
 		<DrawerDialog.Header class="text-left p-5 pb-0 space-y-2 max-md:mb-5">
 			<DrawerDialog.Title>Search History</DrawerDialog.Title>
 			<DrawerDialog.Description className="flex gap-1 sm:gap-2">
