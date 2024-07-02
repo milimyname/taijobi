@@ -12,7 +12,8 @@
 	type ConjugationList = {
 		name: string;
 		id: string;
-		conjugation: VerbConjugationResult[];
+		flashcards: VerbConjugationResult[];
+		settings?: string[];
 	};
 
 	type VerbConjugationResult = {
@@ -24,7 +25,13 @@
 		furigana?: string;
 	};
 
-	let conjugationsList: ConjugationList[] = data.conjugationDemoList[0].data;
+	// let conjugationsList: ConjugationList[] = data.conjugationDemoList[0].flashcards;
+	let conjugationsList: ConjugationList[] =
+		$page.params.slug === 'demo'
+			? data.conjugationDemoList[0].flashcards
+			: data.conjugation.flashcards;
+
+	let settings = data.conjugation?.settings;
 	let currentQuestionIndex = 0;
 	let currentVerbIndex = 0;
 	let question: VerbConjugationResult;
@@ -40,9 +47,12 @@
 	function setupNewQuestion() {
 		// Filter out the verbs based on the settings
 
-		let settings = localStorage.getItem(`conjugationSettings_${$page.params.slug}`);
+		if ($page.params.slug === 'demo')
+			settings = localStorage.getItem(`conjugationSettings_${$page.params.slug}`);
 
-		if (settings) settings = JSON.parse(settings);
+		if (settings && $page.params.slug === 'demo') settings = JSON.parse(settings);
+
+		console.log(settings);
 
 		const verb = conjugationsList[currentVerbIndex];
 

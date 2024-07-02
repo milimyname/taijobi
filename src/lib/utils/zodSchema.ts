@@ -101,6 +101,24 @@ export const searchCollectionSchema = z
 
 export type SearchCollectionSchema = typeof searchCollectionSchema;
 
+export const conjugationFormSchema = z.object({
+	id: z.string(),
+	name: z.string(),
+	flashcards: z.array(
+		z.object({
+			id: z.string(),
+			name: z.string(),
+			type: z.string().optional(),
+			meaning: z.string().optional(),
+			partOfSpeech: z.string().optional(),
+		}),
+	),
+	settings: z.array(z.string()),
+	userId: z.string().optional(),
+});
+
+export type ConjugationFormSchema = typeof conjugationFormSchema;
+
 export const feedbackSchema = z.object({
 	description: z.string().max(1000),
 	userId: z.string(),

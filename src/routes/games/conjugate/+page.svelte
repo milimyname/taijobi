@@ -8,7 +8,18 @@
 	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import ConjugateDrawerDialog from './conjugate-drawer-dialog.svelte';
-	import { openConjugation } from '$lib/utils/stores';
+	import {
+		openConjugation,
+		nestedSearchDrawerOpen,
+		selectedConjugatingFlashcards,
+	} from '$lib/utils/stores';
+	import { setContext } from 'svelte';
+	import { toast } from 'svelte-sonner';
+	import { zodClient } from 'sveltekit-superforms/adapters';
+	import { superForm } from 'sveltekit-superforms';
+	import { conjugationFormSchema } from '$lib/utils/zodSchema';
+	import { page } from '$app/stores';
+	import { pocketbase } from '$lib/utils/pocketbase';
 
 	export let data;
 
@@ -25,10 +36,33 @@
 	let checkedList: string[] = [];
 	let selectedConjugation: Conjugation | null = null;
 
-	$: if (showSettings) {
-		const settings = localStorage.getItem(`conjugationSettings_${selectedConjugation?.id}`);
-		if (settings) checkedList = JSON.parse(settings);
-	}
+	// Search for Flashcard collection form:
+	const superConjugationForm = superForm(data.form, {
+		dataType: 'json',
+		validators: zodClient(conjugationFormSchema),
+		onUpdated: ({ form }) => {
+			// Keep the form open if there is an error
+			if (Object.keys(form.errors).length !== 0) return ($nestedSearchDrawerOpen = true);
+
+			// Close the form if there is no error
+			$nestedSearchDrawerOpen = false;
+			$selectedConjugatingFlashcards = [];
+			// Set it to the current flashcard collection
+			// localStorage.setItem('currentFlashcardCollectionId', form.data.collectionId);
+			toast('New Conjugation Quiz created successfully', {
+				action: {
+					label: 'See it now',
+					onClick: () => {
+						goto(`/games/conjugate/${form.data.id}`);
+					},
+				},
+			});
+		},
+	});
+
+	// Set Contexts
+	setContext('ogFlashcardBoxes', data?.ogFlashcardBoxes);
+	setContext('superConjugationForm', superConjugationForm);
 
 	function onOutsideClickDrawer(e: MouseEvent | TouchEvent | PointerEvent) {
 		setTimeout(() => {
@@ -46,15 +80,22 @@
 		e.stopPropagation();
 		showSettings = !showSettings;
 		selectedConjugation = conjugation;
+
+		checkedList = selectedConjugation?.settings || [];
+	}
+
+	$: if (showSettings) {
+		const settings = localStorage.getItem(`conjugationSettings_${selectedConjugation?.id}`);
+		if (settings) checkedList = JSON.parse(settings);
 	}
 
 	$: conjugations = (() => {
 		// Apply hiddenExamples filter
-		return data.conjugationDemoList.filter(() => !hiddenExamples);
+		return [...data.conjugationDemoList.filter(() => !hiddenExamples), ...data.conjugations];
 	})();
 </script>
 
-<ConjugateDrawerDialog flashcardBoxes={data?.ogFlashcardBoxes} />
+<ConjugateDrawerDialog />
 
 <DrawerDialog.Root open={showSettings} onOutsideClick={onOutsideClickDrawer} {onClose}>
 	<DrawerDialog.Content>
@@ -66,20 +107,45 @@
 				<Checkbox
 					id={type}
 					checked={checkedList.includes(value)}
-					on:click={() => {
+					on:click={async () => {
 						if (checkedList.includes(value))
 							checkedList = checkedList.filter((item) => item !== value);
 						else checkedList = [...checkedList, value];
 
-						localStorage.setItem(
-							`conjugationSettings_${selectedConjugation?.id}`,
-							JSON.stringify(checkedList),
-						);
+						if (selectedConjugation?.id === 'demo') {
+							localStorage.setItem(
+								`conjugationSettings_${selectedConjugation?.id}`,
+								JSON.stringify(checkedList),
+							);
+						} else {
+							try {
+								await pocketbase.collection('conjugations').update(selectedConjugation?.id, {
+									settings: checkedList,
+								});
+							} catch (error) {
+								console.error(error);
+							}
+						}
 					}}
 				/>
 				<Label for={type}>{value}</Label>
 			{/each}
 		</div>
+		<!-- {#if selectedConjugation?.id !== 'demo'}
+			<Button
+				size="sm"
+				variant="destructive"
+				on:click={async () => {
+					try {
+						await pocketbase.collection('conjugations').delete(selectedConjugation?.id);
+					} catch (error) {
+						console.error(error);
+					}
+				}}
+			>
+				Delete
+			</Button>
+		{/if} -->
 
 		<DrawerDialog.Footer className="md:hidden">
 			<DrawerDialog.Close asChild let:builder>

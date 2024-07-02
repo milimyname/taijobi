@@ -35,6 +35,7 @@ export type FlashcardType = {
 	type?: string;
 	furigana?: string;
 	flashcardBox?: string;
+	partOfSpeech?: verb | adjective | unknown;
 };
 
 export type ProgressDataItem = {

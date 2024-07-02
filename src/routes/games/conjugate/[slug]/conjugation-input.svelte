@@ -49,7 +49,7 @@
 		}, 100);
 	}
 
-	$: console.log(toKana(inputValue));
+	// $: console.log(toKana(inputValue));
 
 	$: $tweenedRatio = ratio;
 </script>

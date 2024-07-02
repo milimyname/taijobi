@@ -127,7 +127,7 @@
 			<div class="relative grid grid-cols-3">
 				<Command.Group
 					heading="Suggestions"
-					class={cn('border-r', fetchedData.length < 4 && 'max-md:h-[78dvh] h-fit')}
+					class={cn('border-r', fetchedData.length < 4 && 'max-md:h-[78dvh] h-full')}
 				>
 					{#each fetchedData as flashcard}
 						<Command.Item value={flashcard.id} class="flex flex-col items-start gap-0.5">

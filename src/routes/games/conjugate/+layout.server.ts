@@ -37,7 +37,7 @@ export const load = async ({ locals, fetch }) => {
 			name: 'Demo',
 			type: 'verb',
 			created: new Date(),
-			data: await createDemoData(locals.pb, fetch),
+			flashcards: await createDemoData(locals.pb, fetch),
 		},
 	];
 

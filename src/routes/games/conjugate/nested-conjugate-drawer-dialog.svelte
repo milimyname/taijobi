@@ -3,25 +3,26 @@
 	import * as DrawerDialog from '$lib/components/ui/drawerDialog';
 	import { quintOut } from 'svelte/easing';
 	import { slide } from 'svelte/transition';
-	import FormSearchDrawerDialog from './form-search-drawer-dialog.svelte';
-	import type { SearchCollectionSchema } from '$lib/utils/zodSchema';
+	import type { ConjugationFormSchema } from '$lib/utils/zodSchema';
 	import type { Infer, SuperForm } from 'sveltekit-superforms';
-	import { nestedSearchDrawerOpen, selectedSearchFlashcards } from '$lib/utils/stores';
+	import { nestedSearchDrawerOpen, selectedConjugatingFlashcards } from '$lib/utils/stores';
 	import { getContext } from 'svelte';
-	import type { RecordModel } from 'pocketbase';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
 	import * as Card from '$lib/components/ui/card';
 	import { CircleX } from 'lucide-svelte';
+	import FormConjugationForm from './form-conjugation-form.svelte';
+	import type { FlashcardType } from '$lib/utils/ambient';
 
-	let form: SuperForm<Infer<SearchCollectionSchema>> = getContext('flashcardCollectionForm');
+	const { form: formData, errors }: SuperForm<Infer<ConjugationFormSchema>> =
+		getContext('superConjugationForm');
 
 	function openNestedSearchDrawer() {
 		$nestedSearchDrawerOpen = true;
 	}
 
-	function removeFlashcardFromSelected(box: RecordModel) {
-		$selectedSearchFlashcards = [
-			...$selectedSearchFlashcards.filter((selectedBox) => selectedBox.id !== box.id),
+	function removeFlashcardFromSelected(flashcard: FlashcardType) {
+		$selectedConjugatingFlashcards = [
+			...$selectedConjugatingFlashcards.filter((card) => card !== flashcard),
 		];
 	}
 
@@ -40,38 +41,15 @@
 		onCloseDrawer();
 	}
 
-	const { form: formData, errors } = form;
-
 	let disabled = Object.keys($errors).length > 0;
 
-	$: if ($formData.collectionId === '' || $formData.boxId === '') disabled = true;
-	else if (
-		$formData.collectionId !== 'new-collection' &&
-		$formData.boxId === 'new-box' &&
-		$formData.boxName !== ''
-	)
-		disabled = false;
-	else if (
-		($formData.collectionId === 'new-collection' || $formData.boxId === 'new-box') &&
-		($formData.collectionName === '' || $formData.boxName === '')
-	)
-		disabled = true;
+	$: if ($formData.name === '') disabled = true;
+	else if ($formData.settings.length === 0) disabled = true;
 	else disabled = false;
 
-	$: if ($selectedSearchFlashcards)
-		$formData.flashcards = $selectedSearchFlashcards.map((box) => {
-			return {
-				id: box?.expand?.flashcard?.id,
-				name: box?.expand?.flashcard?.name,
-				meaning: box?.expand?.flashcard?.meaning,
-				furigana: box?.expand?.flashcard?.furigana,
-				romanji: box?.expand?.flashcard?.romanji,
-				partOfSpeech: box?.expand?.flashcard?.partOfSpeech,
-				type: box?.expand?.flashcard?.type,
-			};
-		});
+	$: if ($selectedConjugatingFlashcards.length === 0) onCloseDrawer();
 
-	$: if ($selectedSearchFlashcards.length === 0) onCloseDrawer();
+	$: if ($selectedConjugatingFlashcards) $formData.flashcards = $selectedConjugatingFlashcards;
 </script>
 
 <DrawerDialog.Root
@@ -81,32 +59,32 @@
 >
 	<div transition:slide={{ duration: 300, easing: quintOut, axis: 'y' }} class="w-full">
 		<DrawerDialog.Trigger asChild>
-			<Button class="w-full" on:click={openNestedSearchDrawer}>Create Flashcard Box</Button>
+			<Button class="w-full" on:click={openNestedSearchDrawer}>Create Conjugation Quiz</Button>
 		</DrawerDialog.Trigger>
 	</div>
 
 	<DrawerDialog.Content class="z-[101] px-0 drawerNested w-full md:max-w-xl">
 		<DrawerDialog.Header class="text-left overflow-hidden px-0">
-			<DrawerDialog.Title className="px-5">Add a new flashcards box</DrawerDialog.Title>
+			<DrawerDialog.Title className="px-5">Add a new conjugation quiz</DrawerDialog.Title>
 			<DrawerDialog.Description className="px-5">
 				Select a collection and a box to add the selected flashcards to.
 			</DrawerDialog.Description>
 			<ScrollArea class="px-0" orientation="horizontal">
 				<div class="flex space-x-4 pb-3 pl-5">
-					{#each $selectedSearchFlashcards as box}
+					{#each $selectedConjugatingFlashcards as flashcard}
 						<Card.Root
 							class="cursor-pointer hover:shadow-md transition-shadow duration-300 ease-linear flex flex-col justify-between"
 						>
 							<Card.Header class="relative">
 								<Card.Title class="truncate overflow-x-auto">
-									{box?.expand?.flashcard?.name}
+									{flashcard?.name}
 								</Card.Title>
 
 								<Button
 									size="icon"
 									variant="none"
 									class="absolute right-1.5 top-0.5 size-fit"
-									on:click={() => removeFlashcardFromSelected(box)}
+									on:click={() => removeFlashcardFromSelected(flashcard)}
 								>
 									<CircleX class="size-4 text-red-700" />
 								</Button>
@@ -116,13 +94,13 @@
 				</div>
 			</ScrollArea>
 		</DrawerDialog.Header>
-		<FormSearchDrawerDialog>
+		<FormConjugationForm>
 			<div slot="add">
 				<DrawerDialog.Close asChild let:builder>
 					<Button builders={[builder]} class="w-full" {disabled}>Add</Button>
 				</DrawerDialog.Close>
 			</div>
-		</FormSearchDrawerDialog>
+		</FormConjugationForm>
 		<DrawerDialog.Footer className="md:hidden px-5">
 			<DrawerDialog.Close asChild let:builder>
 				<Button builders={[builder]} variant="outline">Cancel</Button>
