@@ -4,7 +4,7 @@ import { convertToRubyTag } from '$lib/utils/actions.js';
 import { getFlashcardPartOfSpeech, getFlashcardType } from '$lib/utils/flashcard';
 import { json, type RequestHandler } from '@sveltejs/kit';
 import type { RecordModel } from 'pocketbase';
-import { isHiragana } from 'wanakana';
+import { isHiragana, isRomaji } from 'wanakana';
 
 async function processFurigana(card: RecordModel, kuroshiro: Kuroshiro) {
 	// Custom furigana processing
@@ -81,20 +81,20 @@ export const POST: RequestHandler = async ({ locals, request, fetch }) => {
 
 			const data = await res.json();
 
-			console.log(data);
-
 			if (data.meaning === 'Does not exist') return json({ error: 'Flashcard not found' });
 
 			const type = getFlashcardType(data.type);
 			const partOfSpeech = getFlashcardPartOfSpeech(data.partOfSpeech);
+			const meaning = isRomaji(data.name) ? data.name : data.meaning;
+			const furigana = isRomaji(data.furigana) ? '' : data.furigana;
 
 			// Create a flashcard if the search is a kanji
 			let flashcard = await locals.pb.collection('flashcard').create({
-				name: data.name,
-				meaning: data.meaning.includes(';') ? data.meaning.split(';').join(',') : data.meaning,
+				name: isRomaji(data.name) ? data.meaning : data.name,
+				meaning: meaning.includes(';') ? meaning.split(';').join(',') : meaning,
 				type,
 				romanji: data.romanji,
-				furigana: data.furigana,
+				furigana,
 				partOfSpeech,
 			});
 
@@ -107,8 +107,6 @@ export const POST: RequestHandler = async ({ locals, request, fetch }) => {
 			flashcard = await locals.pb.collection('flashcard').update(flashcard.id, {
 				'searches+': newSearch.id,
 			});
-
-			console.log('new', flashcard);
 
 			return json({ flashcard });
 		}
@@ -125,9 +123,8 @@ export const POST: RequestHandler = async ({ locals, request, fetch }) => {
 		const flashcardBoxIds = flashcardCollections.flatMap((collection) =>
 			collection.flashcardBoxes.map((id: string) => id),
 		);
-
-		// Deduplicate the IDs if necessary
-		const uniqueFlashcardBoxIds = [...new Set(flashcardBoxIds)];
+		// Deduplicate the IDs if necessary and add an empty string for the unassigned flashcards
+		const uniqueFlashcardBoxIds = [...new Set(flashcardBoxIds), ''];
 
 		// Dynamically build the OR-based filter string for multiple box IDs
 		const boxIdFilter = uniqueFlashcardBoxIds.map((id) => `flashcardBox="${id}"`).join(' || ');
@@ -178,13 +175,16 @@ export const POST: RequestHandler = async ({ locals, request, fetch }) => {
 			const type = getFlashcardType(data.type);
 			const partOfSpeech = getFlashcardPartOfSpeech(data.partOfSpeech);
 
+			const meaning = isRomaji(data.name) ? data.name : data.meaning;
+			const furigana = isRomaji(data.furigana) ? '' : data.furigana;
+
 			// Create a flashcard if the search is a kanji
 			let flashcard = await locals.pb.collection('flashcard').create({
-				name: data.name,
-				meaning: data.meaning.includes(';') ? data.meaning.split(';').join(',') : data.meaning,
+				name: isRomaji(data.name) ? data.meaning : data.name,
+				meaning: meaning.includes(';') ? meaning.split(';').join(',') : meaning,
 				type,
 				romanji: data.romanji,
-				furigana: data.furigana,
+				furigana,
 				partOfSpeech,
 			});
 
@@ -197,8 +197,6 @@ export const POST: RequestHandler = async ({ locals, request, fetch }) => {
 			flashcard = await locals.pb.collection('flashcard').update(flashcard.id, {
 				'searches+': newSearch.id,
 			});
-
-			console.log('new', flashcard);
 
 			return json({ flashcards: newSearch });
 		}

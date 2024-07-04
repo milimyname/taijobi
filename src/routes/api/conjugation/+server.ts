@@ -1,4 +1,5 @@
-import { classifyWord, conjugateVerb, getConjuctiveForm, conjugateAdjective } from './common';
+import { classifyWord } from '$lib/utils/flashcard';
+import { conjugateVerb, getConjuctiveForm, conjugateAdjective } from './common';
 import { json } from '@sveltejs/kit';
 
 export async function POST({ request }) {

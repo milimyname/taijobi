@@ -16,6 +16,8 @@
 	async function fetchFlashcards() {
 		if (search === '') return;
 
+		if (fetchedData.length === 0) return;
+
 		try {
 			const res = await fetch('/api/flashcard', {
 				method: 'POST',
@@ -151,7 +153,7 @@
 
 						<h3>{currentHoveredFlashcard.meaning}</h3>
 
-						{#if currentHoveredFlashcard?.flashcardBox === '' && currentHoveredFlashcard?.searches[0]}
+						{#if currentHoveredFlashcard?.searches && currentHoveredFlashcard?.flashcardBox === '' && currentHoveredFlashcard?.searches[0]}
 							<Button
 								variant="link"
 								href={`/search/${currentHoveredFlashcard?.searches[0]}`}

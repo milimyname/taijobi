@@ -52,8 +52,6 @@
 
 		if (settings && $page.params.slug === 'demo') settings = JSON.parse(settings);
 
-		console.log(settings);
-
 		const verb = conjugationsList[currentVerbIndex];
 
 		let verbRandomIndex = Math.floor(Math.random() * verb.conjugation.length);

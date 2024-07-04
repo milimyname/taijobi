@@ -2,15 +2,17 @@ import PocketBase, { type RecordModel } from 'pocketbase';
 
 // Create demo data for hiragana and katakana quizzes
 async function createDemoData(pb: PocketBase, fetch: typeof window.fetch) {
-	const firstTenFlashcards = await pb
+	const flashcardBoxes = await pb
 		.collection('flashcardBoxes')
 		.getFirstListItem('name = "Lesson 20"', {
 			expand: 'flashcards',
 			fields: 'id,name,expand',
 		});
 
+	// console.log('First ten flashcards:', flashcardBoxes?.expand?.flashcards.slice(0, 10));
+
 	const data = await Promise.all(
-		firstTenFlashcards?.expand?.flashcards.slice(0, 10).map(async (flashcard: RecordModel) => {
+		flashcardBoxes?.expand?.flashcards.slice(0, 10).map(async (flashcard: RecordModel) => {
 			const conjugation = await fetch(`/api/conjugation`, {
 				method: 'POST',
 				headers: {

@@ -1,6 +1,6 @@
 import { countKanji } from '$lib/utils';
+import { classifyWord } from '$lib/utils/flashcard';
 import { flashcardSchema } from '$lib/utils/zodSchema';
-import { classifyWord } from '../../api/conjugation/common.js';
 import { fail } from '@sveltejs/kit';
 import type PocketBase from 'pocketbase';
 import { superValidate, setError } from 'sveltekit-superforms';

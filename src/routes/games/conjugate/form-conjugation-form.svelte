@@ -4,11 +4,11 @@
 	import * as Form from '$lib/components/ui/form';
 	import { Input } from '$lib/components/ui/input';
 	import { getContext } from 'svelte';
-	import { page } from '$app/stores';
 	import { VERB_CONJUGATION_TYPES } from '$lib/utils/constants';
 	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 
+	export let disabled: boolean;
 	let form: SuperForm<Infer<ConjugationFormSchema>> = getContext('superConjugationForm');
 
 	const { form: formData, enhance } = form;
@@ -56,7 +56,7 @@
 		<input type="hidden" name="flashcards" value={$formData.flashcards} />
 	</div>
 
-	<button formaction="?/add" class="cursor-not-allowed">
+	<button formaction="?/add" class="cursor-not-allowed" {disabled}>
 		<slot name="add" />
 	</button>
 </form>

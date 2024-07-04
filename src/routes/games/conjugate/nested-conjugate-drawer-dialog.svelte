@@ -94,7 +94,7 @@
 				</div>
 			</ScrollArea>
 		</DrawerDialog.Header>
-		<FormConjugationForm>
+		<FormConjugationForm {disabled}>
 			<div slot="add">
 				<DrawerDialog.Close asChild let:builder>
 					<Button builders={[builder]} class="w-full" {disabled}>Add</Button>

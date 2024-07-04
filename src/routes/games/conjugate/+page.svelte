@@ -18,7 +18,6 @@
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { superForm } from 'sveltekit-superforms';
 	import { conjugationFormSchema } from '$lib/utils/zodSchema';
-	import { page } from '$app/stores';
 	import { pocketbase } from '$lib/utils/pocketbase';
 
 	export let data;
@@ -84,6 +83,19 @@
 		checkedList = selectedConjugation?.settings || [];
 	}
 
+	async function handleDelete(id: string) {
+		try {
+			await pocketbase.collection('conjugations').delete(id);
+
+			// filter out the deleted conjugation
+			data.conjugations = data.conjugations.filter((conjugation) => conjugation.id !== id);
+			// close the settings drawer
+			showSettings = false;
+		} catch (error) {
+			console.error(error);
+		}
+	}
+
 	$: if (showSettings) {
 		const settings = localStorage.getItem(`conjugationSettings_${selectedConjugation?.id}`);
 		if (settings) checkedList = JSON.parse(settings);
@@ -91,7 +103,18 @@
 
 	$: conjugations = (() => {
 		// Apply hiddenExamples filter
-		return [...data.conjugationDemoList.filter(() => !hiddenExamples), ...data.conjugations];
+		const updatedConjugations = [
+			...data.conjugationDemoList.filter(() => !hiddenExamples),
+			...data.conjugations,
+		];
+
+		return sortedByDate
+			? updatedConjugations.sort(
+					(a, b) => Number(new Date(b.created)) - Number(new Date(a.created)),
+				)
+			: updatedConjugations.sort(
+					(a, b) => Number(new Date(a.created)) - Number(new Date(b.created)),
+				);
 	})();
 </script>
 
@@ -131,21 +154,15 @@
 				<Label for={type}>{value}</Label>
 			{/each}
 		</div>
-		<!-- {#if selectedConjugation?.id !== 'demo'}
+		{#if selectedConjugation?.id !== 'demo'}
 			<Button
 				size="sm"
 				variant="destructive"
-				on:click={async () => {
-					try {
-						await pocketbase.collection('conjugations').delete(selectedConjugation?.id);
-					} catch (error) {
-						console.error(error);
-					}
-				}}
+				on:click={() => handleDelete(selectedConjugation?.id)}
 			>
 				Delete
 			</Button>
-		{/if} -->
+		{/if}
 
 		<DrawerDialog.Footer className="md:hidden">
 			<DrawerDialog.Close asChild let:builder>
@@ -196,6 +213,13 @@
 						>
 							<Settings />
 						</Button>
+					</div>
+				</div>
+				<div class="flex w-full justify-between">
+					<div class="flex items-center gap-2">
+						<Badge variant="outline">
+							{new Date(conjugation.created).toLocaleDateString()}
+						</Badge>
 					</div>
 				</div>
 			</button>

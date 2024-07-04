@@ -18,8 +18,12 @@
 	import { setContext } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import CallBackButton from '$lib/components/callback-btn.svelte';
+	import { slide } from 'svelte/transition';
+	import { quintOut } from 'svelte/easing';
 
 	export let data;
+
+	let showTranslation = false;
 
 	function showHistory() {
 		$openHistory = true;
@@ -63,7 +67,7 @@
 		<div
 			style={`height: ${getFlashcardHeight($innerWidthStore, $innerHeightStore)}px;
 				width: ${getFlashcardWidth($innerWidthStore)}px `}
-			class="relative z-10 flex cursor-pointer items-center justify-center rounded-xl border shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200"
+			class="relative z-10 flex flex-col cursor-pointer items-center justify-center rounded-xl border shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200"
 		>
 			{#if $searchedWordStore?.type === 'phrase'}
 				<p class="text-balance px-10 text-center text-5xl leading-normal tracking-widest">
@@ -78,6 +82,12 @@
 					{$searchedWordStore.name}
 				</p>
 			{/if}
+
+			{#if showTranslation}
+				<span transition:slide={{ duration: 300, delay: 0, easing: quintOut, axis: 'y' }}>
+					{$searchedWordStore?.meaning}
+				</span>
+			{/if}
 		</div>
 	</div>
 
@@ -85,6 +95,14 @@
 		<Button on:click={showHistory} disabled={data.searches.length === 0}>
 			<History class="size-5 color-current mr-2" />
 			<span>See History</span>
+		</Button>
+
+		<Button
+			on:click={() => (showTranslation = !showTranslation)}
+			variant="outline"
+			disabled={data.searches.length === 0}
+		>
+			Translation
 		</Button>
 
 		{#if $searchedWordStore?.flashcardBox}
