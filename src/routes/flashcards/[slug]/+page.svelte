@@ -170,6 +170,8 @@
 		data.isLoggedIn &&
 		(($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal !== 'original') ||
 			$page.data.isAdmin);
+
+	$: console.log(flashcards);
 </script>
 
 <FlashcardForm {form} />
@@ -225,7 +227,7 @@
 								flashcards.length < 10 && 'basis-full',
 								// flashcards.length > 5 && flashcards.length < 20 && 'basis-1/2',
 								// flashcards.length > 6 && flashcards.length < 10 && 'md:basis-1/3',
-								// flashcards.length > 10 && 'md:basis-1/3',
+								flashcards.length > 9 && 'md:basis-1/3',
 								// flashcard.name.length < 3 && 'basis-full',
 								// flashcard.name.length > 5 && flashcard.name.length < 10 && 'basis-full',
 								$currentFlashcardTypeStore === 'kanji' && 'basis-1/3',

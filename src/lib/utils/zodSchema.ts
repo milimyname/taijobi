@@ -1,4 +1,3 @@
-import { createZodObject } from '$lib/utils';
 import { z } from 'zod';
 
 export const loginSchema = z.object({
