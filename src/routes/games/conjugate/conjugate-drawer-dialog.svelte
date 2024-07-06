@@ -1,5 +1,4 @@
 <script lang="ts">
-	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import * as DrawerDialog from '$lib/components/ui/drawerDialog';
 	import type { RecordModel } from 'pocketbase';
@@ -61,9 +60,6 @@
 												</Card.Header>
 												<Card.Content class="space-y-1">
 													<p>{flashcard.meaning}</p>
-													<Badge variant="outline">
-														{flashcard.type}
-													</Badge>
 												</Card.Content>
 												<Card.Footer>
 													{#if !$selectedConjugatingFlashcards.includes(flashcard)}

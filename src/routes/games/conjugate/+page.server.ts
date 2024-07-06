@@ -33,7 +33,8 @@ export const load = async ({ locals }) => {
 					flashcards: flashcardBox.expand.flashcards
 						.filter(
 							(flashcard: RecordModel) =>
-								flashcard.partOfSpeech === 'adjective' || flashcard.partOfSpeech === 'verb',
+								(flashcard.partOfSpeech === 'adjective' || flashcard.partOfSpeech === 'verb') &&
+								flashcard.type === 'word',
 						)
 						.map((flashcard: RecordModel) => ({
 							name: flashcard.name,
