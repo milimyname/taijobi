@@ -122,8 +122,6 @@
 	$: if (wordFlashcard?.notes === '') activeTab = 'conjugation';
 
 	$: if (wordFlashcard) examples = [];
-
-	$: if (conjugationData?.error) activeTab = 'sentence';
 </script>
 
 {#if audioSource}
