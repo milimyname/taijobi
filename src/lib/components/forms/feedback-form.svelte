@@ -1,15 +1,22 @@
 <script lang="ts">
 	import { isDesktop } from '$lib/utils';
-	import { clickedFeedback } from '$lib/utils/stores';
+	import { clickedFeedback, feedbackDescription } from '$lib/utils/stores';
 	import { enhance } from '$app/forms';
 	import { Label } from '$lib/components/ui/label';
 	import { Textarea } from '$lib/components/ui/textarea';
+
+	function onSubmit() {
+		$clickedFeedback = false;
+		$feedbackDescription = '';
+	}
+
+	export let disabled = false;
 </script>
 
 <form
 	method="POST"
 	use:enhance
-	on:submit={() => ($clickedFeedback = false)}
+	on:submit={onSubmit}
 	enctype="multipart/form-data"
 	action="/feedbacks?/create"
 	class="feedback-form z-100 flex w-full flex-col gap-5 rounded-t-2xl bg-white
@@ -18,7 +25,13 @@
 	<div class="flex flex-col gap-5">
 		<fieldset class=" flex w-full flex-col gap-2">
 			<Label for="description">Description</Label>
-			<Textarea name="description" maxlength={1000} rows={3} required />
+			<Textarea
+				name="description"
+				maxlength={1000}
+				rows={3}
+				required
+				bind:value={$feedbackDescription}
+			/>
 		</fieldset>
 		<input
 			type="file"
@@ -33,7 +46,7 @@
 		/>
 	</div>
 
-	<button>
+	<button {disabled}>
 		<slot />
 	</button>
 </form>

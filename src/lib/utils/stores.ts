@@ -77,3 +77,4 @@ export const nestedSearchDrawerOpen = writable(false);
 // export const selectedSearchFlashcards = writable<z.infer<typeof searchCollectionSchema>[]>();
 export const selectedSearchFlashcards = writable<any[]>([]);
 export const selectedConjugatingFlashcards = writable<FlashcardType[]>([]);
+export const feedbackDescription = writable('');

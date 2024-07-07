@@ -6,15 +6,20 @@
 	import { type FeedbackSchema } from '$lib/utils/zodSchema';
 	import { type SuperForm, type Infer } from 'sveltekit-superforms';
 	import FeedbackReadForm from '$lib/components/ui/form/feedback-read-form.svelte';
+	import { getContext } from 'svelte';
 
-	export let form: SuperForm<Infer<FeedbackSchema>>;
+	let form: SuperForm<Infer<FeedbackSchema>> = getContext('feedbackForm');
+
+	const { reset, isTainted, tainted, delayed } = form;
 
 	function onCloseDrawer() {
 		setTimeout(() => {
 			$clickedReport = false;
-			form.reset();
+			reset();
 		}, 100);
 	}
+
+	$: disabled = !isTainted($tainted);
 </script>
 
 <DrawerDialog.Root open={$clickedReport} onClose={onCloseDrawer} onOutsideClick={onCloseDrawer}>
@@ -38,15 +43,17 @@
 				</p>
 			</DrawerDialog.Description>
 		</DrawerDialog.Header>
-		<FeedbackReadForm {form}>
+		<FeedbackReadForm {disabled}>
 			<div slot="delete">
 				<DrawerDialog.Close asChild let:builder>
-					<Button builders={[builder]} class="w-full" variant="destructive">Delete</Button>
+					<Button builders={[builder]} class="w-full" variant="destructive" loading={$delayed}>
+						Delete
+					</Button>
 				</DrawerDialog.Close>
 			</div>
 			<div slot="update">
 				<DrawerDialog.Close asChild let:builder>
-					<Button builders={[builder]} class="w-full">Update</Button>
+					<Button builders={[builder]} class="w-full" loading={$delayed} {disabled}>Update</Button>
 				</DrawerDialog.Close>
 			</div>
 		</FeedbackReadForm>

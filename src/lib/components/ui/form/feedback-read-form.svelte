@@ -5,8 +5,11 @@
 	import { Button } from '$lib/components/ui/button';
 	import { type SuperForm, type Infer } from 'sveltekit-superforms';
 	import { Textarea } from '$lib/components/ui/textarea';
+	import { getContext } from 'svelte';
 
-	export let form: SuperForm<Infer<FeedbackSchema>>;
+	export let disabled = false;
+
+	let form: SuperForm<Infer<FeedbackSchema>> = getContext('feedbackForm');
 
 	const { form: formData, enhance } = form;
 
@@ -33,7 +36,7 @@
 	use:enhance
 	class={cn(
 		'edit-form z-[1000] flex w-full flex-col gap-5 rounded-t-2xl bg-white',
-		!$isDesktop && 'px-4'
+		!$isDesktop && 'px-4',
 	)}
 >
 	<div class="flex flex-col gap-5">
@@ -56,11 +59,12 @@
 
 		<input type="hidden" name="id" bind:value={$formData.id} />
 
-		<div class="flex w-full {!$isDesktop && 'flex-col gap-2'} justify-between">
+		<div class="grid grid-cols-3 gap-2">
 			<button formaction="?/delete">
 				<slot name="delete" />
 			</button>
-			<button formaction="?/update">
+
+			<button formaction="?/update" class="col-span-2 cursor-not-allowed" {disabled}>
 				<slot name="update" />
 			</button>
 		</div>

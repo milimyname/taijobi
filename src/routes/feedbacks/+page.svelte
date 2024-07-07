@@ -10,6 +10,7 @@
 	import type { RecordModel } from 'pocketbase';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import FeedbackDrawerDialog from '$lib/components/drawer-dialogs/feedback-drawer-dialog.svelte';
+	import { setContext } from 'svelte';
 
 	export let data;
 
@@ -24,18 +25,19 @@
 		},
 	});
 
+	setContext('feedbackForm', superFrm);
+
 	function onClickFeedback(feedback: RecordModel) {
 		$clickedReport = true;
 
-		superFrm.form.update((form) => {
-			return {
-				...form,
+		superFrm.reset({
+			data: {
 				name: feedback.name,
 				description: feedback.description,
 				device: feedback.device,
 				image: pocketbase.files.getUrl(feedback, feedback.image),
 				id: feedback.id,
-			};
+			},
 		});
 	}
 
@@ -56,7 +58,7 @@
 	})();
 </script>
 
-<FeedbackDrawerDialog form={superFrm} />
+<FeedbackDrawerDialog />
 
 <main
 	class="flex h-dvh flex-col items-center overflow-hidden bg-white p-2 transition-all sm:px-3 sm:py-5"
@@ -87,9 +89,9 @@
 					on:click={() => onClickFeedback(feedback)}
 				>
 					<p class="line-clamp-3 text-left text-sm">{feedback.description}</p>
-					<Badge variant="outline" class="w-fit"
-						>{new Date(feedback.created).toLocaleDateString()}</Badge
-					>
+					<Badge variant="outline" class="w-fit">
+						{new Date(feedback.created).toLocaleDateString()}
+					</Badge>
 				</button>
 			{/each}
 		</div>

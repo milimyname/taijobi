@@ -1,12 +1,13 @@
 <script lang="ts">
 	import Form from '$lib/components/forms/feedback-form.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { clickedFeedback, openSearch } from '$lib/utils/stores';
+	import { clickedFeedback, openSearch, feedbackDescription } from '$lib/utils/stores';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { Search } from 'lucide-svelte';
 	import * as DrawerDialog from '$lib/components/ui/drawerDialog';
 	import { goto } from '$app/navigation';
+	import FeedbackDrawerDialog from '$lib/components/drawer-dialogs/feedback-drawer-dialog.svelte';
 
 	let animationText = '';
 	let isReversing = false;
@@ -44,6 +45,14 @@
 
 		setTimeout(() => {
 			$clickedFeedback = false;
+			$feedbackDescription = '';
+		}, 100);
+	}
+
+	function onCloseDrawer() {
+		setTimeout(() => {
+			$clickedFeedback = false;
+			$feedbackDescription = '';
 		}, 100);
 	}
 
@@ -57,9 +66,15 @@
 		!$page.data.isLoggedIn;
 
 	$: if ($openSearch) $openSearch = true;
+
+	$: disabled = $feedbackDescription === '';
 </script>
 
-<DrawerDialog.Root open={$clickedFeedback} onOutsideClick={onOutsideClickDrawer}>
+<DrawerDialog.Root
+	open={$clickedFeedback}
+	onOutsideClick={onOutsideClickDrawer}
+	onClose={onCloseDrawer}
+>
 	{#if !hide}
 		<DrawerDialog.Trigger asChild>
 			<div
@@ -74,7 +89,6 @@
 			</div>
 		</DrawerDialog.Trigger>
 	{/if}
-
 	<DrawerDialog.Content>
 		<DrawerDialog.Header class="text-left">
 			<DrawerDialog.Title>Leave a feedback or report a bug!</DrawerDialog.Title>
@@ -95,9 +109,9 @@
 				</p>
 			</DrawerDialog.Description>
 		</DrawerDialog.Header>
-		<Form>
+		<Form {disabled}>
 			<DrawerDialog.Close asChild let:builder>
-				<Button builders={[builder]} class="w-full">Add</Button>
+				<Button builders={[builder]} class="w-full" {disabled}>Add</Button>
 			</DrawerDialog.Close>
 		</Form>
 		<DrawerDialog.Footer className="md:hidden">
