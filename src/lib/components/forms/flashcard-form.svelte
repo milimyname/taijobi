@@ -14,8 +14,10 @@
 	import { type FlashcardSchema } from '$lib/utils/zodSchema';
 	import { type SuperForm, type Infer } from 'sveltekit-superforms';
 	import { cn, isDesktop } from '$lib/utils';
+	import { getContext } from 'svelte';
 
-	export let form: SuperForm<Infer<FlashcardSchema>>;
+	export let disabled = false;
+	let form: SuperForm<Infer<FlashcardSchema>> = getContext('flashcardForm');
 
 	let showInfo = false;
 
@@ -138,7 +140,7 @@
 	</div>
 
 	{#if !$clickedEditFlashcard && $clickedAddFlashcardCollection}
-		<button formaction="?/add" class="cursor-not-allowed">
+		<button formaction="?/add" class="cursor-not-allowed" {disabled}>
 			<slot name="add" />
 		</button>
 	{:else if $clickedEditFlashcard}
@@ -147,12 +149,12 @@
 				<slot name="delete" />
 			</button>
 
-			<button formaction="?/update" class="col-span-2 cursor-not-allowed">
+			<button formaction="?/update" class="col-span-2 cursor-not-allowed" {disabled}>
 				<slot name="update" />
 			</button>
 		</div>
 	{:else}
-		<button formaction="?/add">
+		<button formaction="?/add" {disabled}>
 			<slot name="add" />
 		</button>
 	{/if}

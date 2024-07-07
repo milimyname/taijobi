@@ -17,7 +17,7 @@
 	import { page } from '$app/stores';
 	import EditButton from './EditButton.svelte';
 	import { getLocalStorageItem } from '$lib/utils/localStorage';
-	import { onMount } from 'svelte';
+	import { onMount, setContext } from 'svelte';
 	import LetterDrawingFlashcard from './LetterDrawingFlashcard.svelte';
 	import { Plus, Dices } from 'lucide-svelte';
 	import type { FlashcardType } from '$lib/utils/ambient.d.ts';
@@ -66,10 +66,12 @@
 		onUpdated: async ({ form }) => {
 			// Keep the form open if there is an error
 			if (form.errors.type || form.errors.name) return ($clickedAddFlashcardCollection = true);
-			else {
-				$clickedEditFlashcard = false;
+
+			// Close the form after submitting
+			setTimeout(() => {
 				$clickedAddFlashcardCollection = false;
-			}
+				$clickedEditFlashcard = false;
+			}, 250);
 
 			// Update the flashcards
 			const data = await fetchFlashcards();
@@ -99,6 +101,8 @@
 			}
 		},
 	});
+
+	setContext('flashcardForm', form);
 
 	onMount(async () => {
 		const data = await fetchFlashcards();
@@ -170,11 +174,9 @@
 		data.isLoggedIn &&
 		(($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal !== 'original') ||
 			$page.data.isAdmin);
-
-	$: console.log(flashcards);
 </script>
 
-<FlashcardForm {form} />
+<FlashcardForm />
 
 <section
 	class={cn(
@@ -195,7 +197,7 @@
 				<CallBackButton />
 
 				{#if showEdit}
-					<EditButton form={form.form} currentFlashcard={flashcards[currentIndex]} />
+					<EditButton currentFlashcard={flashcards[currentIndex]} />
 				{/if}
 			</div>
 		{/if}
