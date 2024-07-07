@@ -122,6 +122,8 @@
 	$: if (wordFlashcard?.notes === '') activeTab = 'conjugation';
 
 	$: if (wordFlashcard) examples = [];
+
+	$: if (wordFlashcard?.type !== 'word' && activeTab === 'conjugation') activeTab = 'sentence';
 </script>
 
 {#if audioSource}
@@ -145,10 +147,13 @@
 					<Tabs.Trigger value="note" disabled={!wordFlashcard?.notes}>
 						<Scroll class="size-5" />
 					</Tabs.Trigger>
-					<Tabs.Trigger value="conjugation" disabled={conjugationData?.error}>
+					<Tabs.Trigger
+						value="conjugation"
+						disabled={conjugationData?.error || wordFlashcard?.type !== 'word'}
+					>
 						<WholeWord class="size-5" />
 					</Tabs.Trigger>
-					<Tabs.Trigger value="sentence" disabled={wordFlashcard?.type === 'phrase'}>
+					<Tabs.Trigger value="sentence">
 						<Text class="size-5" />
 					</Tabs.Trigger>
 				</Tabs.List>
