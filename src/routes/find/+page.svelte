@@ -21,10 +21,12 @@
 	import { page } from '$app/stores';
 	import CanvasPanel from '$lib/components/canvas/CanvasPanel.svelte';
 	import { isJapanese } from 'wanakana';
+	import { pocketbase } from '$lib/utils/pocketbase';
 
 	let canvas: HTMLCanvasElement;
 	let recognizedLetters: string[] = [];
 	let handwritingInstance: any;
+	let loading = false;
 
 	// Get canvas and context
 	onMount(() => {
@@ -74,6 +76,7 @@
 	}
 
 	function findKanji() {
+		loading = true;
 		toast.promise(recognize(), {
 			loading: 'Processing image...',
 			success: 'Successfully recognized it!',
@@ -82,6 +85,7 @@
 
 		// Check if the recognized letter is a valid Japanese character
 		recognizedLetters = recognizedLetters.filter((letter) => isJapanese(letter));
+		loading = false;
 	}
 
 	// Fetch flashcards from the server
@@ -162,10 +166,25 @@
 
 		// Check if the letter is available in the kanji store
 		if (!kanjiExists || !letter) {
-			const foundFlashcards = await fetchFlashcards(word);
-			return toast.error(
-				'This kanji is not available. Please leave a feedback by clicking the 🐞 above',
-			);
+			const foundFlashcards = await fetchFlashcards(letter);
+
+			if (!foundFlashcards || foundFlashcards.length === 0) {
+				console.log('Found the kanji:', foundFlashcards);
+				return toast.error(
+					'This kanji is not available. Please leave a feedback by clicking the 🐞 above',
+				);
+			}
+
+			// Redirect to the search page
+			$searchedWordStore = foundFlashcards[0];
+
+			const newSearch = await pocketbase.collection('searches').create({
+				flashcard: foundFlashcards[0].id,
+				user: $page.data.user.id,
+				searchQuery: letter,
+			});
+
+			return goto(`/search/${newSearch.id}`);
 		}
 
 		// Redirect to the kanji page
@@ -226,6 +245,7 @@
 	<CanvasPanel {canvas} showAnimation={false}>
 		<button
 			slot="remove"
+			disabled={loading}
 			on:click|preventDefault={() => {
 				clearCanvas(canvas);
 				// CLear handwritingInstance
@@ -236,7 +256,12 @@
 		>
 			<Eraser class="size-4" />
 		</button>
-		<button slot="find" class="mr-4 rounded-full border p-2 shadow-sm" on:click={findKanji}>
+		<button
+			disabled={loading}
+			slot="find"
+			class="mr-4 rounded-full border p-2 shadow-sm"
+			on:click={findKanji}
+		>
 			<Plus class="size-5" />
 		</button>
 	</CanvasPanel>
