@@ -35,7 +35,7 @@
 </script>
 
 <DrawerDialog.Root onClose={onOutsideClick} {open} {onOutsideClick}>
-	<DrawerDialog.Content>
+	<DrawerDialog.Content scrollable>
 		<DrawerDialog.Header class="text-left">
 			<DrawerDialog.Title>
 				{#if $clickedEditFlashcard}
