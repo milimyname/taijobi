@@ -15,6 +15,7 @@
 	import { type SuperForm, type Infer } from 'sveltekit-superforms';
 	import { cn, isDesktop } from '$lib/utils';
 	import { getContext } from 'svelte';
+	import { clickOutside } from '$lib/utils/clickOutside';
 
 	export let disabled = false;
 	let form: SuperForm<Infer<FlashcardSchema>> = getContext('flashcardForm');
@@ -41,9 +42,8 @@
 					Name
 					<button
 						type="button"
-						on:click={() => (showInfo = true)}
-						on:mouseenter={() => (showInfo = true)}
-						on:mouseleave={() => (showInfo = false)}
+						on:click={() => (showInfo = !showInfo)}
+						use:clickOutside={() => (showInfo = false)}
 						class="relative hover:fill-black/50"
 					>
 						<HelpCircle class="size-4 transition-transform hover:scale-125" />
@@ -58,7 +58,7 @@
 								y: 1000,
 								easing: quintOut,
 							}}
-							class="z-2 absolute bottom-0 left-0 h-2/3 w-full rounded-md bg-blue-200 p-4 text-black"
+							class="z-[100] isolate absolute bottom-0 left-0 h-2/3 w-full rounded-md bg-blue-200 p-4 text-black"
 						>
 							<p>If you wanna use custom furigana, please use the following format:</p>
 							<ul class="my-2 text-xl">

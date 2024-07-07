@@ -14,7 +14,7 @@
 </script>
 
 <svelte:component this={Content} class={className} {...$$restProps}>
-	{#if scrollable}
+	{#if scrollable && !$isDesktop}
 		<ScrollArea>
 			<slot />
 		</ScrollArea>
