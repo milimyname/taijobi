@@ -6,7 +6,7 @@
 		currentAlphabet,
 		searchKanji,
 		currentFlashcard,
-		selectedQuizItems
+		selectedQuizItems,
 	} from '$lib/utils/stores';
 	import { ArrowLeft, Search } from 'lucide-svelte';
 
@@ -18,7 +18,7 @@
 	}
 </script>
 
-<main class="relative flex h-[100dvh] select-none flex-col items-center p-2 sm:px-3 sm:py-5">
+<main class="relative flex h-[100dvh] flex-col items-center p-2 sm:px-3 sm:py-5">
 	<nav class="relative flex w-full justify-between px-2 py-3 xm:p-5">
 		<a
 			href="/"
