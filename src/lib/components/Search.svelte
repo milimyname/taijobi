@@ -120,9 +120,7 @@
 			<p class="text-xl h-full">No results found.</p>
 
 			<div class="px-4 sticky bottom-4">
-				<Button variant="outline" class="w-full" on:click={generateNew}>
-					Generate a new flashcard
-				</Button>
+				<Button variant="link" href="/chat" class="w-full">Go to Chat</Button>
 			</div>
 		</Command.Empty>
 		{#if fetchedData && fetchedData.length > 0}

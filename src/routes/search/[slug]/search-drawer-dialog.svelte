@@ -139,11 +139,13 @@
 						</Card.Header>
 						<Card.Content class="flex flex-wrap gap-1 overflow-auto">
 							<Tooltip.Root>
-								<Tooltip.Trigger>
-									<Badge class="truncate">
-										{search.searchQuery}
-									</Badge>
-								</Tooltip.Trigger>
+								<ScrollArea class="w-96" orientation="horizontal">
+									<Tooltip.Trigger>
+										<Badge class="truncate">
+											{search.searchQuery}
+										</Badge>
+									</Tooltip.Trigger>
+								</ScrollArea>
 								<Tooltip.Content>
 									<p>Search KeywCord</p>
 								</Tooltip.Content>
