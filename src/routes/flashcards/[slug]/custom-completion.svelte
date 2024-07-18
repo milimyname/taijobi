@@ -3,7 +3,7 @@
 	import { WholeWord, Text, Scroll, Volume2 } from 'lucide-svelte';
 	import type { FlashcardType } from '$lib/utils/ambient.d.ts';
 	import { cn, isDesktop } from '$lib/utils';
-	import * as DrawerDialog from '$lib/components/ui/drawerDialog';
+	import * as DrawerDialog from '$lib/components/ui/drawer-dialog';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { showCustomContent } from '$lib/utils/stores';
 	import { toast } from 'svelte-sonner';

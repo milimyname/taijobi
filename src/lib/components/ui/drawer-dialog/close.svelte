@@ -4,7 +4,6 @@
 	import { DrawerClose } from '$lib/components/ui/drawer';
 
 	// Determine which component to use based on screen size
-	let Content: typeof DialogClose | typeof DrawerClose;
 	$: Content = $isDesktop ? DialogClose : DrawerClose;
 </script>
 

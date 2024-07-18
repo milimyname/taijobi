@@ -1,5 +1,5 @@
 <script lang="ts">
-	import * as DrawerDialog from '$lib/components/ui/drawerDialog';
+	import * as DrawerDialog from '$lib/components/ui/drawer-dialog';
 	import { goto } from '$app/navigation';
 	import { clickedReport } from '$lib/utils/stores';
 	import { Button } from '$lib/components/ui/button';

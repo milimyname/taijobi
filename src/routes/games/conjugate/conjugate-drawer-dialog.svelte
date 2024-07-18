@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
-	import * as DrawerDialog from '$lib/components/ui/drawerDialog';
+	import * as DrawerDialog from '$lib/components/ui/drawer-dialog';
 	import type { RecordModel } from 'pocketbase';
 	import * as Card from '$lib/components/ui/card';
 	import { openConjugation, selectedConjugatingFlashcards } from '$lib/utils/stores';

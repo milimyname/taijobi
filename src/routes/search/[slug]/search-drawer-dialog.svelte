@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import * as DrawerDialog from '$lib/components/ui/drawerDialog';
+	import * as DrawerDialog from '$lib/components/ui/drawer-dialog';
 	import type { RecordModel } from 'pocketbase';
 	import * as Card from '$lib/components/ui/card';
 	import {
@@ -9,6 +9,7 @@
 		openHistory,
 		selectedSearchFlashcards,
 		searchedWordStore,
+		deleteHistoryOpen,
 	} from '$lib/utils/stores';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index';
 	import { goto } from '$app/navigation';
@@ -19,6 +20,7 @@
 	import { pocketbase } from '$lib/utils/pocketbase';
 	import NestedSearchDrawerDialog from './nested-search-drawer-dialog.svelte';
 	import { cn, isDesktop } from '$lib/utils';
+	import DeleteSearchHistoryDrawerAlertDialog from '$lib/components/drawer-alert-dialogs/delete-search-history-drawer-alert-dialog.svelte';
 
 	export let searches: RecordModel[];
 
@@ -40,6 +42,9 @@
 
 		// If nestedSearchDrawerOpen is true, don't close the drawer
 		if ($nestedSearchDrawerOpen) return;
+
+		// If deleteHistoryOpen is true, don't close the drawer
+		if ($deleteHistoryOpen) return;
 
 		onCloseDrawer();
 	}
@@ -80,8 +85,12 @@
 	})();
 </script>
 
+<DeleteSearchHistoryDrawerAlertDialog />
+
 <DrawerDialog.Root open={$openHistory} onOutsideClick={onClickOutSideClick} onClose={onCloseDrawer}>
-	<DrawerDialog.Content className="w-full max-h-[90dvh] md:max-w-2xl p-0">
+	<DrawerDialog.Content
+		className={cn('w-full max-h-[90dvh] md:max-w-2xl p-0', $deleteHistoryOpen && 'z-60')}
+	>
 		<DrawerDialog.Header class="text-left p-5 pb-0 space-y-2 max-md:mb-5">
 			<DrawerDialog.Title>Search History</DrawerDialog.Title>
 			<DrawerDialog.Description className="flex gap-1 sm:gap-2">
@@ -105,6 +114,14 @@
 						<ArrowDown01 class="size-4" />
 					{/if}
 				</Button>
+				<Button
+					size="icon"
+					variant="destructive"
+					on:click={() => ($deleteHistoryOpen = true)}
+					class="max-w-14 w-12"
+				>
+					<CircleX class="size-4" />
+				</Button>
 				<Input placeholder="Flashcard Name" bind:value={inputValue} />
 			</DrawerDialog.Description>
 			{#if $selectedSearchFlashcards.length > 0 && $isDesktop}
@@ -116,7 +133,7 @@
 				{#each sortedSearches as search}
 					<Card.Root
 						class={cn(
-							'cursor-pointer hover:shadow-md transition-shadow duration-300 ease-linear flex flex-col justify-between',
+							'cursor-pointer select-text hover:shadow-md transition-shadow duration-300 ease-linear flex flex-col justify-between',
 							$searchedWordStore.id === search?.expand?.flashcard?.id && 'border-primary border-2',
 						)}
 					>
@@ -212,7 +229,6 @@
 				{/each}
 			</div>
 		</ScrollArea>
-
 		<DrawerDialog.Footer className="md:hidden px-5">
 			{#if $selectedSearchFlashcards.length > 0}
 				<NestedSearchDrawerDialog />

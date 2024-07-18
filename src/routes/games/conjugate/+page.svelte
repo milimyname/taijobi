@@ -2,7 +2,7 @@
 	import { Badge } from '$lib/components/ui/badge/index';
 	import { ArrowDown01, ArrowDown10, Settings } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button/index';
-	import * as DrawerDialog from '$lib/components/ui/drawerDialog';
+	import * as DrawerDialog from '$lib/components/ui/drawer-dialog';
 	import { goto } from '$app/navigation';
 	import { VERB_CONJUGATION_TYPES } from '$lib/utils/constants';
 	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';

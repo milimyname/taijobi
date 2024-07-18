@@ -10,7 +10,7 @@
 	import { type SuperForm, type Infer } from 'sveltekit-superforms';
 	import FlashcardForm from '$lib/components/forms/flashcard-form.svelte';
 	import { getContext } from 'svelte';
-	import * as DrawerDialog from '$lib/components/ui/drawerDialog';
+	import * as DrawerDialog from '$lib/components/ui/drawer-dialog';
 
 	let form: SuperForm<Infer<FlashcardSchema>> = getContext('flashcardForm');
 

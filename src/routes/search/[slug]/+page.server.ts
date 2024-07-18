@@ -20,6 +20,7 @@ export const load = async ({ locals, params }) => {
 		});
 
 		const searches = await locals.pb.collection('searches').getFullList({
+			filter: `user = "${locals.pb.authStore.model?.id}"`,
 			expand: 'flashcard.flashcardBox.flashcardCollection',
 		});
 
@@ -29,9 +30,15 @@ export const load = async ({ locals, params }) => {
 			fields: 'id,name,expand',
 		});
 
+		const flashcardsIds = searches.map((s: RecordModel) => {
+			if (!s.expand?.flashcard) return null;
+			return s.expand.flashcard.id;
+		});
+
 		return {
 			currentSearch,
 			searches,
+			flashcardsIds,
 			form: await superValidate(zod(searchCollectionSchema)),
 			flashcardCollections: flashcardCollections.map((collection) => ({
 				id: collection.id,

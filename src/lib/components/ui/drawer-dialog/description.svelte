@@ -7,7 +7,6 @@
 	export let className = '';
 
 	// Determine which component to use based on screen size
-	let Description: typeof DialogDescription | typeof DrawerDescription;
 	$: Description = $isDesktop ? DialogDescription : DrawerDescription;
 </script>
 
