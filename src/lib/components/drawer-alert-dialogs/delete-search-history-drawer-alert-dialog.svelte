@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import * as DrawerAlertDialog from '$lib/components/ui/drawer-alert-dialog';
 	import { pocketbase } from '$lib/utils/pocketbase';
-	import { deleteHistoryOpen } from '$lib/utils/stores';
+	import { deleteHistoryOpen, openHistory } from '$lib/utils/stores';
 	import { getContext } from 'svelte';
 	import { toast } from 'svelte-sonner';
 
@@ -21,7 +21,6 @@
 		} catch (error) {
 			console.error('Error deleting search history:', error);
 			toast.error('Error deleting search history. Please try again later.');
-			return;
 		}
 
 		try {
@@ -36,9 +35,13 @@
 			return;
 		}
 
-		goto(`/`);
+		onClose();
+
+		$openHistory = false;
 
 		toast.success('Search history deleted successfully. Redirecting to the home page...');
+
+		goto('/');
 	}
 
 	function onClose() {

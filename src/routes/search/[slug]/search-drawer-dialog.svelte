@@ -147,7 +147,8 @@
 									size="icon"
 									variant="none"
 									class="absolute right-2 top-1 size-fit"
-									disabled={isCreatingNewFlashcardBox}
+									disabled={isCreatingNewFlashcardBox ||
+										$searchedWordStore.id === search?.expand?.flashcard?.id}
 									on:click={() => deleteFlashcardFromSearch(search)}
 								>
 									<CircleX class="size-4 text-red-700" />
