@@ -78,3 +78,4 @@ export const nestedSearchDrawerOpen = writable(false);
 export const selectedSearchFlashcards = writable<any[]>([]);
 export const selectedConjugatingFlashcards = writable<FlashcardType[]>([]);
 export const feedbackDescription = writable('');
+export const deleteHistoryOpen = writable(false);

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Button from '$lib/components/ui/button/button.svelte';
-	import * as DrawerDialog from '$lib/components/ui/drawerDialog';
+	import * as DrawerDialog from '$lib/components/ui/drawer-dialog';
 	import { quintOut } from 'svelte/easing';
 	import { slide } from 'svelte/transition';
 	import type { ConjugationFormSchema } from '$lib/utils/zodSchema';

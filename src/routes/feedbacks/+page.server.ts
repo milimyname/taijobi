@@ -1,6 +1,6 @@
-import { superValidate, setError } from 'sveltekit-superforms';
-import { fail } from '@sveltejs/kit';
 import { feedbackSchema } from '$lib/utils/zodSchema';
+import { fail } from '@sveltejs/kit';
+import { superValidate, setError } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 
 export const load = async ({ locals }) => {
@@ -11,7 +11,7 @@ export const load = async ({ locals }) => {
 	if (!locals.pb.authStore.isValid) {
 		return {
 			isLoggedIn: false,
-			isAdmin: false
+			isAdmin: false,
 		};
 	}
 
@@ -21,7 +21,7 @@ export const load = async ({ locals }) => {
 	} else {
 		// Get all the flashcards
 		feedbacks = await locals.pb.collection('feedbacks').getFullList({
-			filter: `userId = "${user?.id}"`
+			filter: `userId = "${user?.id}"`,
 		});
 	}
 
@@ -29,7 +29,7 @@ export const load = async ({ locals }) => {
 		feedbacks,
 		form: await superValidate(zod(feedbackSchema)),
 		isLoggedIn: true,
-		isAdmin: user?.role.includes('admin')
+		isAdmin: user?.role.includes('admin'),
 	};
 };
 
@@ -51,8 +51,6 @@ export const actions = {
 	update: async ({ request, locals }) => {
 		const form = await superValidate(request, zod(feedbackSchema));
 
-		
-
 		// Convenient validation check:
 		if (!form.valid || !form.data.id)
 			// Again, always return { form } and things will just work.
@@ -60,12 +58,10 @@ export const actions = {
 
 		try {
 			await locals.pb.collection('feedbacks').update(form.data.id, {
-				name: form.data.name,
 				description: form.data.description,
-				device: form.data.device
 			});
 		} catch (_) {
-			return setError(form, 'name', 'Something went wrong. Please try again later.');
+			return setError(form, 'description', 'Something went wrong. Please try again later.');
 		}
 
 		return { form };
@@ -81,9 +77,9 @@ export const actions = {
 		try {
 			await locals.pb.collection('feedbacks').delete(form.data.id);
 		} catch (_) {
-			return setError(form, 'name', 'Something went wrong. Please try again later.');
+			return setError(form, 'description', 'Something went wrong. Please try again later.');
 		}
 
 		return { form };
-	}
+	},
 };

@@ -20,6 +20,7 @@
 	import CallBackButton from '$lib/components/callback-btn.svelte';
 	import { slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
+	import type { RecordModel } from 'pocketbase';
 
 	export let data;
 
@@ -56,6 +57,11 @@
 	// Set Contexts
 	setContext('flashcardCollections', data.flashcardCollections);
 	setContext('flashcardCollectionForm', superSearchForm);
+	setContext('searchedFlashcardsIds', data.flashcardsIds);
+	setContext(
+		'searchesIds',
+		data.searches.map((s) => s.id),
+	);
 
 	$: $searchedWordStore = data.currentSearch?.expand?.flashcard;
 </script>
@@ -91,7 +97,7 @@
 		</div>
 	</div>
 
-	<div class="flex gap-4">
+	<div class="flex gap-4 flex-wrap">
 		<Button on:click={showHistory} disabled={data.searches.length === 0}>
 			<History class="size-5 color-current mr-2" />
 			<span>See History</span>

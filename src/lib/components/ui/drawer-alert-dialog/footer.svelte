@@ -1,14 +1,19 @@
 <script lang="ts">
 	import { isDesktop } from '$lib/utils';
-	import { DialogFooter } from '$lib/components/ui/dialog';
+	import { AlertDialogFooter } from '$lib/components/ui/alert-dialog';
 	import { DrawerFooter } from '$lib/components/ui/drawer';
+	import type { HTMLAttributes } from 'svelte/elements';
+
+	type $$Props = HTMLAttributes<HTMLDivElement> & {
+		el?: HTMLDivElement;
+		className?: string;
+	};
 
 	// Props passed to the component
 	export let className = '';
 
 	// Determine which component to use based on screen size
-	let Footer: typeof DialogFooter | typeof DrawerFooter;
-	$: Footer = $isDesktop ? DialogFooter : DrawerFooter;
+	$: Footer = $isDesktop ? AlertDialogFooter : DrawerFooter;
 </script>
 
 <svelte:component this={Footer} class={className} {...$$restProps}>

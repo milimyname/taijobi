@@ -5,7 +5,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { Search } from 'lucide-svelte';
-	import * as DrawerDialog from '$lib/components/ui/drawerDialog';
+	import * as DrawerDialog from '$lib/components/ui/drawer-dialog';
 	import { goto } from '$app/navigation';
 	import FeedbackDrawerDialog from '$lib/components/drawer-dialogs/feedback-drawer-dialog.svelte';
 

@@ -9,7 +9,6 @@
 	export let scrollable = false;
 
 	// Determine which component to use based on screen size
-	let Content: typeof DialogContent | typeof DrawerContent;
 	$: Content = $isDesktop ? DialogContent : DrawerContent;
 </script>
 
