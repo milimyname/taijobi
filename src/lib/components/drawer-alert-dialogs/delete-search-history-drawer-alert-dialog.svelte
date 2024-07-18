@@ -20,7 +20,7 @@
 			);
 		} catch (error) {
 			console.error('Error deleting search history:', error);
-			toast.error('Error deleting search history. Please try again later.');
+			// toast.error('Error deleting search history. Please try again later.');
 		}
 
 		try {
