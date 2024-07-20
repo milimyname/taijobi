@@ -75,9 +75,9 @@
 		<div class="flex flex-wrap gap-2">
 			<Button size="sm" variant="outline" on:click={() => (sortedByDate = !sortedByDate)}>
 				{#if sortedByDate}
-					<ArrowDown10 class="size-5 mr-2" />
+					<ArrowDown10 class="mr-2 size-5" />
 				{:else}
-					<ArrowDown01 class="size-5 mr-2" />
+					<ArrowDown01 class="mr-2 size-5" />
 				{/if}
 
 				<span>Sorted by date</span>
@@ -87,7 +87,7 @@
 		<div class="grid grid-flow-row gap-4 md:grid-cols-3">
 			{#each feedbacks as feedback}
 				<button
-					class="w-full flex flex-col gap-2 justify-between rounded-lg border p-4"
+					class="flex w-full flex-col justify-between gap-2 rounded-lg border p-4"
 					on:click={() => onClickFeedback(feedback)}
 				>
 					<p class="line-clamp-3 text-left text-sm">{feedback.description}</p>

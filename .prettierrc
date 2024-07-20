@@ -4,9 +4,9 @@
 	"trailingComma": "all",
 	"printWidth": 100,
 	"plugins": [
-		"prettier-plugin-tailwindcss",
 		"prettier-plugin-svelte",
-		"@trivago/prettier-plugin-sort-imports"
+		"@trivago/prettier-plugin-sort-imports",
+		"prettier-plugin-tailwindcss"
 	],
 	"pluginSearchDirs": ["."],
 	"overrides": [{ "files": "*.svelte", "options": { "parser": "svelte" } }]

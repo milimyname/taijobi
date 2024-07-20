@@ -16,7 +16,7 @@
 	async function fetchFlashcards() {
 		if (search === '') return;
 
-		if (fetchedData.length === 0) return;
+		// if (fetchedData.length === 0) return;
 
 		try {
 			const res = await fetch('/api/flashcard', {
@@ -28,25 +28,9 @@
 
 			const data = await res.json();
 
+			console.log(data);
+
 			fetchedData = data.flashcards;
-		} catch (error) {
-			console.error(error);
-		}
-	}
-	async function generateNew() {
-		if (search === '') return;
-
-		try {
-			const res = await fetch('/api/flashcard', {
-				method: 'POST',
-				body: JSON.stringify({ search, type: 'search' }),
-			});
-
-			if (!res.ok) return new Error('Failed to fetch flashcards');
-
-			const data = await res.json();
-
-			fetchedData = [...fetchedData, data.flashcard];
 		} catch (error) {
 			console.error(error);
 		}
@@ -98,7 +82,7 @@
 
 	$: if (search === '') fetchedData = getRandomKanji();
 
-	$: if (search !== '') setTimeout(async () => await fetchFlashcards(), 100);
+	$: if (search) setTimeout(async () => await fetchFlashcards(), 100);
 
 	$: if (search !== '' && fetchedData && fetchedData.length === 0) value = '';
 
@@ -117,9 +101,9 @@
 	/>
 	<Command.List>
 		<Command.Empty class="space-y-2 max-sm:h-[78dvh]">
-			<p class="text-xl h-full">No results found.</p>
+			<p class="h-full text-xl">No results found.</p>
 
-			<div class="px-4 sticky bottom-4">
+			<div class="sticky bottom-4 px-4">
 				<Button variant="link" href="/chat" class="w-full">Go to Chat</Button>
 			</div>
 		</Command.Empty>
@@ -127,7 +111,7 @@
 			<div class="relative grid grid-cols-3">
 				<Command.Group
 					heading="Suggestions"
-					class={cn('border-r', fetchedData.length < 4 && 'max-md:h-[78dvh] h-full')}
+					class={cn('border-r', fetchedData.length < 4 && 'h-full max-md:h-[78dvh]')}
 				>
 					{#each fetchedData as flashcard}
 						<Command.Item value={flashcard.id} class="flex flex-col items-start gap-0.5">
@@ -139,7 +123,7 @@
 
 				{#if currentHoveredFlashcard}
 					<div
-						class="sticky overflow-hidden max-md:h-[78dvh] h-fit top-0 col-span-2 flex flex-col items-center justify-center gap-10 px-2 md:h-72"
+						class="sticky top-0 col-span-2 flex h-fit flex-col items-center justify-center gap-10 overflow-hidden px-2 max-md:h-[78dvh] md:h-72"
 					>
 						{#if currentHoveredFlashcard.furigana}
 							<h2 class="text-center text-4xl">

@@ -24,7 +24,7 @@
 	on:keydown
 >
 	{#if loading}
-		<LoaderCircle class="size-6 animate-spin" />
+		<LoaderCircle class="mr-2 size-4 animate-spin" />
 	{/if}
 	<slot />
 </ButtonPrimitive.Root>

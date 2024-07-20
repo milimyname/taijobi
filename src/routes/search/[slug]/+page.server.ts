@@ -1,3 +1,4 @@
+import { kuroshiro } from '$lib/server/kuroshiro.js';
 import { searchCollectionSchema } from '$lib/utils/zodSchema.js';
 import { redirect } from '@sveltejs/kit';
 import type { RecordModel } from 'pocketbase';
@@ -5,6 +6,10 @@ import type PocketBase from 'pocketbase';
 import { fail, setError, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
+
+async function convertToFurigana(word: string) {
+	return await kuroshiro.convert(word, { to: 'hiragana', mode: 'furigana' });
+}
 
 export const load = async ({ locals, params }) => {
 	if (!locals.pb.authStore.isValid) throw redirect(401, '/login');
@@ -36,7 +41,16 @@ export const load = async ({ locals, params }) => {
 		});
 
 		return {
-			currentSearch,
+			currentSearch: {
+				...currentSearch,
+				expand: {
+					...currentSearch.expand,
+					flashcard: {
+						...currentSearch.expand?.flashcard,
+						furigana: await convertToFurigana(currentSearch.expand?.flashcard?.name),
+					},
+				},
+			},
 			searches,
 			flashcardsIds,
 			form: await superValidate(zod(searchCollectionSchema)),

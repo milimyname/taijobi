@@ -160,10 +160,10 @@ export async function conjugateVerb(plain: string) {
 	const [mashita] = codec.conjugateAuxiliaries(plain, ['Masu'], 'Ta', true);
 
 	const [ta] = codec.conjugate(plain, 'Ta', true);
-	const [nakatta] = codec.conjugateAuxiliaries(plain, ['Nai'], 'Ta');
+	const [nakatta] = codec.conjugateAuxiliaries(plain, ['Nai'], 'Ta', true);
 
 	const [te] = codec.conjugate(plain, 'Te', true);
-	const [nakute] = codec.conjugateAuxiliaries(plain, ['Nai'], 'Te');
+	const [nakute] = codec.conjugateAuxiliaries(plain, ['Nai'], 'Te', true);
 
 	const [rero] = codec.conjugateAuxiliaries(plain, ['Potential'], 'Dictionary');
 	const [, renai] = codec.conjugateAuxiliaries(plain, ['Potential'], 'Negative');
@@ -201,9 +201,16 @@ export async function conjugateVerb(plain: string) {
 
 	// Convert the base verb
 	async function convertCompoundVerbToFurigana(verb: string) {
-		const parts = verb.split(/(?<=.)(?=.)/).filter((part) => part.length > 0);
-		const furiganaParts = await Promise.all(parts.map(convertToFurigana));
-		return furiganaParts.join('');
+		// First, try to convert the entire verb as a whole
+		try {
+			const fullConversion = await convertToFurigana(verb);
+			return fullConversion;
+		} catch (error) {
+			// If that fails, fall back to a more granular approach
+			const parts = verb.split(/(?<=.)(?=.)/).filter((part) => part.length > 0);
+			const furiganaParts = await Promise.all(parts.map(convertToFurigana));
+			return furiganaParts.join('');
+		}
 	}
 
 	const baseVerbFurigana = await convertCompoundVerbToFurigana(plain);

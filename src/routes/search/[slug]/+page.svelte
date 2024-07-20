@@ -73,13 +73,9 @@
 		<div
 			style={`height: ${getFlashcardHeight($innerWidthStore, $innerHeightStore)}px;
 				width: ${getFlashcardWidth($innerWidthStore)}px `}
-			class="relative z-10 flex flex-col cursor-pointer items-center justify-center rounded-xl border shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200"
+			class="relative z-10 flex cursor-pointer flex-col items-center justify-center rounded-xl border shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200"
 		>
-			{#if $searchedWordStore?.type === 'phrase'}
-				<p class="text-balance px-10 text-center text-5xl leading-normal tracking-widest">
-					{@html $searchedWordStore?.name}
-				</p>
-			{:else if $searchedWordStore?.furigana}
+			{#if $searchedWordStore?.furigana}
 				<p class="vertical text-balance text-5xl leading-normal tracking-widest">
 					{@html $searchedWordStore?.furigana}
 				</p>
@@ -97,9 +93,9 @@
 		</div>
 	</div>
 
-	<div class="flex gap-4 flex-wrap">
+	<div class="flex flex-wrap gap-4">
 		<Button on:click={showHistory} disabled={data.searches.length === 0}>
-			<History class="size-5 color-current mr-2" />
+			<History class="color-current mr-2 size-5" />
 			<span>See History</span>
 		</Button>
 
