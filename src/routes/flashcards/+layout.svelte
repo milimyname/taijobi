@@ -7,7 +7,7 @@
 		currentIndexStore,
 		showLetterDrawing,
 		selectedQuizItems,
-		canIdrawMultipleTimes
+		canIdrawMultipleTimes,
 	} from '$lib/utils/stores';
 	import { page } from '$app/stores';
 	import { ArrowLeft, FolderPlus } from 'lucide-svelte';

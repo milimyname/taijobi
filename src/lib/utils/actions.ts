@@ -1,13 +1,13 @@
+import type { CropperDetails } from '$lib/utils/ambient.d.ts';
 import {
 	showAppNav,
 	showNav,
 	isLongPress,
 	lastPoint,
 	uploadingProfilePic,
-	strokes
+	strokes,
 } from '$lib/utils/stores';
 import { pocketbase } from './pocketbase';
-import type { CropperDetails } from '$lib/utils/ambient.d.ts';
 
 export function handleUserIconClick() {
 	let longPress;
@@ -80,7 +80,7 @@ export const uploadCroppedImage = async (
 	imageSrc: string,
 	cropperDetails: CropperDetails,
 	inputFile: HTMLInputElement,
-	userId: string
+	userId: string,
 ) => {
 	// Create a new image element to load the selected image
 	const selectedImage = new Image();
@@ -108,7 +108,7 @@ export const uploadCroppedImage = async (
 			0, // x-coordinate of the top-left corner of the destination rectangle
 			0, // y-coordinate of the top-left corner of the destination rectangle
 			cropperDetails.pixels.width, // width of the destination rectangle
-			cropperDetails.pixels.height // height of the destination rectangle
+			cropperDetails.pixels.height, // height of the destination rectangle
 		);
 
 		// Convert the canvas content to a Blob
@@ -119,12 +119,12 @@ export const uploadCroppedImage = async (
 			// Delete the previous profile image
 			await pocketbase.collection('users').update(userId, {
 				avatar: null,
-				oauth2ImageUrl: null
+				oauth2ImageUrl: null,
 			});
 
 			// Upload the cropped image
 			await pocketbase.collection('users').update(userId, {
-				avatar: blob
+				avatar: blob,
 			});
 
 			// Reset variables and UI state
@@ -179,9 +179,9 @@ export async function convertTextToSpeech(input: string) {
 		const res = await fetch('/api/openai', {
 			method: 'POST',
 			headers: {
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify({ input, type: 'audio' })
+			body: JSON.stringify({ input, type: 'audio' }),
 		});
 
 		if (!res.ok) throw new Error('Failed to fetch audio');

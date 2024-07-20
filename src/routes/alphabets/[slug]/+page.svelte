@@ -12,7 +12,7 @@
 		clickedQuizForm,
 		kanjiStore,
 		kanjiLength,
-		selectedQuizItems
+		selectedQuizItems,
 	} from '$lib/utils/stores';
 	import { cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
@@ -40,7 +40,7 @@
 
 	const rotateYCard = tweened(0, {
 		duration: 2000,
-		easing: cubicOut
+		easing: cubicOut,
 	});
 	// Get the alphabet store length
 	let alphabetLength: number;
@@ -77,7 +77,7 @@
 
 			// Remove the name from the flashcards array
 			data.flashcard = data.flashcard.filter(
-				(flashcard: { name: string }) => flashcard.name !== $currentLetter
+				(flashcard: { name: string }) => flashcard.name !== $currentLetter,
 			);
 		} catch (e) {
 			// Create a new flash card
@@ -85,15 +85,15 @@
 				name: $currentLetter,
 				meaning: kanji[$currentLetter].meaning,
 				flashcardBox: data.kanjiId,
-				type: 'kanji'
+				type: 'kanji',
 			});
 
 			// Add the word to the flashcards array
 			data.flashcard = [
 				...data.flashcard,
 				{
-					name: $currentLetter
-				}
+					name: $currentLetter,
+				},
 			];
 		}
 	};
@@ -121,7 +121,7 @@
 		},
 		onSubmit: async () => {
 			$clickedQuizForm = false;
-		}
+		},
 	});
 </script>
 
@@ -144,13 +144,13 @@
 					}}
 					class={cn(
 						'fixed bottom-3 left-3 z-30 text-lg font-medium text-black sm:bottom-5 sm:left-5',
-						$rotateYCard > 5 && 'hidden'
+						$rotateYCard > 5 && 'hidden',
 					)}
 				>
 					<Heart
 						class={cn(
 							'size-6 transition-all hover:scale-110 active:scale-110',
-							savedKanji && 'fill-black'
+							savedKanji && 'fill-black',
 						)}
 					/>
 				</button>
@@ -159,7 +159,7 @@
 			<span
 				class={cn(
 					'fixed right-3 top-3 z-30 text-lg font-medium text-black sm:right-5 sm:top-5',
-					$rotateYCard > 5 && 'hidden'
+					$rotateYCard > 5 && 'hidden',
 				)}
 			>
 				{$currentLetter}
@@ -168,7 +168,7 @@
 			<span
 				class={cn(
 					'fixed left-3 top-3 z-30 block transition-all sm:left-5 sm:top-5',
-					$rotateYCard > 5 && 'hidden'
+					$rotateYCard > 5 && 'hidden',
 				)}
 			>
 				{$progressSlider}
@@ -177,7 +177,7 @@
 			<button
 				class={cn(
 					'fixed bottom-3 right-2 z-30 block rounded-full border bg-white p-2 shadow-sm transition-all sm:bottom-5 sm:right-5',
-					$rotateYCard > 5 && $rotateYCard < 175 && 'hidden'
+					$rotateYCard > 5 && $rotateYCard < 175 && 'hidden',
 				)}
 				on:click={() => ($rotateYCard < 40 ? ($rotateYCard = 180) : ($rotateYCard = 0))}
 			>

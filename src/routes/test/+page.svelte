@@ -8,7 +8,7 @@
 
 	const initializeCanvas = () => {
 		canvas = new fabric.Canvas('c', {
-			isDrawingMode: drawingMode
+			isDrawingMode: drawingMode,
 		});
 
 		fabric.Object.prototype.transparentCorners = false;

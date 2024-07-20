@@ -7,7 +7,7 @@
 	export let data;
 
 	const form = superForm(data.form, {
-		validators: zodClient(signupSchema)
+		validators: zodClient(signupSchema),
 	});
 </script>
 

@@ -18,7 +18,7 @@
 			duration: 500,
 			opacity: 0,
 			y: 50,
-			easing: sineIn
+			easing: sineIn,
 		}}
 	>
 		<div class="-mb-52 h-17 w-full rounded-4xl border-4 border-[#bddffa] bg-white shadow-xl">
@@ -68,7 +68,7 @@
 			duration: 500,
 			opacity: 0,
 			y: 50,
-			easing: sineIn
+			easing: sineIn,
 		}}
 	>
 		<div class="-mb-52 h-17 w-full rounded-4xl border-4 border-[#F86F03] bg-white shadow-xl">

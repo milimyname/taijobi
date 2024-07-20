@@ -1,8 +1,8 @@
-import { superValidate, setError } from 'sveltekit-superforms/server';
-import { fail, redirect } from '@sveltejs/kit';
-import { loginSchema } from '$lib/utils/zodSchema';
-import { zod } from 'sveltekit-superforms/adapters';
 import { DEMO_EMAIL, DEMO_PASSWORD } from '$env/static/private';
+import { loginSchema } from '$lib/utils/zodSchema';
+import { fail, redirect } from '@sveltejs/kit';
+import { zod } from 'sveltekit-superforms/adapters';
+import { superValidate, setError } from 'sveltekit-superforms/server';
 
 export const load = async ({ locals, url }) => {
 	// Redirect if already logged in
@@ -12,7 +12,7 @@ export const load = async ({ locals, url }) => {
 	if (!authMethods) {
 		return {
 			authProviderRedirect: '',
-			authProviderState: ''
+			authProviderState: '',
 		};
 	}
 
@@ -27,7 +27,7 @@ export const load = async ({ locals, url }) => {
 		form: await superValidate(zod(loginSchema)),
 		authProviderRedirect,
 		authProviderState: state,
-		codeVerifier
+		codeVerifier,
 	};
 };
 
@@ -59,12 +59,12 @@ export const actions = {
 				.collection('users')
 				.authWithPassword(
 					process.env.DEMO_EMAIL || DEMO_EMAIL,
-					process.env.DEMO_PASSWORD || DEMO_PASSWORD
+					process.env.DEMO_PASSWORD || DEMO_PASSWORD,
 				);
 
 			throw redirect(303, '/');
 		} catch (error) {
 			console.error(error);
 		}
-	}
+	},
 };

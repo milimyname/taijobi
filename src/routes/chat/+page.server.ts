@@ -2,7 +2,7 @@ export const load = async ({ locals }) => {
 	if (!locals.pb.authStore.isValid) {
 		return {
 			isLoggedIn: false,
-			isAdmin: false
+			isAdmin: false,
 		};
 	}
 
@@ -10,6 +10,6 @@ export const load = async ({ locals }) => {
 
 	return {
 		isLoggedIn: true,
-		isAdmin: user?.role.includes('admin')
+		isAdmin: user?.role.includes('admin'),
 	};
 };

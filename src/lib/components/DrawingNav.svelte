@@ -6,14 +6,14 @@
 		isLongPress,
 		strokeColor,
 		showProgressSlider,
-		strokes
+		strokes,
 	} from '$lib/utils/stores';
 	import {
 		handleUserIconClick,
 		handleLongPress,
 		handleCancelPress,
 		clearCanvas,
-		redrawCanvas
+		redrawCanvas,
 	} from '$lib/utils/actions';
 	import { onMount } from 'svelte';
 	import { Brush, Eraser, RefreshCcw, MoveHorizontal, Undo2 } from 'lucide-svelte';
@@ -44,7 +44,7 @@
 	<nav
 		class={cn(
 			'mx-auto flex h-14 w-20 select-none items-center justify-center rounded-full bg-black p-2 text-white transition-all sm:gap-20 lg:bottom-5',
-			!$isLongPress && 'w-full justify-between px-10 py-4'
+			!$isLongPress && 'w-full justify-between px-10 py-4',
 		)}
 	>
 		<button
@@ -71,7 +71,7 @@
 					duration: 0,
 					opacity: 0,
 					x: 100,
-					easing: sineIn
+					easing: sineIn,
 				}}
 				on:click|preventDefault={() => clearCanvas(canvas)}
 			>
@@ -93,7 +93,7 @@
 						duration: 0,
 						opacity: 0,
 						x: 100,
-						easing: sineIn
+						easing: sineIn,
 					}}
 					on:click|preventDefault={() => ($showProgressSlider = !$showProgressSlider)}
 					class="select-none"

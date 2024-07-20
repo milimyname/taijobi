@@ -6,7 +6,7 @@
 		innerHeightStore,
 		clickedQuizForm,
 		clickedKanjiForm,
-		showProgressSlider
+		showProgressSlider,
 	} from '$lib/utils/stores';
 	import { toRomaji } from 'wanakana';
 	import { kanji } from '$lib/static/kanji';
@@ -29,7 +29,7 @@
 			letter: $currentLetter,
 			meaning: kanji[$currentLetter].meaning,
 			onyomi: kanji[$currentLetter].onyomi.join(', '),
-			kunyomi: kanji[$currentLetter].kunyomi.join(', ')
+			kunyomi: kanji[$currentLetter].kunyomi.join(', '),
 		});
 	else if (
 		browser &&
@@ -39,7 +39,7 @@
 	)
 		replaceStateWithQuery({
 			letter: $currentLetter,
-			romanji: toRomaji($currentLetter)
+			romanji: toRomaji($currentLetter),
 		});
 </script>
 

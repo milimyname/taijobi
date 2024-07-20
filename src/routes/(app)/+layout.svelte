@@ -66,7 +66,7 @@
 		<nav
 			class={cn(
 				'z-40 flex items-center justify-between gap-40 rounded-full bg-primary p-2 text-white transition-all lg:h-full lg:flex-col lg:justify-center lg:gap-10 lg:p-5',
-				isLongPress && 'right-5 p-2'
+				isLongPress && 'right-5 p-2',
 			)}
 		>
 			{#if $innerWidthStore > IS_DESKTOP}
@@ -119,7 +119,7 @@
 							duration: 0,
 							opacity: 0,
 							x: 100,
-							easing: sineIn
+							easing: sineIn,
 						}}
 						on:click|preventDefault={handleMenuIconClick}
 					>

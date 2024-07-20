@@ -1,6 +1,6 @@
-import { superValidate, setError } from 'sveltekit-superforms';
-import { fail, redirect } from '@sveltejs/kit';
 import { profileDataSchema } from '$lib/utils/zodSchema';
+import { fail, redirect } from '@sveltejs/kit';
+import { superValidate, setError } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 
 /** @type {import('./$types').PageServerLoad} */
@@ -27,7 +27,7 @@ export const actions = {
 		if (form.data.username !== locals.pb.authStore.model?.username) {
 			try {
 				await locals.pb.collection('users').update(locals.pb.authStore.model?.id, {
-					username: form.data.username
+					username: form.data.username,
 				});
 			} catch (_) {
 				setError(form, 'username', 'Username is already taken.');
@@ -52,5 +52,5 @@ export const actions = {
 		} catch (e) {
 			console.log(e);
 		}
-	}
+	},
 };

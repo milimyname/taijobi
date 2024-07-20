@@ -5,7 +5,7 @@
 		lastPoint,
 		strokeColor,
 		innerHeightStore,
-		strokes
+		strokes,
 	} from '$lib/utils/stores';
 	import { onMount } from 'svelte';
 	import { cn, getFlashcardHeight, getFlashcardWidth } from '$lib/utils';
@@ -46,7 +46,7 @@
 		const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY;
 		return {
 			x: clientX - rect.left,
-			y: clientY - rect.top
+			y: clientY - rect.top,
 		};
 	}
 
@@ -86,6 +86,6 @@
 	style={`transform: rotateY(${-rotationY}deg); transform-style: preserve-3d; backface-visibility: hidden;`}
 	class={cn(
 		'relative z-10 mx-auto block cursor-pointer rounded-xl border shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200',
-		rotationY > 90 && 'hidden'
+		rotationY > 90 && 'hidden',
 	)}
 />

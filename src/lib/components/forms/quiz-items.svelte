@@ -6,7 +6,7 @@
 		clickedEditFlashcard,
 		clickedAddFlahcardBox,
 		swapFlashcards,
-		flashcardBoxes
+		flashcardBoxes,
 	} from '$lib/utils/stores';
 	import { kanji } from '$lib/static/kanji';
 	import { page } from '$app/stores';
@@ -28,7 +28,7 @@
 	async function getFlashcards() {
 		flashcards = await pocketbase.collection('flashcard').getFullList({
 			filter: `flashcardBox = "${flashcardBox}"`,
-			fields: 'name,meaning,id'
+			fields: 'name,meaning,id',
 		});
 	}
 
@@ -37,7 +37,7 @@
 		$selectedQuizItems.forEach(async (item) => {
 			const [id] = item.split('=');
 			await pocketbase.collection('flashcard').update(id, {
-				flashcardBox: selectedFlashcardBox
+				flashcardBox: selectedFlashcardBox,
 			});
 		});
 

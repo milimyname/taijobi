@@ -198,12 +198,12 @@ handwriting.recognize = function (trace, options, callback) {
 			{
 				writing_guide: {
 					writing_area_width: options.width || this.width || undefined,
-					writing_area_height: options.height || this.width || undefined
+					writing_area_height: options.height || this.width || undefined,
 				},
 				ink: trace,
-				language: options.language || 'zh_TW'
-			}
-		]
+				language: options.language || 'zh_TW',
+			},
+		],
 	});
 
 	var xhr = new XMLHttpRequest();
@@ -238,7 +238,7 @@ handwriting.recognize = function (trace, options, callback) {
 	});
 	xhr.open(
 		'POST',
-		'https://www.google.com.tw/inputtools/request?ime=handwriting&app=mobilesearch&cs=1&oe=UTF-8'
+		'https://www.google.com.tw/inputtools/request?ime=handwriting&app=mobilesearch&cs=1&oe=UTF-8',
 	);
 	xhr.setRequestHeader('content-type', 'application/json');
 	xhr.send(data);

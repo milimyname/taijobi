@@ -12,7 +12,7 @@ function createFakeData() {
 		choice: '4',
 		type: 'name',
 		updated: '2',
-		userId: '-'
+		userId: '-',
 	};
 }
 
@@ -26,14 +26,14 @@ export const load = async ({ locals, parent }) => {
 				{
 					name: 'ひらがな',
 					id: 'hiragana',
-					...createFakeData()
+					...createFakeData(),
 				},
 				{
 					name: 'カタカナ',
 					id: 'katakana',
-					...createFakeData()
-				}
-			]
+					...createFakeData(),
+				},
+			],
 		};
 
 	// Get user id from authStore
@@ -41,7 +41,7 @@ export const load = async ({ locals, parent }) => {
 	// Get a quiz
 	let quizzes = await locals.pb.collection('quizzes').getFullList({
 		filter: `userId = "${id}"`,
-		fields: 'name,type,maxCount,id,created,flashcardBox'
+		fields: 'name,type,maxCount,id,created,flashcardBox',
 	});
 
 	// Add hiragana and katakana quizzes
@@ -50,17 +50,17 @@ export const load = async ({ locals, parent }) => {
 		{
 			name: 'ひらがな',
 			id: 'hiragana',
-			...createFakeData()
+			...createFakeData(),
 		},
 		{
 			name: 'カタカナ',
 			id: 'katakana',
-			...createFakeData()
+			...createFakeData(),
 		},
-		...quizzes
+		...quizzes,
 	];
 
 	return {
-		quizzes
+		quizzes,
 	};
 };

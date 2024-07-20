@@ -1,6 +1,6 @@
-import { superValidate, setError } from 'sveltekit-superforms';
-import { fail, redirect } from '@sveltejs/kit';
 import { loginSchema } from '$lib/utils/zodSchema';
+import { fail, redirect } from '@sveltejs/kit';
+import { superValidate, setError } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 
 /** @type {import('./$types').PageServerLoad} */
@@ -37,5 +37,5 @@ export const actions = {
 		}
 
 		throw redirect(303, '/');
-	}
+	},
 };

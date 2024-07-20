@@ -10,7 +10,7 @@
 
 	// Client API:
 	const { form, errors, constraints, enhance } = superForm(data.form, {
-		validators: zodClient(loginSchema)
+		validators: zodClient(loginSchema),
 	});
 </script>
 

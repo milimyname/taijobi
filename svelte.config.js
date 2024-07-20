@@ -1,6 +1,6 @@
+import { preprocessMeltUI } from '@melt-ui/pp';
 import node from '@sveltejs/adapter-node';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
-import { preprocessMeltUI } from '@melt-ui/pp';
 import sequence from 'svelte-sequential-preprocessor';
 
 /** @type {import('@sveltejs/kit').Config} */
@@ -9,10 +9,10 @@ const config = {
 	// for more information about preprocessors
 	preprocess: sequence([
 		vitePreprocess(),
-		preprocessMeltUI() // add to the end!
+		preprocessMeltUI(), // add to the end!
 	]),
 	vitePlugin: {
-		inspector: true
+		inspector: true,
 	},
 
 	kit: {
@@ -21,9 +21,9 @@ const config = {
 		// See https://kit.svelte.dev/docs/adapters for more information about adapters.
 		adapter: node(),
 		alias: {
-			'@/*': './path/to/lib/*'
-		}
-	}
+			'@/*': './path/to/lib/*',
+		},
+	},
 };
 
 export default config;

@@ -2,7 +2,7 @@
 	import { createSwitch, melt } from '@melt-ui/svelte';
 
 	const {
-		elements: { root, input }
+		elements: { root, input },
 	} = createSwitch();
 
 	$: console.log($input.checked);

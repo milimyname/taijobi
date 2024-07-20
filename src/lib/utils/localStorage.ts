@@ -10,13 +10,13 @@ export const createLocalStorageStore = <T>(key: string, initialValue: T) => {
 	store.set(
 		isBrowser() && localStorage.getItem(key)
 			? JSON.parse(localStorage.getItem(key) as string)
-			: initialValue
+			: initialValue,
 	);
 	onDestroy(
 		store.subscribe((v) => {
 			if (!isBrowser()) return;
 			localStorage.setItem(key, JSON.stringify(v));
-		})
+		}),
 	);
 
 	return store;
@@ -25,4 +25,4 @@ export const createLocalStorageStore = <T>(key: string, initialValue: T) => {
 export const getLocalStorageItem = (key: string) => {
 	if (!isBrowser()) return;
 	return localStorage.getItem(key);
-}
+};

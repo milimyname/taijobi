@@ -3,12 +3,12 @@ export const load = async ({ locals }) => {
 	if (!locals.pb.authStore.isValid)
 		return {
 			isLoggedIn: false,
-			isAdmin: false
+			isAdmin: false,
 		};
 
 	const user = structuredClone(locals.pb.authStore.model);
 	return {
 		isLoggedIn: true,
-		isAdmin: user?.role.includes('admin')
+		isAdmin: user?.role.includes('admin'),
 	};
 };

@@ -1,6 +1,6 @@
-import { superValidate, setError } from 'sveltekit-superforms';
-import { fail, redirect } from '@sveltejs/kit';
 import { resetPasswordSchema } from '$lib/utils/zodSchema';
+import { fail, redirect } from '@sveltejs/kit';
+import { superValidate, setError } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 
 export const load = async ({ locals }) => {
@@ -29,5 +29,5 @@ export const actions = {
 		}
 
 		throw redirect(303, '/');
-	}
+	},
 };

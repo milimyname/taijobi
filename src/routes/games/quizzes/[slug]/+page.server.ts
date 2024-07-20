@@ -25,11 +25,11 @@ export const load = async ({ params, locals }) => {
 				timeLimit: false,
 				choice: '4',
 				type: 'name',
-				userId: locals.pb.authStore.model?.id
+				userId: locals.pb.authStore.model?.id,
 			},
 			isKanjiQuiz: false,
 			flashcards,
-			userId: locals.pb.authStore.model?.id || '-'
+			userId: locals.pb.authStore.model?.id || '-',
 		};
 	}
 
@@ -58,6 +58,6 @@ export const load = async ({ params, locals }) => {
 		quiz,
 		flashcards: items,
 		userId: locals.pb.authStore.model?.id,
-		isKanjiQuiz: true
+		isKanjiQuiz: true,
 	};
 };

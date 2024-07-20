@@ -18,7 +18,7 @@ export function clickOutside(node: Node, callback: () => void) {
 		'.alphabet',
 		'.flashcard-completion-btn',
 		'.flaschards-carousel',
-		'.search-btn'
+		'.search-btn',
 	];
 
 	function handleClick(e: MouseEvent) {
@@ -44,6 +44,6 @@ export function clickOutside(node: Node, callback: () => void) {
 			// the node has been removed from the DOM
 			window.removeEventListener('click', handleClick);
 			window.removeEventListener('touchstart', handleTouch);
-		}
+		},
 	};
 }

@@ -12,7 +12,7 @@
 		strokeColor,
 		innerHeightStore,
 		currentFlashcard,
-		canIdrawMultipleTimes
+		canIdrawMultipleTimes,
 	} from '$lib/utils/stores';
 	import { onDestroy, onMount } from 'svelte';
 	import { cn, getFlashcardHeight, getFlashcardWidth } from '$lib/utils';
@@ -98,7 +98,7 @@
 	const initializeFabricCanvas = () => {
 		for (let i = 0; i < NUM_OF_THUMBAILS; i++) {
 			fabricCanvas = new fabric.Canvas(`${$page.params.slug}-${currentIndex}-${i}`, {
-				isDrawingMode
+				isDrawingMode,
 			});
 
 			fabricCanvas.freeDrawingBrush.width = $innerWidthStore > IS_DESKTOP ? 12 : 10;
@@ -153,7 +153,7 @@
 						fontSize: fontSize,
 						fill: 'black',
 						opacity: 0.3,
-						selectable: true
+						selectable: true,
 					});
 
 					fabricCanvas.add(text);
@@ -178,7 +178,7 @@
 				) {
 					obj.top = Math.min(
 						obj.top,
-						fabricCanvas.getHeight() - (obj.getBoundingRect().height ?? 0)
+						fabricCanvas.getHeight() - (obj.getBoundingRect().height ?? 0),
 					);
 					obj.left = Math.min(obj.left, fabricCanvas.getWidth() - obj.getBoundingRect().width);
 					obj.top = Math.max(obj.top, 0);
@@ -342,7 +342,7 @@
 <Carousel.Root
 	bind:api={canvasCarouselApi}
 	opts={{
-		watchDrag: false
+		watchDrag: false,
 	}}
 	class="w-full"
 >
@@ -356,7 +356,7 @@
 						{height}
 						class={cn(
 							'relative z-10 mx-auto block cursor-pointer rounded-xl border shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200',
-							rotationY > 90 && 'hidden'
+							rotationY > 90 && 'hidden',
 						)}
 					/>
 				</div>
@@ -369,7 +369,7 @@
 	bind:api={imageCarouselApi}
 	opts={{
 		containScroll: 'keepSnaps',
-		dragFree: true
+		dragFree: true,
 	}}
 	class="flex w-full justify-center"
 >
@@ -378,7 +378,7 @@
 			<Carousel.Item
 				class={cn(
 					'flex basis-auto cursor-pointer items-center justify-center  border border-transparent pl-0',
-					i === current && 'rounded-lg border border-primary'
+					i === current && 'rounded-lg border border-primary',
 				)}
 			>
 				<Card.Root class="size-20">

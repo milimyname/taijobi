@@ -7,7 +7,7 @@
 		kanjiLength,
 		searchKanji,
 		selectedKanjiGrade,
-		katakanaStore
+		katakanaStore,
 	} from '$lib/utils/stores';
 	import { clickOutside } from '$lib/utils/clickOutside';
 	import { spring } from 'svelte/motion';

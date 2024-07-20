@@ -7,7 +7,7 @@
 		innerWidthStore,
 		animateSVG,
 		showLetterDrawing,
-		strokes
+		strokes,
 	} from '$lib/utils/stores';
 	import { onMount } from 'svelte';
 	import { cubicOut } from 'svelte/easing';
@@ -24,7 +24,7 @@
 		ChevronLast,
 		ChevronFirst,
 		FileText,
-		Undo2
+		Undo2,
 	} from 'lucide-svelte';
 	import { clearCanvas, redrawCanvas } from '$lib/utils/actions';
 	import BacksideCard from '$lib/components/canvas/BacksideCard.svelte';
@@ -36,7 +36,7 @@
 
 	const rotateYCard = tweened(0, {
 		duration: 2000,
-		easing: cubicOut
+		easing: cubicOut,
 	});
 	// Get the alphabet store length
 	let canvas: HTMLCanvasElement;
@@ -88,7 +88,7 @@
 	<span
 		class={cn(
 			'absolute left-1/2 top-3 z-40 block -translate-x-1/2 text-lg font-medium sm:top-5',
-			$rotateYCard > 5 && 'hidden'
+			$rotateYCard > 5 && 'hidden',
 		)}
 	>
 		{#each slicedFlashcard as letter, i}
@@ -101,7 +101,7 @@
 	<button
 		class={cn(
 			'absolute bottom-3 left-3 z-40 block rounded-full border bg-white p-2 shadow-sm transition-all xm:bottom-5 xm:left-5',
-			$rotateYCard > 5 && $rotateYCard < 175 && 'hidden'
+			$rotateYCard > 5 && $rotateYCard < 175 && 'hidden',
 		)}
 		on:click={() => ($showLetterDrawing = false)}
 	>
@@ -115,7 +115,7 @@
 	<button
 		class={cn(
 			'absolute bottom-3 right-2 z-40 block rounded-full border bg-white p-2 shadow-sm transition-all xm:bottom-5 xm:right-5',
-			$rotateYCard > 5 && $rotateYCard < 175 && 'hidden'
+			$rotateYCard > 5 && $rotateYCard < 175 && 'hidden',
 		)}
 		on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
 	>
@@ -175,7 +175,7 @@
 					class={cn(
 						'previousLetter absolute -right-3 top-1/2 z-40 rounded-full border bg-white p-2 opacity-100 shadow-sm transition-all',
 						$currentIndexStore + 1 === embla.scrollSnapList().length &&
-							'pointer-events-none opacity-0'
+							'pointer-events-none opacity-0',
 					)}
 				>
 					<ChevronLast class="size-4" />

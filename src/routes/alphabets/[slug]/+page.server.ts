@@ -1,8 +1,8 @@
-import { superValidate, setError } from 'sveltekit-superforms';
-import { fail, redirect } from '@sveltejs/kit';
-import { quizSchema } from '$lib/utils/zodSchema';
 import { kanji } from '$lib/static/kanji';
+import { quizSchema } from '$lib/utils/zodSchema';
+import { fail, redirect } from '@sveltejs/kit';
 import type Pocketbase from 'pocketbase';
+import { superValidate, setError } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 
 export const load = async ({ locals, parent }) => {
@@ -11,20 +11,20 @@ export const load = async ({ locals, parent }) => {
 
 		if (!isLoggedIn)
 			return {
-				quizForm: await superValidate(zod(quizSchema))
+				quizForm: await superValidate(zod(quizSchema)),
 			};
 
 		const kanjiId = await getOrCreateKanjiId(locals.pb, locals.pb.authStore.model?.id);
 
 		const flashcard = await locals.pb.collection('flashcard').getFullList({
 			filter: `flashcardBox = "${kanjiId}"`,
-			fields: 'name'
+			fields: 'name',
 		});
 
 		return {
 			flashcard: structuredClone(flashcard),
 			kanjiId,
-			quizForm: await superValidate(zod(quizSchema))
+			quizForm: await superValidate(zod(quizSchema)),
 		};
 	} catch (e) {
 		console.error(e);
@@ -34,7 +34,7 @@ export const load = async ({ locals, parent }) => {
 
 async function getOrCreateKanjiId(pb: Pocketbase, userId: string) {
 	const existingFlashcards = await pb.collection('flashcardBoxes').getFullList({
-		filter: `userId = "${userId}" && name = "漢字"`
+		filter: `userId = "${userId}" && name = "漢字"`,
 	});
 
 	// If the user already has a flashcard box, return it
@@ -43,7 +43,7 @@ async function getOrCreateKanjiId(pb: Pocketbase, userId: string) {
 	const flashcardBox = await pb.collection('flashcardBoxes').create({
 		name: '漢字',
 		userId,
-		description: 'It is a list of saved kanji.'
+		description: 'It is a list of saved kanji.',
 	});
 
 	await pb.collection('flashcardCollections').create({
@@ -51,7 +51,7 @@ async function getOrCreateKanjiId(pb: Pocketbase, userId: string) {
 		description: 'It is a list of saved flashcards by Taijobi.',
 		userId,
 		type: 'custom',
-		'flashcardBoxes+': flashcardBox.id
+		'flashcardBoxes+': flashcardBox.id,
 	});
 
 	return flashcardBox.id;
@@ -88,7 +88,7 @@ export const actions = {
 					name: item,
 					meaning: kanji[item].meaning,
 					kunyomi: kanji[item].kunyomi.join(', '),
-					onyomi: kanji[item].onyomi.join(', ')
+					onyomi: kanji[item].onyomi.join(', '),
 				});
 			});
 		} else {
@@ -98,13 +98,13 @@ export const actions = {
 					name: key,
 					meaning: value.meaning,
 					kunyomi: value.kunyomi.join(', '),
-					onyomi: value.onyomi.join(', ')
+					onyomi: value.onyomi.join(', '),
 				};
 			});
 
 			flashcards = arrKanji.slice(
 				+form.data.startCount - 1,
-				+form.data.startCount + +form.data.maxCount
+				+form.data.startCount + +form.data.maxCount,
 			);
 		}
 
@@ -121,12 +121,12 @@ export const actions = {
 				startCount: +form.data.startCount,
 				flashcardBox: kanjiId,
 				timeLimit: form.data.timeLimit,
-				flashcards: JSON.stringify(flashcards)
+				flashcards: JSON.stringify(flashcards),
 			});
 		} catch (_) {
 			return setError(form, 'name', `Error creating quiz. Please try again.`);
 		}
 
 		throw redirect(303, `/games/quizzes/${quiz.id}`);
-	}
+	},
 };

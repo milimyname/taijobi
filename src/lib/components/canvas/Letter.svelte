@@ -11,7 +11,7 @@
 		kanjiLength,
 		kanjiWidthMulitplier,
 		searchKanji,
-		currentFlashcard
+		currentFlashcard,
 	} from '$lib/utils/stores';
 	import { draw } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
@@ -27,7 +27,7 @@
 
 	export let rotationY: number;
 	export let saved: SavedLetter = {
-		name: ''
+		name: '',
 	};
 
 	// Determine which object (hiragana, katakana, kanji) to use based on the URL path
@@ -52,7 +52,7 @@
 				}
 			} else if ($selectedKanjiGrade === 'saved') {
 				const savedKanji: SavedLetter = {
-					name: ''
+					name: '',
 				};
 				// Find all kanji that are saved in the saved array by its name
 				for (const kanjiChar in kanji) {

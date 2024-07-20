@@ -8,10 +8,10 @@ export const load = (async ({ params, locals }) => {
 	try {
 		const posts = await locals.pb.collection('posts').getOne(postId, {
 			fields: 'title, id, html, description',
-			sort: '-created'
+			sort: '-created',
 		});
 		return {
-			posts
+			posts,
 		};
 	} catch (e) {
 		console.log(e);

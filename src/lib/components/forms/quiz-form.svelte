@@ -8,7 +8,7 @@
 		selectedQuizItems,
 		swapFlashcards,
 		startRangeQuizForm,
-		endRangeQuizForm
+		endRangeQuizForm,
 	} from '$lib/utils/stores';
 	import { cn, isDesktop } from '$lib/utils';
 	import * as Tabs from '$lib/components/ui/tabs';
@@ -38,12 +38,12 @@
 
 	$: selected = {
 		value: $formData.type,
-		label: $formData.type
+		label: $formData.type,
 	};
 
 	$: choice = {
 		value: $formData.choice,
-		label: $formData.choice
+		label: $formData.choice,
 	};
 </script>
 

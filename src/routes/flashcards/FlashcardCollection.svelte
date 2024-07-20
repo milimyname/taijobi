@@ -13,7 +13,7 @@
 		clickedEditFlashcard,
 		clickedFeedback,
 		openSearch,
-		newFlashcardBoxId
+		newFlashcardBoxId,
 	} from '$lib/utils/stores';
 	import { IS_DESKTOP } from '$lib/utils/constants';
 	import { FolderEdit } from 'lucide-svelte';

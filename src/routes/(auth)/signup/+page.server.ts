@@ -1,6 +1,6 @@
-import { superValidate, setError } from 'sveltekit-superforms';
-import { fail, redirect } from '@sveltejs/kit';
 import { signupSchema } from '$lib/utils/zodSchema';
+import { fail, redirect } from '@sveltejs/kit';
+import { superValidate, setError } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 
 export const load = async ({ locals }) => {
@@ -37,10 +37,10 @@ export const actions = {
 			return setError(
 				form,
 				'email',
-				'Email is not verified. Check ur email inbox. Try to log in again.'
+				'Email is not verified. Check ur email inbox. Try to log in again.',
 			);
 		}
 
 		throw redirect(303, '/login');
-	}
+	},
 };

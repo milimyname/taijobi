@@ -12,7 +12,7 @@
 	export let data;
 
 	const { form, errors, constraints, enhance } = superForm(data.form, {
-		validators: zodClient(profileDataSchema)
+		validators: zodClient(profileDataSchema),
 	});
 
 	let imageSrc: string;

@@ -34,7 +34,7 @@ export const GET = async ({ locals, url, cookies }) => {
 		// Update user's profile
 		await locals.pb.collection('users').update(record.id, {
 			oauth2ImageUrl: meta.avatarUrl,
-			avatar: null
+			avatar: null,
 		});
 	} catch (err) {
 		console.log('Error logging in with 0Auth user - ', err);

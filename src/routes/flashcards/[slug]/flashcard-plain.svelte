@@ -11,7 +11,7 @@
 		innerWidthStore,
 		currentFlashcardTypeStore,
 		canIdrawMultipleTimes,
-		showCustomContent
+		showCustomContent,
 	} from '$lib/utils/stores';
 	import { quintOut, cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
@@ -29,7 +29,7 @@
 
 	const rotateYCard = tweened(0, {
 		duration: 2000,
-		easing: cubicOut
+		easing: cubicOut,
 	});
 	let kanjiFlashcard: FlashcardType;
 	let audioSource = '';
@@ -43,7 +43,7 @@
 	$: if (browser && wordFlashcard)
 		replaceStateWithQuery({
 			flashcardName: wordFlashcard.name,
-			meaning: wordFlashcard.meaning
+			meaning: wordFlashcard.meaning,
 		});
 
 	async function convertTextToSpeech() {
@@ -51,9 +51,9 @@
 			const res = await fetch('/api/openai', {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/json'
+					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify({ input: wordFlashcard?.name, type: 'audio' })
+				body: JSON.stringify({ input: wordFlashcard?.name, type: 'audio' }),
 			});
 
 			if (!res.ok) throw new Error('Failed to fetch audio');
@@ -84,7 +84,7 @@
 	class={cn(
 		'relative z-10 flex cursor-pointer items-center justify-center overflow-x-auto rounded-xl border shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200',
 		$rotateYCard > 90 && 'hidden',
-		longWord > 8 && 'py-10 sm:py-32'
+		longWord > 8 && 'py-10 sm:py-32',
 	)}
 >
 	{#if $currentFlashcardTypeStore === 'kanji'}
@@ -95,7 +95,7 @@
 		<p
 			class={cn(
 				'text-balance px-10 text-center text-5xl leading-normal tracking-widest',
-				longWord > 15 && 'text-xl'
+				longWord > 15 && 'text-xl',
 			)}
 		>
 			{@html currentFlashcardFurigana}
@@ -104,7 +104,7 @@
 		<p
 			class={cn(
 				'vertical text-balance text-5xl leading-normal tracking-widest',
-				longWord > 15 && 'text-xl'
+				longWord > 15 && 'text-xl',
 			)}
 		>
 			{@html currentFlashcardFurigana}
@@ -120,7 +120,7 @@
 			<button
 				class={cn(
 					'rounded-full border bg-white p-2 shadow-sm transition-all',
-					$showCustomContent && 'hidden'
+					$showCustomContent && 'hidden',
 				)}
 				on:click={() => {
 					$showLetterDrawing = true;
@@ -135,7 +135,7 @@
 			<button
 				class={cn(
 					'rounded-full border bg-white p-2 shadow-sm transition-all',
-					$showCustomContent && 'hidden'
+					$showCustomContent && 'hidden',
 				)}
 				on:click={async () => {
 					if (audioSource === '') await convertTextToSpeech();
@@ -149,7 +149,7 @@
 		<button
 			class={cn(
 				'rounded-full border bg-white p-2 shadow-sm transition-all',
-				$showCustomContent && 'hidden'
+				$showCustomContent && 'hidden',
 			)}
 			on:click={() => ($canIdrawMultipleTimes = true)}
 		>
@@ -160,7 +160,7 @@
 	<button
 		class={cn(
 			'absolute bottom-3 right-2 z-30 rounded-full border bg-white p-2 shadow-sm transition-all xm:bottom-5 xm:right-5',
-			$showCustomContent && 'hidden'
+			$showCustomContent && 'hidden',
 		)}
 		on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
 	>
@@ -175,7 +175,7 @@
 	class={cn(
 		'relative z-10 mx-auto justify-center overflow-hidden rounded-xl border p-5 shadow-sm sm:p-10',
 		$rotateYCard > 90 ? 'block' : 'hidden',
-		$currentAlphabet === 'kanji' ? 'gap-1' : 'gap-5'
+		$currentAlphabet === 'kanji' ? 'gap-1' : 'gap-5',
 	)}
 >
 	{#if $currentFlashcardTypeStore === 'kanji'}
@@ -219,7 +219,7 @@
 				<button
 					class={cn(
 						'fixed bottom-0 left-0 z-10 rounded-tr-xl bg-white p-5 text-black',
-						$showCustomContent && 'bg-blue-200'
+						$showCustomContent && 'bg-blue-200',
 					)}
 					on:click|preventDefault={() => ($showCustomContent = !$showCustomContent)}
 				>
@@ -233,7 +233,7 @@
 							duration: 1000,
 							opacity: 0,
 							y: 400,
-							easing: quintOut
+							easing: quintOut,
 						}}
 						class="z-4 absolute bottom-0 left-0 h-5/6 w-full rounded-xl bg-primary p-4 text-sm text-white"
 					>
@@ -244,7 +244,7 @@
 			<button
 				class={cn(
 					'fixed bottom-5 right-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all',
-					$showCustomContent && 'hidden'
+					$showCustomContent && 'hidden',
 				)}
 				on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
 			>
@@ -279,7 +279,7 @@
 			<button
 				class={cn(
 					'flashcard-completion-btn fixed bottom-0 left-0 z-10 rounded-tr-xl bg-white p-5 text-black',
-					!$showCustomContent && 'bg-blue-200'
+					!$showCustomContent && 'bg-blue-200',
 				)}
 				on:click|preventDefault={() => ($showCustomContent = !$showCustomContent)}
 			>
@@ -289,7 +289,7 @@
 			<button
 				class={cn(
 					'fixed bottom-5 right-5 z-30 rounded-full border bg-white p-2 shadow-sm transition-all',
-					$showCustomContent && 'hidden'
+					$showCustomContent && 'hidden',
 				)}
 				on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
 			>
