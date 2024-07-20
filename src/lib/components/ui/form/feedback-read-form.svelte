@@ -32,7 +32,7 @@
 
 <form
 	method="POST"
-	action="?/update"
+	action="?/delete"
 	use:enhance
 	class={cn(
 		'edit-form z-[1000] flex w-full flex-col gap-5 rounded-t-2xl bg-white',
@@ -59,12 +59,8 @@
 
 		<input type="hidden" name="id" bind:value={$formData.id} />
 
-		<div class="grid grid-cols-3 gap-2">
-			<button formaction="?/delete">
-				<slot name="delete" />
-			</button>
-
-			<button formaction="?/update" class="col-span-2 cursor-not-allowed" {disabled}>
+		<div class="flex gap-2">
+			<button formaction="?/update" class="grow cursor-not-allowed" {disabled}>
 				<slot name="update" />
 			</button>
 		</div>

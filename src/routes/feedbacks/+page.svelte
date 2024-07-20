@@ -78,7 +78,9 @@
 					<ArrowDown10 class="size-5 mr-2" />
 				{:else}
 					<ArrowDown01 class="size-5 mr-2" />
-				{/if} <span>Sorted by date</span>
+				{/if}
+
+				<span>Sorted by date</span>
 			</Button>
 			<Button size="sm" on:click={() => ($clickedFeedback = true)}>Create</Button>
 		</div>

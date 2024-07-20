@@ -20,7 +20,9 @@
 	import { pocketbase } from '$lib/utils/pocketbase';
 	import NestedSearchDrawerDialog from './nested-search-drawer-dialog.svelte';
 	import { cn, isDesktop } from '$lib/utils';
-	import DeleteSearchHistoryDrawerAlertDialog from '$lib/components/drawer-alert-dialogs/delete-search-history-drawer-alert-dialog.svelte';
+	import DeleteDrawerAlertDialog from '$lib/components/drawer-alert-dialogs/delete-drawer-alert-dialog.svelte';
+	import { getContext } from 'svelte';
+	import { toast } from 'svelte-sonner';
 
 	export let searches: RecordModel[];
 
@@ -63,6 +65,43 @@
 		}
 	}
 
+	const searchedFlashcardsIds = getContext<string[]>('searchedFlashcardsIds');
+	const searchesIds = getContext<string[]>('searchesIds');
+
+	async function deleteHistory() {
+		try {
+			await Promise.all(
+				searchedFlashcardsIds?.map(async (id: string) => {
+					await pocketbase.collection('flashcard').update(id, {
+						searches: [],
+					});
+				}),
+			);
+		} catch (error) {
+			console.error('Error deleting search history:', error);
+		}
+
+		try {
+			await Promise.all(
+				searchesIds?.map(async (id: string) => {
+					await pocketbase.collection('searches').delete(id);
+				}),
+			);
+		} catch (error) {
+			console.error('Error deleting search history:', error);
+			toast.error('Error deleting search history. Please try again later.');
+			return;
+		}
+
+		$openHistory = false;
+
+		setTimeout(() => ($deleteHistoryOpen = false), 150);
+
+		goto('/');
+
+		toast.success('Search history deleted successfully. Redirecting to the home page...');
+	}
+
 	$: sortedSearches = (() => {
 		if (!searches) return [];
 
@@ -85,7 +124,7 @@
 	})();
 </script>
 
-<DeleteSearchHistoryDrawerAlertDialog />
+<DeleteDrawerAlertDialog onClick={deleteHistory} />
 
 <DrawerDialog.Root open={$openHistory} onOutsideClick={onClickOutSideClick} onClose={onCloseDrawer}>
 	<DrawerDialog.Content

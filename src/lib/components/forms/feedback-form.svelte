@@ -4,10 +4,21 @@
 	import { enhance } from '$app/forms';
 	import { Label } from '$lib/components/ui/label';
 	import { Textarea } from '$lib/components/ui/textarea';
+	import { toast } from 'svelte-sonner';
+	import { goto } from '$app/navigation';
 
 	function onSubmit() {
 		$clickedFeedback = false;
 		$feedbackDescription = '';
+
+		toast('Feedback submitted!', {
+			action: {
+				label: 'See it now',
+				onClick: () => {
+					goto('/feedbacks');
+				},
+			},
+		});
 	}
 
 	export let disabled = false;
