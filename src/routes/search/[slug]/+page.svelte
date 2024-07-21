@@ -93,7 +93,7 @@
 		</div>
 	</div>
 
-	<div class="flex flex-wrap gap-4">
+	<div class="flex flex-wrap justify-center gap-4">
 		<Button on:click={showHistory} disabled={data.searches.length === 0}>
 			<History class="color-current mr-2 size-5" />
 			<span>See History</span>

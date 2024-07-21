@@ -130,13 +130,13 @@
 	<DrawerDialog.Content
 		className={cn('w-full max-h-[90dvh] md:max-w-2xl p-0', $deleteHistoryOpen && 'z-60')}
 	>
-		<DrawerDialog.Header class="text-left p-5 pb-0 space-y-2 max-md:mb-5">
+		<DrawerDialog.Header class="space-y-2 p-5 pb-0 text-left max-md:mb-5">
 			<DrawerDialog.Title>Search History</DrawerDialog.Title>
 			<DrawerDialog.Description className="flex gap-1 sm:gap-2">
 				<Button
 					size="icon"
 					variant="outline"
-					class="max-w-14 w-12"
+					class="w-12 max-w-14"
 					on:click={() => (isCreatingNewFlashcardBox = !isCreatingNewFlashcardBox)}
 				>
 					<Plus class="size-4" />
@@ -144,7 +144,7 @@
 				<Button
 					size="icon"
 					variant="outline"
-					class="max-w-14 w-12"
+					class="w-12 max-w-14"
 					on:click={() => (sortedByDate = !sortedByDate)}
 				>
 					{#if sortedByDate}
@@ -157,7 +157,7 @@
 					size="icon"
 					variant="destructive"
 					on:click={() => ($deleteHistoryOpen = true)}
-					class="max-w-14 w-12"
+					class="w-12 max-w-14"
 				>
 					<CircleX class="size-4" />
 				</Button>
@@ -168,12 +168,12 @@
 			{/if}
 		</DrawerDialog.Header>
 		<ScrollArea class="h-[32rem] w-full">
-			<div class="grid md:grid-cols-3 gap-2 p-5 pt-0">
+			<div class="grid gap-2 p-5 pt-0 md:grid-cols-3">
 				{#each sortedSearches as search}
 					<Card.Root
 						class={cn(
-							'cursor-pointer select-text hover:shadow-md transition-shadow duration-300 ease-linear flex flex-col justify-between',
-							$searchedWordStore.id === search?.expand?.flashcard?.id && 'border-primary border-2',
+							'flex cursor-pointer select-text flex-col justify-between transition-shadow duration-300 ease-linear hover:shadow-md',
+							$searchedWordStore.id === search?.expand?.flashcard?.id && 'border-2 border-primary',
 						)}
 					>
 						<Card.Header class="relative">
@@ -196,7 +196,7 @@
 						</Card.Header>
 						<Card.Content class="flex flex-wrap gap-1 overflow-auto">
 							<Tooltip.Root>
-								<ScrollArea class="w-96" orientation="horizontal">
+								<ScrollArea class="max-w-fit" orientation="horizontal">
 									<Tooltip.Trigger>
 										<Badge class="truncate">
 											{search.searchQuery}
