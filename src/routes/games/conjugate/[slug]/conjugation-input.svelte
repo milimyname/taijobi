@@ -1,12 +1,11 @@
 <script lang="ts">
 	import Input from '$lib/components/ui/input/input.svelte';
-	import { cn, getFlashcardWidth, getFlashcardHeight, isNonJapanase } from '$lib/utils';
+	import { cn, getFlashcardWidth, getFlashcardHeight } from '$lib/utils';
 	import { innerWidthStore, innerHeightStore } from '$lib/utils/stores';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { tweened } from 'svelte/motion';
 	import { SendHorizonal } from 'lucide-svelte';
-	import { toast } from 'svelte-sonner';
-	import { tokenize, toKana } from 'wanakana';
+	import { tokenize, toKana, isRomaji } from 'wanakana';
 
 	export let question;
 	export let checkAnswer: (answerType: string) => void;
@@ -23,12 +22,6 @@
 	let tweenedRatio = tweened(0);
 
 	function onSubmit() {
-		if (isNonJapanase(inputValue)) {
-			inputValue = '';
-			toast.error('Please enter valid kana and kanji characters');
-			return;
-		}
-
 		isNewQuestion = true;
 		isSubmitted = true;
 
@@ -49,7 +42,11 @@
 		}, 100);
 	}
 
-	// $: console.log(toKana(inputValue));
+	$: if (inputValue && inputValue.match(/[a-zA-Z]/)) {
+		// Check if last 2 letters are んa, replace them with な
+		if (inputValue.slice(-2) === 'んa') inputValue = inputValue.slice(0, -2) + 'な';
+		else inputValue = toKana(inputValue);
+	}
 
 	$: $tweenedRatio = ratio;
 </script>
@@ -66,7 +63,7 @@
 			},
 		)}
 	>
-		<div class="text-center space-y-2">
+		<div class="space-y-2 text-center">
 			<p>{isNegative ? 'Negative' : ''} {question?.name}</p>
 
 			<h2 class="text-4xl">
@@ -74,7 +71,7 @@
 			</h2>
 
 			{#if isSubmitted}
-				<h4 class="text-xl absolute">
+				<h4 class="absolute text-xl">
 					{@html isNegative ? question?.negative : question?.positive}
 				</h4>
 			{/if}
@@ -95,12 +92,11 @@
 			bind:value={inputValue}
 			class="conjugation-input"
 			disabled={isSubmitted || isNewQuestion}
-			on:change={() => (inputValue = toKana(inputValue))}
 			on:keydown={(e) => e.key === 'Enter' && onSubmit()}
 		/>
 
 		{#if isNewQuestion}
-			<Button disabled={isWon} size="sm" class="absolute h-full right-0" on:click={reset}>
+			<Button disabled={isWon} size="sm" class="absolute right-0 h-full" on:click={reset}>
 				New Question
 			</Button>
 		{:else}
@@ -108,7 +104,7 @@
 				disabled={!inputValue || isSubmitted}
 				size="icon"
 				variant="outline"
-				class="absolute size-7 my-auto right-2"
+				class="absolute right-2 my-auto size-7"
 				on:click={onSubmit}
 			>
 				<SendHorizonal class="size-4" />

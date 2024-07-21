@@ -6,6 +6,7 @@
 	import Confetti from 'svelte-confetti';
 	import type { ProgressDataItem } from '$lib/utils/ambient.d.ts';
 	import QuizDrawerDialog from '$lib/components/drawer-dialogs/quiz-drawer-dialog.svelte';
+	import { toHiragana, isHiragana } from 'wanakana';
 
 	export let data;
 
@@ -23,6 +24,8 @@
 		negative: string;
 		negative_furigana: string;
 		furigana?: string;
+		negativeKana: string;
+		positiveKana: string;
 	};
 
 	// let conjugationsList: ConjugationList[] = data.conjugationDemoList[0].flashcards;
@@ -92,7 +95,13 @@
 	}
 
 	function checkAnswer(answerType: string) {
-		isCorrect = isNegative ? question.negative === answerType : question.positive === answerType;
+		if (isHiragana(answerType)) {
+			isCorrect = isNegative
+				? question.negativeKana === answerType
+				: question.positiveKana === answerType;
+		} else {
+			isCorrect = isNegative ? question.negative === answerType : question.positive === answerType;
+		}
 
 		if (isCorrect) {
 			correctAnswers++;
@@ -125,7 +134,7 @@
 
 {#if isWon}
 	<div
-		class="pointer-events-none fixed -top-1/2 left-0 flex z-[100] h-screen w-screen justify-center overflow-hidden"
+		class="pointer-events-none fixed -top-1/2 left-0 z-[100] flex h-screen w-screen justify-center overflow-hidden"
 	>
 		<Confetti
 			x={[-5, 5]}

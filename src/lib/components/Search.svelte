@@ -28,8 +28,6 @@
 
 			const data = await res.json();
 
-			console.log(data);
-
 			fetchedData = data.flashcards;
 		} catch (error) {
 			console.error(error);

@@ -50,7 +50,7 @@ export const load = async ({ locals }) => {
 
 	const conjugations = await locals.pb.collection('conjugations').getFullList({
 		filter: `user = "${locals.pb.authStore.model?.id}"`,
-		fields: 'id,name,created,type,settings',
+		expand: 'flashcards',
 	});
 
 	return {
@@ -87,6 +87,15 @@ export const actions = {
 				flashcards: flashcards.map((flashcard) => flashcard.id),
 				user: locals?.pb.authStore.model?.id,
 			});
+
+			// Update flashcards with the new conjugation
+			await Promise.all(
+				flashcards.map((flashcard) =>
+					locals.pb.collection('flashcard').update(flashcard.id, {
+						'conjugations+': newConjugation.id,
+					}),
+				),
+			);
 
 			form.data.id = newConjugation.id;
 		} catch (error) {

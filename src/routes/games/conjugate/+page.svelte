@@ -12,6 +12,7 @@
 		openConjugation,
 		nestedSearchDrawerOpen,
 		selectedConjugatingFlashcards,
+		deleteHistoryOpen,
 	} from '$lib/utils/stores';
 	import { setContext } from 'svelte';
 	import { toast } from 'svelte-sonner';
@@ -19,6 +20,11 @@
 	import { superForm } from 'sveltekit-superforms';
 	import { conjugationFormSchema } from '$lib/utils/zodSchema';
 	import { pocketbase } from '$lib/utils/pocketbase';
+	import DeleteDrawerAlertDialog from '$lib/components/drawer-alert-dialogs/delete-drawer-alert-dialog.svelte';
+	import { cn } from '$lib/utils';
+	import DeleteTrashButton from '$lib/components/delete-trash-button.svelte';
+	import { ScrollArea } from '$lib/components/ui/scroll-area';
+	import * as Card from '$lib/components/ui/card';
 
 	export let data;
 
@@ -63,7 +69,11 @@
 	setContext('ogFlashcardBoxes', data?.ogFlashcardBoxes);
 	setContext('superConjugationForm', superConjugationForm);
 
-	function onOutsideClickDrawer(e: MouseEvent | TouchEvent | PointerEvent) {
+	$: console.log(selectedConjugation);
+
+	function onOutsideClickDrawer() {
+		if ($deleteHistoryOpen) return;
+
 		setTimeout(() => {
 			showSettings = false;
 		}, 100);
@@ -78,7 +88,13 @@
 	function onClickButton(e: MouseEvent | TouchEvent | PointerEvent, conjugation: Conjugation) {
 		e.stopPropagation();
 		showSettings = !showSettings;
-		selectedConjugation = conjugation;
+		// Remove expand
+		const { expand, ...rest } = {
+			...conjugation,
+			flashcards: conjugation?.expand?.flashcards || conjugation?.flashcards,
+		};
+
+		selectedConjugation = rest;
 
 		checkedList = selectedConjugation?.settings || [];
 	}
@@ -94,6 +110,8 @@
 		} catch (error) {
 			console.error(error);
 		}
+
+		setTimeout(() => ($deleteHistoryOpen = false), 150);
 	}
 
 	$: if (showSettings) {
@@ -120,12 +138,39 @@
 
 <ConjugateDrawerDialog />
 
+<DeleteDrawerAlertDialog onClick={() => handleDelete(selectedConjugation?.id)} />
+
 <DrawerDialog.Root open={showSettings} onOutsideClick={onOutsideClickDrawer} {onClose}>
-	<DrawerDialog.Content>
-		<DrawerDialog.Header class="text-left">
-			<DrawerDialog.Title>Change conjugation settings</DrawerDialog.Title>
+	<DrawerDialog.Content
+		className={cn('px-0', $deleteHistoryOpen && selectedConjugation?.id !== 'demo' && 'z-60')}
+	>
+		<DrawerDialog.Header class="overflow-hidden px-0 text-left">
+			<DrawerDialog.Title className="flex px-5 justify-between items-center">
+				<span>Change conjugation settings</span>
+
+				{#if selectedConjugation?.id !== 'demo'}
+					<DeleteTrashButton />
+				{/if}
+			</DrawerDialog.Title>
 		</DrawerDialog.Header>
-		<div class="grid items-center gap-4 grid-cols-[repeat(2,1rem_1fr)] px-5 md:px-0">
+
+		<ScrollArea class="px-0" orientation="horizontal">
+			<div class={'flex space-x-4 pb-3 pl-5'}>
+				{#each selectedConjugation?.flashcards as flashcard}
+					<Card.Root
+						class="flex cursor-pointer flex-col justify-between transition-shadow duration-300 ease-linear hover:shadow-md"
+					>
+						<Card.Header class="relative">
+							<Card.Title class="overflow-x-auto truncate">
+								{flashcard?.name}
+							</Card.Title>
+						</Card.Header>
+					</Card.Root>
+				{/each}
+			</div>
+		</ScrollArea>
+
+		<div class="grid grid-cols-[repeat(2,1rem_1fr)] items-center gap-4 px-5">
 			{#each Object.entries(VERB_CONJUGATION_TYPES) as [type, value]}
 				<Checkbox
 					id={type}
@@ -154,15 +199,6 @@
 				<Label for={type}>{value}</Label>
 			{/each}
 		</div>
-		{#if selectedConjugation?.id !== 'demo'}
-			<Button
-				size="sm"
-				variant="destructive"
-				on:click={() => handleDelete(selectedConjugation?.id)}
-			>
-				Delete
-			</Button>
-		{/if}
 
 		<DrawerDialog.Footer className="md:hidden">
 			<DrawerDialog.Close asChild let:builder>
@@ -173,7 +209,7 @@
 </DrawerDialog.Root>
 
 <section class="flex w-full max-w-4xl flex-col justify-center gap-5 overflow-y-scroll">
-	<div class="flex flex-wrap gap-2 items-center">
+	<div class="flex flex-wrap items-center gap-2">
 		<Button size="sm" variant="outline" on:click={() => (hiddenExamples = !hiddenExamples)}>
 			{#if hiddenExamples}
 				<span>Show examples</span>
@@ -183,9 +219,9 @@
 		</Button>
 		<Button size="sm" variant="outline" on:click={() => (sortedByDate = !sortedByDate)}>
 			{#if sortedByDate}
-				<ArrowDown10 class="size-5 mr-2" />
+				<ArrowDown10 class="mr-2 size-5" />
 			{:else}
-				<ArrowDown01 class="size-5 mr-2" />
+				<ArrowDown01 class="mr-2 size-5" />
 			{/if} <span>Sorted by date</span>
 		</Button>
 		<Button size="sm" on:click={() => ($openConjugation = true)}>Create</Button>
@@ -197,7 +233,7 @@
 				on:click={() => goto(`/games/conjugate/${conjugation.id}`)}
 			>
 				<div class="flex w-full justify-between">
-					<h4 class="text-xl font-medium truncate">
+					<h4 class="truncate text-xl font-medium">
 						{conjugation.name}
 					</h4>
 

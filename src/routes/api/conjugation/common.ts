@@ -6,57 +6,47 @@ async function convertToFurigana(word: string) {
 	return await kuroshiro.convert(word, { to: 'hiragana', mode: 'furigana' });
 }
 
-type Key_Value = {
-	[key: string]: string;
-};
-
-export function getConjuctiveForm(verb: string) {
-	const group3: Key_Value = {
+export function getDictionaryForm(verb: string): string {
+	// Special verbs directly mapping
+	const specialCases: { [key: string]: string } = {
 		します: 'する',
 		きます: 'くる',
 	};
 
-	if (group3[verb]) {
-		return group3[verb];
+	if (specialCases[verb]) {
+		return specialCases[verb];
 	}
 
 	// Removing 'ます' to get the stem
 	const stem = verb.slice(0, -2);
-	// Getting the last character before 'ます'
-	const lastChar = verb[verb.length - 3];
+	// Getting the last kana in the stem
+	const lastKana = stem[stem.length - 1];
 
-	const group1: Key_Value = {
+	const group1: { [key: string]: string } = {
 		き: 'く',
 		ぎ: 'ぐ',
 		し: 'す',
 		ち: 'つ',
 		に: 'ぬ',
 		ひ: 'ふ',
-		み: 'む',
 		り: 'る',
 		い: 'う',
 		び: 'ぶ',
+		み: 'む',
 	};
 
-	// Check if it is an ichidan verb (e.g., めます -> める)
-	const ichidanVerbs: Key_Value = {
-		べ: 'べる',
-		け: 'ける',
-		め: 'める',
-		れ: 'れる',
-		え: 'える',
-	};
-
-	if (ichidanVerbs[lastChar]) {
-		return stem + ichidanVerbs[lastChar].slice(1);
+	// Ichidan verb check: ends with an 'e' sound (this includes several kana)
+	if ('えけせてねへめれげべぺ'.includes(lastKana)) {
+		return stem + 'る';
 	}
 
-	// For group 1 verbs
-	if (group1[lastChar]) {
-		return stem.slice(0, -1) + group1[lastChar];
+	// Godan verb conversion using the last kana map
+	if (group1[lastKana]) {
+		return stem.slice(0, -1) + group1[lastKana];
 	}
 
-	return verb; // Fallback: return the input verb if no pattern matches
+	// Fallback: if no pattern matches, return the verb as is
+	return verb;
 }
 
 function determineVerbType(verb: string) {

@@ -8,8 +8,8 @@
 	import FeedbackReadForm from '$lib/components/ui/form/feedback-read-form.svelte';
 	import { getContext } from 'svelte';
 	import DeleteDrawerAlertDialog from '$lib/components/drawer-alert-dialogs/delete-drawer-alert-dialog.svelte';
-	import { Trash2 } from 'lucide-svelte';
 	import { cn } from '$lib/utils';
+	import DeleteTrashButton from '$lib/components/delete-trash-button.svelte';
 
 	let form: SuperForm<Infer<FeedbackSchema>> = getContext('feedbackForm');
 
@@ -39,14 +39,7 @@
 		<DrawerDialog.Header class="text-left">
 			<DrawerDialog.Title className="flex justify-between items-center">
 				<span>Leave a feedback or report a bug!</span>
-				<Button
-					size="icon"
-					variant="none"
-					class="size-fit"
-					on:click={() => ($deleteHistoryOpen = true)}
-				>
-					<Trash2 class="size-4" />
-				</Button>
+				<DeleteTrashButton />
 			</DrawerDialog.Title>
 			<DrawerDialog.Description>
 				<p class="text-sm">
