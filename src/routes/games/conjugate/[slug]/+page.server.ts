@@ -28,8 +28,14 @@ async function createDemoData(fetch: typeof window.fetch, expandedFlashcard: Rec
 							try {
 								return {
 									...c,
-									negativeKana: await kuroshiro.convert(c.negative, { to: 'romaji' }),
-									positiveKana: await kuroshiro.convert(c.positive, { to: 'romaji' }),
+									negativeKana: await kuroshiro.convert(c.negative, {
+										to: 'hiragana',
+										mode: 'normal',
+									}),
+									positiveKana: await kuroshiro.convert(c.positive, {
+										to: 'hiragana',
+										mode: 'normal',
+									}),
 								};
 							} catch (error) {
 								console.error('Error converting kana for', c.name, error);
