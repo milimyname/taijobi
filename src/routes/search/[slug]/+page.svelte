@@ -7,7 +7,7 @@
 		openHistory,
 		selectedSearchFlashcards,
 	} from '$lib/utils/stores';
-	import { getFlashcardHeight, getFlashcardWidth } from '$lib/utils';
+	import { cn, getFlashcardHeight, getFlashcardWidth } from '$lib/utils';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { History } from 'lucide-svelte';
 	import SearchDrawerDialog from './search-drawer-dialog.svelte';
@@ -68,28 +68,36 @@
 <SearchDrawerDialog searches={data.searches} />
 
 <section class="flex h-full w-full flex-col items-center justify-center gap-5 lg:flex-col-reverse">
-	<div style="perspective: 3000px; position: relative;">
-		<div
-			style={`height: ${getFlashcardHeight($innerWidthStore, $innerHeightStore)}px;
+	<div
+		style={`height: ${getFlashcardHeight($innerWidthStore, $innerHeightStore)}px;
 				width: ${getFlashcardWidth($innerWidthStore)}px `}
-			class="relative z-10 flex flex-col items-center justify-center rounded-xl border shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200"
-		>
-			{#if $searchedWordStore?.furigana}
-				<p class="vertical text-balance text-center text-5xl leading-normal tracking-widest">
+		class="relative z-10 flex flex-col items-center justify-center rounded-xl border shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200"
+	>
+		{#if $searchedWordStore?.furigana}
+			<div class="relative">
+				<p
+					class={cn(
+						'vertical text-balance text-center text-5xl leading-normal tracking-widest',
+						$searchedWordStore.type === 'phrase' && 'px-10 text-xl ![writing-mode:initial]',
+					)}
+				>
 					{@html $searchedWordStore?.furigana}
 				</p>
-			{:else}
-				<p class="text-balance text-5xl leading-normal tracking-widest">
-					{$searchedWordStore.name}
-				</p>
-			{/if}
 
-			{#if showTranslation}
-				<span transition:slide={{ duration: 300, delay: 0, easing: quintOut, axis: 'y' }}>
-					{$searchedWordStore?.meaning}
-				</span>
-			{/if}
-		</div>
+				{#if showTranslation}
+					<p
+						transition:slide={{ duration: 300, delay: 0, easing: quintOut, axis: 'y' }}
+						class="absolute bottom-full left-0 right-0 mb-2 text-balance px-10 text-center"
+					>
+						{$searchedWordStore?.meaning}
+					</p>
+				{/if}
+			</div>
+		{:else}
+			<p class="text-balance text-5xl leading-normal tracking-widest">
+				{$searchedWordStore.name}
+			</p>
+		{/if}
 	</div>
 
 	<div class="flex flex-wrap justify-center gap-4">
