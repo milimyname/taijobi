@@ -50,8 +50,6 @@
 	});
 
 	async function handleClick() {
-		toast.loading('Searching...');
-
 		$openSearch = false;
 		$searchedWordStore = currentHoveredFlashcard;
 
@@ -145,7 +143,17 @@
 								Search it
 							</Button>
 						{:else}
-							<Button variant="none" on:click={handleClick} class="text-center underline">
+							<Button
+								variant="none"
+								on:click={() => {
+									toast.promise(handleClick, {
+										loading: 'Searching...',
+										success: 'Found it!',
+										error: 'Failed to search',
+									});
+								}}
+								class="text-center underline"
+							>
 								{#if currentHoveredFlashcard?.expand}
 									<span class="italic">
 										Collection {currentHoveredFlashcard.expand.flashcardBox.name}
