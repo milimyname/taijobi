@@ -20,7 +20,6 @@
 	import CallBackButton from '$lib/components/callback-btn.svelte';
 	import { slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
-	import type { RecordModel } from 'pocketbase';
 
 	export let data;
 
@@ -73,10 +72,10 @@
 		<div
 			style={`height: ${getFlashcardHeight($innerWidthStore, $innerHeightStore)}px;
 				width: ${getFlashcardWidth($innerWidthStore)}px `}
-			class="relative z-10 flex cursor-pointer flex-col items-center justify-center rounded-xl border shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200"
+			class="relative z-10 flex flex-col items-center justify-center rounded-xl border shadow-sm bg-dotted-spacing-8 bg-dotted-gray-200"
 		>
 			{#if $searchedWordStore?.furigana}
-				<p class="vertical text-balance text-5xl leading-normal tracking-widest">
+				<p class="vertical text-balance text-center text-5xl leading-normal tracking-widest">
 					{@html $searchedWordStore?.furigana}
 				</p>
 			{:else}

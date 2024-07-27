@@ -7,6 +7,7 @@
 	import { pocketbase } from '$lib/utils/pocketbase';
 	import Button from './ui/button/button.svelte';
 	import { goto } from '$app/navigation';
+	import { toast } from 'svelte-sonner';
 
 	let search = '';
 	let fetchedData: any[] = getRandomKanji();
@@ -49,6 +50,8 @@
 	});
 
 	async function handleClick() {
+		toast.loading('Searching...');
+
 		$openSearch = false;
 		$searchedWordStore = currentHoveredFlashcard;
 
