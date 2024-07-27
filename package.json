@@ -72,7 +72,7 @@
 		"tailwind-merge": "^2.2.1",
 		"tailwind-variants": "^0.2.1",
 		"unofficial-jisho-api": "^2.3.4",
-		"vaul-svelte": "^0.3.0",
+		"vaul-svelte": "^0.3.2",
 		"wanakana": "^5.3.1"
 	}
 }

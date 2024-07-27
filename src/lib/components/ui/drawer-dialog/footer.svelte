@@ -4,7 +4,7 @@
 	import { DrawerFooter } from '$lib/components/ui/drawer';
 
 	// Props passed to the component
-	export let className = '';
+	export let className = 'md:hidden';
 
 	// Determine which component to use based on screen size
 	$: Footer = $isDesktop ? DialogFooter : DrawerFooter;

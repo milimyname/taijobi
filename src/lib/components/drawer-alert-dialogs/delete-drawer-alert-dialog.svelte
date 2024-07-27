@@ -18,8 +18,8 @@
 			</DrawerAlertDialog.Description>
 		</DrawerAlertDialog.Header>
 		<DrawerAlertDialog.Footer>
-			<DrawerAlertDialog.Cancel onClick={onClose}>Cancel</DrawerAlertDialog.Cancel>
 			<DrawerAlertDialog.Action {onClick} variant="destructive">Delete</DrawerAlertDialog.Action>
+			<DrawerAlertDialog.Cancel onClick={onClose}>Cancel</DrawerAlertDialog.Cancel>
 		</DrawerAlertDialog.Footer>
 	</DrawerAlertDialog.Content>
 </DrawerAlertDialog.Root>

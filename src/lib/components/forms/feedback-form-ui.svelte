@@ -7,7 +7,6 @@
 	import { Search } from 'lucide-svelte';
 	import * as DrawerDialog from '$lib/components/ui/drawer-dialog';
 	import { goto } from '$app/navigation';
-	import FeedbackDrawerDialog from '$lib/components/drawer-dialogs/feedback-drawer-dialog.svelte';
 
 	let animationText = '';
 	let isReversing = false;
@@ -89,8 +88,10 @@
 			</div>
 		</DrawerDialog.Trigger>
 	{/if}
-	<DrawerDialog.Content>
-		<DrawerDialog.Header class="text-left">
+	<DrawerDialog.Content
+		class="max-md:fixed max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:flex max-md:h-full max-md:max-h-[96%] max-md:flex-col max-md:rounded-t-[10px] max-md:bg-white"
+	>
+		<DrawerDialog.Header>
 			<DrawerDialog.Title>Leave a feedback or report a bug!</DrawerDialog.Title>
 			<DrawerDialog.Description>
 				<p class="text-sm">
@@ -114,7 +115,7 @@
 				<Button builders={[builder]} class="w-full" {disabled}>Add</Button>
 			</DrawerDialog.Close>
 		</Form>
-		<DrawerDialog.Footer className="md:hidden">
+		<DrawerDialog.Footer>
 			<DrawerDialog.Close asChild let:builder>
 				<Button builders={[builder]} variant="outline">Cancel</Button>
 			</DrawerDialog.Close>

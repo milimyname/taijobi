@@ -65,7 +65,7 @@
 				</DrawerDialog.Close>
 			</div>
 		</FeedbackReadForm>
-		<DrawerDialog.Footer className="md:hidden">
+		<DrawerDialog.Footer>
 			<DrawerDialog.Close asChild let:builder>
 				<Button builders={[builder]} variant="outline">Cancel</Button>
 			</DrawerDialog.Close>

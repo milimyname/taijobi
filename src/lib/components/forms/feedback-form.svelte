@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { isDesktop } from '$lib/utils';
+	import { cn, isDesktop } from '$lib/utils';
 	import { clickedFeedback, feedbackDescription } from '$lib/utils/stores';
 	import { enhance } from '$app/forms';
 	import { Label } from '$lib/components/ui/label';
@@ -30,10 +30,12 @@
 	on:submit={onSubmit}
 	enctype="multipart/form-data"
 	action="/feedbacks?/create"
-	class="feedback-form z-100 flex w-full flex-col gap-5 rounded-t-2xl bg-white
-            {!$isDesktop && 'px-4'}"
+	class={cn(
+		'feedback-form z-100 flex size-full flex-col gap-5 rounded-t-2xl bg-white',
+		!$isDesktop && 'px-4',
+	)}
 >
-	<div class="flex flex-col gap-5">
+	<div class="mb-auto flex flex-col gap-5">
 		<fieldset class=" flex w-full flex-col gap-2">
 			<Label for="description">Description</Label>
 			<Textarea
