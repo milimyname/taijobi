@@ -35,7 +35,12 @@
 <DeleteDrawerAlertDialog onClick={deleteFeedback} />
 
 <DrawerDialog.Root open={$clickedReport} onClose={onCloseDrawer} onOutsideClick={onCloseDrawer}>
-	<DrawerDialog.Content className={cn($deleteHistoryOpen && 'z-60')}>
+	<DrawerDialog.Content
+		className={cn(
+			'max-md:fixed max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:flex max-md:h-full max-md:max-h-[96%] max-md:flex-col',
+			$deleteHistoryOpen && 'z-60',
+		)}
+	>
 		<DrawerDialog.Header class="text-left">
 			<DrawerDialog.Title className="flex justify-between items-center">
 				<span>Leave a feedback or report a bug!</span>

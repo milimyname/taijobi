@@ -17,8 +17,13 @@
 				from our servers.
 			</DrawerAlertDialog.Description>
 		</DrawerAlertDialog.Header>
-		<DrawerAlertDialog.Footer>
-			<DrawerAlertDialog.Action {onClick} variant="destructive">Delete</DrawerAlertDialog.Action>
+		<DrawerAlertDialog.Footer class="md:flex md:flex-row-reverse md:justify-start md:gap-2">
+			<DrawerAlertDialog.Cancel asChild>
+				<DrawerAlertDialog.Action {onClick} class="w-full" variant="destructive">
+					Delete
+				</DrawerAlertDialog.Action>
+			</DrawerAlertDialog.Cancel>
+
 			<DrawerAlertDialog.Cancel onClick={onClose}>Cancel</DrawerAlertDialog.Cancel>
 		</DrawerAlertDialog.Footer>
 	</DrawerAlertDialog.Content>

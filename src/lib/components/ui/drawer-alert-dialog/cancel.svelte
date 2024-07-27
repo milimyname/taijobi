@@ -8,7 +8,7 @@
 	type $$Props = AlertDialogPrimitive.ActionProps | typeof DrawerClose.ActionProps;
 	type $$Events = AlertDialogPrimitive.ActionEvents | typeof DrawerClose.ActionEvents;
 
-	export let className = 'border bg-gray-100 text-gray-800';
+	export let className = '';
 	export let onClick: () => void;
 
 	// Determine which component to use based on screen size

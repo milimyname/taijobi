@@ -36,12 +36,13 @@
 	)}
 >
 	<div class="mb-auto flex flex-col gap-5">
-		<fieldset class=" flex w-full flex-col gap-2">
+		<fieldset class="flex w-full flex-col gap-2">
 			<Label for="description">Description</Label>
 			<Textarea
+				data-vaul-no-drag
+				class="resize-y"
 				name="description"
 				maxlength={1000}
-				rows={3}
 				required
 				bind:value={$feedbackDescription}
 			/>

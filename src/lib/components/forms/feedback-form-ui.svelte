@@ -89,7 +89,7 @@
 		</DrawerDialog.Trigger>
 	{/if}
 	<DrawerDialog.Content
-		class="max-md:fixed max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:flex max-md:h-full max-md:max-h-[96%] max-md:flex-col max-md:rounded-t-[10px] max-md:bg-white"
+		class="max-md:fixed max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:flex max-md:h-full max-md:max-h-[96%] max-md:flex-col"
 	>
 		<DrawerDialog.Header>
 			<DrawerDialog.Title>Leave a feedback or report a bug!</DrawerDialog.Title>

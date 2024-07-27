@@ -35,15 +35,21 @@
 	action="?/delete"
 	use:enhance
 	class={cn(
-		'edit-form z-[1000] flex w-full flex-col gap-5 rounded-t-2xl bg-white',
+		'edit-form z-[1000] flex size-full flex-col gap-5 rounded-t-2xl bg-white',
 		!$isDesktop && 'px-4',
 	)}
 >
-	<div class="flex flex-col gap-5">
+	<div class="mb-auto flex flex-col gap-5">
 		<Form.Field {form} name="description">
 			<Form.Control let:attrs>
 				<Form.Label>Description</Form.Label>
-				<Textarea {...attrs} class="resize-none" bind:value={$formData.description} />
+				<Textarea
+					data-vaul-no-drag
+					class="resize-y"
+					{...attrs}
+					bind:value={$formData.description}
+					maxlength={1000}
+				/>
 			</Form.Control>
 			<Form.FieldErrors />
 		</Form.Field>
@@ -56,13 +62,12 @@
 				<p class="text-sm">Create a new report to change the image</p>
 			</div>
 		{/if}
-
-		<input type="hidden" name="id" bind:value={$formData.id} />
-
-		<div class="flex gap-2">
-			<button formaction="?/update" class="grow cursor-not-allowed" {disabled}>
-				<slot name="update" />
-			</button>
-		</div>
 	</div>
+	<div class="flex gap-2">
+		<button formaction="?/update" class="grow cursor-not-allowed" {disabled}>
+			<slot name="update" />
+		</button>
+	</div>
+
+	<input type="hidden" name="id" bind:value={$formData.id} />
 </form>

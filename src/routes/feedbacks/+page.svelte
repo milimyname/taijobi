@@ -61,7 +61,7 @@
 <FeedbackDrawerDialog />
 
 <main class="flex h-dvh flex-col items-center bg-white p-2 transition-all sm:px-3 sm:py-5">
-	<nav class="flex w-full justify-between px-2 py-3 xm:p-5">
+	<nav class="flex w-full justify-between px-2 py-5">
 		<button on:click|preventDefault={() => goto('/')} class="flex items-center gap-2">
 			<ArrowLeft
 				class="size-4 transition-transform group-hover:-translate-x-2 group-active:-translate-x-2"
@@ -69,7 +69,7 @@
 			<span>Back</span>
 		</button>
 	</nav>
-	<section class="flex w-full max-w-xl flex-col gap-2">
+	<section class="flex w-full max-w-xl flex-col gap-2 pb-4">
 		<div class="flex flex-wrap gap-2">
 			<Button size="sm" variant="outline" on:click={() => (sortedByDate = !sortedByDate)}>
 				{#if sortedByDate}
@@ -85,7 +85,7 @@
 		<div class="grid grid-flow-row gap-4 md:grid-cols-3">
 			{#each feedbacks as feedback}
 				<button
-					class="flex w-full flex-col justify-between gap-2 rounded-lg border p-4"
+					class="flex w-full flex-col justify-between gap-2 rounded-lg border p-4 transition-transform hover:scale-105 hover:shadow-md"
 					on:click={() => onClickFeedback(feedback)}
 				>
 					<p class="line-clamp-3 text-left text-sm">{feedback.description}</p>
