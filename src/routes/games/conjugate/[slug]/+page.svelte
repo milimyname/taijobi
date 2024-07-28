@@ -6,7 +6,7 @@
 	import Confetti from 'svelte-confetti';
 	import type { ProgressDataItem } from '$lib/utils/ambient.d.ts';
 	import QuizDrawerDialog from '$lib/components/drawer-dialogs/quiz-drawer-dialog.svelte';
-	import { toHiragana, isHiragana } from 'wanakana';
+	import {  isHiragana } from 'wanakana';
 
 	export let data;
 
