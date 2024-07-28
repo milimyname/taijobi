@@ -1,3 +1,4 @@
+import type EventSource from 'eventsource';
 import PocketBase from 'pocketbase';
 
 // See https://kit.svelte.dev/docs/types#app
@@ -11,6 +12,9 @@ declare global {
 		interface Locals {
 			pb: PocketBase;
 		}
+	}
+	interface Window {
+		EventSource: typeof EventSource;
 	}
 }
 

@@ -69,8 +69,6 @@
 	setContext('ogFlashcardBoxes', data?.ogFlashcardBoxes);
 	setContext('superConjugationForm', superConjugationForm);
 
-	$: console.log(selectedConjugation);
-
 	function onOutsideClickDrawer() {
 		if ($deleteHistoryOpen) return;
 
