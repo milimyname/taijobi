@@ -8,22 +8,16 @@ jobs:
     name: Deploy app
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - run: |
           flyctl deploy --remote-only \
             --build-secret VITE_POCKETBASE_URL=${{ secrets.VITE_POCKETBASE_URL }} \
             --build-secret OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
             --build-secret DEMO_PASSWORD=${{ secrets.DEMO_PASSWORD }} \
-            --build-secret DEMO_EMAIL=${{ secrets.DEMO_EMAIL }} \
-            --build-secret DOCUMENTAI_PROCESSOR_NAME=${{ secrets.DOCUMENTAI_PROCESSOR_NAME }} \
-            --build-secret DOCUMENTAI_ENDPOINT=${{ secrets.DOCUMENTAI_ENDPOINT }} \ 
-            --build-secret GCLOUD_AUTH_BASE_64=${{ secrets.GCLOUD_AUTH_BASE_64 }}
+            --build-secret DEMO_EMAIL=${{ secrets.DEMO_EMAIL }}
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           DEMO_PASSWORD: ${{ secrets.DEMO_PASSWORD }}
           DEMO_EMAIL: ${{ secrets.DEMO_EMAIL }}
-          DOCUMENTAI_PROCESSOR_NAME: ${{ secrets.DOCUMENTAI_PROCESSOR_NAME }}
-          DOCUMENTAI_ENDPOINT: ${{ secrets.DOCUMENTAI_ENDPOINT }}
-          GCLOUD_AUTH_BASE_64: ${{ secrets.GCLOUD_AUTH_BASE_64 }}
