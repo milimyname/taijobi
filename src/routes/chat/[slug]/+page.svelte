@@ -6,9 +6,13 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { SendHorizonal } from 'lucide-svelte';
 	import { onMount } from 'svelte';
-	import { pocketbase } from '$lib/utils/pocketbase';
 	import { page } from '$app/stores';
-	import { chats } from '$lib/utils/stores';
+	import { pocketbase } from '$lib/utils/pocketbase';
+	import { chats } from '$lib/utils/stores.js';
+
+	export let data;
+
+	const chatID = $page.params.slug;
 
 	const { input, handleSubmit, messages, isLoading } = useChat({
 		api: '/api/openai/chat',
@@ -28,19 +32,14 @@
 				});
 			}
 
-			// Create a chat record
-			let chat = await pocketbase.collection('chats').create({
-				user: $page.data.user.id,
-			});
-
 			const newMessages = await Promise.all(
-				$messages.map((message) =>
+				$messages.slice(-2).map((message) =>
 					pocketbase.collection('messages').create(
 						{
 							content: message.content,
 							role: message.role,
 							user: $page.data.user.id,
-							chat: chat.id,
+							chat: chatID,
 						},
 						{
 							requestKey: null,
@@ -50,15 +49,20 @@
 			);
 
 			// Update the chat with the latest message
-			chat = await pocketbase.collection('chats').update(chat.id, {
-				messages: newMessages.map((message) => message.id),
+			await pocketbase.collection('chats').update(chatID, {
+				'messages+': newMessages.map((message) => message.id),
 			});
 
-			$chats = [...$chats, chat];
-
-			setTimeout(() => {
-				goto('/chat/' + chat.id);
-			}, 250);
+			// Update the chat in the store
+			$chats = $chats.map((chat) => {
+				if (chat.id === chatID) {
+					return {
+						...chat,
+						messages: [...chat.messages, ...newMessages],
+					};
+				}
+				return chat;
+			});
 		},
 	});
 
@@ -86,13 +90,15 @@
 		const textarea = document.querySelector('textarea');
 		if (textarea) textarea.style.height = '40px';
 	}
+
+	$: chatMessages = [...data.messages, ...$messages];
 </script>
 
 <section class="size-full space-y-4 pt-5">
 	<ul class="size-full overflow-auto px-5 pb-20 md:mx-auto md:max-w-xl">
-		{#each $messages as message}
+		{#each chatMessages as message}
 			<li>
-				{message.role}:
+				<span class="font-bold">{message.role}:</span>
 				{#if message.role === 'assistant'}
 					{@html message.content}
 				{:else}

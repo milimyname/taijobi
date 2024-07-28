@@ -5,7 +5,7 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { tweened } from 'svelte/motion';
 	import { SendHorizonal } from 'lucide-svelte';
-	import { tokenize, toKana, isRomaji } from 'wanakana';
+	import { toKana } from 'wanakana';
 
 	export let question;
 	export let checkAnswer: (answerType: string) => void;
