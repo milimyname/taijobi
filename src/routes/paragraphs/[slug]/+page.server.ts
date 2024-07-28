@@ -1,7 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 
 export const load = async ({ locals, params }) => {
-	if (!locals.pb.authStore.isValid) redirect(401, '/login');
+	if (!locals.pb.authStore.isValid) redirect(303, '/login');
 
 	const { slug } = params;
 

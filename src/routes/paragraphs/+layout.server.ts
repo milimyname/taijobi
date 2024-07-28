@@ -1,7 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 
 export const load = async ({ locals }) => {
-	if (!locals.pb.authStore.isValid) redirect(401, '/login');
+	if (!locals.pb.authStore.isValid) redirect(303, '/login');
 
 	const paragraphs = await locals.pb.collection('paragraphs').getFullList({
 		filter: `user = "${locals.pb.authStore.model?.id}"`,

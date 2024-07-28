@@ -1,8 +1,11 @@
-import { DOCUMENTAI_PROCESSOR_NAME, DOCUMENTAI_ENDPOINT } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { DocumentProcessorServiceClient } from '@google-cloud/documentai';
 
+const buffer = Buffer.from(env.GCLOUD_AUTH_BASE_64, 'base64');
+
 export const documentAI = new DocumentProcessorServiceClient({
-	apiEndpoint: DOCUMENTAI_ENDPOINT || process.env.DOCUMENTAI_ENDPOINT,
+	apiEndpoint: env.DOCUMENTAI_ENDPOINT,
+	credentials: JSON.parse(buffer.toString('ascii')),
 });
 
-export const processorName = DOCUMENTAI_PROCESSOR_NAME || process.env.DOCUMENTAI_PROCESSOR_NAME;
+export const processorName = env.DOCUMENTAI_PROCESSOR_NAME;
