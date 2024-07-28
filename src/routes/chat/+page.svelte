@@ -77,9 +77,8 @@
 	// Update the height of the textarea based on the input content
 	$: if (typeof window !== 'undefined' && $input) {
 		const textarea = document.querySelector('textarea');
-		if (textarea) {
+		if (textarea)
 			textarea.style.height = (textarea.scrollHeight > 40 ? textarea.scrollHeight : 40) + 'px';
-		}
 	}
 
 	$: if (typeof window !== 'undefined' && $input === '') {

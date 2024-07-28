@@ -78,7 +78,8 @@
 				<p
 					class={cn(
 						'vertical text-balance text-center text-5xl leading-normal tracking-widest',
-						$searchedWordStore.type === 'phrase' && 'px-10 text-xl ![writing-mode:initial]',
+						$searchedWordStore.type === 'phrase' && 'px-10 text-4xl ![writing-mode:initial]',
+						$searchedWordStore.name.length > 15 && 'text-xl',
 					)}
 				>
 					{@html $searchedWordStore?.furigana}

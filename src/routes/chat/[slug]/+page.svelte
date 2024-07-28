@@ -91,7 +91,7 @@
 		if (textarea) textarea.style.height = '40px';
 	}
 
-	$: chatMessages = [...data.messages, ...$messages];
+	$: chatMessages = [...data?.messages, ...$messages];
 </script>
 
 <section class="size-full space-y-4 pt-5">

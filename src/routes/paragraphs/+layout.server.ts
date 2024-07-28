@@ -3,10 +3,10 @@ import { redirect } from '@sveltejs/kit';
 export const load = async ({ locals }) => {
 	if (!locals.pb.authStore.isValid) redirect(303, '/login');
 
-	const chats = await locals.pb.collection('chats').getFullList({
+	const paragraphs = await locals.pb.collection('paragraphs').getFullList({
 		filter: `user = "${locals.pb.authStore.model?.id}"`,
-		fields: 'id,name,created,messages',
+		fields: 'id,files,formatted_ai_data,ocr_data,created',
 	});
 
-	return { chats };
+	return { paragraphs };
 };

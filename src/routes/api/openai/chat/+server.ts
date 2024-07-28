@@ -1,21 +1,18 @@
-import { env } from '$env/dynamic/private';
-import { createOpenAI } from '@ai-sdk/openai';
+import { ai } from '$lib/server/openai';
 import { streamText } from 'ai';
 import { tool } from 'ai';
 import { isRomaji } from 'wanakana';
 import { z } from 'zod';
-
-const openai = createOpenAI({
-	apiKey: env.OPENAI_API_KEY ?? '',
-});
 
 export const POST = async ({ request, locals }) => {
 	if (!locals.pb.authStore.isValid) return new Response('Unauthorized', { status: 401 });
 
 	const { messages } = await request.json();
 
+	if (!messages) return new Response('Messages are required', { status: 400 });
+
 	const result = await streamText({
-		model: openai('gpt-4o-mini'),
+		model: ai('gpt-4o-mini'),
 		maxTokens: 16000,
 		temperature: 0.7,
 		messages,

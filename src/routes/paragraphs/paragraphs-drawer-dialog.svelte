@@ -4,7 +4,7 @@
 	import * as DrawerDialog from '$lib/components/ui/drawer-dialog';
 	import type { RecordModel } from 'pocketbase';
 	import * as Card from '$lib/components/ui/card';
-	import { openHistory, deleteHistoryOpen, chats } from '$lib/utils/stores';
+	import { openHistory, deleteHistoryOpen, paragraphs } from '$lib/utils/stores';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index';
 	import { goto } from '$app/navigation';
 	import { ArrowDown01, ArrowDown10, Plus } from 'lucide-svelte';
@@ -19,8 +19,8 @@
 
 	let sortedByDate = true;
 	let inputValue = '';
-	let currentChat: RecordModel | null = $page.params?.slug
-		? $chats.find((chat) => chat.id === $page.params.slug)
+	let currentParagraphs: RecordModel | null = $page.params?.slug
+		? $paragraphs.find((p) => p.id === $page.params.slug)
 		: null;
 
 	function onCloseDrawer() {
@@ -35,13 +35,13 @@
 	}
 
 	async function deleteHistory() {
-		if (!currentChat) return;
+		if (!currentParagraphs) return;
 
 		try {
-			await pocketbase.collection('chats').delete(currentChat?.id);
+			await pocketbase.collection('paragraphs').delete(currentParagraphs?.id);
 
-			// filter out the deleted chat
-			$chats = $chats.filter((chat) => chat.id !== currentChat?.id);
+			// filter out the deleted paragraph
+			$paragraphs = $paragraphs.filter((p) => p.id !== currentParagraphs?.id);
 		} catch (error) {
 			console.error('Error deleting search history:', error);
 		}
@@ -50,27 +50,27 @@
 
 		setTimeout(() => ($deleteHistoryOpen = false), 150);
 
-		goto('/chat');
+		goto('/paragraphs');
 
-		toast.success('Chat deleted successfully! Redirecting to chat page...');
+		toast.success('Paragraph deleted successfully! Redirecting to paragraphs page...');
 	}
 
-	$: sortedChats = (() => {
-		if ($chats.length === 0) return [];
+	$: sortedParagraphs = (() => {
+		if ($paragraphs.length === 0) return [];
 
 		// Filter the searches based on the input value
 		if (inputValue !== '') {
-			return $chats.filter((search: RecordModel) =>
+			return $paragraphs.filter((search: RecordModel) =>
 				search?.expand?.flashcard?.name.toLowerCase().includes(inputValue.toLowerCase()),
 			);
 		}
 
 		return sortedByDate
-			? $chats.sort(
+			? $paragraphs.sort(
 					(a: RecordModel, b: RecordModel) =>
 						Number(new Date(b.created)) - Number(new Date(a.created)),
 				)
-			: $chats.sort(
+			: $paragraphs.sort(
 					(a: RecordModel, b: RecordModel) =>
 						Number(new Date(a.created)) - Number(new Date(b.created)),
 				);
@@ -85,7 +85,7 @@
 	>
 		<DrawerDialog.Header class="space-y-2 p-5 pb-0 text-left max-md:mb-5">
 			<DrawerDialog.Title className="flex py-2 justify-between items-center">
-				Chat History
+				Paragraphs History
 			</DrawerDialog.Title>
 			<DrawerDialog.Description className="flex gap-1 sm:gap-2">
 				<DrawerDialog.Close asChild let:builder>
@@ -95,9 +95,8 @@
 						variant="outline"
 						class="w-12 max-w-14"
 						on:click={() => {
-							currentChat = null;
 							onCloseDrawer();
-							goto('/chat');
+							goto('/paragraphs');
 						}}
 					>
 						<Plus class="size-4" />
@@ -116,27 +115,27 @@
 					{/if}
 				</Button>
 
-				<Input placeholder="Chat Name" bind:value={inputValue} />
+				<Input placeholder="Paragraphs Name" bind:value={inputValue} />
 			</DrawerDialog.Description>
 		</DrawerDialog.Header>
 		<ScrollArea class="h-[32rem] w-full">
 			<div class="grid gap-2 p-5 pt-0 md:grid-cols-3">
-				{#each sortedChats as chat}
+				{#each sortedParagraphs as p}
 					<Card.Root
 						class={cn(
 							'flex cursor-pointer select-text flex-col justify-between transition-shadow duration-300 ease-linear hover:shadow-md',
-							currentChat?.id === chat.id && 'border-2 border-primary',
+							currentParagraphs?.id === p.id && 'border-2 border-primary',
 						)}
 					>
 						<Card.Header class="relative">
 							<Card.Title class="flex items-center justify-between">
-								<span>{chat.name || 'Not given'}</span>
+								<span>{p.name || 'Not given'}</span>
 								<Button
 									size="icon"
 									variant="none"
 									class="size-fit"
 									on:click={() => {
-										currentChat = chat;
+										currentParagraphs = p;
 										$deleteHistoryOpen = true;
 									}}
 								>
@@ -147,9 +146,7 @@
 						<Card.Content class="flex flex-wrap gap-1 overflow-auto">
 							<Tooltip.Root>
 								<Tooltip.Trigger>
-									<Badge variant="outline" class="truncate">
-										Messages: {chat.messages.length}
-									</Badge>
+									<Badge variant="outline" class="truncate">Files: {p.files.length}</Badge>
 								</Tooltip.Trigger>
 								<Tooltip.Content>
 									<p>Messages</p>
@@ -159,7 +156,7 @@
 							<Tooltip.Root>
 								<Tooltip.Trigger>
 									<Badge variant="outline">
-										{new Date(chat?.created).toLocaleDateString()}
+										{new Date(p?.created).toLocaleDateString()}
 									</Badge>
 								</Tooltip.Trigger>
 								<Tooltip.Content>
@@ -174,14 +171,14 @@
 									variant="outline"
 									class="w-full"
 									on:click={() => {
-										currentChat = chat;
+										currentParagraphs = p;
 										setTimeout(() => {
 											$openHistory = false;
-											goto(`/chat/${chat.id}`);
+											goto(`/paragraphs/${p.id}`);
 										}, 100);
 									}}
 								>
-									See Chat
+									See Paragraphs
 								</Button>
 							</DrawerDialog.Close>
 						</Card.Footer>

@@ -10,4 +10,8 @@ if (!kuroshiroInitialized) {
 	kuroshiroInitialized = true;
 }
 
-export { kuroshiro };
+async function convertToFurigana(word: string) {
+	return await kuroshiro.convert(word, { to: 'hiragana', mode: 'furigana' });
+}
+
+export { kuroshiro, convertToFurigana };
