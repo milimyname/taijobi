@@ -1,10 +1,6 @@
-import { kuroshiro } from '$lib/server/kuroshiro';
+import { convertToFurigana } from '$lib/server/kuroshiro';
 import codec from 'kamiya-codec';
 import { isHiragana } from 'wanakana';
-
-async function convertToFurigana(word: string) {
-	return await kuroshiro.convert(word, { to: 'hiragana', mode: 'furigana' });
-}
 
 export function getDictionaryForm(verb: string): string {
 	// Special verbs directly mapping

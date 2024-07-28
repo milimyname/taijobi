@@ -2,6 +2,7 @@ import { hiragana } from '$lib/static/hiragana';
 import { kanji } from '$lib/static/kanji';
 import { katakana } from '$lib/static/katakana';
 import type { FlashcardType } from '$lib/utils/ambient';
+import type { RecordModel } from 'pocketbase';
 import { writable } from 'svelte/store';
 
 export const showNav = writable(false);
@@ -79,3 +80,5 @@ export const selectedSearchFlashcards = writable<any[]>([]);
 export const selectedConjugatingFlashcards = writable<FlashcardType[]>([]);
 export const feedbackDescription = writable('');
 export const deleteHistoryOpen = writable(false);
+export const chats = writable<RecordModel[]>([]);
+export const paragraphs = writable<RecordModel[]>([]);

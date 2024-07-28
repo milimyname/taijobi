@@ -23,6 +23,7 @@
 	import DeleteDrawerAlertDialog from '$lib/components/drawer-alert-dialogs/delete-drawer-alert-dialog.svelte';
 	import { getContext } from 'svelte';
 	import { toast } from 'svelte-sonner';
+	import DeleteTrashButton from '$lib/components/delete-trash-button.svelte';
 
 	export let searches: RecordModel[];
 
@@ -131,7 +132,10 @@
 		className={cn('w-full max-h-[90dvh] md:max-w-2xl p-0', $deleteHistoryOpen && 'z-60')}
 	>
 		<DrawerDialog.Header class="space-y-2 p-5 pb-0 text-left max-md:mb-5">
-			<DrawerDialog.Title>Search History</DrawerDialog.Title>
+			<DrawerDialog.Title className="flex py-2 justify-between items-center">
+				<span>Leave a feedback or report a bug!</span>
+				<DeleteTrashButton />
+			</DrawerDialog.Title>
 			<DrawerDialog.Description className="flex gap-1 sm:gap-2">
 				<Button
 					size="icon"
@@ -153,14 +157,7 @@
 						<ArrowDown01 class="size-4" />
 					{/if}
 				</Button>
-				<Button
-					size="icon"
-					variant="destructive"
-					on:click={() => ($deleteHistoryOpen = true)}
-					class="w-12 max-w-14"
-				>
-					<CircleX class="size-4" />
-				</Button>
+
 				<Input placeholder="Flashcard Name" bind:value={inputValue} />
 			</DrawerDialog.Description>
 			{#if $selectedSearchFlashcards.length > 0 && $isDesktop}
@@ -195,29 +192,33 @@
 							{/if}
 						</Card.Header>
 						<Card.Content class="flex flex-wrap gap-1 overflow-auto">
-							<Tooltip.Root>
-								<ScrollArea class="max-w-fit" orientation="horizontal">
+							{#if search?.expand?.flashcard?.name !== search.searchQuery && search.searchQuery !== ''}
+								<Tooltip.Root>
+									<ScrollArea class="max-w-fit" orientation="horizontal">
+										<Tooltip.Trigger>
+											<Badge class="truncate">
+												{search.searchQuery}
+											</Badge>
+										</Tooltip.Trigger>
+									</ScrollArea>
+									<Tooltip.Content>
+										<p>Search Keyword</p>
+									</Tooltip.Content>
+								</Tooltip.Root>
+							{/if}
+
+							{#if search?.expand?.flashcard?.expand?.flashcardBox?.name}
+								<Tooltip.Root>
 									<Tooltip.Trigger>
-										<Badge class="truncate">
-											{search.searchQuery}
+										<Badge variant="outline" class="truncate">
+											{search?.expand?.flashcard?.expand?.flashcardBox?.name}
 										</Badge>
 									</Tooltip.Trigger>
-								</ScrollArea>
-								<Tooltip.Content>
-									<p>Search KeywCord</p>
-								</Tooltip.Content>
-							</Tooltip.Root>
-
-							<Tooltip.Root>
-								<Tooltip.Trigger>
-									<Badge variant="outline" class="truncate">
-										{search?.expand?.flashcard?.expand?.flashcardBox?.name}
-									</Badge>
-								</Tooltip.Trigger>
-								<Tooltip.Content>
-									<p>Flashcard Box Name</p>
-								</Tooltip.Content>
-							</Tooltip.Root>
+									<Tooltip.Content>
+										<p>Flashcard Box Name</p>
+									</Tooltip.Content>
+								</Tooltip.Root>
+							{/if}
 
 							<Tooltip.Root>
 								<Tooltip.Trigger>

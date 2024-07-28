@@ -15,7 +15,7 @@
 		searchedWordStore,
 		strokes,
 	} from '$lib/utils/stores';
-	import { isKanji, isKatakana, isHiragana } from 'wanakana';
+	import { isKatakana, isHiragana } from 'wanakana';
 	import { goto } from '$app/navigation';
 	import type { RecordModel } from 'pocketbase';
 	import { page } from '$app/stores';
@@ -205,7 +205,7 @@
 
 <section class="flex h-full flex-col justify-center gap-4 sm:gap-5">
 	{#if recognizedLetters.length > 0}
-		<ScrollArea class="overflow-y-visible whitespace-nowrap -order-1" orientation="horizontal">
+		<ScrollArea class="-order-1 overflow-y-visible whitespace-nowrap" orientation="horizontal">
 			<div
 				class="flex w-max space-x-4 pb-4"
 				style={`width: ${getFlashcardWidth($innerWidthStore)}px;`}
@@ -223,7 +223,7 @@
 		</ScrollArea>
 	{:else}
 		<div
-			class="invisible flex w-max space-x-4 pb-4 opacity-0 -order-1"
+			class="invisible -order-1 flex w-max space-x-4 pb-4 opacity-0"
 			style={`width: ${getFlashcardWidth($innerWidthStore)}px;`}
 		>
 			{#each ['あ'] as letter}

@@ -1,4 +1,4 @@
-import { kuroshiro } from '$lib/server/kuroshiro';
+import { convertToFurigana } from '$lib/server/kuroshiro';
 import { kanji } from '$lib/static/kanji';
 import { convertToRubyTag } from '$lib/utils/actions.js';
 import { getFlashcardPartOfSpeech, getFlashcardType } from '$lib/utils/flashcard';
@@ -6,17 +6,14 @@ import { json, type RequestHandler } from '@sveltejs/kit';
 import type { RecordModel } from 'pocketbase';
 import { isHiragana, isRomaji } from 'wanakana';
 
-async function processFurigana(card: RecordModel, kuroshiro: Kuroshiro) {
+async function processFurigana(card: RecordModel) {
 	// Custom furigana processing
 	if (card.furigana.includes('/') && isHiragana(card.furigana[card.furigana.indexOf('/') + 1])) {
 		card.customFurigana = card.furigana;
 		card.furigana = convertToRubyTag(card.furigana);
 	} else {
 		// Kuroshiro conversion for kanji cards
-		card.furigana = await kuroshiro.convert(card.name, {
-			to: 'hiragana',
-			mode: 'furigana',
-		});
+		card.furigana = await convertToFurigana(card.name);
 	}
 
 	return card;
@@ -42,7 +39,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 	});
 
 	const processedFlashcards = await Promise.all(
-		flashcards.map((card: RecordModel) => processFurigana(card, kuroshiro)),
+		flashcards.map((card: RecordModel) => processFurigana(card)),
 	);
 
 	return json({

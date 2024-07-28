@@ -1,6 +1,11 @@
-import { OPENAI_API_KEY } from '$env/static/private';
+import { env } from '$env/dynamic/private';
+import { createOpenAI } from '@ai-sdk/openai';
 import OpenAI from 'openai';
 
 export const openai = new OpenAI({
-	apiKey: OPENAI_API_KEY || process.env.OPENAI_API_KEY,
+	apiKey: env.OPENAI_API_KEY ?? '',
+});
+
+export const ai = createOpenAI({
+	apiKey: env.OPENAI_API_KEY ?? '',
 });

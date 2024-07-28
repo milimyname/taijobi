@@ -36,6 +36,13 @@
 		{/if}
 
 		<a
+			href="/chat"
+			class="w-full rounded-lg border-2 border-black bg-alphabetGreen p-4 text-center text-xl sm:p-10 sm:text-4xl"
+		>
+			Chat
+		</a>
+
+		<a
 			href="/find"
 			class="w-full rounded-lg border-2 border-black bg-alphabetGreen p-4 text-center text-xl sm:p-10 sm:text-4xl"
 		>
@@ -62,6 +69,14 @@
 			class="w-full rounded-lg border-2 border-black bg-alphabetGreen p-4 text-center text-xl sm:p-10 sm:text-4xl"
 		>
 			Games
+		</a>
+	</div>
+	<div class="flex flex-col gap-2">
+		<a
+			href="/paragraphs"
+			class="w-full rounded-lg border-2 border-black bg-alphabetGreen p-4 text-center text-xl sm:p-10 sm:text-4xl"
+		>
+			Paragraphs
 		</a>
 	</div>
 </section>

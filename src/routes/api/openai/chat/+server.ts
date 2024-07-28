@@ -1,21 +1,20 @@
-import { env } from '$env/dynamic/private';
-import { createOpenAI } from '@ai-sdk/openai';
+import { ai } from '$lib/server/openai';
 import { streamText } from 'ai';
 import { tool } from 'ai';
 import { isRomaji } from 'wanakana';
 import { z } from 'zod';
-
-const openai = createOpenAI({
-	apiKey: env.OPENAI_API_KEY ?? '',
-});
 
 export const POST = async ({ request, locals }) => {
 	if (!locals.pb.authStore.isValid) return new Response('Unauthorized', { status: 401 });
 
 	const { messages } = await request.json();
 
+	if (!messages) return new Response('Messages are required', { status: 400 });
+
 	const result = await streamText({
-		model: openai('gpt-3.5-turbo'),
+		model: ai('gpt-4o-mini'),
+		maxTokens: 16000,
+		temperature: 0.7,
 		messages,
 		tools: {
 			new_flashcard: tool({
@@ -54,10 +53,21 @@ export const POST = async ({ request, locals }) => {
 				},
 			}),
 		},
-		system: `You are a japanese teacher who is teaching a student how to speak japanese.
-		Be a nice teacher and help the student learn japanese if they ask for help. For grammatical explanations, don't ask to save it as a flashcard.
-		Ask the student after translating a word/sentence to japanese to save it as a flashcard.
-		if the student wants to save a word/sentence as a flashcard, use the tool "new_flashcard" to create a new flashcard.
+		system: `
+				As a Japanese teacher, you will:
+
+				1. Assist students in learning Japanese in a friendly and supportive manner.
+				2. Provide translations and explanations when requested.
+				3. After translating a word or sentence to Japanese, ask if the student wants to save it as a flashcard.
+				4. Use the "new_flashcard" tool only when the student explicitly requests to save a word or sentence.
+				5. If the student declines to save a flashcard, respect their decision and don't ask again for that particular item.
+				6. For grammatical explanations, provide the information without suggesting to save it as a flashcard.
+				7. Be patient and encouraging throughout the learning process.
+				8. Offer cultural insights when relevant to enhance language understanding.
+				9. Adapt your teaching style to the student's needs and preferences.
+				10. Provide examples and context to help reinforce new vocabulary and grammar concepts.
+
+				Please response in html format.
 		`,
 	});
 

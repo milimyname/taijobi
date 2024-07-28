@@ -43,7 +43,7 @@ export async function POST({ request, locals }) {
 
 		// Ask OpenAI for a streaming chat completion given the prompt
 		const completion = await openai.chat.completions.create({
-			model: 'gpt-3.5-turbo',
+			model: 'gpt-4o-mini',
 			messages,
 			response_format: { type: 'json_object' },
 			temperature: 1,
@@ -116,7 +116,7 @@ export async function POST({ request, locals }) {
 
 		// Ask OpenAI for a streaming chat completion given the prompt
 		const completion = await openai.chat.completions.create({
-			model: 'gpt-3.5-turbo',
+			model: 'gpt-4o-mini',
 			messages,
 			response_format: { type: 'json_object' },
 			temperature: 0.6,
@@ -179,7 +179,7 @@ export async function POST({ request, locals }) {
 
 		// Ask OpenAI for a streaming chat completion given the prompt
 		const completion = await openai.chat.completions.create({
-			model: 'gpt-3.5-turbo',
+			model: 'gpt-4o-mini',
 			messages,
 			response_format: { type: 'json_object' },
 			temperature: 0.6,

@@ -1,23 +1,23 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import { ArrowLeft, Settings } from 'lucide-svelte';
-	import ChatDrawerDialog from './chat-drawer-dialog.svelte';
-	import { openHistory, chats } from '$lib/utils/stores';
+	import { openHistory, paragraphs } from '$lib/utils/stores';
+	import ParagraphsDrawerDialog from './paragraphs-drawer-dialog.svelte';
 
 	export let data;
 
-	$: $chats = data.chats;
+	$: $paragraphs = data.paragraphs;
 </script>
 
 <svelte:head>
-	<title>Chat</title>
-	<meta name="Chat" content="Chat" />
+	<title>Paragraphs</title>
+	<meta name="paragraphs" content="Paragraphs" />
 </svelte:head>
 
-<ChatDrawerDialog />
+<ParagraphsDrawerDialog />
 
 <main class="flex h-dvh flex-col items-center bg-white transition-all">
-	<nav class="mb-auto flex w-full justify-between p-2 py-3 sm:px-3 sm:py-5">
+	<nav class="flex w-full justify-between p-2 py-3 sm:px-3 sm:py-5">
 		<Button size="icon" variant="none">
 			<a href="/" class="go-back-btn group" data-sveltekit-preload-data>
 				<ArrowLeft
@@ -29,11 +29,12 @@
 		<Button
 			size="icon"
 			variant="none"
-			disabled={$chats.length === 0}
+			disabled={$paragraphs.length === 0}
 			on:click={() => ($openHistory = true)}
 		>
 			<Settings class="size-4" />
 		</Button>
 	</nav>
+
 	<slot />
 </main>
