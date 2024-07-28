@@ -24,3 +24,6 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           DEMO_PASSWORD: ${{ secrets.DEMO_PASSWORD }}
           DEMO_EMAIL: ${{ secrets.DEMO_EMAIL }}
+          DOCUMENTAI_PROCESSOR_NAME: ${{ secrets.DOCUMENTAI_PROCESSOR_NAME }}
+          DOCUMENTAI_ENDPOINT: ${{ secrets.DOCUMENTAI_ENDPOINT }}
+          GCLOUD_AUTH_BASE_64: ${{ secrets.GCLOUD_AUTH_BASE_64 }}
