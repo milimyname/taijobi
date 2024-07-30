@@ -1,35 +1,24 @@
 import { feedbackSchema } from '$lib/utils/zodSchema';
-import { fail } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import { superValidate, setError } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 
-export const load = async ({ locals }) => {
-	let feedbacks;
+export const load = async ({ locals, parent }) => {
+	const { isAdmin } = await parent();
 
-	const user = locals.pb.authStore.model;
+	// Redirect if not logged in
+	if (!locals.pb.authStore.isValid) redirect(401, '/login');
 
-	if (!locals.pb.authStore.isValid) {
-		return {
-			isLoggedIn: false,
-			isAdmin: false,
-		};
-	}
+	const feedbacks = isAdmin
+		? await locals.pb.collection('feedbacks').getFullList()
+		: await locals.pb.collection('feedbacks').getFullList({
+				filter: `userId = "${locals.pb.authStore.model?.id}"`,
+			});
 
-	if (user?.role.includes('admin')) {
-		// Get all the flashcards
-		feedbacks = await locals.pb.collection('feedbacks').getFullList();
-	} else {
-		// Get all the flashcards
-		feedbacks = await locals.pb.collection('feedbacks').getFullList({
-			filter: `userId = "${user?.id}"`,
-		});
-	}
-
+	// Get only the user's feedbacks
 	return {
 		feedbacks,
 		form: await superValidate(zod(feedbackSchema)),
-		isLoggedIn: true,
-		isAdmin: user?.role.includes('admin'),
 	};
 };
 

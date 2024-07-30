@@ -1,6 +1,5 @@
 <script lang="ts">
 	import * as DrawerDialog from '$lib/components/ui/drawer-dialog';
-	import { goto } from '$app/navigation';
 	import { clickedReport, deleteHistoryOpen } from '$lib/utils/stores';
 	import { Button } from '$lib/components/ui/button';
 	import { type FeedbackSchema } from '$lib/utils/zodSchema';
@@ -46,29 +45,13 @@
 				<span>Leave a feedback or report a bug!</span>
 				<DeleteTrashButton />
 			</DrawerDialog.Title>
-			<DrawerDialog.Description>
-				<p class="text-sm">
-					Feedback
-					<DrawerDialog.Close>
-						<button
-							on:click={() => {
-								$clickedReport = false;
-								goto('/feedbacks');
-							}}
-							class="underline"
-						>
-							My Feedbacks
-						</button>
-					</DrawerDialog.Close>
-				</p>
-			</DrawerDialog.Description>
 		</DrawerDialog.Header>
 		<FeedbackReadForm {disabled}>
-			<div slot="update">
+			{#if !disabled}
 				<DrawerDialog.Close asChild let:builder>
 					<Button builders={[builder]} class="w-full" loading={$delayed} {disabled}>Update</Button>
 				</DrawerDialog.Close>
-			</div>
+			{/if}
 		</FeedbackReadForm>
 		<DrawerDialog.Footer>
 			<DrawerDialog.Close asChild let:builder>

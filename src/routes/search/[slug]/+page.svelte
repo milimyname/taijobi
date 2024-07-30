@@ -88,7 +88,7 @@
 				{#if showTranslation}
 					<p
 						transition:slide={{ duration: 300, delay: 0, easing: quintOut, axis: 'y' }}
-						class="absolute bottom-full left-0 right-0 mb-2 text-balance px-10 text-center"
+						class="absolute bottom-full left-0 right-0 mb-2 text-balance text-center"
 					>
 						{$searchedWordStore?.meaning}
 					</p>

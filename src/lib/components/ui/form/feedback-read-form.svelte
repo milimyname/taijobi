@@ -35,8 +35,9 @@
 	action="?/delete"
 	use:enhance
 	class={cn(
-		'edit-form z-[1000] flex size-full flex-col gap-5 rounded-t-2xl bg-white',
+		'edit-form z-[1000] flex size-full flex-col rounded-t-2xl bg-white',
 		!$isDesktop && 'px-4',
+		!disabled && 'gap-5',
 	)}
 >
 	<div class="mb-auto flex flex-col gap-5">
@@ -65,7 +66,7 @@
 	</div>
 	<div class="flex gap-2">
 		<button formaction="?/update" class="grow cursor-not-allowed" {disabled}>
-			<slot name="update" />
+			<slot />
 		</button>
 	</div>
 
