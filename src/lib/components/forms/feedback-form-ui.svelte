@@ -77,7 +77,7 @@
 	{#if !hide}
 		<DrawerDialog.Trigger asChild>
 			<div
-				class="feedback-btn absolute left-1/2 top-10 z-10 flex -translate-x-1/2 -translate-y-1/2 justify-center gap-5 px-4 py-2"
+				class="feedback-btn absolute left-1/2 top-8 z-10 flex -translate-x-1/2 -translate-y-1/2 justify-center gap-5 px-4 py-2"
 			>
 				<button on:click={() => ($clickedFeedback = !$clickedFeedback)}>
 					{animationText}
@@ -97,23 +97,17 @@
 				<p class="text-sm">
 					You can see them here
 					<DrawerDialog.Close>
-						<button
-							on:click={() => {
-								$clickedFeedback = false;
-								goto('/feedbacks');
-							}}
-							class="underline"
-						>
-							My Feedbacks
-						</button>
+						<Button href="/feedbacks" variant="link" class="p-0 underline">My Feedbacks</Button>
 					</DrawerDialog.Close>
 				</p>
 			</DrawerDialog.Description>
 		</DrawerDialog.Header>
 		<Form {disabled}>
-			<DrawerDialog.Close asChild let:builder>
-				<Button builders={[builder]} class="w-full" {disabled}>Add</Button>
-			</DrawerDialog.Close>
+			{#if !disabled}
+				<DrawerDialog.Close asChild let:builder>
+					<Button builders={[builder]} class="w-full" {disabled}>Add</Button>
+				</DrawerDialog.Close>
+			{/if}
 		</Form>
 		<DrawerDialog.Footer>
 			<DrawerDialog.Close asChild let:builder>

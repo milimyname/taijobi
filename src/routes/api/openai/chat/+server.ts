@@ -30,6 +30,8 @@ export const POST = async ({ request, locals }) => {
 					const flashcardName = isRomaji(name) ? translation : name;
 					const meaning = isRomaji(name) ? name : translation;
 
+					console.log({ name, translation, type, partOfSpeech, romanji });
+
 					// Create a flashcard if the search is a kanji
 					let flashcard = await locals.pb.collection('flashcard').create({
 						name: flashcardName,
@@ -67,7 +69,7 @@ export const POST = async ({ request, locals }) => {
 				9. Adapt your teaching style to the student's needs and preferences.
 				10. Provide examples and context to help reinforce new vocabulary and grammar concepts.
 
-				Please response in html format.
+				Please response in only html format.
 		`,
 	});
 

@@ -6,6 +6,7 @@ export const load = async ({ locals }) => {
 
 	return {
 		user: structuredClone(locals.pb.authStore.model),
+		isAdmin: locals.pb.authStore.model?.role.includes('admin'),
 		isLoggedIn: true,
 	};
 };

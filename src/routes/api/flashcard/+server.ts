@@ -140,7 +140,7 @@ export const POST: RequestHandler = async ({ locals, request, fetch }) => {
 
 		// Process the furigana for each flashcard
 		const processedFlashcards = await Promise.all(
-			flashcards.items.map((card: RecordModel) => processFurigana(card, kuroshiro)),
+			flashcards.items.map((card: RecordModel) => processFurigana(card)),
 		);
 
 		// Get the kanji by slug
