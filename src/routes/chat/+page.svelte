@@ -99,13 +99,19 @@
 				{/if}
 			</li>
 		{/each}
+
+		{#if $messages.length === 0}
+			<p class="mt-40 text-balance text-center text-gray-500">
+				No messages yet. Please type something below
+			</p>
+		{/if}
 	</ul>
 	<form
 		on:submit={handleSubmit}
 		class="fixed bottom-5 flex w-full items-center justify-center gap-2 px-5"
 	>
 		<div class="relative flex w-full items-end md:w-[36rem]">
-			<Textarea class="h-10 max-h-40 min-h-fit resize-none pr-10" bind:value={$input} />
+			<Textarea class="h-10 max-h-40 min-h-0 resize-none pr-10 shadow-sm" bind:value={$input} />
 			<Button
 				type="submit"
 				disabled={!$input.trim() || $isLoading}

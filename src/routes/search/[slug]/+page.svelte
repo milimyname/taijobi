@@ -77,7 +77,7 @@
 			<div class="relative">
 				<p
 					class={cn(
-						'vertical text-balance text-center text-5xl leading-normal tracking-widest',
+						'text-balance text-center text-4xl',
 						$searchedWordStore.type === 'phrase' && 'px-10 text-4xl ![writing-mode:initial]',
 						$searchedWordStore.name.length > 15 && 'text-xl',
 					)}
@@ -108,7 +108,10 @@
 		</Button>
 
 		<Button
-			on:click={() => (showTranslation = !showTranslation)}
+			on:click={(e) => {
+				e.preventDefault();
+				showTranslation = !showTranslation;
+			}}
 			variant="outline"
 			disabled={data.searches.length === 0}
 		>

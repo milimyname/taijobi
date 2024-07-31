@@ -12,12 +12,12 @@ async function convertToFurigana(word: string) {
 }
 
 export const load = async ({ locals, params }) => {
-	if (!locals.pb.authStore.isValid) throw redirect(401, '/login');
+	if (!locals.pb.authStore.isValid) redirect(401, '/login');
 
 	const { slug } = params;
 
 	// Redirect to home if no search query
-	if (!slug) throw redirect(404, '/');
+	if (!slug) redirect(404, '/');
 
 	try {
 		const currentSearch = await locals.pb.collection('searches').getOne(slug, {
@@ -65,7 +65,7 @@ export const load = async ({ locals, params }) => {
 		};
 	} catch (error) {
 		console.error(error);
-		throw redirect(307, '/');
+		redirect(307, '/');
 	}
 };
 

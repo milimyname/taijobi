@@ -112,6 +112,12 @@
 				search?.expand?.flashcard?.name.toLowerCase().includes(inputValue.toLowerCase()),
 			);
 		}
+		// Distinct the searches based on the flashcard id
+		searches = searches.filter(
+			(search: RecordModel, index: number, self: RecordModel[]) =>
+				index ===
+				self.findIndex((s) => s.expand && s.expand.flashcard.id === search.expand.flashcard.id),
+		);
 
 		return sortedByDate
 			? searches.sort(

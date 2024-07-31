@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { searchedWordStore } from '$lib/utils/stores';
 	import { ArrowLeft } from 'lucide-svelte';
 </script>
 
