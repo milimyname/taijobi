@@ -69,7 +69,7 @@ export const POST = async ({ request, locals }) => {
 				9. Adapt your teaching style to the student's needs and preferences.
 				10. Provide examples and context to help reinforce new vocabulary and grammar concepts.
 
-				Please response in only html format.
+				Please response in only html format. without markdown.
 		`,
 	});
 
