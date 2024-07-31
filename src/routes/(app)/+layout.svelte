@@ -56,7 +56,7 @@
 	}
 </script>
 
-<main class="grid grid-cols-1 items-start p-5 lg:grid-cols-[1fr_1fr_6rem]">
+<main class="grid grid-cols-1 items-start p-5 md:h-screen lg:grid-cols-[1fr_1fr_6rem]">
 	<slot />
 	<aside
 		class="fixed bottom-5 left-0 flex w-full justify-center p-5 pb-0 lg:sticky lg:h-full lg:w-full lg:justify-between lg:p-0"
