@@ -112,6 +112,8 @@
 		setTimeout(() => ($deleteHistoryOpen = false), 150);
 	}
 
+	const { submitting } = superConjugationForm;
+
 	$: if (showSettings) {
 		const settings = localStorage.getItem(`conjugationSettings_${selectedConjugation?.id}`);
 		if (settings) checkedList = JSON.parse(settings);
@@ -147,7 +149,7 @@
 				<span>Change conjugation settings</span>
 
 				{#if selectedConjugation?.id !== 'demo'}
-					<DeleteTrashButton />
+					<DeleteTrashButton loading={$submitting} />
 				{/if}
 			</DrawerDialog.Title>
 		</DrawerDialog.Header>

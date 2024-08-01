@@ -26,5 +26,7 @@
 	{#if loading}
 		<LoaderCircle class="mr-2 size-4 animate-spin" />
 	{/if}
-	<slot />
+	{#if !loading}
+		<slot />
+	{/if}
 </ButtonPrimitive.Root>

@@ -14,6 +14,7 @@
 
 	let audioSource: string = '';
 	let audioElement: HTMLAudioElement;
+	let loading = false;
 	let activeTab: string | undefined;
 	let conjugationData: any;
 	let examples: ResponseType[] = [];
@@ -88,6 +89,7 @@
 	}
 
 	async function convertTextToSpeech(input: string) {
+		loading = true;
 		try {
 			const res = await fetch('/api/openai', {
 				method: 'POST',
@@ -107,6 +109,8 @@
 		} catch (e) {
 			console.error(e);
 		}
+
+		loading = false;
 	}
 
 	function onOutsideClickDrawer() {
@@ -217,16 +221,19 @@
 									<p class="text-sm">{english}</p>
 								</div>
 
-								<button
-									class="mt-2.5"
+								<Button
+									variant="none"
+									size="icon"
+									{loading}
+									class="p-0"
 									on:click={async () => {
 										await convertTextToSpeech(kanji);
 
 										if (audioElement) audioElement.play();
 									}}
 								>
-									<Volume2 class="size-5" />
-								</button>
+									<Volume2 class="size-5 " />
+								</Button>
 							</div>
 						{/each}
 					{:else}

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as DrawerDialog from '$lib/components/ui/drawer-dialog';
-	import { clickedReport, deleteHistoryOpen } from '$lib/utils/stores';
+	import { clickedFeedback, clickedReport, deleteHistoryOpen } from '$lib/utils/stores';
 	import { Button } from '$lib/components/ui/button';
 	import { type FeedbackSchema } from '$lib/utils/zodSchema';
 	import { type SuperForm, type Infer } from 'sveltekit-superforms';
@@ -12,13 +12,14 @@
 
 	let form: SuperForm<Infer<FeedbackSchema>> = getContext('feedbackForm');
 
-	const { reset, isTainted, tainted, delayed } = form;
+	const { reset, isTainted, tainted, delayed, submitting } = form;
 
 	function onCloseDrawer() {
 		if ($deleteHistoryOpen) return;
 
 		setTimeout(() => {
 			$clickedReport = false;
+			$clickedFeedback = false;
 			reset();
 		}, 100);
 	}
@@ -43,7 +44,7 @@
 		<DrawerDialog.Header class="text-left">
 			<DrawerDialog.Title className="flex justify-between items-center">
 				<span>Leave a feedback or report a bug!</span>
-				<DeleteTrashButton />
+				<DeleteTrashButton loading={$submitting} />
 			</DrawerDialog.Title>
 		</DrawerDialog.Header>
 		<FeedbackReadForm {disabled}>

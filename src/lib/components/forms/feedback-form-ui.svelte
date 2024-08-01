@@ -42,17 +42,14 @@
 
 		if ($page.url.pathname.slice(1) === 'flashcards') $clickedFeedback = false;
 
-		setTimeout(() => {
-			$clickedFeedback = false;
-			$feedbackDescription = '';
-		}, 100);
+		onCloseDrawer();
 	}
 
 	function onCloseDrawer() {
 		setTimeout(() => {
 			$clickedFeedback = false;
 			$feedbackDescription = '';
-		}, 100);
+		}, 150);
 	}
 
 	onMount(() => performAnimation());

@@ -21,7 +21,7 @@
 
 <DrawerDialog.Root {open} onOutsideClick={onCloseDrawer} onClose={onCloseDrawer}>
 	<DrawerDialog.Content className="px-5 space-y-5">
-		<DrawerDialog.Header class="text-left p-0">
+		<DrawerDialog.Header class="p-0 text-left">
 			<DrawerDialog.Title>Quiz Result</DrawerDialog.Title>
 			<DrawerDialog.Description>
 				{#if correctAnswers === total}
@@ -36,16 +36,16 @@
 				{#each progressData as item}
 					<span>{item.name}</span>
 					{#if item.score === 1}
-						<Badge variant="outline" class="size-fit my-auto justify-self-end">Correct</Badge>
+						<Badge variant="outline" class="my-auto size-fit justify-self-end">Correct</Badge>
 					{:else}
-						<Badge variant="destructive" class="size-fit my-auto justify-self-end">Incorrect</Badge>
+						<Badge variant="destructive" class="my-auto size-fit justify-self-end">Incorrect</Badge>
 					{/if}
 				{/each}
 			</div>
 		{/if}
 		<Button on:click={startOver} class="max-sm:hidden">Start Over</Button>
 		<DrawerDialog.Footer className="md:hidden px-0">
-			<Button on:click={startOver}>Start Over</Button>
+			<Button on:click={startOver} loading={false}>Start Over</Button>
 			<DrawerDialog.Close asChild let:builder>
 				<Button builders={[builder]} variant="outline">Cancel</Button>
 			</DrawerDialog.Close>

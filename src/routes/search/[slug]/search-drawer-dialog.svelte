@@ -30,6 +30,7 @@
 	let sortedByDate = true;
 	let inputValue = '';
 	let isCreatingNewFlashcardBox = false;
+	let loading = false;
 
 	function onCloseDrawer() {
 		setTimeout(() => ($openHistory = false), 100);
@@ -70,6 +71,7 @@
 	const searchesIds = getContext<string[]>('searchesIds');
 
 	async function deleteHistory() {
+		loading = true;
 		try {
 			await Promise.all(
 				searchedFlashcardsIds?.map(async (id: string) => {
@@ -95,6 +97,7 @@
 		}
 
 		$openHistory = false;
+		loading = false;
 
 		setTimeout(() => ($deleteHistoryOpen = false), 150);
 
@@ -140,7 +143,7 @@
 		<DrawerDialog.Header class="space-y-2 p-5 pb-0 text-left max-md:mb-5">
 			<DrawerDialog.Title className="flex py-2 justify-between items-center">
 				<span>Leave a feedback or report a bug!</span>
-				<DeleteTrashButton />
+				<DeleteTrashButton {loading} />
 			</DrawerDialog.Title>
 			<DrawerDialog.Description className="flex gap-1 sm:gap-2">
 				<Button
