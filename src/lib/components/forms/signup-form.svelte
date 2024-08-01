@@ -43,10 +43,10 @@
 			<Form.FieldErrors />
 		</Form.Field>
 
-		<Form.Field {form} name="confirmPassword" class="flex w-full flex-col md:w-2/3">
+		<Form.Field {form} name="passwordConfirm" class="flex w-full flex-col md:w-2/3">
 			<Form.Control let:attrs>
 				<Form.Label>Confirm password</Form.Label>
-				<Input {...attrs} bind:value={$formData.confirmPassword} type="password" />
+				<Input {...attrs} bind:value={$formData.passwordConfirm} type="password" />
 			</Form.Control>
 			<Form.FieldErrors />
 		</Form.Field>

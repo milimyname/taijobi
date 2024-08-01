@@ -10,7 +10,7 @@ export type LoginSchema = typeof loginSchema;
 export const signupSchema = z.object({
 	email: z.string().email(),
 	password: z.string().min(8).max(32),
-	confirmPassword: z.string().min(8).max(32),
+	passwordConfirm: z.string().min(8).max(32),
 });
 
 export type SignupSchema = typeof signupSchema;

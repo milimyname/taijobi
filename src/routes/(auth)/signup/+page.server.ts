@@ -21,26 +21,28 @@ export const actions = {
 		if (!form.valid) return fail(400, { form });
 
 		// Check if passwords match
-		if (form.data.password !== form.data.confirmPassword)
-			return setError(form, 'confirmPassword', 'Passwords do not match.');
+		if (form.data.password !== form.data.passwordConfirm)
+			return setError(form, 'passwordConfirm', 'Passwords do not match.');
 
 		try {
-			// Create user
 			await locals.pb.collection('users').create(form.data);
+		} catch (error) {
+			console.log('error', error);
+			return setError(form, 'email', 'Email already exists.');
+		}
+
+		try {
 			// Send verification email
 			await locals.pb.collection('users').requestVerification(form.data.email);
 		} catch (_) {
 			// Check if email is not verified
 			locals.pb.authStore.clear();
-			// Send verification email
-			await locals.pb.collection('users').requestVerification(form.data.email);
-			return setError(
-				form,
-				'email',
-				'Email is not verified. Check ur email inbox. Try to log in again.',
-			);
+			return setError(form, 'email', 'Email already exists. Please verify your email address.');
 		}
 
-		throw redirect(303, '/login');
+		// Login user
+		await locals.pb.collection('users').authWithPassword(form.data.email, form.data.password);
+
+		throw redirect(303, '/');
 	},
 };
