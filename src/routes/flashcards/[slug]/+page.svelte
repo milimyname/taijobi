@@ -1,10 +1,8 @@
 <script lang="ts">
 	import Flashcard from './flashcard-plain.svelte';
 	import Skeleton from './flashcard-skeleton.svelte';
-	import CallBackButton from '$lib/components/callback-btn.svelte';
 	import {
 		clickedAddFlashcardCollection,
-		flashcardsBoxType,
 		currentFlashcard,
 		currentIndexStore,
 		showLetterDrawing,
@@ -15,8 +13,6 @@
 	} from '$lib/utils/stores';
 	import FlashcardForm from '$lib/components/forms/flashcard-form-ui.svelte';
 	import { page } from '$app/stores';
-	import EditButton from './EditButton.svelte';
-	import { getLocalStorageItem } from '$lib/utils/localStorage';
 	import { onMount, setContext } from 'svelte';
 	import LetterDrawingFlashcard from './LetterDrawingFlashcard.svelte';
 	import { Plus } from 'lucide-svelte';
@@ -31,6 +27,7 @@
 	import { flashcardSchema } from '$lib/utils/zodSchema';
 	import { goto } from '$app/navigation';
 	import CarouselWithThumbnails from './carousel-thumbnails.svelte';
+	import FlashcardPanel from './flashcard-panel.svelte';
 
 	export let data;
 
@@ -41,8 +38,6 @@
 	let currentIndex = 0;
 	let flashcards: FlashcardType[] = [];
 	let isLoading = false;
-
-	let islocalBoxTypeOriginal = getLocalStorageItem('flashcardsBoxType');
 
 	// Fetch flashcards from the server
 	async function fetchFlashcards() {
@@ -169,11 +164,6 @@
 
 	// Scroll to the current flashcard after multiple drawing state
 	$: if (!$canIdrawMultipleTimes && browser && currentIndex && embla) embla.scrollTo(currentIndex);
-
-	$: showEdit =
-		data.isLoggedIn &&
-		(($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal !== 'original') ||
-			$page.data.isAdmin);
 </script>
 
 <FlashcardForm />
@@ -193,13 +183,7 @@
 				{currentFlashcardFurigana}
 			/>
 
-			<div class="flex items-center justify-center sm:mx-auto sm:w-[600px] lg:-order-1">
-				<CallBackButton />
-
-				{#if showEdit}
-					<EditButton currentFlashcard={flashcards[currentIndex]} />
-				{/if}
-			</div>
+			<FlashcardPanel wordFlashcard={flashcards[currentIndex]} />
 		{/if}
 
 		{#if $showLetterDrawing}

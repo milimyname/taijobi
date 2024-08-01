@@ -4,10 +4,7 @@
 		currentFlashcard,
 		currentIndexStore,
 		currentLetter,
-		innerWidthStore,
-		animateSVG,
 		showLetterDrawing,
-		strokes,
 	} from '$lib/utils/stores';
 	import { onMount } from 'svelte';
 	import { cubicOut } from 'svelte/easing';
@@ -15,22 +12,12 @@
 	import Letter from '$lib/components/canvas/Letter.svelte';
 	import Canvas from '$lib/components/canvas/Canvas.svelte';
 	import { isKanji, isKatakana, isRomaji } from 'wanakana';
-	import {
-		ArrowLeft,
-		ArrowRight,
-		RotateCcw,
-		RefreshCcw,
-		Eraser,
-		ChevronLast,
-		ChevronFirst,
-		FileText,
-		Undo2,
-	} from 'lucide-svelte';
-	import { clearCanvas, redrawCanvas } from '$lib/utils/actions';
+	import { ArrowLeft, ArrowRight, RotateCcw, ChevronLast, ChevronFirst } from 'lucide-svelte';
+	import { clearCanvas } from '$lib/utils/actions';
 	import BacksideCard from '$lib/components/canvas/BacksideCard.svelte';
-	import { cn, getFlashcardWidth, isNonJapanase } from '$lib/utils';
+	import { cn, isNonJapanase } from '$lib/utils';
 	import { type CarouselAPI } from '$lib/components/ui/carousel/context';
-	import CanvasPanel from '$lib/components/canvas/CanvasPanel.svelte';
+	import CanvasPanel from '$lib/components/canvas/canvas-panel.svelte';
 
 	export let embla: CarouselAPI;
 
@@ -97,16 +84,6 @@
 			</span>
 		{/each}
 	</span>
-
-	<button
-		class={cn(
-			'absolute bottom-3 left-3 z-40 block rounded-full border bg-white p-2 shadow-sm transition-all xm:bottom-5 xm:left-5',
-			$rotateYCard > 5 && $rotateYCard < 175 && 'hidden',
-		)}
-		on:click={() => ($showLetterDrawing = false)}
-	>
-		<FileText class="size-4" />
-	</button>
 
 	<Canvas rotationY={$rotateYCard} {canvas} />
 

@@ -35,7 +35,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 
 	const flashcards = await locals.pb.collection('flashcard').getFullList({
 		filter: `flashcardBox = "${flashcardBoxId}"`,
-		fields: `id, name, meaning, romanji, furigana, type, notes`,
+		fields: `id, name, meaning, romanji, furigana, type, notes, partOfSpeech`,
 	});
 
 	const processedFlashcards = await Promise.all(

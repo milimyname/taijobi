@@ -5,22 +5,18 @@
 	import {
 		currentAlphabet,
 		currentFlashcard,
-		showLetterDrawing,
-		showProgressSlider,
 		innerHeightStore,
 		innerWidthStore,
 		currentFlashcardTypeStore,
-		canIdrawMultipleTimes,
 		showCustomContent,
 	} from '$lib/utils/stores';
 	import { quintOut, cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
-	import { RotateCcw, Box, PenTool, Volume2, GalleryHorizontalEnd } from 'lucide-svelte';
+	import { RotateCcw, Box } from 'lucide-svelte';
 	import { cn, getFlashcardHeight, getFlashcardWidth, isNonJapanase } from '$lib/utils';
 	import { browser } from '$app/environment';
 	import { replaceStateWithQuery } from '$lib/utils';
 	import CustomCompletion from './custom-completion.svelte';
-	import { page } from '$app/stores';
 
 	export let wordFlashcard: FlashcardType | undefined;
 	export let currentFlashcardFurigana: string;
@@ -32,8 +28,6 @@
 		easing: cubicOut,
 	});
 	let kanjiFlashcard: FlashcardType;
-	let audioSource = '';
-	let audioElement: HTMLAudioElement;
 
 	$: if (!isNonJapanase($currentFlashcard) && $currentFlashcardTypeStore === 'kanji')
 		kanjiFlashcard = kanji[$currentFlashcard];
@@ -45,35 +39,7 @@
 			flashcardName: wordFlashcard.name,
 			meaning: wordFlashcard.meaning,
 		});
-
-	async function convertTextToSpeech() {
-		try {
-			const res = await fetch('/api/openai', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ input: wordFlashcard?.name, type: 'audio' }),
-			});
-
-			if (!res.ok) throw new Error('Failed to fetch audio');
-
-			const data = await res.json();
-
-			const audioData = data.audioData;
-
-			audioSource = `data:audio/mp3;base64,${audioData}`;
-		} catch (e) {
-			console.error(e);
-		}
-	}
-
-	$: if (wordFlashcard) audioSource = '';
 </script>
-
-{#if audioSource}
-	<audio src={audioSource} bind:this={audioElement} />
-{/if}
 
 <CustomCompletion {wordFlashcard} />
 
@@ -114,48 +80,6 @@
 	<span class="fixed left-2 top-3 z-30 text-sm xm:left-5 xm:top-5">
 		{currentIndex + 1}
 	</span>
-
-	<div class="absolute bottom-3 left-2 z-30 flex flex-col-reverse gap-3 xm:bottom-5 xm:left-5">
-		{#if !isNonJapanase($currentFlashcard)}
-			<button
-				class={cn(
-					'rounded-full border bg-white p-2 shadow-sm transition-all',
-					$showCustomContent && 'hidden',
-				)}
-				on:click={() => {
-					$showLetterDrawing = true;
-					$showProgressSlider = false;
-				}}
-			>
-				<PenTool class="size-4" />
-			</button>
-		{/if}
-
-		{#if $page.data.isLoggedIn}
-			<button
-				class={cn(
-					'rounded-full border bg-white p-2 shadow-sm transition-all',
-					$showCustomContent && 'hidden',
-				)}
-				on:click={async () => {
-					if (audioSource === '') await convertTextToSpeech();
-					if (audioElement) audioElement.play();
-				}}
-			>
-				<Volume2 class="size-4" />
-			</button>
-		{/if}
-
-		<button
-			class={cn(
-				'rounded-full border bg-white p-2 shadow-sm transition-all',
-				$showCustomContent && 'hidden',
-			)}
-			on:click={() => ($canIdrawMultipleTimes = true)}
-		>
-			<GalleryHorizontalEnd class="size-4" />
-		</button>
-	</div>
 
 	<button
 		class={cn(
@@ -216,16 +140,6 @@
 			{/if}
 
 			{#if wordFlashcard?.notes && wordFlashcard?.notes.length > 0}
-				<button
-					class={cn(
-						'fixed bottom-0 left-0 z-10 rounded-tr-xl bg-white p-5 text-black',
-						$showCustomContent && 'bg-blue-200',
-					)}
-					on:click|preventDefault={() => ($showCustomContent = !$showCustomContent)}
-				>
-					<Box class="size-6" />
-				</button>
-
 				{#if showCustomContent}
 					<p
 						transition:fly={{
@@ -275,16 +189,6 @@
 					<p class=" text-sm text-gray-300">Romanji/Furigana</p>
 				</div>
 			{/if}
-
-			<button
-				class={cn(
-					'flashcard-completion-btn fixed bottom-0 left-0 z-10 rounded-tr-xl bg-white p-5 text-black',
-					!$showCustomContent && 'bg-blue-200',
-				)}
-				on:click|preventDefault={() => ($showCustomContent = !$showCustomContent)}
-			>
-				<Box class="size-6" />
-			</button>
 
 			<button
 				class={cn(

@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { getFlashcardWidth } from '$lib/utils';
 	import { clearCanvas, redrawCanvas } from '$lib/utils/actions';
-	import { animateSVG, innerWidthStore, strokes } from '$lib/utils/stores';
-	import { Undo2, Eraser, RefreshCcw } from 'lucide-svelte';
+	import { animateSVG, strokes, showLetterDrawing } from '$lib/utils/stores';
+	import { Undo2, Eraser, RefreshCcw, FileText } from 'lucide-svelte';
 
 	export let canvas: HTMLCanvasElement;
 	export let showAnimation: boolean = true;
@@ -19,10 +18,7 @@
 	}
 </script>
 
-<div
-	style={`width: ${getFlashcardWidth($innerWidthStore)}px;`}
-	class="flex items-center justify-center sm:mx-auto lg:-order-1"
->
+<div class="flex items-center justify-center sm:mx-auto lg:-order-1">
 	<slot name="find" />
 
 	<div class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white">
@@ -45,5 +41,8 @@
 				<RefreshCcw class="size-4" />
 			</button>
 		{/if}
+		<button on:click={() => ($showLetterDrawing = false)}>
+			<FileText class="size-4" />
+		</button>
 	</div>
 </div>

@@ -19,7 +19,7 @@
 	import { goto } from '$app/navigation';
 	import type { RecordModel } from 'pocketbase';
 	import { page } from '$app/stores';
-	import CanvasPanel from '$lib/components/canvas/CanvasPanel.svelte';
+	import CanvasPanel from '$lib/components/canvas/canvas-panel.svelte';
 	import { isJapanese } from 'wanakana';
 	import { pocketbase } from '$lib/utils/pocketbase';
 

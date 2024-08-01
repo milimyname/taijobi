@@ -19,10 +19,9 @@
 	>
 		{#if callback.includes('quizzes')}
 			<Dices class="size-5" />
-			<span>Return to Quiz</span>
 		{:else}
 			<Pencil class="size-5" />
-			<span>Return to Find Word</span>
 		{/if}
+		<span>Return</span>
 	</button>
 {/if}

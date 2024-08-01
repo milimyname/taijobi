@@ -14,7 +14,7 @@
 
 	let audioSource: string = '';
 	let audioElement: HTMLAudioElement;
-	let activeTab: string | undefined = wordFlashcard?.notes ? 'note' : 'conjugation';
+	let activeTab: string | undefined;
 	let conjugationData: any;
 	let examples: ResponseType[] = [];
 
@@ -119,7 +119,7 @@
 
 	$: if (activeTab === 'sentence' && wordFlashcard) generateExampleSentences();
 
-	$: if (wordFlashcard?.notes === '') activeTab = 'conjugation';
+	$: if (wordFlashcard?.partOfSpeech === 'unknown') activeTab = 'sentence';
 
 	$: if (wordFlashcard) examples = [];
 
@@ -234,7 +234,7 @@
 					{/if}
 				</Tabs.Content>
 			</Tabs.Root>
-			<DrawerDialog.Footer className="md:hidden">
+			<DrawerDialog.Footer className="md:hidden sticky bottom-0">
 				<DrawerDialog.Close asChild let:builder>
 					<Button builders={[builder]} variant="outline">Cancel</Button>
 				</DrawerDialog.Close>
