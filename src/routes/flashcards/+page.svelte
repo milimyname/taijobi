@@ -75,7 +75,6 @@
 	const superFrmBox = superForm(data.boxForm, {
 		validators: zodClient(flashcardCollectionSchema),
 		onUpdated: ({ form }) => {
-			console.log(form);
 			// Keep the form open if there is an error
 			if (form.errors.name) $clickedAddFlahcardBox = true;
 
@@ -111,7 +110,6 @@
 
 			// Show one more card when discarding
 			if (visibleCardsCount < data.flashcardCollections.length) {
-				// console.log('Flashcards box type:', visibleCardsCount, data.flashcardCollections);
 				visibleCardsCount = data.flashcardCollections.length;
 			}
 		}, 100);

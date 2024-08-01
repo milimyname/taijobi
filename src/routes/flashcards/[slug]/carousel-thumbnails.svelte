@@ -42,12 +42,10 @@
 		if (jsonCanvas && fabricCanvas) {
 			// Clear the canvas first
 			fabricCanvas.clear();
-			// console.log('Loading drawing from localStorage');
 
 			// Load the JSON string back into the canvas
 			fabricCanvas.loadFromJSON(jsonCanvas, function () {
 				fabricCanvas.renderAll();
-				// This callback ensures that everything is rendered properly after loading
 			});
 		}
 	}

@@ -165,8 +165,6 @@ export const POST: RequestHandler = async ({ locals, request, fetch }) => {
 
 			const data = await res.json();
 
-			console.log(data);
-
 			if (data.meaning === 'Does not exist') return json({ error: 'Flashcard not found' });
 
 			const type = getFlashcardType(data.type);

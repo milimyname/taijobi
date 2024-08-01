@@ -40,8 +40,6 @@
 	$: clicked = false;
 
 	$: $tweenedRatio = ratio;
-
-	$: console.log({ timeLeft, duration });
 </script>
 
 <section class="flex h-full flex-col items-center justify-center gap-4 sm:gap-5">

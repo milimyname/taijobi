@@ -30,8 +30,6 @@ export const POST = async ({ request, locals }) => {
 					const flashcardName = isRomaji(name) ? translation : name;
 					const meaning = isRomaji(name) ? name : translation;
 
-					console.log({ name, translation, type, partOfSpeech, romanji });
-
 					// Create a flashcard if the search is a kanji
 					let flashcard = await locals.pb.collection('flashcard').create({
 						name: flashcardName,
