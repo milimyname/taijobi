@@ -138,6 +138,8 @@ export const actions = {
 
 				form.data.collectionId = newCollection.id;
 				form.data.boxId = newBox.id;
+
+				return { form };
 			} catch (error) {
 				return setError(form, 'collectionId', 'Try again');
 			}
@@ -155,6 +157,8 @@ export const actions = {
 				});
 
 				form.data.boxId = newBox.id;
+
+				return { form };
 			} catch (error) {
 				return setError(form, 'boxId', 'Try again');
 			}
@@ -172,6 +176,8 @@ export const actions = {
 				await locals.pb.collection('flashcardBoxes').update(form.data.boxId, {
 					'flashcards+': newFlashcards?.map((flashcard) => flashcard.id),
 				});
+
+				return { form };
 			} catch (error) {
 				return setError(form, 'boxId', 'Try again');
 			}

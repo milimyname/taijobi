@@ -19,7 +19,7 @@
 	import { getLocalStorageItem } from '$lib/utils/localStorage';
 	import { onMount, setContext } from 'svelte';
 	import LetterDrawingFlashcard from './LetterDrawingFlashcard.svelte';
-	import { Plus, Dices } from 'lucide-svelte';
+	import { Plus } from 'lucide-svelte';
 	import type { FlashcardType } from '$lib/utils/ambient.d.ts';
 	import { browser } from '$app/environment';
 	import * as Carousel from '$lib/components/ui/carousel/index';
@@ -226,13 +226,9 @@
 							class={cn(
 								'basis-auto cursor-pointer truncate text-center text-xl opacity-50 sm:text-2xl',
 								$currentIndexStore === index && '!scale-110 opacity-100',
-								flashcards.length < 10 && 'basis-full',
-								// flashcards.length > 5 && flashcards.length < 20 && 'basis-1/2',
-								// flashcards.length > 6 && flashcards.length < 10 && 'md:basis-1/3',
-								flashcards.length > 9 && 'md:basis-1/3',
-								// flashcard.name.length < 3 && 'basis-full',
-								// flashcard.name.length > 5 && flashcard.name.length < 10 && 'basis-full',
 								$currentFlashcardTypeStore === 'kanji' && 'basis-1/3',
+								flashcards.length < 10 && 'basis-full',
+								flashcards.length > 9 && 'md:basis-1/3',
 							)}
 						>
 							<button
