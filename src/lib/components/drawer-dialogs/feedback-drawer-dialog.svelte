@@ -12,7 +12,7 @@
 
 	let form: SuperForm<Infer<FeedbackSchema>> = getContext('feedbackForm');
 
-	const { reset, isTainted, tainted, delayed, submitting } = form;
+	const { reset, isTainted, tainted, delayed } = form;
 
 	function onCloseDrawer() {
 		if ($deleteHistoryOpen) return;
@@ -44,7 +44,7 @@
 		<DrawerDialog.Header class="text-left">
 			<DrawerDialog.Title className="flex justify-between items-center">
 				<span>Leave a feedback or report a bug!</span>
-				<DeleteTrashButton loading={$submitting} />
+				<DeleteTrashButton loading={$delayed} />
 			</DrawerDialog.Title>
 		</DrawerDialog.Header>
 		<FeedbackReadForm {disabled}>

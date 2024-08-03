@@ -5,13 +5,19 @@
 	import { Badge } from '$lib/components/ui/badge/index';
 	import Onyomi from '$lib/icons/Onyomi.svelte';
 	import Kunyomi from '$lib/icons/Kunyomi.svelte';
-	import { Captions, Earth, ArrowDown10, ArrowDown01 } from 'lucide-svelte';
+	import { Captions, Earth, ArrowDown10, ArrowDown01, Trash2 } from 'lucide-svelte';
 	import { type ComponentType, tick } from 'svelte';
 	import { cn } from '$lib/utils.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import * as Command from '$lib/components/ui/command/index.js';
 	import { Button } from '$lib/components/ui/button/index';
 	import type { RecordModel } from 'pocketbase';
+	import { ScrollArea } from '$lib/components/ui/scroll-area/index';
+	import * as Tooltip from '$lib/components/ui/tooltip';
+	import DeleteTrashButton from '$lib/components/delete-trash-button.svelte';
+	import DeleteDrawerAlertDialog from '$lib/components/drawer-alert-dialogs/delete-drawer-alert-dialog.svelte';
+	import { toast } from 'svelte-sonner';
+	import { deleteHistoryOpen } from '$lib/utils/stores';
 
 	export let data;
 
@@ -19,6 +25,7 @@
 	let value = '';
 	let sortedByDate = false;
 	let hiddenExamples = false;
+	let loading = false;
 
 	type Type = {
 		value: string;
@@ -50,6 +57,7 @@
 	];
 
 	let quizzes: RecordModel[] = data.quizzes;
+	let currentQuiz: RecordModel;
 
 	$: selectedType = types.find((t) => t.value === value) ?? null;
 
@@ -84,10 +92,13 @@
 		});
 	}
 
-	async function deleteQuiz(quiz: RecordModel) {
+	async function deleteQuiz() {
+		loading = true;
 		try {
 			// Update quiz count in flashcardBox
-			const flashcardBox = await pocketbase.collection('flashcardBoxes').getOne(quiz.flashcardBox);
+			const flashcardBox = await pocketbase
+				.collection('flashcardBoxes')
+				.getOne(currentQuiz.flashcardBox);
 
 			await pocketbase.collection('flashcardBoxes').update(flashcardBox.id, {
 				quizCount: flashcardBox.quizCount - 1,
@@ -97,22 +108,31 @@
 		}
 
 		try {
-			localStorage.removeItem(`flashcards_${quiz.id}`);
-			localStorage.removeItem(`currentQuestion_${quiz.id}`);
-			localStorage.removeItem(`quizProgress_${quiz.id}`);
+			localStorage.removeItem(`flashcards_${currentQuiz.id}`);
+			localStorage.removeItem(`currentQuestion_${currentQuiz.id}`);
+			localStorage.removeItem(`quizProgress_${currentQuiz.id}`);
 
-			await pocketbase.collection('quizzes').delete(quiz.id);
+			await pocketbase.collection('quizzes').delete(currentQuiz.id);
 		} catch (error) {
 			console.error(error);
 		}
 
 		// Remove from the list
-		quizzes = quizzes.filter((q) => q.id !== quiz.id);
+		quizzes = quizzes.filter((q) => q.id !== currentQuiz.id);
+
+		// $openHistory = false;
+		loading = false;
+
+		setTimeout(() => ($deleteHistoryOpen = false), 150);
+
+		toast.success('Search history deleted successfully.');
 	}
 </script>
 
-<section class="flex w-full max-w-4xl flex-col justify-center gap-5 overflow-y-scroll">
-	<div class="flex flex-wrap gap-2">
+<DeleteDrawerAlertDialog onClick={deleteQuiz} />
+
+<section class="flex w-full max-w-4xl flex-col justify-center gap-5 max-lg:px-2">
+	<div class="sticky top-0 z-50 flex flex-wrap gap-2 bg-white max-md:py-2">
 		<Button size="sm" variant="outline" on:click={() => (hiddenExamples = !hiddenExamples)}>
 			{#if hiddenExamples}
 				<span>Show examples</span>
@@ -122,9 +142,9 @@
 		</Button>
 		<Button size="sm" variant="outline" on:click={() => (sortedByDate = !sortedByDate)}>
 			{#if sortedByDate}
-				<ArrowDown10 class="size-5 mr-2" />
+				<ArrowDown10 class="mr-2 size-5" />
 			{:else}
-				<ArrowDown01 class="size-5 mr-2" />
+				<ArrowDown01 class="mr-2 size-5" />
 			{/if}
 			<span>Sorted by date</span>
 		</Button>
@@ -193,18 +213,43 @@
 				href={`/games/quizzes/${quiz.id}`}
 			>
 				<div class="space-y-2">
-					<div class="flex justify-between">
-						<h4 class="text-xl font-medium">Quiz: {quiz.name}</h4>
+					<div class="flex items-start justify-between gap-2">
+						<Tooltip.Root>
+							<ScrollArea class="max-w-fit" orientation="horizontal">
+								<Tooltip.Trigger>
+									<h4 class="text-left text-xl font-medium sm:truncate">Quiz: {quiz.name}</h4>
+								</Tooltip.Trigger>
+							</ScrollArea>
+							<Tooltip.Content>
+								<p>{quiz.name}</p>
+							</Tooltip.Content>
+						</Tooltip.Root>
 
+						{#if quiz.id !== 'hiragana' && quiz.id !== 'katakana'}
+							<DeleteTrashButton
+								{loading}
+								className="my-auto"
+								onClick={(e) => {
+									e.preventDefault();
+									currentQuiz = quiz;
+									$deleteHistoryOpen = true;
+								}}
+							/>
+						{/if}
+					</div>
+
+					<div class="flex gap-2">
 						<Badge variant="outline">
 							{quiz.type}
 						</Badge>
-					</div>
 
-					<span class="line-clamp-3 text-left text-sm">Amount: {quiz.maxCount}</span>
+						<Badge variant="outline">
+							{quiz.maxCount}
+						</Badge>
+					</div>
 				</div>
 
-				<div class="flex justify-between">
+				<div class="flex flex-wrap justify-between gap-2">
 					<button
 						class="self-center rounded-full font-bold"
 						on:click={() => {
@@ -222,17 +267,6 @@
 							on:click={() => goto(`/games/quizzes/${quiz.id}`)}
 						>
 							Continue from {JSON.parse(anyProgress).length}
-						</button>
-					{/if}
-
-					{#if quiz.id !== 'hiragana' && quiz.id !== 'katakana'}
-						<button
-							class="self-center rounded-full font-bold text-red-600"
-							on:click|preventDefault={async () => {
-								await deleteQuiz(quiz);
-							}}
-						>
-							Delete
 						</button>
 					{/if}
 				</div>

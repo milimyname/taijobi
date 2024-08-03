@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { ArrowLeft } from 'lucide-svelte';
+	import { Button } from '$lib/components/ui/button';
 </script>
 
 <svelte:head>
@@ -8,19 +9,19 @@
 	<meta name="description" content="Quizzes" />
 </svelte:head>
 
-<main class="flex h-dvh select-none flex-col items-center overflow-hidden bg-white px-3 py-5">
-	<nav class="flex w-full py-5 md:px-5">
-		<a
-			href={$page.params.slug ? '/games/quizzes' : '/games'}
-			class="group flex items-center gap-2"
-			data-sveltekit-preload-data
-		>
-			<ArrowLeft
-				class="size-4 transition-transform group-hover:-translate-x-2 group-active:-translate-x-2"
-			/>
-			<span>Back</span>
-		</a>
+<main class="flex h-dvh flex-col items-center bg-white transition-all">
+	<nav class="flex w-full p-2 py-3 sm:px-3 sm:py-5">
+		<Button size="icon" variant="none">
+			<a
+				href={$page.params.slug ? '/games/quizzes' : '/'}
+				class="go-back-btn group"
+				data-sveltekit-preload-data
+			>
+				<ArrowLeft
+					class="size-4 transition-transform  group-hover:-translate-x-2 group-active:-translate-x-2"
+				/>
+			</a>
+		</Button>
 	</nav>
-
 	<slot />
 </main>

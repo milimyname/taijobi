@@ -101,9 +101,9 @@
 
 		setTimeout(() => ($deleteHistoryOpen = false), 150);
 
-		goto('/');
+		toast.success('Quizzes deleted successfully. Redirecting to the home page...');
 
-		toast.success('Search history deleted successfully. Redirecting to the home page...');
+		goto('/');
 	}
 
 	$: sortedSearches = (() => {
@@ -142,7 +142,7 @@
 	>
 		<DrawerDialog.Header class="space-y-2 p-5 pb-0 text-left max-md:mb-5">
 			<DrawerDialog.Title className="flex py-2 justify-between items-center">
-				<span>Leave a feedback or report a bug!</span>
+				<span> Search History </span>
 				<DeleteTrashButton {loading} />
 			</DrawerDialog.Title>
 			<DrawerDialog.Description className="flex gap-1 sm:gap-2">
