@@ -65,10 +65,9 @@
 			<fieldset class="flex w-full flex-col md:w-2/3">
 				<label for="email" class="hidden">Email</label>
 				<input
-					type="text"
+					type="email"
 					name="email"
 					placeholder="email"
-					type='email'
 					class="
                     block
                     rounded-md
