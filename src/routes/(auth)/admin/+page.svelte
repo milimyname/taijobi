@@ -26,6 +26,7 @@
 			<input
 				type="text"
 				name="email"
+				type='email'
 				placeholder="Email"
 				class="
                     block

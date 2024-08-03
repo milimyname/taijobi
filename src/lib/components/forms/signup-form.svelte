@@ -30,7 +30,7 @@
 		<Form.Field {form} name="email" class="flex w-full flex-col md:w-2/3">
 			<Form.Control let:attrs>
 				<Form.Label>Email</Form.Label>
-				<Input {...attrs} bind:value={$formData.email} />
+				<Input {...attrs} bind:value={$formData.email} type="email" />
 			</Form.Control>
 			<Form.FieldErrors />
 		</Form.Field>

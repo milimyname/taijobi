@@ -68,6 +68,7 @@
 					type="text"
 					name="email"
 					placeholder="email"
+					type='email'
 					class="
                     block
                     rounded-md

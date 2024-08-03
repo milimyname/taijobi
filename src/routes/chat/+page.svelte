@@ -9,6 +9,7 @@
 	import { pocketbase } from '$lib/utils/pocketbase';
 	import { page } from '$app/stores';
 	import { chats } from '$lib/utils/stores';
+	import { browser } from '$app/environment';
 
 	const { input, handleSubmit, messages, isLoading } = useChat({
 		api: '/api/openai/chat',
@@ -74,14 +75,17 @@
 		}
 	});
 
-	// Update the height of the textarea based on the input content
-	$: if (typeof window !== 'undefined' && $input) {
+	$: if (browser && $input) {
 		const textarea = document.querySelector('textarea');
-		if (textarea)
+		if (textarea) {
+			// Reset the height
+			textarea.style.height = 'auto';
+			// Set the new height
 			textarea.style.height = (textarea.scrollHeight > 40 ? textarea.scrollHeight : 40) + 'px';
+		}
 	}
 
-	$: if (typeof window !== 'undefined' && $input === '') {
+	$: if (browser && $input === '') {
 		const textarea = document.querySelector('textarea');
 		if (textarea) textarea.style.height = '40px';
 	}
