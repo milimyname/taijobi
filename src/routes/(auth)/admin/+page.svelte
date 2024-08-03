@@ -24,9 +24,8 @@
 		<fieldset class="flex w-full flex-col md:w-2/3">
 			<label for="name" class="hidden">Email</label>
 			<input
-				type="text"
+				type="email"
 				name="email"
-				type='email'
 				placeholder="Email"
 				class="
                     block
