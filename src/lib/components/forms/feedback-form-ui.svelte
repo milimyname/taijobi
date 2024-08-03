@@ -74,7 +74,7 @@
 	{#if !hide}
 		<DrawerDialog.Trigger asChild>
 			<div
-				class="feedback-btn absolute left-1/2 top-8 z-10 flex -translate-x-1/2 -translate-y-1/2 justify-center gap-5 px-4 py-2"
+				class="feedback-btn fixed left-1/2 top-8 z-10 flex -translate-x-1/2 -translate-y-1/2 justify-center gap-5 px-4 py-2"
 			>
 				<button on:click={() => ($clickedFeedback = !$clickedFeedback)}>
 					{animationText}
