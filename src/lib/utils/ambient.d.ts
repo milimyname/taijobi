@@ -30,7 +30,7 @@ export type FlashcardType = {
 	meaning: string;
 	notes?: string;
 	customFurigana?: string;
-	romanji?: string;
+	romaji?: string;
 	id?: string;
 	type?: string;
 	furigana?: string;

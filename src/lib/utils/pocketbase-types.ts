@@ -67,7 +67,7 @@ export type FlashcardRecord = {
 	name?: string;
 	notes?: string;
 	partOfSpeech?: FlashcardPartOfSpeechOptions;
-	romanji?: string;
+	romaji?: string;
 	searches?: RecordIdString[];
 	type?: FlashcardTypeOptions;
 };

@@ -183,10 +183,10 @@
 					<p class=" text-sm text-gray-300">Custom furigana</p>
 				</div>
 			{/if}
-			{#if wordFlashcard?.romanji}
+			{#if wordFlashcard?.romaji}
 				<div class="justify-self-end sm:justify-self-start">
-					<h2 class="text-xl font-medium">{wordFlashcard.romanji}</h2>
-					<p class=" text-sm text-gray-300">Romanji/Furigana</p>
+					<h2 class="text-xl font-medium">{wordFlashcard.romaji}</h2>
+					<p class=" text-sm text-gray-300">Romaji/Furigana</p>
 				</div>
 			{/if}
 

@@ -97,7 +97,7 @@
 						id: wordFlashcard?.id,
 						notes: wordFlashcard?.notes,
 						type: wordFlashcard?.type ?? '',
-						romanji: wordFlashcard?.romanji,
+						romaji: wordFlashcard?.romaji,
 					},
 				});
 

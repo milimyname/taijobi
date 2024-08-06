@@ -56,7 +56,7 @@ export const actions = {
 			await locals.pb.collection('flashcard').create({
 				name,
 				meaning: form.data.meaning,
-				romanji: form.data.romanji,
+				romaji: form.data.romaji,
 				furigana: form.data.name,
 				type: form.data.type,
 				partOfSpeech: classifyWord(name),
@@ -106,7 +106,7 @@ export const actions = {
 			await locals.pb.collection('flashcard').update(form.data.id, {
 				name,
 				meaning: form.data.meaning,
-				romanji: form.data.romanji || '',
+				romaji: form.data.romaji || '',
 				furigana: form.data.name,
 				partOfSpeech: classifyWord(name),
 				type: form.data.type,

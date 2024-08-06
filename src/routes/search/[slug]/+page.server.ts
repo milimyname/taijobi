@@ -82,7 +82,7 @@ async function createCopiedFlashcards(
 						name: flashcard?.name,
 						meaning: flashcard?.meaning,
 						type: flashcard?.type,
-						romanji: flashcard?.romanji,
+						romaji: flashcard?.romaji,
 						furigana: flashcard?.furigana,
 						partOfSpeech: flashcard?.partOfSpeech,
 						copiedFlashcard: flashcard?.id,

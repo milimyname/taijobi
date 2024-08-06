@@ -35,7 +35,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 
 	const flashcards = await locals.pb.collection('flashcard').getFullList({
 		filter: `flashcardBox = "${flashcardBoxId}"`,
-		fields: `id, name, meaning, romanji, furigana, type, notes, partOfSpeech`,
+		fields: `id, name, meaning, romaji, furigana, type, notes, partOfSpeech`,
 	});
 
 	const processedFlashcards = await Promise.all(
@@ -90,7 +90,7 @@ export const POST: RequestHandler = async ({ locals, request, fetch }) => {
 				name: isRomaji(data.name) ? data.meaning : data.name,
 				meaning: meaning.includes(';') ? meaning.split(';').join(',') : meaning,
 				type,
-				romanji: data.romanji,
+				romaji: data.romaji,
 				furigana,
 				partOfSpeech,
 			});
@@ -178,7 +178,7 @@ export const POST: RequestHandler = async ({ locals, request, fetch }) => {
 				name: isRomaji(data.name) ? data.meaning : data.name,
 				meaning: meaning.includes(';') ? meaning.split(';').join(',') : meaning,
 				type,
-				romanji: data.romanji,
+				romaji: data.romaji,
 				furigana,
 				partOfSpeech,
 			});

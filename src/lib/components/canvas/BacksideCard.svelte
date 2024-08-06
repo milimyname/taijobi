@@ -39,7 +39,7 @@
 	)
 		replaceStateWithQuery({
 			letter: $currentLetter,
-			romanji: toRomaji($currentLetter),
+			romaji: toRomaji($currentLetter),
 		});
 </script>
 
@@ -92,7 +92,7 @@
 			<h2 class="col-span-2 text-center text-6xl xm:text-9xl">{$currentLetter}</h2>
 			<div>
 				<h2 class="text-lg font-medium">{toRomaji($currentLetter)}</h2>
-				<p class=" text-sm text-gray-300 sm:text-sm">Romanji</p>
+				<p class=" text-sm text-gray-300 sm:text-sm">Romaji</p>
 			</div>
 		{/if}
 	</div>

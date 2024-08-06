@@ -65,7 +65,7 @@
 				name: box?.expand?.flashcard?.name,
 				meaning: box?.expand?.flashcard?.meaning,
 				furigana: box?.expand?.flashcard?.furigana,
-				romanji: box?.expand?.flashcard?.romanji,
+				romaji: box?.expand?.flashcard?.romaji,
 				partOfSpeech: box?.expand?.flashcard?.partOfSpeech,
 				type: box?.expand?.flashcard?.type,
 			};
@@ -85,8 +85,8 @@
 		</DrawerDialog.Trigger>
 	</div>
 
-	<DrawerDialog.Content class="z-[101] px-0 drawerNested w-full md:max-w-xl">
-		<DrawerDialog.Header class="text-left overflow-hidden px-0">
+	<DrawerDialog.Content class="drawerNested z-[101] w-full px-0 md:max-w-xl">
+		<DrawerDialog.Header class="overflow-hidden px-0 text-left">
 			<DrawerDialog.Title className="px-5">Add a new flashcards box</DrawerDialog.Title>
 			<DrawerDialog.Description className="px-5">
 				Select a collection and a box to add the selected flashcards to.
@@ -95,10 +95,10 @@
 				<div class="flex space-x-4 pb-3 pl-5">
 					{#each $selectedSearchFlashcards as box}
 						<Card.Root
-							class="cursor-pointer hover:shadow-md transition-shadow duration-300 ease-linear flex flex-col justify-between"
+							class="flex cursor-pointer flex-col justify-between transition-shadow duration-300 ease-linear hover:shadow-md"
 						>
 							<Card.Header class="relative">
-								<Card.Title class="truncate overflow-x-auto">
+								<Card.Title class="overflow-x-auto truncate">
 									{box?.expand?.flashcard?.name}
 								</Card.Title>
 

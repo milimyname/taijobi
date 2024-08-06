@@ -24,9 +24,9 @@ export const POST = async ({ request, locals }) => {
 					translation: z.string(),
 					type: z.enum(['word', 'phrase', 'kanji']),
 					partOfSpeech: z.enum(['verb', 'adjective', 'unknown']),
-					romanji: z.string(),
+					romaji: z.string(),
 				}),
-				execute: async ({ name, translation, type, partOfSpeech, romanji }) => {
+				execute: async ({ name, translation, type, partOfSpeech, romaji }) => {
 					const flashcardName = isRomaji(name) ? translation : name;
 					const meaning = isRomaji(name) ? name : translation;
 
@@ -35,7 +35,7 @@ export const POST = async ({ request, locals }) => {
 						name: flashcardName,
 						meaning: meaning.includes(';') ? meaning.split(';').join(',') : meaning,
 						type,
-						romanji,
+						romaji,
 						partOfSpeech,
 					});
 

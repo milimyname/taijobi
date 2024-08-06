@@ -7,7 +7,7 @@ interface Found {
 	name: string;
 	meaning: string;
 	partOfspeech?: string;
-	romanji?: string;
+	romaji?: string;
 	furigana?: string;
 }
 
@@ -86,7 +86,7 @@ export async function POST({ request, locals }) {
 							"name": "走る",
 							"meaning": "to run",
 							"partOfspeech": "verb",
-							"romanji": "hashiru",
+							"romaji": "hashiru",
 							"furigana": "はしる",
 							"type": "word",
 						}
@@ -156,7 +156,7 @@ export async function POST({ request, locals }) {
 							"type": "word",
 							"meaning": "to run",
 							"partOfspeech": "verb",
-							"romanji": "hashiru",
+							"romaji": "hashiru",
 							"furigana": "はしる",
 						}
 						
@@ -166,7 +166,7 @@ export async function POST({ request, locals }) {
 							"type": "phrase",
 							"meaning": "new word",
 							"partOfspeech": "unknown",
-							"romanji": "atarashii kotoba",
+							"romaji": "atarashii kotoba",
 							"furigana": "あたらしいことば",
 						}
 					`,

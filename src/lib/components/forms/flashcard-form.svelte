@@ -58,7 +58,7 @@
 								y: 1000,
 								easing: quintOut,
 							}}
-							class="z-[100] isolate absolute bottom-0 left-0 h-2/3 w-full rounded-md bg-blue-200 p-4 text-black"
+							class="absolute bottom-0 left-0 isolate z-[100] h-2/3 w-full rounded-md bg-blue-200 p-4 text-black"
 						>
 							<p>If you wanna use custom furigana, please use the following format:</p>
 							<ul class="my-2 text-xl">
@@ -119,10 +119,10 @@
 		</Form.Field>
 
 		{#if $currentFlashcardTypeStore !== 'kanji'}
-			<Form.Field {form} name="romanji">
+			<Form.Field {form} name="romaji">
 				<Form.Control let:attrs>
-					<Form.Label>Romanji/Furigana</Form.Label>
-					<Input {...attrs} bind:value={$formData.romanji} />
+					<Form.Label>Romaji/Furigana</Form.Label>
+					<Input {...attrs} bind:value={$formData.romaji} />
 				</Form.Control>
 				<Form.FieldErrors />
 			</Form.Field>
