@@ -1,9 +1,5 @@
 <script lang="ts">
-	import {
-		clickedEditFlashcard,
-		currentFlashcardTypeStore,
-		clickedAddFlashcardCollection,
-	} from '$lib/utils/stores';
+	import { clickedEditFlashcard, currentFlashcardTypeStore } from '$lib/utils/stores';
 	import * as Select from '$lib/components/ui/select';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
@@ -24,6 +20,11 @@
 
 	const { form: formData, enhance } = form;
 
+	function handleInput(event: Event, field: string) {
+		const target = event.target as HTMLInputElement | HTMLTextAreaElement;
+		$formData[field] = target.value;
+	}
+
 	$: selected = {
 		value: $formData.type,
 		label: $formData.type,
@@ -32,8 +33,9 @@
 
 <form
 	method="POST"
+	action="?/delete"
 	use:enhance
-	class={cn('quiz-form z-[1000] flex w-full flex-col', !$isDesktop && 'px-4')}
+	class={cn('quiz-form w-full', !$isDesktop && 'px-4')}
 >
 	<div class="mb-auto flex flex-col gap-2">
 		<Form.Field {form} name="name">
@@ -77,7 +79,7 @@
 						</div>
 					{/if}
 				</Form.Label>
-				<Input {...attrs} bind:value={$formData.name} />
+				<Input {...attrs} value={$formData.name} on:change={(e) => handleInput(e, 'name')} />
 			</Form.Control>
 			<Form.FieldErrors />
 		</Form.Field>
@@ -113,7 +115,7 @@
 		<Form.Field {form} name="meaning">
 			<Form.Control let:attrs>
 				<Form.Label>Meaning</Form.Label>
-				<Input {...attrs} bind:value={$formData.meaning} />
+				<Input {...attrs} value={$formData.meaning} on:change={(e) => handleInput(e, 'meaning')} />
 			</Form.Control>
 			<Form.FieldErrors />
 		</Form.Field>
@@ -122,7 +124,7 @@
 			<Form.Field {form} name="romaji">
 				<Form.Control let:attrs>
 					<Form.Label>Romaji/Furigana</Form.Label>
-					<Input {...attrs} bind:value={$formData.romaji} />
+					<Input {...attrs} value={$formData.romaji} on:change={(e) => handleInput(e, 'romaji')} />
 				</Form.Control>
 				<Form.FieldErrors />
 			</Form.Field>
@@ -131,30 +133,25 @@
 		<Form.Field {form} name="notes">
 			<Form.Control let:attrs>
 				<Form.Label>Notes</Form.Label>
-				<Textarea {...attrs} class="resize-none" bind:value={$formData.notes} />
+				<Textarea
+					{...attrs}
+					class="resize-none"
+					value={$formData.notes}
+					on:change={(e) => handleInput(e, 'notes')}
+				/>
 			</Form.Control>
 			<Form.FieldErrors />
 		</Form.Field>
 
-		<input type="hidden" name="id" bind:value={$formData.id} />
+		<input type="hidden" name="id" value={$formData.id} />
 	</div>
 
-	{#if !$clickedEditFlashcard && $clickedAddFlashcardCollection}
-		<button formaction="?/add" class="cursor-not-allowed" {disabled}>
-			<slot name="add" />
+	{#if $clickedEditFlashcard}
+		<button formaction="?/update" class="w-full" {disabled}>
+			<slot name="update" />
 		</button>
-	{:else if $clickedEditFlashcard}
-		<div class="grid grid-cols-3 gap-2">
-			<button formaction="?/delete">
-				<slot name="delete" />
-			</button>
-
-			<button formaction="?/update" class="col-span-2 cursor-not-allowed" {disabled}>
-				<slot name="update" />
-			</button>
-		</div>
 	{:else}
-		<button formaction="?/add" {disabled}>
+		<button formaction="?/add" class="w-full" {disabled}>
 			<slot name="add" />
 		</button>
 	{/if}

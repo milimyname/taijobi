@@ -10,11 +10,12 @@
 		canIdrawMultipleTimes,
 	} from '$lib/utils/stores';
 	import { page } from '$app/stores';
-	import { ArrowLeft, FolderPlus } from 'lucide-svelte';
+	import { ArrowLeft, Settings } from 'lucide-svelte';
 	import { getLocalStorageItem } from '$lib/utils/localStorage.js';
 	import { goto } from '$app/navigation';
 	import { removeAllItemsWithPrefixFromLocalStorage } from '$lib/utils';
 	import { Button } from '$lib/components/ui/button';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 
 	export let data;
 
@@ -25,6 +26,12 @@
 	}
 
 	$: $flashcardsBoxType = getLocalStorageItem('flashcardsBoxType') as string;
+
+	$: showSettings =
+		data.isLoggedIn &&
+		(data.isAdmin ||
+			($flashcardsBoxType && $flashcardsBoxType !== 'original') ||
+			($page.route.id && $page.route.id.endsWith('/flashcards')));
 </script>
 
 <svelte:head>
@@ -32,8 +39,8 @@
 	<meta name="Flashcards" content="Flashcards" />
 </svelte:head>
 
-<main class="flex h-dvh flex-col items-center bg-white transition-all">
-	<nav class="flex w-full items-center justify-between p-5 sm:py-5">
+<main class="flex h-dvh w-screen flex-col items-center overflow-hidden bg-white">
+	<nav class="flex w-full items-center justify-between p-5">
 		<Button
 			size="icon"
 			variant="none"
@@ -62,29 +69,21 @@
 			/>
 		</Button>
 
-		{#if data.isLoggedIn}
-			{#if data.isAdmin}
-				<button
-					on:click={handleAddFlashcardCollection}
-					class="add-btn transition-all hover:scale-110 active:scale-110"
-				>
-					<FolderPlus />
-				</button>
-			{:else if $flashcardsBoxType && $flashcardsBoxType !== 'original'}
-				<button
-					on:click={handleAddFlashcardCollection}
-					class="add-btn transition-all hover:scale-110 active:scale-110"
-				>
-					<FolderPlus />
-				</button>
-			{:else if $page.route.id && $page.route.id.endsWith('/flashcards')}
-				<button
-					on:click={handleAddFlashcardCollection}
-					class="add-btn transition-all hover:scale-110 active:scale-110"
-				>
-					<FolderPlus />
-				</button>
-			{/if}
+		{#if showSettings}
+			<DropdownMenu.Root>
+				<DropdownMenu.Trigger class="add-btn">
+					<Settings class="size-4 " />
+				</DropdownMenu.Trigger>
+
+				<DropdownMenu.Content>
+					<DropdownMenu.Item>Box Info</DropdownMenu.Item>
+					<DropdownMenu.Item on:click={handleAddFlashcardCollection}>New</DropdownMenu.Item>
+				</DropdownMenu.Content>
+			</DropdownMenu.Root>
+
+			<!-- <Button variant="none" size="icon" on:click={handleAddFlashcardCollection}>
+				<Settings class="size-4 " />
+			</Button> -->
 		{/if}
 	</nav>
 

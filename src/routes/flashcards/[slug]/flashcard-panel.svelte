@@ -20,6 +20,7 @@
 	import type { Infer, SuperForm } from 'sveltekit-superforms';
 	import type { FlashcardSchema } from '$lib/utils/zodSchema';
 	import { Button } from '$lib/components/ui/button/';
+	import * as Tooltip from '$lib/components/ui/tooltip';
 
 	export let wordFlashcard: FlashcardType | undefined;
 
@@ -71,64 +72,115 @@
 <div class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white">
 	<CallbackBtn />
 
-	<Button
-		variant="none"
-		size="icon"
-		class="size-fit"
-		{loading}
-		disabled={loading}
-		on:click={async () => {
-			if (audioSource === '') await convertTextToSpeech();
-			if (audioElement) audioElement.play();
-		}}
-	>
-		<Volume2 class="size-4" />
-	</Button>
+	<Tooltip.Root>
+		<Tooltip.Trigger>
+			<Button
+				variant="none"
+				size="icon"
+				class="flex items-center"
+				{loading}
+				disabled={loading}
+				on:click={async () => {
+					if (audioSource === '') await convertTextToSpeech();
+					if (audioElement) audioElement.play();
+				}}
+			>
+				<Volume2 class="size-4" />
+			</Button>
+		</Tooltip.Trigger>
+		<Tooltip.Content>
+			<p>Play audio</p>
+		</Tooltip.Content>
+	</Tooltip.Root>
 
-	<button on:click={() => ($canIdrawMultipleTimes = true)}>
-		<GalleryHorizontalEnd class="size-4" />
-	</button>
+	<Tooltip.Root>
+		<Tooltip.Trigger>
+			<Button
+				variant="none"
+				size="icon"
+				class="flex items-center"
+				on:click={() => ($canIdrawMultipleTimes = true)}
+			>
+				<GalleryHorizontalEnd class="size-4" />
+			</Button>
+		</Tooltip.Trigger>
+		<Tooltip.Content>
+			<p>Draw multiple times</p>
+		</Tooltip.Content>
+	</Tooltip.Root>
 
 	{#if showEdit}
-		<button
-			on:click={() => {
-				$clickedAddFlashcardCollection = true;
-				$clickedEditFlashcard = true;
+		<Tooltip.Root>
+			<Tooltip.Trigger>
+				<Button
+					variant="none"
+					size="icon"
+					class="flex items-center"
+					on:click={() => {
+						$clickedAddFlashcardCollection = true;
+						$clickedEditFlashcard = true;
 
-				// Fill out the form with the current card data
-				reset({
-					data: {
-						...$formData,
-						name: wordFlashcard?.customFurigana
-							? wordFlashcard?.customFurigana
-							: wordFlashcard?.name,
-						meaning: wordFlashcard?.meaning,
-						id: wordFlashcard?.id,
-						notes: wordFlashcard?.notes,
-						type: wordFlashcard?.type ?? '',
-						romaji: wordFlashcard?.romaji,
-					},
-				});
+						// Fill out the form with the current card data
+						reset({
+							data: {
+								...$formData,
+								name: wordFlashcard?.customFurigana
+									? wordFlashcard?.customFurigana
+									: wordFlashcard?.name,
+								meaning: wordFlashcard?.meaning,
+								id: wordFlashcard?.id,
+								notes: wordFlashcard?.notes,
+								type: wordFlashcard?.type ?? '',
+								romaji: wordFlashcard?.romaji,
+							},
+						});
 
-				$currentFlashcardTypeStore = wordFlashcard?.type ?? '';
-			}}
-		>
-			<ArrowUpCircle class="size-4" />
-		</button>
+						$currentFlashcardTypeStore = wordFlashcard?.type ?? '';
+					}}
+				>
+					<ArrowUpCircle class="size-4" />
+				</Button>
+			</Tooltip.Trigger>
+			<Tooltip.Content>
+				<p>Edit</p>
+			</Tooltip.Content>
+		</Tooltip.Root>
 	{/if}
 
 	{#if !isNonJapanase($currentFlashcard)}
-		<button
-			on:click={() => {
-				$showLetterDrawing = true;
-				$showProgressSlider = false;
-			}}
-		>
-			<PenTool class="size-4" />
-		</button>
+		<Tooltip.Root>
+			<Tooltip.Trigger>
+				<Button
+					variant="none"
+					size="icon"
+					class="flex items-center"
+					on:click={() => {
+						$showLetterDrawing = true;
+						$showProgressSlider = false;
+					}}
+				>
+					<PenTool class="size-4" />
+				</Button>
+			</Tooltip.Trigger>
+			<Tooltip.Content>
+				<p>Draw each letter</p>
+			</Tooltip.Content>
+		</Tooltip.Root>
 	{/if}
 
-	<button on:click|preventDefault={() => ($showCustomContent = !$showCustomContent)}>
-		<Box class="size-4" />
-	</button>
+	<Tooltip.Root>
+		<Tooltip.Trigger>
+			<Button
+				variant="none"
+				size="icon"
+				class="flex items-center"
+				on:click={() => ($showCustomContent = !$showCustomContent)}
+			>
+				<Box class="size-4" />
+			</Button>
+		</Tooltip.Trigger>
+		<Tooltip.Content>
+			<p>Custom content</p>
+		</Tooltip.Content>
+	</Tooltip.Root>
 </div>

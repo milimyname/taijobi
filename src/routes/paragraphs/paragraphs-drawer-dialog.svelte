@@ -4,7 +4,7 @@
 	import * as DrawerDialog from '$lib/components/ui/drawer-dialog';
 	import type { RecordModel } from 'pocketbase';
 	import * as Card from '$lib/components/ui/card';
-	import { openHistory, deleteHistoryOpen, paragraphs } from '$lib/utils/stores';
+	import { openHistory, deleteDrawerDialogOpen, paragraphs } from '$lib/utils/stores';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index';
 	import { goto } from '$app/navigation';
 	import { ArrowDown01, ArrowDown10, Plus } from 'lucide-svelte';
@@ -28,8 +28,8 @@
 	}
 
 	function onClickOutSideClick(e: PointerEvent | MouseEvent | TouchEvent) {
-		// If deleteHistoryOpen is true, don't close the drawer
-		if ($deleteHistoryOpen) return;
+		// If deleteDrawerDialogOpen is true, don't close the drawer
+		if ($deleteDrawerDialogOpen) return;
 
 		onCloseDrawer();
 	}
@@ -48,7 +48,7 @@
 
 		$openHistory = false;
 
-		setTimeout(() => ($deleteHistoryOpen = false), 150);
+		setTimeout(() => ($deleteDrawerDialogOpen = false), 150);
 
 		goto('/paragraphs');
 
@@ -81,7 +81,7 @@
 
 <DrawerDialog.Root open={$openHistory} onOutsideClick={onClickOutSideClick} onClose={onCloseDrawer}>
 	<DrawerDialog.Content
-		className={cn('w-full max-h-[90dvh] md:max-w-2xl p-0', $deleteHistoryOpen && 'z-60')}
+		className={cn('w-full max-h-[90dvh] md:max-w-2xl p-0', $deleteDrawerDialogOpen && 'z-60')}
 	>
 		<DrawerDialog.Header class="space-y-2 p-5 pb-0 text-left max-md:mb-5">
 			<DrawerDialog.Title className="flex py-2 justify-between items-center">
@@ -136,7 +136,7 @@
 									class="size-fit"
 									on:click={() => {
 										currentParagraphs = p;
-										$deleteHistoryOpen = true;
+										$deleteDrawerDialogOpen = true;
 									}}
 								>
 									<EllipsisVertical class="size-4 " />

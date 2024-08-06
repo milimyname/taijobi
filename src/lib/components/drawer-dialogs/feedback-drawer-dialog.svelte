@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as DrawerDialog from '$lib/components/ui/drawer-dialog';
-	import { clickedFeedback, clickedReport, deleteHistoryOpen } from '$lib/utils/stores';
+	import { clickedFeedback, clickedReport, deleteDrawerDialogOpen } from '$lib/utils/stores';
 	import { Button } from '$lib/components/ui/button';
 	import { type FeedbackSchema } from '$lib/utils/zodSchema';
 	import { type SuperForm, type Infer } from 'sveltekit-superforms';
@@ -15,7 +15,7 @@
 	const { reset, isTainted, tainted, delayed } = form;
 
 	function onCloseDrawer() {
-		if ($deleteHistoryOpen) return;
+		if ($deleteDrawerDialogOpen) return;
 
 		setTimeout(() => {
 			$clickedReport = false;
@@ -26,7 +26,7 @@
 
 	function deleteFeedback() {
 		form.submit();
-		setTimeout(() => ($deleteHistoryOpen = false), 150);
+		setTimeout(() => ($deleteDrawerDialogOpen = false), 150);
 	}
 
 	$: disabled = !isTainted($tainted);
@@ -38,7 +38,7 @@
 	<DrawerDialog.Content
 		className={cn(
 			'max-md:fixed max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:flex max-md:h-full max-md:max-h-[96%] max-md:flex-col',
-			$deleteHistoryOpen && 'z-60',
+			$deleteDrawerDialogOpen && 'z-60',
 		)}
 	>
 		<DrawerDialog.Header class="text-left">

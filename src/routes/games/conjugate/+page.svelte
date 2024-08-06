@@ -12,7 +12,7 @@
 		openConjugation,
 		nestedSearchDrawerOpen,
 		selectedConjugatingFlashcards,
-		deleteHistoryOpen,
+		deleteDrawerDialogOpen,
 	} from '$lib/utils/stores';
 	import { setContext } from 'svelte';
 	import { toast } from 'svelte-sonner';
@@ -70,7 +70,7 @@
 	setContext('superConjugationForm', superConjugationForm);
 
 	function onOutsideClickDrawer() {
-		if ($deleteHistoryOpen) return;
+		if ($deleteDrawerDialogOpen) return;
 
 		setTimeout(() => {
 			showSettings = false;
@@ -109,7 +109,7 @@
 			console.error(error);
 		}
 
-		setTimeout(() => ($deleteHistoryOpen = false), 150);
+		setTimeout(() => ($deleteDrawerDialogOpen = false), 150);
 	}
 
 	const { submitting } = superConjugationForm;
@@ -142,7 +142,7 @@
 
 <DrawerDialog.Root open={showSettings} onOutsideClick={onOutsideClickDrawer} {onClose}>
 	<DrawerDialog.Content
-		className={cn('px-0', $deleteHistoryOpen && selectedConjugation?.id !== 'demo' && 'z-60')}
+		className={cn('px-0', $deleteDrawerDialogOpen && selectedConjugation?.id !== 'demo' && 'z-60')}
 	>
 		<DrawerDialog.Header class="overflow-hidden px-0 text-left">
 			<DrawerDialog.Title className="flex px-5 justify-between items-center">

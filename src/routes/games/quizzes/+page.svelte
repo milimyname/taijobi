@@ -17,7 +17,7 @@
 	import DeleteTrashButton from '$lib/components/delete-trash-button.svelte';
 	import DeleteDrawerAlertDialog from '$lib/components/drawer-alert-dialogs/delete-drawer-alert-dialog.svelte';
 	import { toast } from 'svelte-sonner';
-	import { deleteHistoryOpen } from '$lib/utils/stores';
+	import { deleteDrawerDialogOpen } from '$lib/utils/stores';
 
 	export let data;
 
@@ -123,7 +123,7 @@
 		// $openHistory = false;
 		loading = false;
 
-		setTimeout(() => ($deleteHistoryOpen = false), 150);
+		setTimeout(() => ($deleteDrawerDialogOpen = false), 150);
 
 		toast.success('Search history deleted successfully.');
 	}
@@ -232,7 +232,7 @@
 								onClick={(e) => {
 									e.preventDefault();
 									currentQuiz = quiz;
-									$deleteHistoryOpen = true;
+									$deleteDrawerDialogOpen = true;
 								}}
 							/>
 						{/if}

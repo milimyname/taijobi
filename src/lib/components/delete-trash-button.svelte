@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { deleteHistoryOpen } from '$lib/utils/stores';
+	import { deleteDrawerDialogOpen } from '$lib/utils/stores';
 	import { Trash2 } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { cn } from '$lib/utils';
@@ -13,10 +13,10 @@
 	size="icon"
 	{loading}
 	variant="none"
-	class={cn('size-fit', className)}
+	class={cn('p-2', className)}
 	on:click={(e) => {
 		onClick(e);
-		$deleteHistoryOpen = true;
+		$deleteDrawerDialogOpen = true;
 	}}
 >
 	<Trash2 class="size-4" />

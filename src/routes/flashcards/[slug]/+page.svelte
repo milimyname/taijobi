@@ -170,7 +170,7 @@
 
 <section
 	class={cn(
-		'flex h-full w-full flex-col items-center justify-center gap-5 lg:flex-col-reverse',
+		'flex size-full flex-col items-center justify-center gap-5 lg:flex-col-reverse',
 		!$showLetterDrawing && 'gap-5',
 	)}
 >

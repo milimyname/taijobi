@@ -79,6 +79,6 @@ export const nestedSearchDrawerOpen = writable(false);
 export const selectedSearchFlashcards = writable<any[]>([]);
 export const selectedConjugatingFlashcards = writable<FlashcardType[]>([]);
 export const feedbackDescription = writable('');
-export const deleteHistoryOpen = writable(false);
+export const deleteDrawerDialogOpen = writable(false);
 export const chats = writable<RecordModel[]>([]);
 export const paragraphs = writable<RecordModel[]>([]);

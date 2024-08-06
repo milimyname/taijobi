@@ -1,13 +1,13 @@
 <script lang="ts">
 	import * as DrawerAlertDialog from '$lib/components/ui/drawer-alert-dialog';
-	import { deleteHistoryOpen } from '$lib/utils/stores';
+	import { deleteDrawerDialogOpen } from '$lib/utils/stores';
 
 	export let onClick: () => void = () => {};
 
-	const onClose = () => setTimeout(() => ($deleteHistoryOpen = false), 100);
+	const onClose = () => setTimeout(() => ($deleteDrawerDialogOpen = false), 100);
 </script>
 
-<DrawerAlertDialog.Root open={$deleteHistoryOpen} {onClose}>
+<DrawerAlertDialog.Root open={$deleteDrawerDialogOpen} {onClose} dismissable={false}>
 	<slot />
 	<DrawerAlertDialog.Content className="drawerNested z-[104]">
 		<DrawerAlertDialog.Header>
