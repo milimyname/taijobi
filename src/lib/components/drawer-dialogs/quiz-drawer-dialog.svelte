@@ -9,11 +9,10 @@
 	export let total: number;
 	export let startOver: () => void;
 	export let progressData: ProgressDataItem[];
+	export let loading: boolean;
 
 	function onCloseDrawer() {
-		setTimeout(() => {
-			open = false;
-		}, 100);
+		setTimeout(() => (open = false), 100);
 	}
 
 	$: open = isWon;
@@ -45,7 +44,7 @@
 		{/if}
 		<Button on:click={startOver} class="max-sm:hidden">Start Over</Button>
 		<DrawerDialog.Footer className="md:hidden px-0">
-			<Button on:click={startOver} loading={false}>Start Over</Button>
+			<Button on:click={startOver} {loading} disabled={loading}>Start Over</Button>
 			<DrawerDialog.Close asChild let:builder>
 				<Button builders={[builder]} variant="outline">Cancel</Button>
 			</DrawerDialog.Close>

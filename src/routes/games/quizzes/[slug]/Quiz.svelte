@@ -53,12 +53,12 @@
 			style={`width: ${((timeLeft ?? 0) / duration) * 100}%;`}
 		/>
 		{#if type === 'name'}
-			<h2 class={flashcard.meaning.length > 2 ? 'text-2xl sm:text-4xl' : 'text-5xl sm:text-8xl'}>
-				{flashcard.meaning}
+			<h2 class={flashcard?.meaning.length > 2 ? 'text-2xl sm:text-4xl' : 'text-5xl sm:text-8xl'}>
+				{flashcard?.meaning}
 			</h2>
 		{:else}
-			<h2 class={flashcard.name.length > 2 ? 'text-3xl sm:text-4xl' : 'text-4xl  sm:text-8xl'}>
-				{flashcard.name}
+			<h2 class={flashcard?.name.length > 2 ? 'text-3xl sm:text-4xl' : 'text-4xl  sm:text-8xl'}>
+				{flashcard?.name}
 			</h2>
 		{/if}
 

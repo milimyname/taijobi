@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { ArrowLeft } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
+	import { ArrowLeft } from 'lucide-svelte';
 </script>
 
 <svelte:head>
-	<title>Search Word</title>
-	<meta name="description" content="Find a japanese word in Taijobi" />
+	<title>Feedbacks</title>
+	<meta name="Feedbacks" content="Feedbacks" />
 </svelte:head>
 
 <main class="flex h-dvh flex-col items-center bg-white p-2 transition-all sm:px-3 sm:py-5">
@@ -18,6 +18,5 @@
 			</a>
 		</Button>
 	</nav>
-
 	<slot />
 </main>

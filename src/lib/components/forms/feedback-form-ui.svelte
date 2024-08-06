@@ -6,7 +6,6 @@
 	import { page } from '$app/stores';
 	import { Search } from 'lucide-svelte';
 	import * as DrawerDialog from '$lib/components/ui/drawer-dialog';
-	import { goto } from '$app/navigation';
 
 	let animationText = '';
 	let isReversing = false;
@@ -94,7 +93,9 @@
 				<p class="text-sm">
 					You can see them here
 					<DrawerDialog.Close>
-						<Button href="/feedbacks" variant="link" class="p-0 underline">My Feedbacks</Button>
+						<a href="/feedbacks" class="underline" on:click={() => ($clickedFeedback = false)}>
+							My Feedbacks
+						</a>
 					</DrawerDialog.Close>
 				</p>
 			</DrawerDialog.Description>

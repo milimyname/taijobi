@@ -23,6 +23,7 @@
 	let duration = 10; // Time limit in seconds (e.g., 300 seconds for 5 minutes)
 	let timeLeft = duration;
 	let timer: ReturnType<typeof setInterval>;
+	let loading = false;
 
 	$: if (browser && currentFlashcard && !data.isKanjiQuiz)
 		replaceStateWithQuery({
@@ -230,6 +231,7 @@
 	}
 
 	function startOver() {
+		loading = true;
 		currentQuestion = 0;
 		progressData = [];
 		correctAnswers = 0;
@@ -237,6 +239,7 @@
 		localStorage.removeItem(`quizProgress_${data.quiz.id}`);
 		localStorage.removeItem(`flashcards_${data.quiz.id}`);
 		localStorage.removeItem(`currentQuestion_${data.quiz.id}`);
+		loading = false;
 	}
 
 	// If the user runs out of time, show the correct answer
@@ -255,7 +258,7 @@
 
 {#if isWon}
 	<div
-		class="pointer-events-none fixed -top-1/2 left-0 flex z-[100] h-screen w-screen justify-center overflow-hidden"
+		class="pointer-events-none fixed -top-1/2 left-0 z-[100] flex h-screen w-screen justify-center overflow-hidden"
 	>
 		<Confetti
 			x={[-5, 5]}
@@ -271,10 +274,12 @@
 		{isWon}
 		{startOver}
 		{correctAnswers}
+		{loading}
 		{progressData}
 		total={data.flashcards.length}
 	/>
 {/if}
+
 
 {#if currentFlashcard}
 	{#if flashcards.length > 0}
