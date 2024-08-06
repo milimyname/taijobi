@@ -26,6 +26,13 @@ const buttonVariants = tv({
 		variant: 'default',
 		size: 'default',
 	},
+	compoundVariants: [
+		{
+			variant: 'none',
+			size: 'icon',
+			class: 'size-fit',
+		},
+	],
 });
 
 type Variant = VariantProps<typeof buttonVariants>['variant'];

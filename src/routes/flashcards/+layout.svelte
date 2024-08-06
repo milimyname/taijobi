@@ -13,8 +13,8 @@
 	import { ArrowLeft, FolderPlus } from 'lucide-svelte';
 	import { getLocalStorageItem } from '$lib/utils/localStorage.js';
 	import { goto } from '$app/navigation';
-	import { NUM_OF_THUMBAILS } from '$lib/utils/constants';
 	import { removeAllItemsWithPrefixFromLocalStorage } from '$lib/utils';
+	import { Button } from '$lib/components/ui/button';
 
 	export let data;
 
@@ -29,14 +29,14 @@
 
 <svelte:head>
 	<title>Flashcards</title>
-	<meta name="description" content="Flashcards" />
+	<meta name="Flashcards" content="Flashcards" />
 </svelte:head>
 
-<main
-	class="flex h-dvh flex-col items-center overflow-hidden bg-white p-2 transition-all sm:px-3 sm:py-5"
->
-	<nav class="flex w-full justify-between px-2 py-3 xm:p-5">
-		<button
+<main class="flex h-dvh flex-col items-center bg-white transition-all">
+	<nav class="flex w-full items-center justify-between p-5 sm:py-5">
+		<Button
+			size="icon"
+			variant="none"
 			class="go-back-btn group flex items-center gap-2"
 			on:click={() => {
 				// Remove the flashcards box type from the local storage
@@ -60,8 +60,7 @@
 			<ArrowLeft
 				class="size-4 transition-transform  group-hover:-translate-x-2  group-active:-translate-x-2 "
 			/>
-			<span>Back</span>
-		</button>
+		</Button>
 
 		{#if data.isLoggedIn}
 			{#if data.isAdmin}

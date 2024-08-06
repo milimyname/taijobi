@@ -6,11 +6,11 @@
 
 <svelte:head>
 	<title>Quizzes</title>
-	<meta name="description" content="Quizzes" />
+	<meta name="Quizzes" content="Quizzes" />
 </svelte:head>
 
 <main class="flex h-dvh flex-col items-center bg-white transition-all">
-	<nav class="flex w-full p-2 py-3 sm:px-3 sm:py-5">
+	<nav class="flex w-full items-center p-5">
 		<Button size="icon" variant="none">
 			<a
 				href={$page.params.slug ? '/games/quizzes' : '/'}

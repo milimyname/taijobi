@@ -3,19 +3,16 @@
 </script>
 
 <svelte:head>
-	<title>Found Kanji</title>
-	<meta name="description" content="Flashcards" />
+	<title>Find Kanji</title>
+	<meta name="Find Kanji" content="Find Kanji" />
 </svelte:head>
 
-<main
-	class="flex h-[100dvh] flex-col items-center overflow-hidden bg-white p-2 transition-all sm:px-3 sm:py-5"
->
-	<nav class="flex w-full justify-between px-2 py-3 xm:p-5">
+<main class="flex h-dvh flex-col items-center bg-white transition-all">
+	<nav class="flex w-full items-center justify-between p-5">
 		<a href="/" class="go-back-btn group flex items-center gap-2" data-sveltekit-preload-data>
 			<ArrowLeft
 				class="size-4 transition-transform  group-hover:-translate-x-2  group-active:-translate-x-2 "
 			/>
-			<span>Back</span>
 		</a>
 	</nav>
 

@@ -8,7 +8,7 @@
 	import image from '$lib/static/taijobi.png';
 	import { pocketbase } from '$lib/utils/pocketbase';
 	import { Home, LogOut, Newspaper, GraduationCap, Menu } from 'lucide-svelte';
-	import { cn, getHotkeyPrefix, getRandomKanji } from '$lib/utils.js';
+	import { cn } from '$lib/utils.js';
 
 	let longPressTimer: any;
 	let isLongPress = false;

@@ -17,7 +17,7 @@
 <ChatDrawerDialog />
 
 <main class="flex h-dvh flex-col items-center bg-white transition-all">
-	<nav class="mb-auto flex w-full justify-between p-2 py-3 sm:px-3 sm:py-5">
+	<nav class="flex mb-auto w-full items-center justify-between p-5 sm:py-5">
 		<Button size="icon" variant="none">
 			<a href="/" class="go-back-btn group" data-sveltekit-preload-data>
 				<ArrowLeft

@@ -9,6 +9,7 @@
 		selectedQuizItems,
 	} from '$lib/utils/stores';
 	import { ArrowLeft, Search } from 'lucide-svelte';
+	import { Button } from '$lib/components/ui/button';
 
 	$: $innerWidthStore > IS_DESKTOP && ($showNav = false);
 
@@ -18,21 +19,22 @@
 	}
 </script>
 
-<main class="relative flex h-[100dvh] flex-col items-center p-2 sm:px-3 sm:py-5">
-	<nav class="relative flex w-full justify-between px-2 py-3 xm:p-5">
-		<a
-			href="/"
-			class="go-back-btn group group flex items-center gap-2"
-			on:click={() => {
-				$currentFlashcard = '';
-				$selectedQuizItems = [];
-			}}
-		>
-			<ArrowLeft
-				class="size-4 transition-transform group-hover:-translate-x-2 group-active:-translate-x-2"
-			/>
-			<span>Back</span>
-		</a>
+<main class="flex h-dvh flex-col items-center bg-white p-2 transition-all sm:px-3 sm:py-5">
+	<nav class="relative flex w-full items-center justify-between p-5">
+		<Button size="icon" variant="none">
+			<a
+				href="/"
+				class="go-back-btn group group flex items-center gap-2"
+				on:click={() => {
+					$currentFlashcard = '';
+					$selectedQuizItems = [];
+				}}
+			>
+				<ArrowLeft
+					class="size-4 transition-transform group-hover:-translate-x-2 group-active:-translate-x-2"
+				/>
+			</a>
+		</Button>
 
 		{#if $currentAlphabet === 'kanji'}
 			<div class="kanji-search flex flex-row-reverse">

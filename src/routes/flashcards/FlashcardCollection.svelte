@@ -85,7 +85,7 @@
 		}
 	}
 
-	function onClick() {
+	function onClick(event: MouseEvent) {
 		if (
 			(!isDragging && index !== totalCount - 1) ||
 			$clickedAddFlashcardCollection ||
@@ -94,6 +94,11 @@
 			$openSearch
 		)
 			return;
+
+		// If the user clicks on the add button, don't move the card
+		if ((event.target as Element).closest('.go-back-btn')) {
+			return $page.route.id && goto('/');
+		}
 
 		if ($rotateY > 15) {
 			isClicked = true;

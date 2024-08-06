@@ -19,18 +19,21 @@
 	import { getContext } from 'svelte';
 	import type { Infer, SuperForm } from 'sveltekit-superforms';
 	import type { FlashcardSchema } from '$lib/utils/zodSchema';
+	import { Button } from '$lib/components/ui/button/';
 
 	export let wordFlashcard: FlashcardType | undefined;
 
 	let islocalBoxTypeOriginal = getLocalStorageItem('flashcardsBoxType');
 	let audioSource = '';
 	let audioElement: HTMLAudioElement;
+	let loading = false;
 
 	let form: SuperForm<Infer<FlashcardSchema>> = getContext('flashcardForm');
 
 	const { form: formData, reset } = form;
 
 	async function convertTextToSpeech() {
+		loading = true;
 		try {
 			const res = await fetch('/api/openai', {
 				method: 'POST',
@@ -50,6 +53,7 @@
 		} catch (e) {
 			console.error(e);
 		}
+		loading = false;
 	}
 
 	$: if (wordFlashcard) audioSource = '';
@@ -67,14 +71,19 @@
 <div class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white">
 	<CallbackBtn />
 
-	<button
+	<Button
+		variant="none"
+		size="icon"
+		class="size-fit"
+		{loading}
+		disabled={loading}
 		on:click={async () => {
 			if (audioSource === '') await convertTextToSpeech();
 			if (audioElement) audioElement.play();
 		}}
 	>
 		<Volume2 class="size-4" />
-	</button>
+	</Button>
 
 	<button on:click={() => ($canIdrawMultipleTimes = true)}>
 		<GalleryHorizontalEnd class="size-4" />
