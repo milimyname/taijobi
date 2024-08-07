@@ -96,6 +96,9 @@
 			return;
 
 		// If the user clicks on the add button, don't move the card
+		if ((event.target as Element).closest('.add-btn')) return;
+
+		// If the user clicks on the add button, don't move the card
 		if ((event.target as Element).closest('.go-back-btn')) {
 			return $page.route.id && goto('/');
 		}

@@ -71,8 +71,8 @@
 
 		{#if showSettings}
 			<DropdownMenu.Root>
-				<DropdownMenu.Trigger class="add-btn">
-					<Settings class="size-4 " />
+				<DropdownMenu.Trigger>
+					<Settings class="add-btn size-4" />
 				</DropdownMenu.Trigger>
 
 				<DropdownMenu.Content>
@@ -80,10 +80,6 @@
 					<DropdownMenu.Item on:click={handleAddFlashcardCollection}>New</DropdownMenu.Item>
 				</DropdownMenu.Content>
 			</DropdownMenu.Root>
-
-			<!-- <Button variant="none" size="icon" on:click={handleAddFlashcardCollection}>
-				<Settings class="size-4 " />
-			</Button> -->
 		{/if}
 	</nav>
 
