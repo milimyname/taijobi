@@ -69,7 +69,7 @@
 
 			if (!newSearch) throw new Error('Failed to create search');
 
-			await pocketbase.collection('flashcard').update(currentHoveredFlashcard.id, {
+			pocketbase.collection('flashcard').update(currentHoveredFlashcard.id, {
 				'searches+': newSearch.id,
 			});
 
@@ -81,7 +81,7 @@
 
 	$: if (search === '') fetchedData = getRandomKanji();
 
-	$: if (search) setTimeout(async () => await fetchFlashcards(), 100);
+	$: if (search) setTimeout(() => fetchFlashcards(), 100);
 
 	$: if (search !== '' && fetchedData && fetchedData.length === 0) value = '';
 

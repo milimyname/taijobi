@@ -7,11 +7,23 @@
 	import { Toaster } from '$lib/components/ui/sonner';
 	import Kbd from '$lib/components/Kbd.svelte';
 	import { afterNavigate } from '$app/navigation';
+	import { onNavigate } from '$app/navigation';
 
 	// Clear strokes on navigation
 	afterNavigate(() => {
 		$strokes = [];
 		$openSearch = false;
+	});
+
+	onNavigate((navigation) => {
+		if (!document.startViewTransition) return;
+
+		return new Promise((resolve) => {
+			document.startViewTransition(async () => {
+				resolve();
+				await navigation.complete;
+			});
+		});
 	});
 </script>
 
