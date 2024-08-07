@@ -60,9 +60,8 @@
 				}
 
 				// on delete remove the feedback
-				if (event.action === 'delete') {
+				if (event.action === 'delete')
 					data.feedbacks = data.feedbacks.filter((feedback) => feedback.id !== event.record.id);
-				}
 			})
 			.catch((error) => {
 				console.error('----error', error);
