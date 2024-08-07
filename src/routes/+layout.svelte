@@ -6,13 +6,33 @@
 	import Search from '$lib/components/Search.svelte';
 	import { Toaster } from '$lib/components/ui/sonner';
 	import Kbd from '$lib/components/Kbd.svelte';
-	import { afterNavigate } from '$app/navigation';
-	import { onNavigate } from '$app/navigation';
+	import { afterNavigate, onNavigate } from '$app/navigation';
+	import { navigating } from '$app/stores';
+	import { LoaderCircle } from 'lucide-svelte';
+	import { onMount } from 'svelte';
+
+	let showLoader = false;
+	let navigationTimer: NodeJS.Timeout;
+
+	$: if ($navigating) {
+		navigationTimer = setTimeout(() => {
+			showLoader = true;
+		}, 2000);
+	} else {
+		if (navigationTimer) clearTimeout(navigationTimer);
+		showLoader = false;
+	}
 
 	// Clear strokes on navigation
 	afterNavigate(() => {
 		$strokes = [];
 		$openSearch = false;
+	});
+
+	onMount(() => {
+		return () => {
+			if (navigationTimer) clearTimeout(navigationTimer);
+		};
 	});
 
 	onNavigate((navigation) => {
@@ -34,5 +54,12 @@
 <Search />
 <Toaster />
 <Kbd />
+
+{#if showLoader}
+	<LoaderCircle
+		class="fixed left-1/2 top-1/2 size-20 -translate-x-1/2 -translate-y-1/2 transform"
+	/>
+	<div class="fixed inset-0 z-10 bg-background/80 backdrop-blur-sm" />
+{/if}
 
 <slot />

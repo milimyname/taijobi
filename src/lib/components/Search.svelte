@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { searchedWordStore, openSearch, searchKanji, flashcardBoxes } from '$lib/utils/stores';
+	import { searchedWordStore, openSearch, searchKanji } from '$lib/utils/stores';
 	import { onMount } from 'svelte';
 	import { cn, getRandomKanji } from '$lib/utils.js';
 	import * as Command from '$lib/components/ui/command';
