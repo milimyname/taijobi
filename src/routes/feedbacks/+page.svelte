@@ -10,6 +10,7 @@
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import FeedbackDrawerDialog from '$lib/components/drawer-dialogs/feedback-drawer-dialog.svelte';
 	import { setContext } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 
 	export let data;
 
@@ -39,6 +40,39 @@
 			},
 		});
 	}
+
+	onMount(() => {
+		// use client side pocketbase for subscriptions
+		pocketbase.authStore?.loadFromCookie(document.cookie || '');
+
+		pocketbase
+			.collection('feedbacks')
+			.subscribe('*', function (event) {
+				// on update or create replace the feedbacks
+				if (event.action === 'update' || event.action === 'create') {
+					// Find the index of the updated feedback
+					const index = data.feedbacks.findIndex((feedback) => feedback.id === event.record.id);
+
+					// If the feedback is found, update it
+					if (index !== -1) data.feedbacks[index] = event.record;
+					// If the feedback is not found, add it
+					else data.feedbacks = [event.record, ...data.feedbacks];
+				}
+
+				// on delete remove the feedback
+				if (event.action === 'delete') {
+					data.feedbacks = data.feedbacks.filter((feedback) => feedback.id !== event.record.id);
+				}
+			})
+			.catch((error) => {
+				console.error('----error', error);
+			});
+	});
+
+	onDestroy(() => {
+		// destroy client when component is destroyed
+		pocketbase?.authStore?.clear();
+	});
 
 	$: feedbacks = (() => {
 		// Then, sort the filtered quizzes based on sortedByDate
