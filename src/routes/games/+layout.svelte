@@ -85,7 +85,7 @@
 					<a href="/profile">
 						<Newspaper class="size-6" />
 					</a>
-					<form action="/logout" method="POST">
+					<form action="/logout" method="POST" on:click={() => localStorage.clear()}>
 						<button type="submit">
 							<LogOut class="size-6" />
 						</button>

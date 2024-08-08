@@ -27,7 +27,7 @@
 		<Form.Field {form} name="email" class="flex w-full flex-col md:w-2/3">
 			<Form.Control let:attrs>
 				<Form.Label>Email or username</Form.Label>
-				<Input {...attrs} type="email" bind:value={$formData.email} />
+				<Input {...attrs} bind:value={$formData.email} />
 			</Form.Control>
 			<Form.FieldErrors />
 		</Form.Field>

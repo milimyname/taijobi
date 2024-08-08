@@ -52,11 +52,11 @@
 >
 	<DrawerDialog.Content
 		className={cn(
-			'max-sm:fixed max-sm:bottom-0 max-sm:left-0 right-0 flex max-sm:max-h-[96%] flex-col',
+			'max-sm:fixed max-sm:bottom-0 max-sm:left-0  right-0 flex max-sm:max-h-[96%] flex-col',
 			$deleteDrawerDialogOpen && 'z-60',
 		)}
 	>
-		<div class="flex w-full flex-col overflow-auto">
+		<div class="flex w-full flex-col max-md:overflow-auto md:gap-4">
 			<DrawerDialog.Header class="text-left">
 				<DrawerDialog.Title className="flex justify-between items-center">
 					{#if $clickedEditFlashcard}
@@ -70,23 +70,19 @@
 
 			<FlashcardForm>
 				<div slot="update">
-					{#if !disabled}
-						<DrawerDialog.Close asChild let:builder>
-							<Form.Button builders={[builder]} class="w-full" {disabled} loading={$delayed}>
-								Update
-							</Form.Button>
-						</DrawerDialog.Close>
-					{/if}
+					<DrawerDialog.Close asChild let:builder>
+						<Form.Button builders={[builder]} class="w-full" {disabled} loading={$delayed}>
+							Update
+						</Form.Button>
+					</DrawerDialog.Close>
 				</div>
 
 				<div slot="add">
-					{#if !disabled}
-						<DrawerDialog.Close asChild let:builder>
-							<Form.Button builders={[builder]} class="w-full" {disabled} loading={$delayed}>
-								Add
-							</Form.Button>
-						</DrawerDialog.Close>
-					{/if}
+					<DrawerDialog.Close asChild let:builder>
+						<Form.Button builders={[builder]} class="w-full" {disabled} loading={$delayed}>
+							Add
+						</Form.Button>
+					</DrawerDialog.Close>
 				</div>
 			</FlashcardForm>
 

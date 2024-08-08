@@ -101,11 +101,9 @@
 			</DrawerDialog.Description>
 		</DrawerDialog.Header>
 		<Form {disabled}>
-			{#if !disabled}
-				<DrawerDialog.Close asChild let:builder>
-					<Button builders={[builder]} class="w-full" {disabled}>Add</Button>
-				</DrawerDialog.Close>
-			{/if}
+			<DrawerDialog.Close asChild let:builder>
+				<Button builders={[builder]} class="w-full" {disabled}>Add</Button>
+			</DrawerDialog.Close>
 		</Form>
 		<DrawerDialog.Footer>
 			<DrawerDialog.Close asChild let:builder>

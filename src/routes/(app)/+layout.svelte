@@ -86,7 +86,7 @@
 						<Newspaper class="size-6" />
 					</a>
 					<form action="/logout" method="POST">
-						<button type="submit">
+						<button type="submit" on:click={() => localStorage.clear()}>
 							<LogOut class="size-6" />
 						</button>
 					</form>

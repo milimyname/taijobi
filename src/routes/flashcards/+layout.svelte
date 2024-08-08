@@ -72,11 +72,11 @@
 		{#if showSettings}
 			<DropdownMenu.Root>
 				<DropdownMenu.Trigger>
-					<Settings class="add-btn size-4" />
+					<Settings class="add-btn size-5" />
 				</DropdownMenu.Trigger>
 
-				<DropdownMenu.Content>
-					<DropdownMenu.Item>Box Info</DropdownMenu.Item>
+				<DropdownMenu.Content class="add-btn">
+					<DropdownMenu.Item disabled>Box Info</DropdownMenu.Item>
 					<DropdownMenu.Item on:click={handleAddFlashcardCollection}>New</DropdownMenu.Item>
 				</DropdownMenu.Content>
 			</DropdownMenu.Root>

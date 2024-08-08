@@ -48,11 +48,9 @@
 			</DrawerDialog.Title>
 		</DrawerDialog.Header>
 		<FeedbackReadForm {disabled}>
-			{#if !disabled}
-				<DrawerDialog.Close asChild let:builder>
-					<Button builders={[builder]} class="w-full" loading={$delayed} {disabled}>Update</Button>
-				</DrawerDialog.Close>
-			{/if}
+			<DrawerDialog.Close asChild let:builder>
+				<Button builders={[builder]} class="w-full" loading={$delayed} {disabled}>Update</Button>
+			</DrawerDialog.Close>
 		</FeedbackReadForm>
 		<DrawerDialog.Footer>
 			<DrawerDialog.Close asChild let:builder>

@@ -49,7 +49,11 @@
 		</div>
 		<div class="-mb-20 h-36 w-full rounded-4xl border-4 border-[#40a8f0] bg-white shadow-xl">
 			<form action="/logout" method="POST">
-				<button type="submit" class="flex w-full justify-between p-4">
+				<button
+					type="submit"
+					on:click={() => localStorage.clear()}
+					class="flex w-full justify-between p-4"
+				>
 					<LogOut class="size-6" />
 					<h4 class="text-xl font-medium">Log out</h4>
 				</button>
