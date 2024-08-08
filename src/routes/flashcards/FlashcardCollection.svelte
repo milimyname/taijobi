@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import { onDestroy, onMount } from 'svelte';
+	import { getContext, onDestroy, onMount } from 'svelte';
 	import {
 		clickedAddFlashcardCollection,
 		clickedAddFlahcardBox,
@@ -14,12 +14,15 @@
 		clickedFeedback,
 		openSearch,
 		newFlashcardBoxId,
+		showDropdown,
 	} from '$lib/utils/stores';
 	import { IS_DESKTOP } from '$lib/utils/constants';
 	import { FolderEdit } from 'lucide-svelte';
 	import { spring } from 'svelte/motion';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
+	import type { Infer, SuperForm } from 'sveltekit-superforms';
+	import type { FlashcardCollectionSchema } from '$lib/utils/zodSchema';
 
 	export let name: string;
 	export let description: string;
@@ -27,7 +30,10 @@
 	export let index: number;
 	export let id: string;
 	export let totalCount: number;
-	export let form;
+
+	let form: SuperForm<Infer<FlashcardCollectionSchema>> = getContext('collectionForm');
+
+	const { form: formData, reset } = form;
 
 	// Calculate the spring values for x, y, rotation, and scale based on index
 	const x = spring(0, { stiffness: 0.1, damping: 0.8, precision: 0.1 });
@@ -148,7 +154,15 @@
 
 		// If the user clicks on the add button, don't move the card
 		if ((event.target as Element).closest('.add-btn')) {
-			return ($clickedAddFlashcardCollection = !$clickedAddFlashcardCollection);
+			return ($showDropdown = true);
+		}
+
+		// If the user clicks on the add-btn-new button, don't move the card
+		if ((event.target as Element).closest('.add-btn-new')) {
+			$clickedAddFlahcardBox = false;
+			$clickedEditFlashcard = false;
+			$clickedAddFlashcardCollection = true;
+			return;
 		}
 		// If the user clicks on the add button, don't move the card
 		if ((event.target as Element).closest('.go-back-btn')) {
@@ -160,9 +174,14 @@
 			$clickedAddFlashcardCollection = true;
 			$clickedEditFlashcard = true;
 			// Fill in the form with the current flashcard data
-			$form.name = name;
-			$form.description = description;
-			$form.id = id;
+			reset({
+				data: {
+					...$formData,
+					name,
+					description,
+					id,
+				},
+			});
 			return;
 		}
 
@@ -343,9 +362,14 @@
 					$showCollections = false;
 
 					// Fill in the form with the current flashcard data
-					$form.name = name;
-					$form.description = description;
-					$form.id = id;
+					reset({
+						data: {
+							...$formData,
+							name,
+							description,
+							id,
+						},
+					});
 				}}
 			>
 				<FolderEdit />

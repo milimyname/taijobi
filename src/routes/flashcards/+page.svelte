@@ -16,7 +16,7 @@
 	import FlashcardCollection from './FlashcardCollection.svelte';
 	import { goto } from '$app/navigation';
 	import { isTouchScreen } from '$lib/utils/actions';
-	import { onMount } from 'svelte';
+	import { onMount, setContext } from 'svelte';
 	import { quizSchema, flashcardCollectionSchema } from '$lib/utils/zodSchema';
 	import { superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
@@ -46,7 +46,7 @@
 		},
 	});
 
-	let collectionFormData = superFrmCollection.form;
+	setContext('collectionForm', superFrmCollection);
 
 	// Quiz form:
 	const superFrmQuiz = superForm(data.quizForm, {
@@ -95,7 +95,7 @@
 		},
 	});
 
-	let boxFormData = superFrmBox.form;
+	setContext('boxForm', superFrmBox);
 
 	// Function to handle card removal/swipe
 	function discardCard() {
@@ -152,7 +152,6 @@
 				description={card.description}
 				type={card.type}
 				{index}
-				form={collectionFormData}
 				totalCount={visibleCardsCount}
 			/>
 		{/each}
@@ -165,7 +164,6 @@
 					description={card.description}
 					type={card.type}
 					{index}
-					form={collectionFormData}
 					totalCount={visibleCardsCount}
 				/>
 			{/each}
@@ -173,7 +171,7 @@
 	{/if}
 </section>
 
-<Collections {data} {boxFormData} {quizFormData} />
+<Collections {data} {quizFormData} />
 
 <style>
 	.collection-container {

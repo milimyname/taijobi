@@ -201,7 +201,7 @@
 				}}
 				class="previousLetter rounded-full border bg-white p-2 shadow-sm transition-all"
 			>
-				<ArrowLeft class="size-4" />
+				<ArrowLeft class="size-5" />
 			</button>
 
 			{#if $currentAlphabet === 'kanji'}

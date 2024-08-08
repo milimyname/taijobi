@@ -96,7 +96,7 @@
 		)}
 		on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
 	>
-		<RotateCcw class="size-4" />
+		<RotateCcw class="size-5" />
 	</button>
 
 	<BacksideCard rotateYCard={$rotateYCard} />
@@ -115,7 +115,7 @@
 					}}
 					class="previousLetter absolute -left-3 top-1/2 z-40 rounded-full border bg-white p-2 shadow-sm transition-all"
 				>
-					<ChevronFirst class="size-4" />
+					<ChevronFirst class="size-5" />
 				</button>
 			{:else}
 				<button
@@ -125,7 +125,7 @@
 					}}
 					class="previousLetter absolute -left-3 top-1/2 z-40 rounded-full border bg-white p-2 shadow-sm transition-all"
 				>
-					<ArrowLeft class="size-4" />
+					<ArrowLeft class="size-5" />
 				</button>
 			{/if}
 
@@ -137,7 +137,7 @@
 					}}
 					class="previousLetter absolute -right-3 top-1/2 z-40 rounded-full border bg-white p-2 shadow-sm transition-all"
 				>
-					<ArrowRight class="size-4" />
+					<ArrowRight class="size-5" />
 				</button>
 			{:else}
 				<button
@@ -155,14 +155,14 @@
 							'pointer-events-none opacity-0',
 					)}
 				>
-					<ChevronLast class="size-4" />
+					<ChevronLast class="size-5" />
 				</button>
 			{/if}
 		{:else}
 			<button
 				class="previousLetter absolute -right-3 top-1/2 z-40 rounded-full border bg-white p-2 opacity-0 shadow-sm transition-all"
 			>
-				<ArrowRight class="size-4" />
+				<ArrowRight class="size-5" />
 			</button>
 
 			<button
@@ -176,7 +176,7 @@
 				}}
 				class="previousLetter absolute -right-1 top-1/2 z-40 rounded-full border bg-white p-2 shadow-sm transition-all"
 			>
-				<ChevronLast class="size-4" />
+				<ChevronLast class="size-5" />
 			</button>
 		{/if}
 	</div>

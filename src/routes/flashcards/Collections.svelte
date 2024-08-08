@@ -15,14 +15,20 @@
 		currentAlphabet,
 		currentBoxId,
 	} from '$lib/utils/stores';
+	import type { FlashcardCollectionSchema } from '$lib/utils/zodSchema';
 	import { Dices, Settings, Plus } from 'lucide-svelte';
+	import { getContext } from 'svelte';
 	import { quintOut } from 'svelte/easing';
 	import { fly } from 'svelte/transition';
+	import type { Infer, SuperForm } from 'sveltekit-superforms';
 
 	export let data;
 
+	let form: SuperForm<Infer<FlashcardCollectionSchema>> = getContext('boxForm');
+
+	const { form: boxFormData, reset } = form;
+
 	export let quizFormData;
-	export let boxFormData;
 
 	function goToFlashcardBox(collection: any, box: any) {
 		$showCollections = false;
@@ -57,12 +63,19 @@
 		});
 
 		// Fill in the form with the current flashcard data
-		$boxFormData.name = box.name;
-		$boxFormData.description = box.description;
-		$boxFormData.id = box.id;
 		$currentBoxId = box.id;
-		$boxFormData.kanjiCount = box.kanjiCount;
-		$boxFormData.quizCount = box.quizCount;
+
+		// Fill out the form with the current card data
+		reset({
+			data: {
+				...$boxFormData,
+				name: box.name,
+				description: box.description,
+				id: box.id,
+				kanjiCount: box.kanjiCount,
+				quizCount: box.quizCount,
+			},
+		});
 	}
 
 	function clickOnQuizForm(collection: any, box: any) {

@@ -10,32 +10,45 @@
 		selectQuizItemsForm,
 		selectedQuizItems,
 		currentBoxId,
+		deleteDrawerDialogOpen,
 		flashcardsBoxType,
+		disabledSubmitCollection,
 	} from '$lib/utils/stores';
 	import QuizItems from './quiz-items.svelte';
-	import * as Dialog from '$lib/components/ui/dialog';
-	import * as Drawer from '$lib/components/ui/drawer';
 	import { Button } from '$lib/components/ui/button';
 	import { cn, isDesktop } from '$lib/utils';
 	import { page } from '$app/stores';
 	import { type FlashcardCollectionSchema } from '$lib/utils/zodSchema';
 	import { type SuperForm, type Infer } from 'sveltekit-superforms';
 	import FlashcardCollectionForm from '$lib/components/forms/flashcard-collection-form.svelte';
+	import * as DrawerDialog from '$lib/components/ui/drawer-dialog';
+	import DeleteDrawerAlertDialog from '$lib/components/drawer-alert-dialogs/delete-drawer-alert-dialog.svelte';
+	import DeleteTrashButton from '$lib/components/delete-trash-button.svelte';
 
 	export let form: SuperForm<Infer<FlashcardCollectionSchema>>;
 
-	function onClose() {
-		$clickedAddFlashcardCollection = false;
-		$clickedAddFlahcardBox = false;
-		$clickedEditFlashcard = false;
-		$selectedQuizItems = [];
-		form.reset();
-	}
+	const { form: formData, delayed, isTainted, tainted, submit, reset } = form;
 
 	function onOutsideClick(e: PointerEvent | MouseEvent | TouchEvent) {
-		let eventTarget = (
-			(e as TouchEvent).changedTouches ? (e as TouchEvent).changedTouches[0].target : e.target
-		) as Element;
+		let eventTarget: Element | null = null;
+
+		if (e && 'changedTouches' in e && e.changedTouches.length > 0) {
+			// It's a TouchEvent
+			eventTarget = e.changedTouches[0].target as Element;
+		} else if (e && 'target' in e) {
+			// It's a MouseEvent or PointerEvent
+			eventTarget = e.target as Element;
+		}
+
+		// Ensure eventTarget is not null before proceeding
+		if (!eventTarget) {
+			$clickedAddFlashcardCollection = false;
+			$clickedAddFlahcardBox = false;
+			$clickedEditFlashcard = false;
+			$selectedQuizItems = [];
+
+			return;
+		}
 
 		// If the user clicks on the leave button, don't move the card
 		if (
@@ -45,7 +58,29 @@
 		)
 			return;
 
-		onClose();
+		if ($deleteDrawerDialogOpen) return;
+
+		setTimeout(() => {
+			$clickedAddFlashcardCollection = false;
+			$clickedAddFlahcardBox = false;
+			$clickedEditFlashcard = false;
+			$selectedQuizItems = [];
+			reset();
+		}, 100);
+	}
+
+	function deleteCollectionOrBox() {
+		submit();
+
+		// Clear currentFlashcardCollectionId from localStorage
+		localStorage.removeItem('currentFlashcardCollectionId');
+
+		setTimeout(() => {
+			$deleteDrawerDialogOpen = false;
+			$clickedAddFlashcardCollection = false;
+			$clickedEditFlashcard = false;
+			$clickedAddFlahcardBox = false;
+		}, 150);
 	}
 
 	$: open = $clickedAddFlashcardCollection || $clickedAddFlahcardBox;
@@ -62,115 +97,96 @@
 			$flashcardBoxes.length > 1 &&
 			$flashcardsBoxType !== 'original') ||
 		($page.data.isAdmin && !$clickedAddFlashcardCollection);
+
+	$: $disabledSubmitCollection = $formData.name === '' || !isTainted($tainted);
 </script>
 
-{#if $isDesktop}
-	<Dialog.Root bind:open={$swapFlashcards}>
-		<Dialog.Content class="swap-items z-[101] h-1/2 max-w-2xl p-0">
-			<QuizItems flashcardBox={$currentBoxId}>
-				<Dialog.Close asChild let:builder>
-					<Button
-						builders={[builder]}
-						on:click={() => {
-							$selectQuizItemsForm = false;
-							$swapFlashcards = false;
-							$selectedQuizItems = [];
-						}}
-						variant="outline"
-					>
-						Cancel
-					</Button>
-				</Dialog.Close>
-			</QuizItems>
-		</Dialog.Content>
-	</Dialog.Root>
+<DeleteDrawerAlertDialog onClick={deleteCollectionOrBox} />
 
-	<Dialog.Root bind:open {onOutsideClick}>
-		<Dialog.Content class="z-[100] sm:max-w-[425px]">
-			<Dialog.Header class="flex flex-row items-center">
-				<Dialog.Title>
+<DrawerDialog.Root bind:open={$swapFlashcards}>
+	<DrawerDialog.Content class="swap-items z-[101] max-w-2xl p-0">
+		<QuizItems flashcardBox={$currentBoxId}>
+			<DrawerDialog.Close asChild let:builder>
+				<Button
+					builders={[builder]}
+					on:click={() => {
+						$selectQuizItemsForm = false;
+						$swapFlashcards = false;
+						$selectedQuizItems = [];
+					}}
+					variant="outline"
+					class="max-md:hidden"
+				>
+					Cancel
+				</Button>
+			</DrawerDialog.Close>
+		</QuizItems>
+
+		<DrawerDialog.Footer className="md:hidden">
+			<DrawerDialog.Close asChild let:builder>
+				<Button builders={[builder]} variant="outline">Cancel</Button>
+			</DrawerDialog.Close>
+		</DrawerDialog.Footer>
+	</DrawerDialog.Content>
+</DrawerDialog.Root>
+
+<DrawerDialog.Root onClose={onOutsideClick} bind:open {onOutsideClick}>
+	<DrawerDialog.Content
+		className={cn(
+			'max-sm:fixed max-sm:bottom-0 max-sm:left-0  right-0 flex max-sm:max-h-[96%] flex-col',
+			$deleteDrawerDialogOpen && 'z-60',
+		)}
+	>
+		<div class="flex w-full flex-col max-md:overflow-auto md:gap-4">
+			<DrawerDialog.Header class="text-left">
+				<DrawerDialog.Title className="flex justify-between items-center">
 					{#if $clickedEditFlashcard}
-						Edit {$clickedAddFlashcardCollection ? 'collection' : 'box'}
+						<span>Edit {$clickedAddFlashcardCollection ? 'collection' : 'box'}</span>
+						{#if ($page.data.isAdmin || $flashcardsBoxType !== 'original') && $clickedEditFlashcard}
+							<div class="flex gap-2">
+								{#if isSwappable}
+									<Button variant="link" on:click={() => ($swapFlashcards = true)}>Swap</Button>
+								{/if}
+								<DeleteTrashButton loading={$delayed} />
+							</div>
+						{/if}
 					{:else}
 						Add a new {$clickedAddFlashcardCollection ? 'collection' : 'box'}
 					{/if}
-				</Dialog.Title>
-				{#if isSwappable}
-					<button class="ml-auto mr-5 text-sm underline" on:click={() => ($swapFlashcards = true)}>
-						Swap
-					</button>
-				{/if}
-			</Dialog.Header>
+				</DrawerDialog.Title>
+			</DrawerDialog.Header>
 			<FlashcardCollectionForm {form}>
-				<div slot="delete">
-					<Button formaction="?/delete" variant="destructive" class="w-full">Delete</Button>
-				</div>
 				<div slot="update">
-					<Button formaction="?/update" class="w-full">Update</Button>
+					<DrawerDialog.Close asChild let:builder>
+						<Button
+							builders={[builder]}
+							class="w-full"
+							disabled={$disabledSubmitCollection}
+							loading={$delayed}
+						>
+							Update
+						</Button>
+					</DrawerDialog.Close>
 				</div>
+
 				<div slot="add">
-					<Button formaction="?/add" class="w-full">Add</Button>
+					<DrawerDialog.Close asChild let:builder>
+						<Button
+							builders={[builder]}
+							class="w-full"
+							disabled={$disabledSubmitCollection}
+							loading={$delayed}
+							>Add
+						</Button>
+					</DrawerDialog.Close>
 				</div>
 			</FlashcardCollectionForm>
-		</Dialog.Content>
-	</Dialog.Root>
-{:else}
-	<Drawer.Root {onClose} {open} {onOutsideClick}>
-		<Drawer.Content class="fixed bottom-0 left-0 right-0 h-fit max-h-[96%]">
-			<div class="flex w-full flex-col overflow-auto">
-				<Drawer.Header class="flex items-center text-left">
-					<Drawer.Title class="w-full">
-						{#if $clickedEditFlashcard}
-							Update {$clickedAddFlashcardCollection ? 'collection' : 'box'}
-						{:else}
-							Add a new {$clickedAddFlashcardCollection ? 'collection' : 'box'}
-						{/if}
-					</Drawer.Title>
 
-					{#if isSwappable}
-						<Drawer.NestedRoot>
-							<Drawer.Trigger
-								class="w-min items-center text-sm underline"
-								on:click={() => ($swapFlashcards = true)}
-							>
-								Swap
-							</Drawer.Trigger>
-							<Drawer.Portal>
-								<Drawer.Content
-									class="select-quiz fixed bottom-0 left-0 right-0 z-[2000] mt-24 flex h-full max-h-[94%] flex-col rounded-t-[10px] bg-gray-100"
-								>
-									<QuizItems flashcardBox={$currentBoxId}>
-										<Drawer.Close asChild let:builder>
-											<Button
-												builders={[builder]}
-												on:click={() => {
-													$selectQuizItemsForm = false;
-													$swapFlashcards = false;
-													$selectedQuizItems = [];
-												}}
-												variant="outline"
-											>
-												Cancel
-											</Button>
-										</Drawer.Close>
-									</QuizItems>
-								</Drawer.Content>
-							</Drawer.Portal>
-						</Drawer.NestedRoot>
-					{/if}
-				</Drawer.Header>
-				<FlashcardCollectionForm {form}>
-					<Button variant="destructive" slot="delete" class="w-full">Delete</Button>
-					<Button slot="update" class="w-full">Update</Button>
-					<Button slot="add" class="w-full">Add</Button>
-				</FlashcardCollectionForm>
-
-				<Drawer.Footer class="h-fit">
-					<Drawer.Close asChild let:builder>
-						<Button builders={[builder]} variant="outline">Cancel</Button>
-					</Drawer.Close>
-				</Drawer.Footer>
-			</div>
-		</Drawer.Content>
-	</Drawer.Root>
-{/if}
+			<DrawerDialog.Footer className="md:hidden">
+				<DrawerDialog.Close asChild let:builder>
+					<Button builders={[builder]} variant="outline">Cancel</Button>
+				</DrawerDialog.Close>
+			</DrawerDialog.Footer>
+		</div>
+	</DrawerDialog.Content>
+</DrawerDialog.Root>

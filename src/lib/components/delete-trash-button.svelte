@@ -19,5 +19,5 @@
 		$deleteDrawerDialogOpen = true;
 	}}
 >
-	<Trash2 class="size-4" />
+	<Trash2 class="size-5" />
 </Button>

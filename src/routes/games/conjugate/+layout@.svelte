@@ -18,7 +18,7 @@
 				data-sveltekit-preload-data
 			>
 				<ArrowLeft
-					class="size-4 transition-transform group-hover:-translate-x-2 group-active:-translate-x-2"
+					class="size-5 transition-transform group-hover:-translate-x-2 group-active:-translate-x-2"
 				/>
 			</a>
 		</Button>

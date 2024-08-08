@@ -82,3 +82,5 @@ export const feedbackDescription = writable('');
 export const deleteDrawerDialogOpen = writable(false);
 export const chats = writable<RecordModel[]>([]);
 export const paragraphs = writable<RecordModel[]>([]);
+export const showDropdown = writable(false);
+export const disabledSubmitCollection = writable(true);

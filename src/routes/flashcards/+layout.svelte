@@ -8,12 +8,13 @@
 		showLetterDrawing,
 		selectedQuizItems,
 		canIdrawMultipleTimes,
+		showDropdown,
 	} from '$lib/utils/stores';
 	import { page } from '$app/stores';
 	import { ArrowLeft, Settings } from 'lucide-svelte';
 	import { getLocalStorageItem } from '$lib/utils/localStorage.js';
 	import { goto } from '$app/navigation';
-	import { removeAllItemsWithPrefixFromLocalStorage } from '$lib/utils';
+	import { cn, removeAllItemsWithPrefixFromLocalStorage } from '$lib/utils';
 	import { Button } from '$lib/components/ui/button';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 
@@ -32,6 +33,10 @@
 		(data.isAdmin ||
 			($flashcardsBoxType && $flashcardsBoxType !== 'original') ||
 			($page.route.id && $page.route.id.endsWith('/flashcards')));
+
+	$: collectionPage = $page.route.id && $page.route.id.length < 12 ? true : false;
+
+	$: if ($clickedAddFlashcardCollection || $clickedAddFlahcardBox) $showDropdown = false;
 </script>
 
 <svelte:head>
@@ -65,19 +70,23 @@
 			data-sveltekit-preload-data
 		>
 			<ArrowLeft
-				class="size-4 transition-transform  group-hover:-translate-x-2  group-active:-translate-x-2 "
+				class="size-5 transition-transform  group-hover:-translate-x-2  group-active:-translate-x-2 "
 			/>
 		</Button>
 
 		{#if showSettings}
-			<DropdownMenu.Root>
+			<DropdownMenu.Root open={$showDropdown} onOpenChange={(state) => ($showDropdown = state)}>
 				<DropdownMenu.Trigger>
 					<Settings class="add-btn size-5" />
 				</DropdownMenu.Trigger>
 
-				<DropdownMenu.Content class="add-btn">
-					<DropdownMenu.Item disabled>Box Info</DropdownMenu.Item>
-					<DropdownMenu.Item on:click={handleAddFlashcardCollection}>New</DropdownMenu.Item>
+				<DropdownMenu.Content class={cn($clickedAddFlashcardCollection && 'z-0')}>
+					<DropdownMenu.Item disabled>
+						{collectionPage ? 'Collection Info' : 'Box Info'}
+					</DropdownMenu.Item>
+					<DropdownMenu.Item class="add-btn-new" on:click={handleAddFlashcardCollection}>
+						New
+					</DropdownMenu.Item>
 				</DropdownMenu.Content>
 			</DropdownMenu.Root>
 		{/if}

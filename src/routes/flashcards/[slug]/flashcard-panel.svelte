@@ -85,7 +85,7 @@
 					if (audioElement) audioElement.play();
 				}}
 			>
-				<Volume2 class="size-4" />
+				<Volume2 class="size-5" />
 			</Button>
 		</Tooltip.Trigger>
 		<Tooltip.Content>
@@ -101,7 +101,7 @@
 				class="flex items-center"
 				on:click={() => ($canIdrawMultipleTimes = true)}
 			>
-				<GalleryHorizontalEnd class="size-4" />
+				<GalleryHorizontalEnd class="size-5" />
 			</Button>
 		</Tooltip.Trigger>
 		<Tooltip.Content>
@@ -138,7 +138,7 @@
 						$currentFlashcardTypeStore = wordFlashcard?.type ?? '';
 					}}
 				>
-					<ArrowUpCircle class="size-4" />
+					<ArrowUpCircle class="size-5" />
 				</Button>
 			</Tooltip.Trigger>
 			<Tooltip.Content>
@@ -159,7 +159,7 @@
 						$showProgressSlider = false;
 					}}
 				>
-					<PenTool class="size-4" />
+					<PenTool class="size-5" />
 				</Button>
 			</Tooltip.Trigger>
 			<Tooltip.Content>
@@ -176,7 +176,7 @@
 				class="flex items-center"
 				on:click={() => ($showCustomContent = !$showCustomContent)}
 			>
-				<Box class="size-4" />
+				<Box class="size-5" />
 			</Button>
 		</Tooltip.Trigger>
 		<Tooltip.Content>

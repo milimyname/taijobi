@@ -13,7 +13,6 @@
 	import { getContext } from 'svelte';
 	import { clickOutside } from '$lib/utils/clickOutside';
 
-	export let disabled = false;
 	let form: SuperForm<Infer<FlashcardSchema>> = getContext('flashcardForm');
 
 	let showInfo = false;
@@ -147,11 +146,11 @@
 	</div>
 
 	{#if $clickedEditFlashcard}
-		<button formaction="?/update" class="w-full" {disabled}>
+		<button formaction="?/update" class="w-full">
 			<slot name="update" />
 		</button>
 	{:else}
-		<button formaction="?/add" class="w-full" {disabled}>
+		<button formaction="?/add" class="w-full">
 			<slot name="add" />
 		</button>
 	{/if}

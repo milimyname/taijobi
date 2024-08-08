@@ -18,7 +18,7 @@
 
 	let form: SuperForm<Infer<FlashcardSchema>> = getContext('flashcardForm');
 
-	const { form: formData, delayed, isTainted, tainted } = form;
+	const { form: formData, delayed, isTainted, tainted, submit } = form;
 
 	const onOutsideClick = () => {
 		setTimeout(() => {
@@ -34,7 +34,7 @@
 	}
 
 	function deleteFlashcard() {
-		form.submit();
+		submit();
 		$clickedAddFlashcardCollection = false;
 		$clickedEditFlashcard = false;
 		setTimeout(() => ($deleteDrawerDialogOpen = false), 150);
@@ -71,17 +71,15 @@
 			<FlashcardForm>
 				<div slot="update">
 					<DrawerDialog.Close asChild let:builder>
-						<Form.Button builders={[builder]} class="w-full" {disabled} loading={$delayed}>
+						<Button builders={[builder]} class="w-full" {disabled} loading={$delayed}>
 							Update
-						</Form.Button>
+						</Button>
 					</DrawerDialog.Close>
 				</div>
 
 				<div slot="add">
 					<DrawerDialog.Close asChild let:builder>
-						<Form.Button builders={[builder]} class="w-full" {disabled} loading={$delayed}>
-							Add
-						</Form.Button>
+						<Button builders={[builder]} class="w-full" {disabled} loading={$delayed}>Add</Button>
 					</DrawerDialog.Close>
 				</div>
 			</FlashcardForm>

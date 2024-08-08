@@ -17,11 +17,11 @@
 <ChatDrawerDialog />
 
 <main class="flex h-dvh flex-col items-center bg-white transition-all">
-	<nav class="flex mb-auto w-full items-center justify-between p-5 sm:py-5">
+	<nav class="mb-auto flex w-full items-center justify-between p-5 sm:py-5">
 		<Button size="icon" variant="none">
 			<a href="/" class="go-back-btn group" data-sveltekit-preload-data>
 				<ArrowLeft
-					class="size-4 transition-transform  group-hover:-translate-x-2 group-active:-translate-x-2"
+					class="size-5 transition-transform  group-hover:-translate-x-2 group-active:-translate-x-2"
 				/>
 			</a>
 		</Button>
@@ -32,7 +32,7 @@
 			disabled={$chats.length === 0}
 			on:click={() => ($openHistory = true)}
 		>
-			<Settings class="size-4" />
+			<Settings class="size-5" />
 		</Button>
 	</nav>
 	<slot />

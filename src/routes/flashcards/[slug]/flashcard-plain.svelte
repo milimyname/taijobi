@@ -88,7 +88,7 @@
 		)}
 		on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
 	>
-		<RotateCcw class="size-4" />
+		<RotateCcw class="size-5" />
 	</button>
 </div>
 
@@ -162,7 +162,7 @@
 				)}
 				on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
 			>
-				<RotateCcw class="size-4" />
+				<RotateCcw class="size-5" />
 			</button>
 		</div>
 	{:else}
@@ -197,7 +197,7 @@
 				)}
 				on:click={() => ($rotateYCard < 40 ? rotateYCard.set(180) : rotateYCard.set(0))}
 			>
-				<RotateCcw class="size-4" />
+				<RotateCcw class="size-5" />
 			</button>
 		</div>
 	{/if}

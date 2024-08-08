@@ -23,11 +23,11 @@
 
 	<div class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white">
 		<button on:click|preventDefault={undoLastStroke}>
-			<Undo2 class="size-4" />
+			<Undo2 class="size-5" />
 		</button>
 		<slot name="remove">
 			<button on:click|preventDefault={removeEverything}>
-				<Eraser class="size-4" />
+				<Eraser class="size-5" />
 			</button>
 		</slot>
 		{#if showAnimation}
@@ -38,11 +38,11 @@
 				}}
 				class="transition-transform active:rotate-180"
 			>
-				<RefreshCcw class="size-4" />
+				<RefreshCcw class="size-5" />
 			</button>
 		{/if}
 		<button on:click={() => ($showLetterDrawing = false)}>
-			<FileText class="size-4" />
+			<FileText class="size-5" />
 		</button>
 	</div>
 </div>
