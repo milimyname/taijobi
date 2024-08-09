@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { searchedWordStore, openSearch, searchKanji } from '$lib/utils/stores';
+	import { searchedWordStore, openSearch, searchKanji, loading } from '$lib/utils/stores';
 	import { onMount } from 'svelte';
 	import { cn, getRandomKanji } from '$lib/utils.js';
 	import * as Command from '$lib/components/ui/command';
@@ -16,8 +16,7 @@
 	// Fetch flashcards from the server
 	async function fetchFlashcards() {
 		if (search === '') return;
-
-		// if (fetchedData.length === 0) return;
+		$loading = true;
 
 		try {
 			const res = await fetch('/api/flashcard', {
@@ -33,6 +32,8 @@
 		} catch (error) {
 			console.error(error);
 		}
+
+		$loading = false;
 	}
 
 	onMount(() => {
@@ -98,19 +99,18 @@
 			? 'You have reached the maximum number of suggestions. Please sign in to see more.'
 			: 'Search for a word...'}
 	/>
-	<Command.List>
-		<Command.Empty class="space-y-2 max-sm:h-[78dvh]">
-			<p class="h-full text-xl">No results found.</p>
-
-			<div class="sticky bottom-4 px-4">
-				<Button variant="link" href="/chat" class="w-full">Go to Chat</Button>
-			</div>
+	<Command.List class="md:h-[40rem] md:max-h-[40rem]">
+		<Command.Empty
+			class="flex flex-col items-center justify-center space-y-2 max-sm:h-[78dvh] md:h-[40rem]"
+		>
+			<p class="text-xl">No results found.</p>
+			<Button href="/chat">Go to Chat</Button>
 		</Command.Empty>
 		{#if fetchedData && fetchedData.length > 0}
-			<div class="relative grid grid-cols-3">
+			<div class="relative grid h-full grid-cols-3">
 				<Command.Group
 					heading="Suggestions"
-					class={cn('border-r', fetchedData.length < 4 && 'h-full max-md:h-[78dvh]')}
+					class={cn('border-r', fetchedData.length < 4 && 'h-full max-md:h-[78dvh] md:h-[40rem]')}
 				>
 					{#each fetchedData as flashcard}
 						<Command.Item value={flashcard.id} class="flex flex-col items-start gap-0.5">
@@ -122,14 +122,26 @@
 
 				{#if currentHoveredFlashcard}
 					<div
-						class="sticky top-0 col-span-2 flex h-fit flex-col items-center justify-center gap-10 overflow-hidden px-2 max-md:h-[78dvh] md:h-72"
+						class="sticky top-0 col-span-2 flex h-fit flex-col items-center justify-center gap-2 overflow-auto px-2 max-md:h-[78dvh] md:h-[40rem]"
 					>
 						{#if currentHoveredFlashcard.furigana}
-							<h2 class="text-center text-4xl">
+							<h2
+								class={cn(
+									'text-balance text-center text-5xl leading-normal',
+									currentHoveredFlashcard.name.length > 15 && 'text-xl',
+								)}
+							>
 								{@html currentHoveredFlashcard.furigana}
 							</h2>
 						{:else}
-							<h2 class="text-4xl font-bold">{currentHoveredFlashcard.name}</h2>
+							<h2
+								class={cn(
+									'text-balance text-center text-5xl leading-normal',
+									currentHoveredFlashcard.name.length > 15 && 'text-xl',
+								)}
+							>
+								{currentHoveredFlashcard.name}
+							</h2>
 						{/if}
 
 						<h3>{currentHoveredFlashcard.meaning}</h3>
@@ -152,7 +164,7 @@
 										error: 'Failed to search',
 									});
 								}}
-								class="text-center underline"
+								class="sticky bottom-0 text-center underline"
 							>
 								{#if currentHoveredFlashcard?.expand}
 									<span class="italic">

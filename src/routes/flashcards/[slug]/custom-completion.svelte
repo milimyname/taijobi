@@ -121,13 +121,15 @@
 
 	$: if ($showCustomContent && (activeTab === 'conjugation' || wordFlashcard)) conjugate();
 
-	$: if (activeTab === 'sentence' && wordFlashcard) generateExampleSentences();
+	$: if ($showCustomContent && activeTab === 'sentence' && wordFlashcard)
+		generateExampleSentences();
 
-	$: if (wordFlashcard?.partOfSpeech === 'unknown') activeTab = 'sentence';
+	$: if ($showCustomContent && wordFlashcard?.partOfSpeech === 'unknown') activeTab = 'sentence';
 
-	$: if (wordFlashcard) examples = [];
+	$: if ($showCustomContent && wordFlashcard) examples = [];
 
-	$: if (wordFlashcard?.type !== 'word' && activeTab === 'conjugation') activeTab = 'sentence';
+	$: if ($showCustomContent && wordFlashcard?.type !== 'word' && activeTab === 'conjugation')
+		activeTab = 'sentence';
 </script>
 
 {#if audioSource}

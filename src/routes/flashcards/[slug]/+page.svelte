@@ -202,7 +202,7 @@
 					loop: true,
 				}}
 				plugins={[WheelGesturesPlugin()]}
-				class="flaschards-carousel fixed bottom-5 w-2/3 sm:bottom-10 lg:sticky lg:bottom-0 lg:w-5/6"
+				class="flaschards-carousel fixed bottom-8 w-2/3 sm:bottom-10 lg:sticky lg:bottom-0 lg:w-5/6"
 			>
 				<Carousel.Content>
 					{#each flashcards as flashcard, index}
