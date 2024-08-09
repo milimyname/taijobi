@@ -16,7 +16,7 @@
 	} from '$lib/utils/stores';
 	import QuizItems from './quiz-items.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { cn, isDesktop } from '$lib/utils';
+	import { cn } from '$lib/utils';
 	import { page } from '$app/stores';
 	import { type FlashcardCollectionSchema } from '$lib/utils/zodSchema';
 	import { type SuperForm, type Infer } from 'sveltekit-superforms';
@@ -24,41 +24,44 @@
 	import * as DrawerDialog from '$lib/components/ui/drawer-dialog';
 	import DeleteDrawerAlertDialog from '$lib/components/drawer-alert-dialogs/delete-drawer-alert-dialog.svelte';
 	import DeleteTrashButton from '$lib/components/delete-trash-button.svelte';
+	import { getContext } from 'svelte';
 
 	export let form: SuperForm<Infer<FlashcardCollectionSchema>>;
+
+	let boxForm: SuperForm<Infer<FlashcardCollectionSchema>> = getContext('boxForm');
 
 	const { form: formData, delayed, isTainted, tainted, submit, reset } = form;
 
 	function onOutsideClick(e: PointerEvent | MouseEvent | TouchEvent) {
-		let eventTarget: Element | null = null;
+		// let eventTarget: Element | null = null;
 
-		if (e && 'changedTouches' in e && e.changedTouches.length > 0) {
-			// It's a TouchEvent
-			eventTarget = e.changedTouches[0].target as Element;
-		} else if (e && 'target' in e) {
-			// It's a MouseEvent or PointerEvent
-			eventTarget = e.target as Element;
-		}
+		// if (e && 'changedTouches' in e && e.changedTouches.length > 0) {
+		// 	// It's a TouchEvent
+		// 	eventTarget = e.changedTouches[0].target as Element;
+		// } else if (e && 'target' in e) {
+		// 	// It's a MouseEvent or PointerEvent
+		// 	eventTarget = e.target as Element;
+		// }
 
 		// Ensure eventTarget is not null before proceeding
-		if (!eventTarget) {
-			$clickedAddFlashcardCollection = false;
-			$clickedAddFlahcardBox = false;
-			$clickedEditFlashcard = false;
-			$selectedQuizItems = [];
+		// if (!eventTarget) {
+		// 	$clickedAddFlashcardCollection = false;
+		// 	$clickedAddFlahcardBox = false;
+		// 	$clickedEditFlashcard = false;
+		// 	$selectedQuizItems = [];
 
-			return;
-		}
+		// 	return;
+		// }
 
 		// If the user clicks on the leave button, don't move the card
-		if (
-			($page.url.pathname.includes('flashcards') && eventTarget.closest('.add-btn')) ||
-			eventTarget.closest('.swap-items') ||
-			eventTarget.closest('.edit-collection-btn')
-		)
-			return;
-
-		if ($deleteDrawerDialogOpen) return;
+		// if (
+		// 	($page.url.pathname.includes('flashcards') && eventTarget.closest('.add-btn')) ||
+		// 	eventTarget.closest('.swap-items') ||
+		// 	eventTarget.closest('.edit-collection-btn')
+		// )
+		// 	return;
+		//
+		// if ($deleteDrawerDialogOpen) return;
 
 		setTimeout(() => {
 			$clickedAddFlashcardCollection = false;
@@ -70,7 +73,9 @@
 	}
 
 	function deleteCollectionOrBox() {
-		submit();
+		if ($clickedAddFlashcardCollection) submit();
+
+		if ($clickedAddFlahcardBox) boxForm.submit();
 
 		// Clear currentFlashcardCollectionId from localStorage
 		localStorage.removeItem('currentFlashcardCollectionId');
@@ -133,7 +138,7 @@
 <DrawerDialog.Root onClose={onOutsideClick} bind:open {onOutsideClick}>
 	<DrawerDialog.Content
 		className={cn(
-			'max-sm:fixed max-sm:bottom-0 max-sm:left-0  right-0 flex max-sm:max-h-[96%] flex-col',
+			'right-0 max-md:h-full flex flex-col max-md:fixed max-md:bottom-0 max-md:left-0 max-md:max-h-[90dvh]',
 			$deleteDrawerDialogOpen && 'z-60',
 		)}
 	>
@@ -176,7 +181,8 @@
 							class="w-full"
 							disabled={$disabledSubmitCollection}
 							loading={$delayed}
-							>Add
+						>
+							Add
 						</Button>
 					</DrawerDialog.Close>
 				</div>

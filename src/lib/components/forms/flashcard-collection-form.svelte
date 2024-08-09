@@ -72,8 +72,8 @@
 				<Textarea
 					{...attrs}
 					class="resize-none"
-					on:change={(e) => handleInput(e, 'description')}
 					value={$formData.description}
+					on:change={(e) => handleInput(e, 'description')}
 					disabled={!$page.data.isAdmin && $flashcardsBoxType === 'original'}
 				/>
 			</Form.Control>

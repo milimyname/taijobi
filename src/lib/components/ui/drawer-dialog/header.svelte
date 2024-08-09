@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { isDesktop } from '$lib/utils';
+	import { cn, isDesktop } from '$lib/utils';
 	import { DialogHeader } from '$lib/components/ui/dialog';
 	import { DrawerHeader } from '$lib/components/ui/drawer';
 
@@ -10,6 +10,6 @@
 	$: Header = $isDesktop ? DialogHeader : DrawerHeader;
 </script>
 
-<svelte:component this={Header} class={className} {...$$restProps}>
+<svelte:component this={Header} class={cn('text-left', className)} {...$$restProps}>
 	<slot />
 </svelte:component>

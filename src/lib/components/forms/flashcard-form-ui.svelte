@@ -6,7 +6,6 @@
 		deleteDrawerDialogOpen,
 	} from '$lib/utils/stores';
 	import { Button } from '$lib/components/ui/button';
-	import * as Form from '$lib/components/ui/form';
 	import { type FlashcardSchema } from '$lib/utils/zodSchema';
 	import { type SuperForm, type Infer } from 'sveltekit-superforms';
 	import FlashcardForm from '$lib/components/forms/flashcard-form.svelte';
@@ -52,7 +51,7 @@
 >
 	<DrawerDialog.Content
 		className={cn(
-			'max-sm:fixed max-sm:bottom-0 max-sm:left-0  right-0 flex max-sm:max-h-[96%] flex-col',
+			'max-sm:fixed max-sm:bottom-0 max-sm:left-0 right-0 flex max-sm:max-h-[96%] flex-col',
 			$deleteDrawerDialogOpen && 'z-60',
 		)}
 	>

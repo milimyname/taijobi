@@ -37,25 +37,27 @@
 <DrawerDialog.Root open={$clickedReport} onClose={onCloseDrawer} onOutsideClick={onCloseDrawer}>
 	<DrawerDialog.Content
 		className={cn(
-			'max-md:fixed max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:flex max-md:h-full max-md:max-h-[96%] max-md:flex-col',
+			'right-0 flex flex-col max-sm:fixed max-sm:bottom-0 max-sm:left-0 max-sm:max-h-[56dvh]',
 			$deleteDrawerDialogOpen && 'z-60',
 		)}
 	>
-		<DrawerDialog.Header class="text-left">
-			<DrawerDialog.Title className="flex justify-between items-center">
-				<span>Leave a feedback or report a bug!</span>
-				<DeleteTrashButton loading={$delayed} />
-			</DrawerDialog.Title>
-		</DrawerDialog.Header>
-		<FeedbackReadForm {disabled}>
-			<DrawerDialog.Close asChild let:builder>
-				<Button builders={[builder]} class="w-full" loading={$delayed} {disabled}>Update</Button>
-			</DrawerDialog.Close>
-		</FeedbackReadForm>
-		<DrawerDialog.Footer>
-			<DrawerDialog.Close asChild let:builder>
-				<Button builders={[builder]} variant="outline">Cancel</Button>
-			</DrawerDialog.Close>
-		</DrawerDialog.Footer>
+		<div class="flex w-full flex-col max-md:overflow-auto md:gap-4">
+			<DrawerDialog.Header>
+				<DrawerDialog.Title className="flex justify-between items-center">
+					<span>Leave a feedback or report a bug!</span>
+					<DeleteTrashButton loading={$delayed} />
+				</DrawerDialog.Title>
+			</DrawerDialog.Header>
+			<FeedbackReadForm {disabled}>
+				<DrawerDialog.Close asChild let:builder>
+					<Button builders={[builder]} class="w-full" loading={$delayed} {disabled}>Update</Button>
+				</DrawerDialog.Close>
+			</FeedbackReadForm>
+			<DrawerDialog.Footer>
+				<DrawerDialog.Close asChild let:builder>
+					<Button builders={[builder]} variant="outline">Cancel</Button>
+				</DrawerDialog.Close>
+			</DrawerDialog.Footer>
+		</div>
 	</DrawerDialog.Content>
 </DrawerDialog.Root>

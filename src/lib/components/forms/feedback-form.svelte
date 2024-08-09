@@ -7,6 +7,8 @@
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
 
+	export let disabled = false;
+
 	function onSubmit() {
 		$clickedFeedback = false;
 		$feedbackDescription = '';
@@ -21,7 +23,10 @@
 		});
 	}
 
-	export let disabled = false;
+	function handleInput(event: Event, field: string) {
+		const target = event.target as HTMLInputElement | HTMLTextAreaElement;
+		$feedbackDescription = target.value;
+	}
 </script>
 
 <form
@@ -44,7 +49,8 @@
 				name="description"
 				maxlength={1000}
 				required
-				bind:value={$feedbackDescription}
+				value={$feedbackDescription}
+				on:change={(e) => handleInput(e, 'description')}
 			/>
 		</fieldset>
 		<input

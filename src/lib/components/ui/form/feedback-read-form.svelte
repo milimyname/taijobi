@@ -13,6 +13,11 @@
 
 	const { form: formData, enhance } = form;
 
+	function handleInput(event: Event, field: string) {
+		const target = event.target as HTMLInputElement | HTMLTextAreaElement;
+		$formData[field] = target.value;
+	}
+
 	let showImage = false;
 </script>
 
@@ -48,7 +53,8 @@
 					data-vaul-no-drag
 					class="resize-y"
 					{...attrs}
-					bind:value={$formData.description}
+					value={$formData.description}
+					on:change={(e) => handleInput(e, 'description')}
 					maxlength={1000}
 				/>
 			</Form.Control>
@@ -70,5 +76,5 @@
 		</button>
 	</div>
 
-	<input type="hidden" name="id" bind:value={$formData.id} />
+	<input type="hidden" name="id" value={$formData.id} />
 </form>

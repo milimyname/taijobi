@@ -85,30 +85,32 @@
 		</DrawerDialog.Trigger>
 	{/if}
 	<DrawerDialog.Content
-		class="max-md:fixed max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:flex max-md:h-full max-md:max-h-[96%] max-md:flex-col"
+		class="right-0 flex flex-col max-sm:fixed max-sm:bottom-0 max-sm:left-0 max-sm:max-h-[56dvh]"
 	>
-		<DrawerDialog.Header>
-			<DrawerDialog.Title>Leave a feedback or report a bug!</DrawerDialog.Title>
-			<DrawerDialog.Description>
-				<p class="text-sm">
-					You can see them here
-					<DrawerDialog.Close>
-						<a href="/feedbacks" class="underline" on:click={() => ($clickedFeedback = false)}>
-							My Feedbacks
-						</a>
-					</DrawerDialog.Close>
-				</p>
-			</DrawerDialog.Description>
-		</DrawerDialog.Header>
-		<Form {disabled}>
-			<DrawerDialog.Close asChild let:builder>
-				<Button builders={[builder]} class="w-full" {disabled}>Add</Button>
-			</DrawerDialog.Close>
-		</Form>
-		<DrawerDialog.Footer>
-			<DrawerDialog.Close asChild let:builder>
-				<Button builders={[builder]} variant="outline">Cancel</Button>
-			</DrawerDialog.Close>
-		</DrawerDialog.Footer>
+		<div class="flex w-full flex-col max-md:overflow-auto md:gap-4">
+			<DrawerDialog.Header>
+				<DrawerDialog.Title>Leave a feedback or report a bug!</DrawerDialog.Title>
+				<DrawerDialog.Description>
+					<p class="text-sm">
+						You can see them here
+						<DrawerDialog.Close>
+							<a href="/feedbacks" class="underline" on:click={() => ($clickedFeedback = false)}>
+								My Feedbacks
+							</a>
+						</DrawerDialog.Close>
+					</p>
+				</DrawerDialog.Description>
+			</DrawerDialog.Header>
+			<Form {disabled}>
+				<DrawerDialog.Close asChild let:builder>
+					<Button builders={[builder]} class="w-full" {disabled}>Add</Button>
+				</DrawerDialog.Close>
+			</Form>
+			<DrawerDialog.Footer>
+				<DrawerDialog.Close asChild let:builder>
+					<Button builders={[builder]} variant="outline">Cancel</Button>
+				</DrawerDialog.Close>
+			</DrawerDialog.Footer>
+		</div>
 	</DrawerDialog.Content>
 </DrawerDialog.Root>
