@@ -1,0 +1,23 @@
+{
+	"short_name": "Taijobi",
+	"name": "Taijobi",
+	"start_url": "/",
+	"icons": [
+		{
+			"src": "taijobi-512.png",
+			"type": "image/png",
+			"sizes": "512x512",
+			"purpose": "any maskable"
+		},
+		{
+			"src": "taijobi-192.png",
+			"type": "image/png",
+			"sizes": "192x192",
+			"purpose": "any maskable"
+		}
+	],
+	"display": "standalone",
+	"scope": "/",
+	"description": "Taijobi is a simple app to help you find a job",
+	"background_color": "white"
+}
