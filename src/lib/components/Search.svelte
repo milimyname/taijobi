@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { searchedWordStore, openSearch, searchKanji, loading } from '$lib/utils/stores';
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { cn, getRandomKanji } from '$lib/utils.js';
 	import * as Command from '$lib/components/ui/command';
 	import { page } from '$app/stores';
@@ -8,9 +8,11 @@
 	import Button from './ui/button/button.svelte';
 	import { goto } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
+	import { isRomaji } from 'wanakana';
 
 	let search = '';
 	let fetchedData: any[] = getRandomKanji();
+	let paragraphs: any[] = [];
 	let value: string = fetchedData[0].id;
 
 	// Fetch flashcards from the server
@@ -29,6 +31,19 @@
 			const data = await res.json();
 
 			fetchedData = data.flashcards;
+
+			// Get paragraphs if there are any
+			if (data.paragraphs && data.paragraphs.length > 0) {
+				fetchedData = [
+					...fetchedData,
+					...data.paragraphs.map((paragraph) => ({
+						id: paragraph.id,
+						type: 'paragraph',
+						meaning: paragraph.formatted_ai_data.meaning,
+						name: paragraph.formatted_ai_data.kana,
+					})),
+				];
+			}
 		} catch (error) {
 			console.error(error);
 		}
@@ -54,6 +69,17 @@
 		$openSearch = false;
 		$searchedWordStore = currentHoveredFlashcard;
 
+		// If it is a paragraph, go to the paragraph page and highlight the searched word
+		if ($searchedWordStore.type && $searchedWordStore.type === 'paragraph') {
+			const tabValue = isRomaji(search) ? 'details' : 'formatted';
+
+			const baseUrl = '/paragraphs/' + $searchedWordStore.id + `?tab=${tabValue}`;
+			await goto(baseUrl);
+			await tick();
+			window.location.hash = ':~:text=' + encodeURIComponent(search);
+			return;
+		}
+
 		// If it is a kanji, go to the kanji page
 		if (!$searchedWordStore.type) {
 			if (!$searchedWordStore.type) $searchKanji = $searchedWordStore?.name;
@@ -78,6 +104,12 @@
 		} catch (error) {
 			console.error(error);
 		}
+	}
+
+	// Function to highlight matching text
+	function highlightText(text: string) {
+		const regex = new RegExp(`(${search})`, 'gi');
+		return text.replace(regex, '<mark>$1</mark>');
 	}
 
 	$: if (search === '') fetchedData = getRandomKanji();
@@ -114,15 +146,23 @@
 				>
 					{#each fetchedData as flashcard}
 						<Command.Item value={flashcard.id} class="flex flex-col items-start gap-0.5">
-							<h4 class="font-medium">{flashcard.name}</h4>
-							<h4>{flashcard.meaning}</h4>
+							<h4 class="line-clamp-3 font-medium">
+								{@html highlightText(flashcard.name)}
+							</h4>
+							<h4 class="line-clamp-3 font-medium">
+								{@html highlightText(flashcard.meaning)}
+							</h4>
 						</Command.Item>
 					{/each}
 				</Command.Group>
 
 				{#if currentHoveredFlashcard}
 					<div
-						class="sticky top-0 col-span-2 flex h-fit flex-col items-center justify-center gap-2 overflow-auto px-2 max-md:h-[78dvh] md:h-[40rem]"
+						class={cn(
+							'sticky top-0 col-span-2 flex flex-col items-center justify-center gap-2 overflow-auto p-1 px-2',
+							currentHoveredFlashcard?.type !== 'paragraph' && 'max-md:h-[78dvh] md:h-[40rem]',
+							currentHoveredFlashcard?.type === 'paragraph' && 'h-fit',
+						)}
 					>
 						{#if currentHoveredFlashcard.furigana}
 							<h2
@@ -131,7 +171,7 @@
 									currentHoveredFlashcard.name.length > 15 && 'text-xl',
 								)}
 							>
-								{@html currentHoveredFlashcard.furigana}
+								{@html highlightText(currentHoveredFlashcard.furigana)}
 							</h2>
 						{:else}
 							<h2
@@ -140,11 +180,11 @@
 									currentHoveredFlashcard.name.length > 15 && 'text-xl',
 								)}
 							>
-								{currentHoveredFlashcard.name}
+								{@html highlightText(currentHoveredFlashcard.name)}
 							</h2>
 						{/if}
 
-						<h3>{currentHoveredFlashcard.meaning}</h3>
+						<h3>{@html highlightText(currentHoveredFlashcard.meaning)}</h3>
 
 						{#if currentHoveredFlashcard?.searches && currentHoveredFlashcard?.flashcardBox === '' && currentHoveredFlashcard?.searches[0]}
 							<Button
@@ -164,7 +204,7 @@
 										error: 'Failed to search',
 									});
 								}}
-								class="sticky bottom-0 text-center underline"
+								class="fixed bottom-2 bg-black text-center text-white underline"
 							>
 								{#if currentHoveredFlashcard?.expand}
 									<span class="italic">

@@ -7,6 +7,9 @@
 
 	export let data;
 
+	// Get tab from url
+	let tabValue = $page.url.search.split('=')[1] || 'extracted';
+
 	onMount(() => {
 		if (data.paragraphs.formatted_ai_data) return;
 		// use client side pocketbase for subscriptions
@@ -30,7 +33,7 @@
 </script>
 
 <div class="mt-20 flex size-full">
-	<Tabs.Root value="extracted" class="px-5">
+	<Tabs.Root value={tabValue} class="px-5">
 		<Tabs.List>
 			<Tabs.Trigger value="extracted">Extracted</Tabs.Trigger>
 			<Tabs.Trigger value="formatted" disabled={!data.paragraphs.formatted_ai_data?.kana}>

@@ -67,47 +67,6 @@ export const POST: RequestHandler = async ({ locals, request, fetch }) => {
 		// If search is not provided, return an error
 		if (!search) return json({ error: 'Queries are missing' });
 
-		if (type === 'search') {
-			const res = await fetch('/api/openai', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ input: search, type: 'search' }),
-			});
-
-			const data = await res.json();
-
-			if (data.meaning === 'Does not exist') return json({ error: 'Flashcard not found' });
-
-			const type = getFlashcardType(data.type);
-			const partOfSpeech = getFlashcardPartOfSpeech(data.partOfSpeech);
-			const meaning = isRomaji(data.name) ? data.name : data.meaning;
-			const furigana = isRomaji(data.furigana) ? '' : data.furigana;
-
-			// Create a flashcard if the search is a kanji
-			let flashcard = await locals.pb.collection('flashcard').create({
-				name: isRomaji(data.name) ? data.meaning : data.name,
-				meaning: meaning.includes(';') ? meaning.split(';').join(',') : meaning,
-				type,
-				romaji: data.romaji,
-				furigana,
-				partOfSpeech,
-			});
-
-			const newSearch = await locals.pb.collection('searches').create({
-				flashcard: flashcard.id,
-				user: locals.pb.authStore.model.id,
-				searchQuery: search,
-			});
-
-			flashcard = await locals.pb.collection('flashcard').update(flashcard.id, {
-				'searches+': newSearch.id,
-			});
-
-			return json({ flashcard });
-		}
-
 		console.time('searchFlashcards');
 
 		// Fetch flashcard collections
@@ -136,6 +95,15 @@ export const POST: RequestHandler = async ({ locals, request, fetch }) => {
 			}),
 			expand: 'flashcardBox',
 			fields: `id, name, meaning, type, furigana, flashcardBox, expand.flashcardBox.name`,
+		});
+
+		const paragraphFilter = `user = "${locals.pb.authStore.model?.id}" && (formatted_ai_data.kana ~ {:search} || formatted_ai_data.meaning ~ {:search})`;
+
+		const paragraphs = await locals.pb.collection('paragraphs').getFullList({
+			filter: locals.pb.filter(paragraphFilter, {
+				search,
+			}),
+			fields: `id, formatted_ai_data`,
 		});
 
 		// Process the furigana for each flashcard
@@ -196,7 +164,7 @@ export const POST: RequestHandler = async ({ locals, request, fetch }) => {
 			return json({ flashcards: newSearch });
 		}
 
-		return json({ flashcards: processedFlashcards });
+		return json({ flashcards: processedFlashcards, paragraphs });
 	} catch (error) {
 		console.error(error);
 		return json({ error });

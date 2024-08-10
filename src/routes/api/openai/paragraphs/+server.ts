@@ -92,7 +92,8 @@ export const POST = async ({ request, locals }) => {
 	await locals.pb.collection('paragraphs').update(recordID, {
 		formatted_ai_data: JSON.stringify({
 			...result.object,
-			kana: await convertToFurigana(result.object.kana),
+			kana: result.object.kana,
+			kanaWithFurigana: await convertToFurigana(result.object.kana),
 		}),
 	});
 
