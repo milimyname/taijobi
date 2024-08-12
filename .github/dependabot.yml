@@ -11,10 +11,10 @@ updates:
       prefix: 'chore'
       include: 'scope'
     open-pull-requests-limit: 10
-    base: 'dev'
+    target-branch: 'dev'
 
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
       interval: 'weekly'
-    base: 'dev'
+    target-branch: 'dev'
