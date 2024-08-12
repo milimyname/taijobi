@@ -108,7 +108,7 @@
 	<div class="grid grid-flow-row gap-4 md:grid-cols-3">
 		{#each feedbacks as feedback}
 			<button
-				class="flex w-full flex-col justify-between gap-2 rounded-lg border p-4 transition-all hover:scale-105 hover:shadow-md"
+				class="flex w-full flex-col justify-between gap-2 rounded-lg border p-4 transition-all hover:shadow-md md:hover:scale-105"
 				on:click={() => onClickFeedback(feedback)}
 			>
 				<p class="line-clamp-3 text-left text-sm">{feedback.description}</p>
