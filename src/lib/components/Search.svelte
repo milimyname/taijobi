@@ -159,9 +159,8 @@
 				{#if currentHoveredFlashcard}
 					<div
 						class={cn(
-							'sticky top-0 col-span-2 flex flex-col items-center justify-center gap-2 overflow-auto p-1 px-2',
-							currentHoveredFlashcard?.type !== 'paragraph' && 'max-md:h-[78dvh] md:h-[40rem]',
-							currentHoveredFlashcard?.type === 'paragraph' && 'h-fit',
+							'sticky top-0 col-span-2 flex flex-col items-center gap-2 overflow-auto p-1 px-2 max-md:h-[78dvh] md:h-[40rem]',
+							currentHoveredFlashcard.name.length < 300 && 'justify-center',
 						)}
 					>
 						{#if currentHoveredFlashcard.furigana}

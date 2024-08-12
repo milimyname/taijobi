@@ -56,6 +56,11 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Taijobi</title>
+	<meta name="Taijobi" content="Taijobi" />
+</svelte:head>
+
 <main class="grid grid-cols-1 items-start p-5 md:h-screen lg:grid-cols-[1fr_1fr_6rem]">
 	<slot />
 	<aside

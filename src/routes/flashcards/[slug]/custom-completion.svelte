@@ -15,6 +15,7 @@
 	let audioSource: string = '';
 	let audioElement: HTMLAudioElement;
 	let loading = false;
+	let loadingStates = new Map();
 	let activeTab: string | undefined;
 	let conjugationData: any;
 	let examples: ResponseType[] = [];
@@ -88,8 +89,11 @@
 		}
 	}
 
-	async function convertTextToSpeech(input: string) {
+	async function convertTextToSpeech(input: string, index: number) {
 		loading = true;
+		loadingStates.set(index, true);
+		loadingStates = loadingStates; // Trigger reactivity
+
 		try {
 			const res = await fetch('/api/openai', {
 				method: 'POST',
@@ -110,7 +114,8 @@
 			console.error(e);
 		}
 
-		loading = false;
+		loadingStates.set(index, false);
+		loadingStates = loadingStates; // Trigger reactivity
 	}
 
 	function onOutsideClickDrawer() {
@@ -143,11 +148,11 @@
 >
 	<DrawerDialog.Content
 		class={cn(
-			'fixed bottom-0 left-0 right-0 max-h-[96%] w-full',
-			$isDesktop && 'left-1/2  min-w-fit max-w-2xl',
+			'fixed bottom-0 left-0 right-0 max-h-[96%]',
+			$isDesktop && 'left-1/2 w-fit max-w-2xl',
 		)}
 	>
-		<div class="-mt-2 flex w-full flex-col overflow-y-auto">
+		<div class="-mt-2 overflow-y-scroll">
 			<Tabs.Root value={activeTab} onValueChange={(v) => (activeTab = v)}>
 				<Tabs.List class="sticky top-0 mx-auto flex w-fit">
 					<Tabs.Trigger value="note" disabled={!wordFlashcard?.notes}>
@@ -216,8 +221,8 @@
 				</Tabs.Content>
 				<Tabs.Content value="sentence" class="space-y-5 px-5 pb-14">
 					{#if examples.length !== 0}
-						{#each examples as { furigana, kanji, english }}
-							<div class="grid grid-cols-[1fr_20px] items-start gap-2">
+						{#each examples as { furigana, kanji, english }, index}
+							<div class="grid grid-cols-[1fr_20px] gap-2 overflow-hidden">
 								<div class="space-y-2">
 									<p class="text-lg lg:text-2xl">{@html furigana}</p>
 									<p class="text-sm">{english}</p>
@@ -226,10 +231,10 @@
 								<Button
 									variant="none"
 									size="icon"
-									{loading}
+									loading={loadingStates.get(index)}
 									class="p-0"
 									on:click={async () => {
-										await convertTextToSpeech(kanji);
+										await convertTextToSpeech(kanji, index);
 
 										if (audioElement) audioElement.play();
 									}}
