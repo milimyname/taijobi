@@ -4,12 +4,13 @@
 	import { quintOut } from 'svelte/easing';
 	import { loginSchema } from '$lib/utils/zodSchema';
 	import { zodClient } from 'sveltekit-superforms/adapters';
+	import { Button } from '$lib/components/ui/button/';
 
 	export let data;
 	let disabledPasswordConstraint = false;
 
 	// Client API:
-	const { form, errors, constraints, enhance } = superForm(data.form, {
+	const { form, errors, constraints, enhance, submitting } = superForm(data.form, {
 		validators: zodClient(loginSchema),
 	});
 </script>
@@ -70,9 +71,12 @@
 				>
 			{/if}
 		</fieldset>
-		<button
+		<Button
+			loading={$submitting}
+			disabled={$submitting}
 			class="text-md w-full rounded-md bg-black py-2 font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm md:w-2/3"
-			>Log in</button
 		>
+			Log in
+		</Button>
 	</div>
 </form>

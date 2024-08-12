@@ -10,7 +10,7 @@
 	export let authProviderRedirect: string;
 	export let codeVerifier: string;
 
-	const { form: formData, enhance } = form;
+	const { form: formData, enhance, delayed, submitting } = form;
 
 	function gotoAuthProvider() {
 		if (browser) {
@@ -62,6 +62,8 @@
 		</Form.Field>
 
 		<Form.Button
+			loading={$submitting}
+			disabled={$submitting}
 			class="text-md w-full rounded-md bg-black py-2 font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm md:w-2/3"
 		>
 			Log in

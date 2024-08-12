@@ -77,7 +77,7 @@
 				<div class="space-y-4">
 					<div class="space-y-2">
 						<p>
-							{@html data.paragraphs.formatted_ai_data.kana}
+							{@html data.paragraphs.formatted_ai_data.kanaWithFurigana}
 						</p>
 						<p>
 							{@html data.paragraphs.formatted_ai_data.meaning}
