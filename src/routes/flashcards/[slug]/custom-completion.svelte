@@ -222,9 +222,9 @@
 				<Tabs.Content value="sentence" class="space-y-5 px-5 pb-14">
 					{#if examples.length !== 0}
 						{#each examples as { furigana, kanji, english }, index}
-							<div class="grid grid-cols-[1fr_20px] gap-2 overflow-hidden">
+							<div class="grid grid-cols-[1fr_20px] gap-2">
 								<div class="space-y-2">
-									<p class="text-lg lg:text-2xl">{@html furigana}</p>
+									<p class="break-all text-lg lg:text-2xl">{@html furigana}</p>
 									<p class="text-sm">{english}</p>
 								</div>
 
