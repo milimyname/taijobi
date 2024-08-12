@@ -16,7 +16,7 @@ importers:
         version: 0.0.15(svelte@4.2.16)(zod@3.23.8)
       '@google-cloud/documentai':
         specifier: ^8.8.0
-        version: 8.8.0
+        version: 8.9.0
       '@melt-ui/svelte':
         specifier: 0.83.0
         version: 0.83.0(svelte@4.2.16)
@@ -116,7 +116,7 @@ importers:
         version: 0.3.2(@melt-ui/svelte@0.83.0(svelte@4.2.16))(svelte@4.2.16)
       '@sveltejs/adapter-node':
         specifier: ^5.0.1
-        version: 5.2.2(@sveltejs/kit@2.5.18(@sveltejs/vite-plugin-svelte@3.1.1(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))
+        version: 5.2.2(@sveltejs/kit@2.5.22(@sveltejs/vite-plugin-svelte@3.1.1(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))
       '@sveltejs/kit':
         specifier: ^2.5.18
         version: 2.5.22(@sveltejs/vite-plugin-svelte@3.1.1(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33))
@@ -732,8 +732,8 @@ packages:
     resolution: {integrity: sha512-3xGptCurm23e7nuPQkdrE5rEs1FeTPHhAUsBuwwqG4/YeZLwJOoYZv+fmsppUEfo5y9lzUwNQrNqLS/q7HMc7g==}
     hasBin: true
 
-  '@google-cloud/documentai@8.8.0':
-    resolution: {integrity: sha512-P0qiFFwlaEfZZd0ShP8pk2q7JwapzUbHyDzaugAGbjBgXw/7+aHNDQzlRfo331AoDAXksLUU3nrBma7FWDl7ug==}
+  '@google-cloud/documentai@8.9.0':
+    resolution: {integrity: sha512-E9pVveIuXr/9VCcEN3e+zDRHgyG2hYzh2ieoAM1Xuxag3Bg/9x6CecoXFhGZiqZxJflP0sL5eIDmO5Suf8ODyw==}
     engines: {node: '>=14.0.0'}
 
   '@grpc/grpc-js@1.11.1':
@@ -3661,7 +3661,7 @@ snapshots:
       esbuild-runner: 2.2.2(esbuild@0.23.0)
     optional: true
 
-  '@google-cloud/documentai@8.8.0':
+  '@google-cloud/documentai@8.9.0':
     dependencies:
       google-gax: 4.3.8
     transitivePeerDependencies:
@@ -3935,7 +3935,7 @@ snapshots:
   '@sodaru/yup-to-json-schema@2.0.1':
     optional: true
 
-  '@sveltejs/adapter-node@5.2.2(@sveltejs/kit@2.5.18(@sveltejs/vite-plugin-svelte@3.1.1(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))':
+  '@sveltejs/adapter-node@5.2.2(@sveltejs/kit@2.5.22(@sveltejs/vite-plugin-svelte@3.1.1(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))':
     dependencies:
       '@rollup/plugin-commonjs': 26.0.1(rollup@4.17.2)
       '@rollup/plugin-json': 6.1.0(rollup@4.17.2)
