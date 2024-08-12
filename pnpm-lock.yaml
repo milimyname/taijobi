@@ -94,7 +94,7 @@ importers:
         version: 0.2.2(svelte@4.2.16)
       svelte-sonner:
         specifier: ^0.3.21
-        version: 0.3.24(svelte@4.2.16)
+        version: 0.3.27(svelte@4.2.16)
       tailwind-merge:
         specifier: ^2.2.1
         version: 2.3.0
@@ -116,7 +116,7 @@ importers:
         version: 0.3.2(@melt-ui/svelte@0.83.0(svelte@4.2.16))(svelte@4.2.16)
       '@sveltejs/adapter-node':
         specifier: ^5.0.1
-        version: 5.2.2(@sveltejs/kit@2.5.18(@sveltejs/vite-plugin-svelte@3.1.1(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))
+        version: 5.2.2(@sveltejs/kit@2.5.22(@sveltejs/vite-plugin-svelte@3.1.1(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))
       '@sveltejs/kit':
         specifier: ^2.5.18
         version: 2.5.22(@sveltejs/vite-plugin-svelte@3.1.1(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33))
@@ -2876,10 +2876,10 @@ packages:
     resolution: {integrity: sha512-N5JqlBni6BzElxmuFrOPxOJnjsxh1cFDACLEVKs8OHBcx8ZNRO1p5SxuQex1m3qbLzAC8G99EHeWcxGkjyKjLQ==}
     engines: {node: '>=16'}
 
-  svelte-sonner@0.3.24:
-    resolution: {integrity: sha512-txuL0JBUs0v6qGrr0PGCsbXmKHuthdrAkfISYi8umuveF7+gINb6EXl6VmKY9aHhyxCqvVgqd6yophQNrnor4w==}
+  svelte-sonner@0.3.27:
+    resolution: {integrity: sha512-+PvbuePNTyTNCepCWqKcFeu+Lo27yYuwfSc7zJvrWjCRMJrWAmccPg3j7jO1W13QoN3TySXU5Trb956VBQiM5Q==}
     peerDependencies:
-      svelte: '>=3 <5'
+      svelte: ^3.0.0 || ^4.0.0 || ^5.0.0-next.1
 
   svelte@4.2.16:
     resolution: {integrity: sha512-mQwHpqHD2PmFcCyHaZ7XiTqposaLvJ75WpYcyY5/ce3qxbYtwQpZ+M7ZKP+2CG5U6kfnBZBpPLyofhlE6ROrnQ==}
@@ -3935,7 +3935,7 @@ snapshots:
   '@sodaru/yup-to-json-schema@2.0.1':
     optional: true
 
-  '@sveltejs/adapter-node@5.2.2(@sveltejs/kit@2.5.18(@sveltejs/vite-plugin-svelte@3.1.1(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))':
+  '@sveltejs/adapter-node@5.2.2(@sveltejs/kit@2.5.22(@sveltejs/vite-plugin-svelte@3.1.1(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))':
     dependencies:
       '@rollup/plugin-commonjs': 26.0.1(rollup@4.17.2)
       '@rollup/plugin-json': 6.1.0(rollup@4.17.2)
@@ -5915,7 +5915,7 @@ snapshots:
       svelte: 4.2.16
       tslib: 2.6.3
 
-  svelte-sonner@0.3.24(svelte@4.2.16):
+  svelte-sonner@0.3.27(svelte@4.2.16):
     dependencies:
       svelte: 4.2.16
 
