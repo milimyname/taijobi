@@ -14,9 +14,8 @@
 
 	let audioSource: string = '';
 	let audioElement: HTMLAudioElement;
-	let loading = false;
 	let loadingStates = new Map();
-	let activeTab: string | undefined;
+	let activeTab: string | undefined = wordFlashcard?.notes ? 'note' : 'sentence';
 	let conjugationData: any;
 	let examples: ResponseType[] = [];
 
@@ -90,7 +89,6 @@
 	}
 
 	async function convertTextToSpeech(input: string, index: number) {
-		loading = true;
 		loadingStates.set(index, true);
 		loadingStates = loadingStates; // Trigger reactivity
 
@@ -129,12 +127,7 @@
 	$: if ($showCustomContent && activeTab === 'sentence' && wordFlashcard)
 		generateExampleSentences();
 
-	$: if ($showCustomContent && wordFlashcard?.partOfSpeech === 'unknown') activeTab = 'sentence';
-
 	$: if ($showCustomContent && wordFlashcard) examples = [];
-
-	$: if ($showCustomContent && wordFlashcard?.type !== 'word' && activeTab === 'conjugation')
-		activeTab = 'sentence';
 </script>
 
 {#if audioSource}
