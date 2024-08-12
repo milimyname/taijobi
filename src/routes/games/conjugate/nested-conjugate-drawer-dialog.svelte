@@ -1,8 +1,6 @@
 <script lang="ts">
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as DrawerDialog from '$lib/components/ui/drawer-dialog';
-	import { quintOut } from 'svelte/easing';
-	import { slide } from 'svelte/transition';
 	import type { ConjugationFormSchema } from '$lib/utils/zodSchema';
 	import type { Infer, SuperForm } from 'sveltekit-superforms';
 	import { nestedSearchDrawerOpen, selectedConjugatingFlashcards } from '$lib/utils/stores';
@@ -15,10 +13,6 @@
 
 	const { form: formData, errors }: SuperForm<Infer<ConjugationFormSchema>> =
 		getContext('superConjugationForm');
-
-	function openNestedSearchDrawer() {
-		$nestedSearchDrawerOpen = true;
-	}
 
 	function removeFlashcardFromSelected(flashcard: FlashcardType) {
 		$selectedConjugatingFlashcards = [
@@ -57,14 +51,9 @@
 	onClose={onCloseDrawer}
 	onOutsideClick={onClickOutSideClick}
 >
-	<div transition:slide={{ duration: 300, easing: quintOut, axis: 'y' }} class="w-full">
-		<DrawerDialog.Trigger asChild>
-			<Button class="w-full" on:click={openNestedSearchDrawer}>Create Conjugation Quiz</Button>
-		</DrawerDialog.Trigger>
-	</div>
-
-	<DrawerDialog.Content class="z-[101] px-0 drawerNested w-full md:max-w-xl">
-		<DrawerDialog.Header class="text-left overflow-hidden px-0">
+	<DrawerDialog.Overlay class="fixed inset-0 z-[100] bg-black/10" />
+	<DrawerDialog.Content class="drawerNested z-[101] w-full px-0 md:max-w-xl">
+		<DrawerDialog.Header class="overflow-hidden px-0 text-left">
 			<DrawerDialog.Title className="px-5">Add a new conjugation quiz</DrawerDialog.Title>
 			<DrawerDialog.Description className="px-5">
 				Select a collection and a box to add the selected flashcards to.
@@ -73,10 +62,10 @@
 				<div class="flex space-x-4 pb-3 pl-5">
 					{#each $selectedConjugatingFlashcards as flashcard}
 						<Card.Root
-							class="cursor-pointer hover:shadow-md transition-shadow duration-300 ease-linear flex flex-col justify-between"
+							class="flex cursor-pointer flex-col justify-between transition-shadow duration-300 ease-linear hover:shadow-md"
 						>
 							<Card.Header class="relative">
-								<Card.Title class="truncate overflow-x-auto">
+								<Card.Title class="overflow-x-auto truncate">
 									{flashcard?.name}
 								</Card.Title>
 

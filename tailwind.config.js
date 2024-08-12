@@ -75,6 +75,7 @@ const config = {
 			boxShadow: {
 				profile: '0px -18px 10px 0px rgba(64, 168, 240, 0.10)',
 				pricing: ' 0px -18px 10px 0px rgba(130, 197, 247x, 0.10)',
+				'search-drawer-footer': '0px -16px 40px 0px rgba(0, 0, 0, 0.2)',
 				logo: '0px 4px 3px 0px rgba(0, 0, 0, 0.40) inset, 0px 4px 4px 0px rgba(0, 0, 0, 0.25);',
 			},
 			height: {

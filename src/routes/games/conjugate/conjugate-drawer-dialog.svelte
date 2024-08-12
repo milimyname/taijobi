@@ -15,6 +15,8 @@
 	import { isDesktop } from '$lib/utils';
 	import { getContext } from 'svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
+	import { quintOut } from 'svelte/easing';
+	import { slide } from 'svelte/transition';
 
 	const flashcardBoxes: RecordModel[] = getContext('ogFlashcardBoxes');
 
@@ -62,6 +64,8 @@
 		inputValue !== '' ? sortedFlashcardBoxes.map((box) => box?.flashcardBoxName) : []; // Empty array when no input, allowing accordions to be closed
 </script>
 
+<NestedConjugateDrawerDialog />
+
 <DrawerDialog.Root open={$openConjugation} onOutsideClick={onCloseDrawer} onClose={onCloseDrawer}>
 	<DrawerDialog.Content className="w-full max-h-[90dvh] md:max-w-2xl p-0">
 		<DrawerDialog.Header class="space-y-2 p-5 pb-0 text-left max-md:mb-5">
@@ -74,7 +78,11 @@
 			</DrawerDialog.Description>
 
 			{#if $selectedConjugatingFlashcards.length > 0 && $isDesktop}
-				<NestedConjugateDrawerDialog />
+				<div transition:slide={{ duration: 300, easing: quintOut, axis: 'y' }} class="w-full">
+					<Button class="w-full" on:click={() => ($nestedSearchDrawerOpen = true)}>
+						Create Conjugation Quiz
+					</Button>
+				</div>
 			{/if}
 		</DrawerDialog.Header>
 		<ScrollArea class="h-[32rem] w-full overflow-auto px-0">
@@ -131,9 +139,13 @@
 			</div>
 		</ScrollArea>
 
-		<DrawerDialog.Footer className="md:hidden px-5">
+		<DrawerDialog.Footer className="md:hidden px-5 max-md:shadow-search-drawer-footer z-10">
 			{#if $selectedConjugatingFlashcards.length > 0}
-				<NestedConjugateDrawerDialog />
+				<div transition:slide={{ duration: 300, easing: quintOut, axis: 'y' }} class="w-full">
+					<Button class="w-full" on:click={() => ($nestedSearchDrawerOpen = true)}>
+						Create Conjugation Quiz
+					</Button>
+				</div>
 			{/if}
 			<DrawerDialog.Close asChild let:builder>
 				<Button builders={[builder]} variant="outline">Cancel</Button>

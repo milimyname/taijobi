@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { isDesktop } from '$lib/utils';
+	import { cn, isDesktop } from '$lib/utils';
 	import { DialogOverlay } from '$lib/components/ui/dialog';
 	import { DrawerOverlay } from '$lib/components/ui/drawer';
 
@@ -10,6 +10,10 @@
 	$: Overlay = $isDesktop ? DialogOverlay : DrawerOverlay;
 </script>
 
-<svelte:component this={Overlay} class={className} {...$$restProps}>
+<svelte:component
+	this={Overlay}
+	class={cn('fixed inset-0 z-50 bg-black/10', className)}
+	{...$$restProps}
+>
 	<slot />
 </svelte:component>

@@ -24,6 +24,8 @@
 	import { getContext } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import DeleteTrashButton from '$lib/components/delete-trash-button.svelte';
+	import { quintOut } from 'svelte/easing';
+	import { slide } from 'svelte/transition';
 
 	export let searches: RecordModel[];
 
@@ -33,7 +35,7 @@
 	let loading = false;
 
 	function onCloseDrawer() {
-		setTimeout(() => ($openHistory = false), 100);
+		setTimeout(() => ($openHistory = false), 150);
 	}
 
 	function onClickOutSideClick(e: PointerEvent | MouseEvent | TouchEvent) {
@@ -136,6 +138,8 @@
 
 <DeleteDrawerAlertDialog onClick={deleteHistory} />
 
+<NestedSearchDrawerDialog />
+
 <DrawerDialog.Root open={$openHistory} onOutsideClick={onClickOutSideClick} onClose={onCloseDrawer}>
 	<DrawerDialog.Content
 		className={cn('w-full max-h-[90dvh] md:max-w-2xl p-0', $deleteDrawerDialogOpen && 'z-60')}
@@ -170,7 +174,11 @@
 				<Input placeholder="Flashcard Name" bind:value={inputValue} />
 			</DrawerDialog.Description>
 			{#if $selectedSearchFlashcards.length > 0 && $isDesktop}
-				<NestedSearchDrawerDialog />
+				<div transition:slide={{ duration: 300, easing: quintOut, axis: 'y' }} class="w-full">
+					<Button class="w-full" on:click={() => ($nestedSearchDrawerOpen = true)}>
+						Create Flashcard Box
+					</Button>
+				</div>
 			{/if}
 		</DrawerDialog.Header>
 		<ScrollArea class="h-[32rem] w-full">
@@ -279,9 +287,13 @@
 				{/each}
 			</div>
 		</ScrollArea>
-		<DrawerDialog.Footer className="md:hidden px-5">
+		<DrawerDialog.Footer className="md:hidden px-5 max-md:shadow-search-drawer-footer z-10">
 			{#if $selectedSearchFlashcards.length > 0}
-				<NestedSearchDrawerDialog />
+				<div transition:slide={{ duration: 300, easing: quintOut, axis: 'y' }} class="w-full">
+					<Button class="w-full" on:click={() => ($nestedSearchDrawerOpen = true)}>
+						Create Flashcard Box
+					</Button>
+				</div>
 			{/if}
 			<DrawerDialog.Close asChild let:builder>
 				<Button builders={[builder]} variant="outline">Cancel</Button>

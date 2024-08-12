@@ -16,7 +16,7 @@
 	} from '$lib/utils/stores';
 	import QuizItems from './quiz-items.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { cn } from '$lib/utils';
+	import { cn, isDesktop } from '$lib/utils';
 	import { page } from '$app/stores';
 	import { type FlashcardCollectionSchema } from '$lib/utils/zodSchema';
 	import { type SuperForm, type Infer } from 'sveltekit-superforms';
@@ -32,36 +32,8 @@
 
 	const { form: formData, delayed, isTainted, tainted, submit, reset } = form;
 
-	function onOutsideClick(e: PointerEvent | MouseEvent | TouchEvent) {
-		// let eventTarget: Element | null = null;
-
-		// if (e && 'changedTouches' in e && e.changedTouches.length > 0) {
-		// 	// It's a TouchEvent
-		// 	eventTarget = e.changedTouches[0].target as Element;
-		// } else if (e && 'target' in e) {
-		// 	// It's a MouseEvent or PointerEvent
-		// 	eventTarget = e.target as Element;
-		// }
-
-		// Ensure eventTarget is not null before proceeding
-		// if (!eventTarget) {
-		// 	$clickedAddFlashcardCollection = false;
-		// 	$clickedAddFlahcardBox = false;
-		// 	$clickedEditFlashcard = false;
-		// 	$selectedQuizItems = [];
-
-		// 	return;
-		// }
-
-		// If the user clicks on the leave button, don't move the card
-		// if (
-		// 	($page.url.pathname.includes('flashcards') && eventTarget.closest('.add-btn')) ||
-		// 	eventTarget.closest('.swap-items') ||
-		// 	eventTarget.closest('.edit-collection-btn')
-		// )
-		// 	return;
-		//
-		// if ($deleteDrawerDialogOpen) return;
+	function onOutsideClick() {
+		if ($swapFlashcards) return;
 
 		setTimeout(() => {
 			$clickedAddFlashcardCollection = false;
@@ -101,7 +73,7 @@
 			$maxFlashcards !== '0' &&
 			$flashcardBoxes.length > 1 &&
 			$flashcardsBoxType !== 'original') ||
-		($page.data.isAdmin && !$clickedAddFlashcardCollection);
+		($page.data.isAdmin && !$clickedAddFlashcardCollection && $maxFlashcards !== '0');
 
 	$: $disabledSubmitCollection = $formData.name === '' || !isTainted($tainted);
 </script>
@@ -109,6 +81,7 @@
 <DeleteDrawerAlertDialog onClick={deleteCollectionOrBox} />
 
 <DrawerDialog.Root bind:open={$swapFlashcards}>
+	<DrawerDialog.Overlay class="fixed inset-0 z-[100] bg-black/10" />
 	<DrawerDialog.Content class="swap-items z-[101] max-w-2xl p-0">
 		<QuizItems flashcardBox={$currentBoxId}>
 			<DrawerDialog.Close asChild let:builder>
@@ -118,6 +91,7 @@
 						$selectQuizItemsForm = false;
 						$swapFlashcards = false;
 						$selectedQuizItems = [];
+						$clickedAddFlahcardBox = true;
 					}}
 					variant="outline"
 					class="max-md:hidden"
@@ -142,7 +116,12 @@
 			$deleteDrawerDialogOpen && 'z-60',
 		)}
 	>
-		<div class="flex w-full flex-col max-md:overflow-auto md:gap-4">
+		<div
+			class={cn(
+				'flex w-full flex-col max-md:h-full max-md:overflow-auto',
+				$clickedEditFlashcard && !$clickedAddFlashcardCollection && !$isDesktop && 'z-60',
+			)}
+		>
 			<DrawerDialog.Header class="text-left">
 				<DrawerDialog.Title className="flex justify-between items-center">
 					{#if $clickedEditFlashcard}
@@ -161,7 +140,13 @@
 				</DrawerDialog.Title>
 			</DrawerDialog.Header>
 			<FlashcardCollectionForm {form}>
-				<div slot="update">
+				<div
+					slot="update"
+					class={cn(
+						'space-y-2',
+						$clickedEditFlashcard && !$clickedAddFlashcardCollection && !$isDesktop && 'pb-40',
+					)}
+				>
 					<DrawerDialog.Close asChild let:builder>
 						<Button
 							builders={[builder]}
@@ -172,9 +157,29 @@
 							Update
 						</Button>
 					</DrawerDialog.Close>
+					<DrawerDialog.Footer className="md:hidden p-0">
+						<DrawerDialog.Close asChild let:builder>
+							<Button
+								builders={[builder]}
+								variant="outline"
+								on:click={(e) => {
+									e.preventDefault();
+									onOutsideClick();
+								}}
+							>
+								Cancel
+							</Button>
+						</DrawerDialog.Close>
+					</DrawerDialog.Footer>
 				</div>
 
-				<div slot="add">
+				<div
+					slot="add"
+					class={cn(
+						'space-y-2',
+						$clickedEditFlashcard && !$clickedAddFlashcardCollection && !$isDesktop && 'pb-40',
+					)}
+				>
 					<DrawerDialog.Close asChild let:builder>
 						<Button
 							builders={[builder]}
@@ -185,14 +190,22 @@
 							Add
 						</Button>
 					</DrawerDialog.Close>
+					<DrawerDialog.Footer className="md:hidden p-0">
+						<DrawerDialog.Close asChild let:builder>
+							<Button
+								builders={[builder]}
+								variant="outline"
+								on:click={(e) => {
+									e.preventDefault();
+									onOutsideClick();
+								}}
+							>
+								Cancel
+							</Button>
+						</DrawerDialog.Close>
+					</DrawerDialog.Footer>
 				</div>
 			</FlashcardCollectionForm>
-
-			<DrawerDialog.Footer className="md:hidden">
-				<DrawerDialog.Close asChild let:builder>
-					<Button builders={[builder]} variant="outline">Cancel</Button>
-				</DrawerDialog.Close>
-			</DrawerDialog.Footer>
 		</div>
 	</DrawerDialog.Content>
 </DrawerDialog.Root>

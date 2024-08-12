@@ -30,7 +30,7 @@
 	method="POST"
 	action="?/delete"
 	use:enhance
-	class={cn('quiz-form z-[1000] w-full', !$isDesktop && 'px-4')}
+	class={cn('quiz-form z-[1000] size-full', !$isDesktop && 'px-4')}
 >
 	<div class="mb-auto flex flex-col gap-2">
 		{#if $clickedEditFlashcard && !$clickedAddFlashcardCollection}
@@ -87,7 +87,7 @@
 		{#if $clickedEditFlashcard}
 			<button
 				formaction="?/update"
-				class="w-full disabled:cursor-not-allowed"
+				class="size-full disabled:cursor-not-allowed"
 				disabled={$disabledSubmitCollection}
 			>
 				<slot name="update" />
@@ -95,7 +95,7 @@
 		{:else}
 			<button
 				formaction="?/add"
-				class="w-full disabled:cursor-not-allowed"
+				class="size-full disabled:cursor-not-allowed"
 				disabled={$disabledSubmitCollection}
 			>
 				<slot name="add" />

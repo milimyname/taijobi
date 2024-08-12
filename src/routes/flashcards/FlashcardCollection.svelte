@@ -194,6 +194,10 @@
 			return ($openSearch = true);
 		}
 
+		if ((event.target as Element).closest('.search-btn')) {
+			return ($openSearch = true);
+		}
+
 		// Go to a newly created flashcard box
 		if ((event.target as Element).closest('.toaster')) {
 			goto(`/flashcards/${$newFlashcardBoxId}`);

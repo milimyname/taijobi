@@ -14,7 +14,7 @@
 	const { form: formData, enhance } = form;
 </script>
 
-<form method="POST" use:enhance class="search-form z-[1000] flex w-full flex-col px-5 space-y-5">
+<form method="POST" use:enhance class="search-form z-[1000] flex w-full flex-col space-y-5 px-5">
 	<div class="mb-auto flex flex-col gap-2">
 		<Form.Field {form} name="name">
 			<Form.Control let:attrs>
@@ -29,7 +29,7 @@
 			<Form.Field
 				{form}
 				name="settings"
-				class="grid items-center gap-4 grid-cols-[repeat(2,1rem_1fr)] space-y-0 px-5 md:px-0"
+				class="grid grid-cols-[repeat(2,1rem_1fr)] items-center gap-4 space-y-0 px-5 md:px-0"
 			>
 				<Form.Control let:attrs>
 					{#each Object.entries(VERB_CONJUGATION_TYPES) as [type, value]}

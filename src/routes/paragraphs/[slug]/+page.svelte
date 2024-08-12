@@ -32,7 +32,7 @@
 	});
 </script>
 
-<div class="mt-20 flex size-full">
+<div class="mt-10 flex size-full md:mt-20">
 	<Tabs.Root value={tabValue} class="px-5">
 		<Tabs.List>
 			<Tabs.Trigger value="extracted">Extracted</Tabs.Trigger>
@@ -43,7 +43,7 @@
 				Details
 			</Tabs.Trigger>
 		</Tabs.List>
-		<Tabs.Content value="extracted">
+		<Tabs.Content value="extracted" class="pb-5">
 			<h2 class="size-full text-balance font-medium">
 				One to One extracted text from
 				<Button variant="link" href={data.paragraphs?.url} class="px-0" target="_blank">

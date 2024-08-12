@@ -1,8 +1,6 @@
 <script lang="ts">
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as DrawerDialog from '$lib/components/ui/drawer-dialog';
-	import { quintOut } from 'svelte/easing';
-	import { slide } from 'svelte/transition';
 	import FormSearchDrawerDialog from './form-search-drawer-dialog.svelte';
 	import type { SearchCollectionSchema } from '$lib/utils/zodSchema';
 	import type { Infer, SuperForm } from 'sveltekit-superforms';
@@ -14,10 +12,6 @@
 	import { CircleX } from 'lucide-svelte';
 
 	let form: SuperForm<Infer<SearchCollectionSchema>> = getContext('flashcardCollectionForm');
-
-	function openNestedSearchDrawer() {
-		$nestedSearchDrawerOpen = true;
-	}
 
 	function removeFlashcardFromSelected(box: RecordModel) {
 		$selectedSearchFlashcards = [
@@ -79,13 +73,8 @@
 	onClose={onCloseDrawer}
 	onOutsideClick={onClickOutSideClick}
 >
-	<div transition:slide={{ duration: 300, easing: quintOut, axis: 'y' }} class="w-full">
-		<DrawerDialog.Trigger asChild>
-			<Button class="w-full" on:click={openNestedSearchDrawer}>Create Flashcard Box</Button>
-		</DrawerDialog.Trigger>
-	</div>
-
-	<DrawerDialog.Content class="drawerNested z-[101] w-full px-0 md:max-w-xl">
+	<DrawerDialog.Overlay class="fixed inset-0 z-[100] bg-black/10" />
+	<DrawerDialog.Content class="drawerNested fixed z-[101] w-full px-0 md:max-w-xl">
 		<DrawerDialog.Header class="overflow-hidden px-0 text-left">
 			<DrawerDialog.Title className="px-5">Add a new flashcards box</DrawerDialog.Title>
 			<DrawerDialog.Description className="px-5">

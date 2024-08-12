@@ -116,7 +116,7 @@ importers:
         version: 0.3.2(@melt-ui/svelte@0.83.0(svelte@4.2.16))(svelte@4.2.16)
       '@sveltejs/adapter-node':
         specifier: ^5.0.1
-        version: 5.2.2(@sveltejs/kit@2.5.18(@sveltejs/vite-plugin-svelte@3.1.1(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))
+        version: 5.2.2(@sveltejs/kit@2.5.22(@sveltejs/vite-plugin-svelte@3.1.1(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))
       '@sveltejs/kit':
         specifier: ^2.5.18
         version: 2.5.22(@sveltejs/vite-plugin-svelte@3.1.1(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33))
@@ -144,6 +144,9 @@ importers:
       autoprefixer:
         specifier: ^10.4.18
         version: 10.4.19(postcss@8.4.38)
+      eruda:
+        specifier: ^3.2.3
+        version: 3.2.3
       eslint:
         specifier: ^8.57.0
         version: 8.57.0
@@ -1642,6 +1645,9 @@ packages:
   entities@4.5.0:
     resolution: {integrity: sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw==}
     engines: {node: '>=0.12'}
+
+  eruda@3.2.3:
+    resolution: {integrity: sha512-304e6QPmPGoFHh+nI0BJHBuGJFCh+VoRvpaFg4FIQA1+JS+DpjWCylLdbXp1O73735+47Wuls7+qUmB3khelmg==}
 
   es6-promise@3.3.1:
     resolution: {integrity: sha512-SOp9Phqvqn7jtEUxPWdWfWoLmyt2VaJ6MpvP9Comy1MceMXqE6bxvaTu4iaxpYYPzhny28Lc+M87/c2cPK6lDg==}
@@ -3935,7 +3941,7 @@ snapshots:
   '@sodaru/yup-to-json-schema@2.0.1':
     optional: true
 
-  '@sveltejs/adapter-node@5.2.2(@sveltejs/kit@2.5.18(@sveltejs/vite-plugin-svelte@3.1.1(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))':
+  '@sveltejs/adapter-node@5.2.2(@sveltejs/kit@2.5.22(@sveltejs/vite-plugin-svelte@3.1.1(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))':
     dependencies:
       '@rollup/plugin-commonjs': 26.0.1(rollup@4.17.2)
       '@rollup/plugin-json': 6.1.0(rollup@4.17.2)
@@ -4644,6 +4650,8 @@ snapshots:
       once: 1.4.0
 
   entities@4.5.0: {}
+
+  eruda@3.2.3: {}
 
   es6-promise@3.3.1: {}
 

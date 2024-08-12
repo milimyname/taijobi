@@ -11,7 +11,7 @@
 
 <DrawerPrimitive.Overlay
 	bind:el
-	class={cn('fixed inset-0 z-50 bg-black/80', className)}
+	class={cn('fixed inset-[-1px] z-50 rounded-lg bg-black/80', className)}
 	{...$$restProps}
 >
 	<slot />
