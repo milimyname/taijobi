@@ -4,7 +4,7 @@ updates:
     directory: '/'
     schedule:
       interval: 'weekly'
-    versioning-strategy: 'lockfile-only'
+    versioning-strategy: 'auto'
     allow:
       - dependency-type: 'all'
     commit-message:
@@ -18,3 +18,8 @@ updates:
     schedule:
       interval: 'weekly'
     target-branch: 'dev'
+    groups:
+      actions-minor:
+        update-types:
+          - minor
+          - patch
