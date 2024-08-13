@@ -74,7 +74,7 @@
 		"svelte-easy-crop": "^2.0.3",
 		"svelte-legos": "^0.2.2",
 		"svelte-sonner": "^0.3.21",
-		"tailwind-merge": "^2.2.1",
+		"tailwind-merge": "^2.5.2",
 		"tailwind-variants": "^0.2.1",
 		"unofficial-jisho-api": "^2.3.4",
 		"vaul-svelte": "^0.3.2",
