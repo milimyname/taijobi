@@ -15,7 +15,7 @@
 		"@melt-ui/pp": "^0.3.2",
 		"@sveltejs/adapter-node": "^5.0.1",
 		"@sveltejs/kit": "^2.5.18",
-		"@tailwindcss/typography": "^0.5.10",
+		"@tailwindcss/typography": "^0.5.14",
 		"@trivago/prettier-plugin-sort-imports": "^4.3.0",
 		"@types/dropzone": "^5.7.8",
 		"@types/eventsource": "^1.1.15",
