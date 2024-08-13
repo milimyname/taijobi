@@ -139,7 +139,7 @@
 			</div>
 		</ScrollArea>
 
-		<DrawerDialog.Footer className="md:hidden px-5 max-md:shadow-search-drawer-footer z-10">
+		<DrawerDialog.Footer className="md:hidden px-5 search-drawer-footer z-10">
 			{#if $selectedConjugatingFlashcards.length > 0}
 				<div transition:slide={{ duration: 300, easing: quintOut, axis: 'y' }} class="w-full">
 					<Button class="w-full" on:click={() => ($nestedSearchDrawerOpen = true)}>

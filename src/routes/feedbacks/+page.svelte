@@ -105,7 +105,7 @@
 		</Button>
 		<Button size="sm" on:click={() => ($clickedFeedback = true)}>Create</Button>
 	</div>
-	<div class="grid grid-flow-row gap-4 md:grid-cols-3">
+	<div class="grid grid-flow-row gap-4 max-md:pb-5 md:grid-cols-3">
 		{#each feedbacks as feedback}
 			<button
 				class="flex w-full flex-col justify-between gap-2 rounded-lg border p-4 transition-all hover:shadow-md md:hover:scale-105"

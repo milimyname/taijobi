@@ -102,8 +102,8 @@
 			$clickedAddFlahcardBox = false;
 			$showCollections = false;
 		}}
-		class="add-form-btn scrollable fixed bottom-0 left-1/2 z-[101] flex min-h-fit w-full -translate-x-1/2
-			 items-center gap-2 overflow-auto rounded-t-2xl bg-white px-2 py-2 sm:bottom-0 md:max-w-4xl"
+		class="add-form-btn scrollable fixed bottom-0 left-1/2 z-[101] flex min-h-fit w-full -translate-x-1/2 items-center
+			 gap-2 overflow-auto rounded-t-2xl bg-white px-2 py-2 max-md:pb-5 sm:bottom-0 md:max-w-4xl"
 		transition:fly={{
 			delay: 0,
 			duration: 500,

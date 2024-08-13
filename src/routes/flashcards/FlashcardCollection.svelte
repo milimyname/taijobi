@@ -15,6 +15,7 @@
 		openSearch,
 		newFlashcardBoxId,
 		showDropdown,
+		selectQuizItemsForm,
 	} from '$lib/utils/stores';
 	import { IS_DESKTOP } from '$lib/utils/constants';
 	import { FolderEdit } from 'lucide-svelte';
@@ -60,7 +61,8 @@
 			$clickedQuizForm ||
 			isClicked ||
 			$clickedFeedback ||
-			$openSearch
+			$openSearch ||
+			$selectQuizItemsForm
 		)
 			return;
 

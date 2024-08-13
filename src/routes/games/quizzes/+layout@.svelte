@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { page } from '$app/stores';
 	import { ArrowLeft } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
 </script>
@@ -12,11 +11,7 @@
 <main class="flex h-dvh flex-col items-center bg-white transition-all">
 	<nav class="flex w-full items-center p-5">
 		<Button size="icon" variant="none">
-			<a
-				href={$page.params.slug ? '/games/quizzes' : '/games'}
-				class="go-back-btn group"
-				data-sveltekit-preload-data
-			>
+			<a href="/" class="go-back-btn group" data-sveltekit-preload-data>
 				<ArrowLeft
 					class="size-5 transition-transform  group-hover:-translate-x-2 group-active:-translate-x-2"
 				/>
