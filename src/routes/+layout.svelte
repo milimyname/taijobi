@@ -7,7 +7,7 @@
 	import { Toaster } from '$lib/components/ui/sonner';
 	import Kbd from '$lib/components/Kbd.svelte';
 	import { afterNavigate, onNavigate } from '$app/navigation';
-	import { onMount } from 'svelte';
+	// import { onMount } from 'svelte';
 
 	// Clear strokes on navigation
 	afterNavigate(() => {
@@ -26,12 +26,12 @@
 		});
 	});
 
-	onMount(() => {
-		// Clear strokes on navigation
-		if (import.meta.env.MODE === 'development') {
-			import('eruda').then((eruda) => eruda.default.init());
-		}
-	});
+	// onMount(() => {
+	// 	// Clear strokes on navigation
+	// 	if (import.meta.env.MODE === 'development') {
+	// 		import('eruda').then((eruda) => eruda.default.init());
+	// 	}
+	// });
 </script>
 
 <svelte:window bind:innerWidth={$innerWidthStore} bind:innerHeight={$innerHeightStore} />
