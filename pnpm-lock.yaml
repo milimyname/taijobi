@@ -81,8 +81,8 @@ importers:
         specifier: ^4.29.0
         version: 4.43.0
       pnpm:
-        specifier: ^8.15.4
-        version: 8.15.8
+        specifier: ^9.7.0
+        version: 9.7.0
       pocketbase:
         specifier: ^0.21.1
         version: 0.21.2
@@ -2414,9 +2414,9 @@ packages:
     resolution: {integrity: sha512-saLsH7WeYYPiD25LDuLRRY/i+6HaPYr6G1OUlN39otzkSTxKnubR9RTxS3/Kk50s1g2JTgFwWQDQyplC5/SHZg==}
     engines: {node: '>= 6'}
 
-  pnpm@8.15.8:
-    resolution: {integrity: sha512-0aAp4aRHrZC8ls1YsPrUhtKZPVMYVjlve6vy2D6xgju4PFo9D8GPZ1stEDIdSesWH+zjb+gTSqWCPs0hX+7Tkg==}
-    engines: {node: '>=16.14'}
+  pnpm@9.7.0:
+    resolution: {integrity: sha512-3AlDAVa0J/Xs/HmIiJnhw50taQ8AS+cOBSMLcssXPZaDlYdUXQlCm1WsPEKcgBtNw8DgAvZTgwpCD6LdTjz5zw==}
+    engines: {node: '>=18.12'}
     hasBin: true
 
   pocketbase@0.21.2:
@@ -5512,7 +5512,7 @@ snapshots:
 
   pirates@4.0.6: {}
 
-  pnpm@8.15.8: {}
+  pnpm@9.7.0: {}
 
   pocketbase@0.21.2: {}
 
