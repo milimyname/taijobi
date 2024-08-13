@@ -139,7 +139,7 @@ export const quizSchema = z.object({
 	timeLimit: z.boolean().default(false),
 	id: z.string().optional(),
 	flashcards: z.string().optional(),
-	selectedQuizItems: z.string().optional(),
+	selectedQuizItems: z.string().optional().default(''),
 });
 
 export type QuizSchema = typeof quizSchema;

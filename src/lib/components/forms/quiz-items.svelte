@@ -116,47 +116,46 @@
 			</ul>
 		{/if}
 	</div>
-</ScrollArea>
+	<div
+		class="sticky bottom-0 z-40 flex w-full items-center justify-between gap-2 rounded-b-md bg-white p-5 shadow-profile sm:bottom-0"
+	>
+		<slot />
 
-<div
-	class="sticky bottom-0 z-40 flex w-full items-center justify-between gap-2 rounded-b-md bg-white p-5 shadow-profile sm:bottom-0"
->
-	<slot />
+		{#if $selectedQuizItems.length < 10 && $selectedQuizItems.length > 0 && !$swapFlashcards}
+			<p class="px-5 text-sm font-bold text-red-400">
+				At least 10 items ({$selectedQuizItems.length})
+			</p>
+		{/if}
 
-	{#if $selectedQuizItems.length < 10 && $selectedQuizItems.length > 0 && !$swapFlashcards}
-		<p class="px-5 text-sm font-bold text-red-400">
-			At least 10 items ({$selectedQuizItems.length})
-		</p>
-	{/if}
-
-	{#if $swapFlashcards}
-		<div class="flex items-center gap-3 sm:gap-5">
-			<div>
-				<span>Move to</span>
-				<select
-					bind:value={selectedFlashcardBox}
-					class="border-hidden bg-none pr-3 text-center font-bold outline-none focus:border-transparent focus:ring-0"
-				>
-					{#each $flashcardBoxes as box}
-						{#if box.id !== flashcardBox}
-							<option value={box.id}>{box.name}</option>
-						{/if}
-					{/each}
-				</select>
-				<span>box</span>
+		{#if $swapFlashcards}
+			<div class="flex items-center gap-3 sm:gap-5">
+				<div>
+					<span>Move to</span>
+					<select
+						bind:value={selectedFlashcardBox}
+						class="border-hidden bg-none pr-3 text-center font-bold outline-none focus:border-transparent focus:ring-0"
+					>
+						{#each $flashcardBoxes as box}
+							{#if box.id !== flashcardBox}
+								<option value={box.id}>{box.name}</option>
+							{/if}
+						{/each}
+					</select>
+					<span>box</span>
+				</div>
+				<Button on:click={onSwapFlashcards}>Submit</Button>
 			</div>
-			<Button on:click={onSwapFlashcards}>Submit</Button>
-		</div>
-	{:else}
-		<Button
-			disabled={$selectedQuizItems.length < 10}
-			on:click={() => ($selectQuizItemsForm = false)}
-		>
-			{#if $selectedQuizItems.length < 10}
-				Not yet
-			{:else}
-				Select
-			{/if}
-		</Button>
-	{/if}
-</div>
+		{:else}
+			<Button
+				disabled={$selectedQuizItems.length < 10}
+				on:click={() => ($selectQuizItemsForm = false)}
+			>
+				{#if $selectedQuizItems.length < 10}
+					Not yet
+				{:else}
+					Select
+				{/if}
+			</Button>
+		{/if}
+	</div>
+</ScrollArea>

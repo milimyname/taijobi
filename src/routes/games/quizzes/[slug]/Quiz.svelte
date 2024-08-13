@@ -42,7 +42,7 @@
 	$: $tweenedRatio = ratio;
 </script>
 
-<section class="flex h-full flex-col items-center justify-center gap-4 sm:gap-5">
+<section class="mb-5 flex h-full flex-col items-center justify-center gap-4 sm:gap-5">
 	<div
 		style={`height: ${getFlashcardHeight($innerWidthStore, $innerHeightStore)}px;
 			width: ${getFlashcardWidth($innerWidthStore)}px`}

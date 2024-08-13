@@ -13,7 +13,7 @@
 	<nav class="flex w-full items-center p-5">
 		<Button size="icon" variant="none">
 			<a
-				href={$page.params.slug ? '/games/quizzes' : '/'}
+				href={$page.params.slug ? '/games/quizzes' : '/games'}
 				class="go-back-btn group"
 				data-sveltekit-preload-data
 			>

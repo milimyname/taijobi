@@ -9,7 +9,6 @@
 	import * as Form from '$lib/components/ui/form';
 	import { type FlashcardSchema } from '$lib/utils/zodSchema';
 	import { type SuperForm, type Infer } from 'sveltekit-superforms';
-	import { cn, isDesktop } from '$lib/utils';
 	import { getContext } from 'svelte';
 	import { clickOutside } from '$lib/utils/clickOutside';
 
@@ -30,12 +29,7 @@
 	};
 </script>
 
-<form
-	method="POST"
-	action="?/delete"
-	use:enhance
-	class={cn('quiz-form w-full', !$isDesktop && 'px-4')}
->
+<form method="POST" action="?/delete" use:enhance class="quiz-form w-full max-md:px-4">
 	<div class="mb-auto flex flex-col gap-2">
 		<Form.Field {form} name="name">
 			<Form.Control let:attrs>

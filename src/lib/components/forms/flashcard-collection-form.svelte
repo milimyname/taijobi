@@ -11,7 +11,6 @@
 	import * as Form from '$lib/components/ui/form';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { cn, isDesktop } from '$lib/utils';
 	import { page } from '$app/stores';
 
 	export let form: SuperForm<Infer<FlashcardCollectionSchema>>;
@@ -26,12 +25,7 @@
 	$: $disabledSubmitCollection = $formData.name === '' || !isTainted($tainted);
 </script>
 
-<form
-	method="POST"
-	action="?/delete"
-	use:enhance
-	class={cn('quiz-form z-[1000] size-full', !$isDesktop && 'px-4')}
->
+<form method="POST" action="?/delete" use:enhance class="quiz-form z-[1000] size-full max-md:px-4">
 	<div class="mb-auto flex flex-col gap-2">
 		{#if $clickedEditFlashcard && !$clickedAddFlashcardCollection}
 			<div class="flex gap-2">

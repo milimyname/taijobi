@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { cn, isDesktop } from '$lib/utils';
+	import { cn } from '$lib/utils';
 	import * as Form from '$lib/components/ui/form';
 	import { type FeedbackSchema } from '$lib/utils/zodSchema';
 	import { Button } from '$lib/components/ui/button';
@@ -40,8 +40,7 @@
 	action="?/delete"
 	use:enhance
 	class={cn(
-		'edit-form z-[1000] flex size-full flex-col rounded-t-2xl bg-white',
-		!$isDesktop && 'px-4',
+		'edit-form z-[1000] flex size-full flex-col rounded-t-2xl bg-white max-md:px-4',
 		!disabled && 'gap-5',
 	)}
 >
