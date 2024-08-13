@@ -72,7 +72,7 @@
 		"pnpm": "^8.15.4",
 		"pocketbase": "^0.21.1",
 		"svelte-easy-crop": "^2.0.3",
-		"svelte-legos": "^0.2.2",
+		"svelte-legos": "^0.2.3",
 		"svelte-sonner": "^0.3.21",
 		"tailwind-merge": "^2.2.1",
 		"tailwind-variants": "^0.2.1",
