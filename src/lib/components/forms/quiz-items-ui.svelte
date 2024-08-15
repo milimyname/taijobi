@@ -48,7 +48,7 @@
 </script>
 
 <DrawerDialog.Root bind:open={$selectQuizItemsForm}>
-	<DrawerDialog.Content className="z-[102]">
+	<DrawerDialog.Content className="z-[102] md:p-0">
 		<Tabs.Root value="range">
 			<Tabs.List class="mx-4 flex flex-1 max-md:mt-10  md:m-5">
 				<Tabs.Trigger class="flex-1" value="custom">Custom</Tabs.Trigger>

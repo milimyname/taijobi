@@ -41,7 +41,7 @@
 		</DrawerDialog.Header>
 		<Form {form}>
 			<div slot="add" class="space-y-2">
-				<DrawerDialog.Footer className="md:hidden p-0 max-md:pb-5">
+				<DrawerDialog.Footer className="p-0 max-md:pb-5 md:block">
 					<DrawerDialog.Close asChild let:builder>
 						<Button builders={[builder]} class="w-full" {disabled}>Add</Button>
 					</DrawerDialog.Close>
@@ -53,6 +53,7 @@
 								e.preventDefault();
 								onOutsideClick(e);
 							}}
+							class="md:hidden"
 						>
 							Cancel
 						</Button>
