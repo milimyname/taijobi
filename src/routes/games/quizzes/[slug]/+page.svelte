@@ -5,8 +5,6 @@
 	import { shuffleArray } from '$lib/utils/actions.js';
 	import { pocketbase } from '$lib/utils/pocketbase.js';
 	import { onMount } from 'svelte';
-	import { browser } from '$app/environment';
-	import { replaceStateWithQuery } from '$lib/utils';
 	import { Confetti } from 'svelte-confetti';
 	import QuizDrawerDialog from '$lib/components/drawer-dialogs/quiz-drawer-dialog.svelte';
 
@@ -24,13 +22,6 @@
 	let timeLeft = duration;
 	let timer: ReturnType<typeof setInterval>;
 	let loading = false;
-
-	$: if (browser && currentFlashcard && !data.isKanjiQuiz)
-		replaceStateWithQuery({
-			game: 'quiz',
-			alphabet: $page.params.slug,
-			letter: currentFlashcard.name,
-		});
 
 	const generateShuffledOptions = (options: FlashcardType[]): string[] => {
 		const otherOptions = options.filter((opt) => opt.name !== currentFlashcard.name);
@@ -279,7 +270,6 @@
 		total={data.flashcards.length}
 	/>
 {/if}
-
 
 {#if currentFlashcard}
 	{#if flashcards.length > 0}

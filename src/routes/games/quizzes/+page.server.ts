@@ -1,3 +1,7 @@
+import { quizSchema } from '$lib/utils/zodSchema';
+import { superValidate } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
+
 // Create fake data for hiragana and katakana quizzes
 function createFakeData() {
 	return {
@@ -62,5 +66,6 @@ export const load = async ({ locals, parent }) => {
 
 	return {
 		quizzes,
+		quizForm: await superValidate(zod(quizSchema)),
 	};
 };

@@ -5,7 +5,7 @@
 	import { Badge } from '$lib/components/ui/badge/index';
 	import Onyomi from '$lib/icons/Onyomi.svelte';
 	import Kunyomi from '$lib/icons/Kunyomi.svelte';
-	import { Captions, Earth, ArrowDown10, ArrowDown01, Trash2 } from 'lucide-svelte';
+	import { Captions, Earth, ArrowDown10, ArrowDown01 } from 'lucide-svelte';
 	import { type ComponentType, tick } from 'svelte';
 	import { cn } from '$lib/utils.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
@@ -17,7 +17,19 @@
 	import DeleteTrashButton from '$lib/components/delete-trash-button.svelte';
 	import DeleteDrawerAlertDialog from '$lib/components/drawer-alert-dialogs/delete-drawer-alert-dialog.svelte';
 	import { toast } from 'svelte-sonner';
-	import { deleteDrawerDialogOpen } from '$lib/utils/stores';
+	import {
+		deleteDrawerDialogOpen,
+		openConjugation,
+		startRangeQuizForm,
+		endRangeQuizForm,
+		clickedQuizForm,
+		selectedQuizItems,
+	} from '$lib/utils/stores';
+	import CreateQuizDrawerDialog from './create-quiz-drawer-dialog.svelte';
+	import { superForm } from 'sveltekit-superforms';
+	import { quizSchema } from '$lib/utils/zodSchema';
+	import { setContext } from 'svelte';
+	import { zodClient } from 'sveltekit-superforms/adapters';
 
 	export let data;
 
@@ -58,6 +70,29 @@
 
 	let quizzes: RecordModel[] = data.quizzes;
 	let currentQuiz: RecordModel;
+
+	// Quiz form:
+	const superFrmQuiz = superForm(data.quizForm, {
+		validators: zodClient(quizSchema),
+		onError: (error) => {
+			if (error) $clickedQuizForm = true;
+		},
+		onSubmit: ({ formData }) => {
+			// !IMPORTANT:
+			// It is a workaround since it cannot capture the form data from nested drawer/dialog components
+			formData.set('startCount', $startRangeQuizForm);
+			formData.set('maxCount', $endRangeQuizForm);
+		},
+		onUpdated: ({ form }) => {
+			if (!form.valid) return;
+
+			$clickedQuizForm = false;
+			$selectedQuizItems = [];
+			goto(`/games/quizzes/${form.data.id}`);
+		},
+	});
+
+	setContext('quizForm', superFrmQuiz);
 
 	$: selectedType = types.find((t) => t.value === value) ?? null;
 
@@ -130,6 +165,8 @@
 </script>
 
 <DeleteDrawerAlertDialog onClick={deleteQuiz} />
+
+<CreateQuizDrawerDialog />
 
 <section class="flex w-full max-w-4xl flex-col justify-center gap-5 max-lg:px-2">
 	<div class="sticky top-0 z-50 flex flex-wrap gap-2 bg-white max-md:py-2">
@@ -204,6 +241,7 @@
 				</Popover.Content>
 			</Popover.Root>
 		</div>
+		<Button size="sm" on:click={() => ($openConjugation = true)}>Create</Button>
 	</div>
 	<div class="grid grid-flow-row gap-4 max-md:pb-5 md:grid-cols-3">
 		{#each quizzes as quiz}

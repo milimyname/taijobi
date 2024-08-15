@@ -50,7 +50,7 @@
 				flashcards: filteredFlashcards,
 			};
 		})
-		.filter((box, arr) => {
+		.filter((box) => {
 			// Keep the box if it has matching flashcards and meets the custom/original criteria
 			const hasFlashcards = box.flashcards.length > 0;
 			const meetsCustomCriteria = custom

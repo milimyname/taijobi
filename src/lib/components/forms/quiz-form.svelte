@@ -124,7 +124,7 @@
 		<input type="hidden" name="selectedQuizItems" value={$formData.selectedQuizItems} />
 	</div>
 
-	<button formaction="?/addQuiz" class="w-full">
+	<button formaction="/flashcards?/addQuiz" class="w-full">
 		<slot name="add" />
 	</button>
 </form>

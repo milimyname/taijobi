@@ -1,5 +1,10 @@
 <script lang="ts">
-	import { clickedQuizForm, selectedQuizItems, selectQuizItemsForm } from '$lib/utils/stores';
+	import {
+		clickedQuizForm,
+		openConjugation,
+		selectedQuizItems,
+		selectQuizItemsForm,
+	} from '$lib/utils/stores';
 	import { Button } from '$lib/components/ui/button';
 	import Form from '$lib/components/forms/quiz-form.svelte';
 	import { type QuizSchema } from '$lib/utils/zodSchema';
@@ -26,6 +31,8 @@
 		// If se is true, don't close the drawer
 		if ($selectQuizItemsForm) return;
 
+		if ($openConjugation) return;
+
 		onClose();
 	};
 
@@ -35,7 +42,8 @@
 <QuizItemsUi {form} />
 
 <DrawerDialog.Root bind:open={$clickedQuizForm} {onOutsideClick}>
-	<DrawerDialog.Content class="h-fit max-h-fit">
+	<DrawerDialog.Overlay class="fixed inset-0 z-[100] bg-black/10" />
+	<DrawerDialog.Content class="z-[104] h-fit max-h-fit">
 		<DrawerDialog.Header>
 			<DrawerDialog.Title>Create a quiz</DrawerDialog.Title>
 		</DrawerDialog.Header>
