@@ -41,6 +41,7 @@
 						type: 'paragraph',
 						meaning: paragraph.formatted_ai_data.meaning,
 						name: paragraph.formatted_ai_data.kana,
+						nameLength: paragraph.formatted_ai_data.kana.length,
 					})),
 				];
 			}
@@ -203,15 +204,15 @@
 										error: 'Failed to search',
 									});
 								}}
-								class="fixed bottom-2 bg-black text-center text-white underline"
+								class="fixed bottom-2 line-clamp-1 h-10 w-40 whitespace-pre break-words bg-black text-center text-white underline"
 							>
-								{#if currentHoveredFlashcard?.expand}
-									<span class="italic">
+								<span class="italic">
+									{#if currentHoveredFlashcard?.expand}
 										Collection {currentHoveredFlashcard.expand.flashcardBox.name}
-									</span>
-								{:else}
-									<span class="italic">See it</span>
-								{/if}
+									{:else}
+										See it
+									{/if}
+								</span>
 							</Button>
 						{/if}
 					</div>
