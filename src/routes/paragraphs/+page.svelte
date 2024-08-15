@@ -6,96 +6,125 @@
 	import { goto } from '$app/navigation';
 
 	let dropzoneElement: HTMLElement;
-	let loading: boolean = false;
-
-	type ParagraphsAPIResponse = {
-		paragraphs: string[];
-		paragraphsRecordID: string;
-	};
+	let loading = false;
+	let worker: Worker;
+	let dropzone: Dropzone;
 
 	onMount(() => {
-		const dropzone = new Dropzone(dropzoneElement, {
-			url: '/api/paragraphs',
-			maxFilesize: 5, // MB
-			maxFiles: 1,
-			paramName: 'files',
-			acceptedFiles: '.jpg,.png,.gif',
-			dictDefaultMessage: 'Drop files here or click to upload',
-		});
+		let cleanup = () => {};
 
-		dropzone.on('sending', () => {
-			loading = true;
+		const setup = async () => {
+			const UploadWorker = await import('$lib/workers/upload-worker?worker');
+			worker = new UploadWorker.default();
 
-			const uploadPromise = new Promise<void>((resolve, reject) => {
-				dropzone.on('success', async (_, response) => {
-					try {
-						$paragraphs = [...$paragraphs, response?.record];
-						// await addFurigana($paragraphs);
-						formatData(response);
-						goto(`/paragraphs/${response.paragraphsRecordID}`);
+			dropzone = new Dropzone(dropzoneElement, {
+				url: '/api/paragraphs',
+				maxFilesize: 5,
+				maxFiles: 1,
+				paramName: 'files',
+				acceptedFiles: '.jpg,.png,.gif',
+				dictDefaultMessage: 'Drop files here or click to upload',
+				autoProcessQueue: false, // Disable auto processing
+			});
 
-						resolve();
-					} catch (error) {
-						reject(error);
-					} finally {
+			let processingResolve: () => void;
+			let processingReject: (reason?: any) => void;
+
+			// Promise for processing
+			const processingPromise = new Promise<void>((resolve, reject) => {
+				processingResolve = resolve;
+				processingReject = reject;
+			});
+
+			// Handle worker messages
+			worker.onmessage = (event) => {
+				const { action, success, result, paragraphsRecordID, error } = event.data;
+
+				if (action === 'upload') {
+					if (success) {
+						$paragraphs = [...$paragraphs, result.record];
+
+						// Start processing after successful upload
+						worker.postMessage({
+							action: 'process',
+							data: {
+								prompt: result.paragraphs.join('').replaceAll('\n', ' '),
+								recordID: result.paragraphsRecordID,
+							},
+							paragraphsRecordID: result.paragraphsRecordID,
+						});
+					} else {
 						loading = false;
+						processingReject(`Failed to upload the image: ${error}`);
 					}
-				});
-
-				dropzone.on('error', (file, errorMessage) => {
-					console.error('Error uploading file:', errorMessage);
-					reject(new Error(`Error uploading file: ${errorMessage}`));
+				} else if (action === 'process') {
+					if (success) {
+						processingResolve();
+						toast.success('Processing complete!', {
+							description: `Click to view results`,
+							action: {
+								label: 'View',
+								onClick: () => goto(`/paragraphs/${paragraphsRecordID}`),
+							},
+						});
+					} else {
+						processingReject(`Failed to process the image: ${error}`);
+					}
 					loading = false;
+				}
+			};
+
+			dropzone.on('addedfile', async (file) => {
+				loading = true;
+				const formData = new FormData();
+				formData.append('files', file);
+
+				// Convert file to ArrayBuffer
+				const arrayBuffer = await file.arrayBuffer();
+
+				// Promise for uploading
+				const uploadPromise = new Promise<void>((resolve, reject) => {
+					worker.postMessage(
+						{
+							action: 'upload',
+							data: {
+								filename: file.name,
+								type: file.type,
+								size: file.size,
+								arrayBuffer: arrayBuffer,
+							},
+						},
+						[arrayBuffer],
+					); // Transfer the ArrayBuffer
+					resolve(); // Resolve immediately, the processingPromise handles further logic
+				});
+
+				// Show upload toast
+				toast.promise(uploadPromise, {
+					loading: 'Uploading image...',
+					success: 'Image uploaded successfully!',
+					error: (error) => `Upload failed: ${error}`,
+				});
+
+				// Show processing toast
+				toast.promise(processingPromise, {
+					loading: 'Processing image...',
+					success: 'Image processed successfully!',
+					error: (error) => `Processing failed: ${error}`,
+					finally: () => {
+						worker.terminate();
+					},
 				});
 			});
 
-			toast.promise(uploadPromise, {
-				loading: 'Processing image...',
-				success: 'Processed image!',
-				error: 'Failed to recognize the image. Please try again.',
-			});
-		});
-
-		// async function addFurigana(paragraphs: RecordModel[]) {
-		// 	const furiganaRes = await fetch('/api/text/furigana', {
-		// 		method: 'POST',
-		// 		headers: { 'Content-Type': 'application/json' },
-		// 		body: JSON.stringify({ paragraphs }),
-		// 	});
-
-		// 	if (!furiganaRes.ok) throw new Error('Failed to fetch furigana');
-
-		// 	toast.promise(Promise.resolve(), {
-		// 		loading: 'Adding furigana to text...',
-		// 		success: 'Added furigana!',
-		// 		error: 'Failed to add furigana.',
-		// 	});
-		// }
-
-		async function formatData(response: ParagraphsAPIResponse) {
-			const prompt = response.paragraphs.join('').replaceAll('\n', ' ');
-
-			const openaiRes = await fetch('/api/openai/paragraphs', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					prompt,
-					recordID: response.paragraphsRecordID,
-				}),
-			});
-
-			if (!openaiRes.ok) throw new Error('Failed to fetch OpenAI response');
-
-			toast.promise(Promise.resolve(), {
-				loading: 'Formatting text...',
-				success: 'Formatted text!',
-				error: 'Failed to format text.',
-			});
-		}
-
-		return () => {
-			dropzone.destroy();
+			cleanup = () => {
+				if (dropzone) dropzone.destroy();
+			};
 		};
+
+		setup();
+
+		return () => cleanup();
 	});
 </script>
 
