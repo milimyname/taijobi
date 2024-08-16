@@ -125,6 +125,6 @@
 	</div>
 
 	<button formaction="/flashcards?/addQuiz" class="w-full">
-		<slot name="add" />
+		<slot />
 	</button>
 </form>

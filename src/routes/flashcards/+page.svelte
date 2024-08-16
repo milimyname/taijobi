@@ -1,6 +1,6 @@
 <script lang="ts">
 	import QuizForm from '$lib/components/forms/quiz-form-ui.svelte';
-	import FlashcardCollectionForm from '$lib/components/forms/flashcard-collection-form-ui.svelte';
+	import FlashcardCollectionUI from '$lib/components/forms/flashcard-collection-form-ui.svelte';
 	import {
 		clickedAddFlashcardCollection,
 		currentFlashcardCollectionId,
@@ -139,7 +139,7 @@
 	});
 </script>
 
-<FlashcardCollectionForm form={$clickedAddFlahcardBox ? superFrmBox : superFrmCollection} />
+<FlashcardCollectionUI form={$clickedAddFlahcardBox ? superFrmBox : superFrmCollection} />
 
 <QuizForm form={superFrmQuiz} />
 

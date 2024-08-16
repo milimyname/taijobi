@@ -56,7 +56,7 @@
 					Range
 				</Tabs.Trigger>
 			</Tabs.List>
-			<Tabs.Content value="custom">
+			<Tabs.Content value="custom" class="px-5">
 				<QuizItems flashcardBox={$formData.flashcardBox}>
 					<div class="relative z-20 space-y-5 p-5 shadow-search-drawer-footer">
 						{#if $selectedQuizItems.length < 10 && $selectedQuizItems.length > 0 && !$swapFlashcards}

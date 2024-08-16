@@ -25,12 +25,16 @@
 	import DeleteDrawerAlertDialog from '$lib/components/drawer-alert-dialogs/delete-drawer-alert-dialog.svelte';
 	import DeleteTrashButton from '$lib/components/delete-trash-button.svelte';
 	import { getContext } from 'svelte';
+	import { pocketbase } from '$lib/utils/pocketbase';
+	import { invalidateAll } from '$app/navigation';
 
 	export let form: SuperForm<Infer<FlashcardCollectionSchema>>;
 
 	let boxForm: SuperForm<Infer<FlashcardCollectionSchema>> = getContext('boxForm');
 
 	const { form: formData, delayed, isTainted, tainted, submit, reset } = form;
+
+	let selectedBoxId = $flashcardBoxes[0]?.id;
 
 	function onOutsideClick() {
 		if ($swapFlashcards) return;
@@ -60,6 +64,26 @@
 		}, 150);
 	}
 
+	async function onSwapFlashcards() {
+		// Swap the flashcards
+
+		$selectedQuizItems.forEach(async (item) => {
+			const [id] = item.split('=');
+			await pocketbase.collection('flashcard').update(id, {
+				flashcardBox: selectedBoxId,
+			});
+		});
+
+		// Close the form
+		$swapFlashcards = false;
+		$selectQuizItemsForm = false;
+		$clickedAddFlahcardBox = false;
+		$clickedEditFlashcard = false;
+		$selectedQuizItems = [];
+
+		// invalidateAll();
+	}
+
 	$: open = $clickedAddFlashcardCollection || $clickedAddFlahcardBox;
 
 	$: if ($clickedFeedback) {
@@ -73,7 +97,10 @@
 			$maxFlashcards !== '0' &&
 			$flashcardBoxes.length > 1 &&
 			$flashcardsBoxType !== 'original') ||
-		($page.data.isAdmin && !$clickedAddFlashcardCollection && $maxFlashcards !== '0');
+		($page.data.isAdmin &&
+			!$clickedAddFlashcardCollection &&
+			$maxFlashcards !== '0' &&
+			$flashcardBoxes.length > 1);
 
 	$: $disabledSubmitCollection = $formData.name === '' || !isTainted($tainted);
 </script>
@@ -82,30 +109,50 @@
 
 <DrawerDialog.Root bind:open={$swapFlashcards}>
 	<DrawerDialog.Overlay class="fixed inset-0 z-[100] bg-black/10" />
-	<DrawerDialog.Content class="swap-items z-[101] max-w-2xl p-0">
+	<DrawerDialog.Content class="swap-items z-[101] max-w-2xl px-5">
+		<DrawerDialog.Header className="max-md:px-0">
+			<DrawerDialog.Title>Swap flashcards</DrawerDialog.Title>
+		</DrawerDialog.Header>
 		<QuizItems flashcardBox={$currentBoxId}>
-			<DrawerDialog.Close asChild let:builder>
-				<Button
-					builders={[builder]}
-					on:click={() => {
-						$selectQuizItemsForm = false;
-						$swapFlashcards = false;
-						$selectedQuizItems = [];
-						$clickedAddFlahcardBox = true;
-					}}
-					variant="outline"
-					class="max-md:hidden"
-				>
-					Cancel
-				</Button>
-			</DrawerDialog.Close>
-		</QuizItems>
+			<DrawerDialog.Footer className="md:grid grid-cols-2 gap-10 max-md:px-0">
+				<div class="col-span-full self-center">
+					<span>Move to</span>
+					<select
+						bind:value={selectedBoxId}
+						class="border-hidden bg-none pr-3 text-center font-bold outline-none focus:border-transparent focus:ring-0"
+					>
+						{#each $flashcardBoxes as box}
+							{#if box.id !== $currentBoxId}
+								<option value={box.id}>{box.name}</option>
+							{/if}
+						{/each}
+					</select>
+					<span>box</span>
+				</div>
 
-		<DrawerDialog.Footer className="md:hidden">
-			<DrawerDialog.Close asChild let:builder>
-				<Button builders={[builder]} variant="outline">Cancel</Button>
-			</DrawerDialog.Close>
-		</DrawerDialog.Footer>
+				<div class="col-span-full flex flex-col-reverse gap-2 md:flex-row">
+					<DrawerDialog.Close asChild let:builder>
+						<Button
+							builders={[builder]}
+							on:click={() => {
+								$selectQuizItemsForm = false;
+								$swapFlashcards = false;
+								$selectedQuizItems = [];
+								$clickedAddFlahcardBox = true;
+							}}
+							variant="outline"
+							class="w-full"
+						>
+							Cancel
+						</Button>
+					</DrawerDialog.Close>
+
+					<DrawerDialog.Close asChild let:builder>
+						<Button builders={[builder]} on:click={onSwapFlashcards} class="w-full">Save</Button>
+					</DrawerDialog.Close>
+				</div>
+			</DrawerDialog.Footer>
+		</QuizItems>
 	</DrawerDialog.Content>
 </DrawerDialog.Root>
 

@@ -89,9 +89,7 @@ export const load = async ({ locals, parent }) => {
 		});
 
 		// Get the kanji count
-		for (const flashcard of flashcards) {
-			if (countKanji(flashcard.name)) kanjiCount++;
-		}
+		for (const flashcard of flashcards) if (countKanji(flashcard.name)) kanjiCount++;
 
 		// Get the quiz count
 		const quizzes = await locals.pb.collection('quizzes').getFullList({
@@ -101,7 +99,7 @@ export const load = async ({ locals, parent }) => {
 		quizCount = quizzes.length;
 
 		// Update the flashcard box
-		await locals.pb.collection('flashcardBoxes').update(box.id, {
+		locals.pb.collection('flashcardBoxes').update(box.id, {
 			kanjiCount,
 			quizCount,
 		});

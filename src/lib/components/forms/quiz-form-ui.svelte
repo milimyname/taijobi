@@ -48,26 +48,24 @@
 			<DrawerDialog.Title>Create a quiz</DrawerDialog.Title>
 		</DrawerDialog.Header>
 		<Form {form}>
-			<div slot="add" class="space-y-2">
-				<DrawerDialog.Footer className="p-0 max-md:pb-5 md:block">
-					<DrawerDialog.Close asChild let:builder>
-						<Button builders={[builder]} class="w-full" {disabled}>Add</Button>
-					</DrawerDialog.Close>
-					<DrawerDialog.Close asChild let:builder>
-						<Button
-							builders={[builder]}
-							variant="outline"
-							on:click={(e) => {
-								e.preventDefault();
-								onOutsideClick(e);
-							}}
-							class="md:hidden"
-						>
-							Cancel
-						</Button>
-					</DrawerDialog.Close>
-				</DrawerDialog.Footer>
-			</div>
+			<DrawerDialog.Footer className="p-0 space-y- max-md:pb-5 md:block">
+				<DrawerDialog.Close asChild let:builder>
+					<Button builders={[builder]} class="w-full" {disabled}>Add</Button>
+				</DrawerDialog.Close>
+				<DrawerDialog.Close asChild let:builder>
+					<Button
+						builders={[builder]}
+						variant="outline"
+						on:click={(e) => {
+							e.preventDefault();
+							onOutsideClick(e);
+						}}
+						class="md:hidden"
+					>
+						Cancel
+					</Button>
+				</DrawerDialog.Close>
+			</DrawerDialog.Footer>
 		</Form>
 	</DrawerDialog.Content>
 </DrawerDialog.Root>

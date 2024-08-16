@@ -66,7 +66,7 @@
 				{/each}
 			</ul>
 		{:else}
-			<ul class="mb-auto grid grid-cols-2 gap-3 px-5 xm:grid-cols-4 md:grid-cols-4">
+			<ul class="mb-auto grid grid-cols-2 gap-3 xm:grid-cols-4 md:grid-cols-4">
 				{#each flashcards as flashcard, i}
 					{@const formattedItem = $swapFlashcards
 						? flashcard.id + '=' + flashcard.meaning
