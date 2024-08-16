@@ -65,7 +65,7 @@ export const load = async ({ locals, params }) => {
 		};
 	} catch (error) {
 		console.error(error);
-		redirect(307, '/');
+		throw redirect(307, '/');
 	}
 };
 

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import '../app.css';
+	import Loading from '$lib/components/loading.svelte';
 	import FeedbackForm from '$lib/components/forms/feedback-form-ui.svelte';
 	import Umami from '$lib/components/Umami.svelte';
 	import { innerWidthStore, innerHeightStore, strokes, openSearch } from '$lib/utils/stores';
@@ -37,9 +38,11 @@
 <svelte:window bind:innerWidth={$innerWidthStore} bind:innerHeight={$innerHeightStore} />
 
 <Umami />
-<FeedbackForm />
-<Search />
 <Toaster />
-<Kbd />
+<Search />
 
-<slot />
+<Loading>
+	<Kbd />
+	<FeedbackForm />
+	<slot />
+</Loading>

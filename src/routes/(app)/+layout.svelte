@@ -8,7 +8,7 @@
 	import image from '$lib/static/taijobi.png';
 	import { pocketbase } from '$lib/utils/pocketbase';
 	import { Home, LogOut, Newspaper, GraduationCap, Menu } from 'lucide-svelte';
-	import { cn, getHotkeyPrefix, getRandomKanji } from '$lib/utils.js';
+	import { cn } from '$lib/utils';
 
 	let longPressTimer: any;
 	let isLongPress = false;
@@ -42,7 +42,7 @@
 		}
 	}
 
-	onMount(() => {
+	onMount(async () => {
 		if (!data.isLoggedIn) imageSrc = image;
 		else if (data.user && data.user.oauth2ImageUrl) imageSrc = data.user.oauth2ImageUrl;
 		else if (data.user && data.user.avatar && data.user)
@@ -68,7 +68,7 @@
 	>
 		<nav
 			class={cn(
-				'z-40 flex items-center justify-between gap-40 rounded-full bg-primary p-2 text-white transition-all lg:h-full lg:flex-col lg:justify-center lg:gap-10 lg:p-5',
+				'z-40 flex items-center justify-between gap-40 rounded-full bg-primary p-2 text-white transition-all md:w-40 lg:h-full lg:flex-col lg:justify-center lg:gap-10 lg:p-5',
 				isLongPress && 'right-5 p-2',
 			)}
 		>
