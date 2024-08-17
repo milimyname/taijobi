@@ -94,8 +94,8 @@
 	$: chatMessages = [...data?.messages, ...$messages];
 </script>
 
-<section class="size-full space-y-4 pt-5">
-	<ul class="size-full overflow-auto px-5 pb-20 md:mx-auto md:max-w-xl">
+<section class="size-full space-y-4 overflow-auto pt-5">
+	<ul class="size-full px-5 md:mx-auto md:max-w-xl">
 		{#each chatMessages as message}
 			<li>
 				<span class="font-bold">{message.role}:</span>
@@ -106,6 +106,7 @@
 				{/if}
 			</li>
 		{/each}
+		<div class="invisible h-20 opacity-0" />
 	</ul>
 	<form
 		on:submit={handleSubmit}

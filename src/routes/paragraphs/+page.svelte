@@ -60,7 +60,7 @@
 				} else if (action === 'process') {
 					if (success) {
 						processingResolve();
-						toast.success('Processing complete!', {
+						toast('Processing complete!', {
 							description: `Click to view results`,
 							action: {
 								label: 'View',
