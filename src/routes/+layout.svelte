@@ -3,10 +3,16 @@
 	import Loading from '$lib/components/loading.svelte';
 	import FeedbackForm from '$lib/components/forms/feedback-form-ui.svelte';
 	import Umami from '$lib/components/Umami.svelte';
-	import { innerWidthStore, innerHeightStore, strokes, openSearch } from '$lib/utils/stores';
+	import {
+		innerWidthStore,
+		innerHeightStore,
+		strokes,
+		openSearch,
+		loading,
+	} from '$lib/utils/stores';
 	import Search from '$lib/components/Search.svelte';
 	import { Toaster } from '$lib/components/ui/sonner';
-	import Kbd from '$lib/components/Kbd.svelte';
+	import Helper from '$lib/components/Helper.svelte';
 	import { afterNavigate, onNavigate } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { isDesktop } from '$lib/utils';
@@ -32,6 +38,11 @@
 		// Show eruda in development mode on mobile
 		if (import.meta.env.MODE === 'development' && !$isDesktop)
 			import('eruda').then((eruda) => eruda.default.init());
+
+		// Prevent user from reloading the page while something is loading
+		window.addEventListener('beforeunload', (event) => {
+			if ($loading) event.preventDefault();
+		});
 	});
 </script>
 
@@ -42,7 +53,7 @@
 <Search />
 
 <Loading>
-	<Kbd />
+	<Helper />
 	<FeedbackForm />
 	<slot />
 </Loading>
