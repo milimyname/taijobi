@@ -70,7 +70,7 @@
 		"linkedom": "^0.18.3",
 		"lucide-svelte": "^0.378.0",
 		"openai": "^4.29.0",
-		"pnpm": "^8.15.4",
+		"pnpm": "^9.7.1",
 		"pocketbase": "^0.21.1",
 		"svelte-easy-crop": "^2.0.3",
 		"svelte-legos": "^0.2.3",
