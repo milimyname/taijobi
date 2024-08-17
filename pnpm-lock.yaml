@@ -90,8 +90,8 @@ importers:
         specifier: ^2.0.3
         version: 2.0.3(svelte@4.2.16)
       svelte-legos:
-        specifier: ^0.2.2
-        version: 0.2.2(svelte@4.2.16)
+        specifier: ^0.2.3
+        version: 0.2.3(svelte@4.2.16)
       svelte-sonner:
         specifier: ^0.3.21
         version: 0.3.24(svelte@4.2.16)
@@ -2808,8 +2808,8 @@ packages:
     peerDependencies:
       svelte: ^3.19.0 || ^4.0.0
 
-  svelte-legos@0.2.2:
-    resolution: {integrity: sha512-HTVkCIqhrxdy+OpXjxGr/4xIJEGv4d2cRQwTjm0SYfLw/YF1I1l/TQR59nb2WvjccnO8TNFNTvAWP5pgXQnU+w==}
+  svelte-legos@0.2.3:
+    resolution: {integrity: sha512-HuFzPC7of2ZErJaIoxFRu2Z5Rk7VUhlkAfqWoXpO1S9CNSByMakzTLVsM0/VDE6jmCG5JXLqvjND+rsV6nkOHQ==}
     peerDependencies:
       svelte: ^4.0.0
 
@@ -5850,7 +5850,7 @@ snapshots:
     dependencies:
       svelte: 4.2.16
 
-  svelte-legos@0.2.2(svelte@4.2.16):
+  svelte-legos@0.2.3(svelte@4.2.16):
     dependencies:
       canvas-confetti: 1.9.3
       prism-svelte: 0.5.0
