@@ -10,7 +10,6 @@
 	import { cn, getFlashcardHeight, getFlashcardWidth } from '$lib/utils';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { History } from 'lucide-svelte';
-	import SearchDrawerDialog from './search-drawer-dialog.svelte';
 	import { goto } from '$app/navigation';
 	import { superForm } from 'sveltekit-superforms';
 	import { searchCollectionSchema } from '$lib/utils/zodSchema';
@@ -20,6 +19,7 @@
 	import CallBackButton from '$lib/components/callback-btn.svelte';
 	import { slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
+	import SearchDrawerDialog from '$lib/components/drawer-dialogs/search-drawer-dialog.svelte';
 
 	export let data;
 

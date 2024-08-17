@@ -160,7 +160,7 @@
 				{#if currentHoveredFlashcard}
 					<div
 						class={cn(
-							'sticky top-0 col-span-2 flex flex-col items-center gap-2 overflow-auto p-1 px-2 max-md:h-[78dvh] md:h-[40rem]',
+							'sticky top-0 col-span-2 flex flex-col items-center gap-2 overflow-auto p-1 px-2 pb-14 max-md:h-[78dvh] md:h-[40rem]',
 							currentHoveredFlashcard.name.length < 300 && 'justify-center',
 						)}
 					>

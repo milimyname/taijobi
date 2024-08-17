@@ -4,6 +4,7 @@
 	import * as DrawerDialog from '$lib/components/ui/drawer-dialog';
 	import type { ProgressDataItem } from '$lib/utils/ambient';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index';
+	import { goto } from '$app/navigation';
 
 	export let isWon: boolean;
 	export let correctAnswers: number;
@@ -52,7 +53,12 @@
 		<DrawerDialog.Footer className="md:block px-0">
 			<Button on:click={startOver} {loading} disabled={loading} class="w-full">Start Over</Button>
 			<DrawerDialog.Close asChild let:builder>
-				<Button builders={[builder]} variant="outline" class="md:hidden">Cancel</Button>
+				<Button
+					builders={[builder]}
+					variant="outline"
+					class="md:hidden"
+					on:click={() => goto('/games/quizzes')}>Cancel</Button
+				>
 			</DrawerDialog.Close>
 		</DrawerDialog.Footer>
 	</DrawerDialog.Content>

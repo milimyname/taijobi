@@ -68,7 +68,7 @@
 	>
 		<nav
 			class={cn(
-				'z-40 flex items-center justify-between gap-40 rounded-full bg-primary p-2 text-white transition-all md:w-40 lg:h-full lg:flex-col lg:justify-center lg:gap-10 lg:p-5',
+				'z-40 flex items-center justify-between gap-40 rounded-full bg-primary p-2 text-white transition-all lg:h-full lg:flex-col lg:justify-center lg:gap-10 lg:p-5',
 				isLongPress && 'right-5 p-2',
 			)}
 		>
