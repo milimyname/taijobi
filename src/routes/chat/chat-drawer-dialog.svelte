@@ -38,7 +38,7 @@
 		onCloseDrawer();
 	}
 
-	async function deleteHistory() {
+	async function deleteChat() {
 		if (!currentChat) return;
 
 		try {
@@ -117,7 +117,7 @@
 	}
 </script>
 
-<DeleteDrawerAlertDialog onClick={deleteHistory} />
+<DeleteDrawerAlertDialog onClick={deleteChat} />
 
 <DrawerDialog.Root open={$openHistory} onOutsideClick={onClickOutSideClick} onClose={onCloseDrawer}>
 	<DrawerDialog.Content
@@ -199,8 +199,6 @@
 
 										<DropdownMenu.Content>
 											<DropdownMenu.Group>
-												<DropdownMenu.Label>Actions:</DropdownMenu.Label>
-												<DropdownMenu.Separator />
 												<DropdownMenu.Item
 													on:click={() => {
 														currentChat = chat;

@@ -13,7 +13,7 @@
 	} from '$lib/utils/stores';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index';
 	import { goto } from '$app/navigation';
-	import { ArrowDown01, ArrowDown10, Plus } from 'lucide-svelte';
+	import { ArrowDown01, ArrowDown10, EllipsisVertical, Plus } from 'lucide-svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { CircleX } from 'lucide-svelte';
@@ -26,6 +26,7 @@
 	import DeleteTrashButton from '$lib/components/delete-trash-button.svelte';
 	import { quintOut } from 'svelte/easing';
 	import { slide } from 'svelte/transition';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 
 	export let searches: RecordModel[];
 
@@ -33,6 +34,8 @@
 	let inputValue = '';
 	let isCreatingNewFlashcardBox = false;
 	let loading = false;
+	let clickedDeletedCompletely = false;
+	let currentSearch: RecordModel | null = null;
 
 	function onCloseDrawer() {
 		setTimeout(() => ($openHistory = false), 150);
@@ -72,7 +75,7 @@
 	const searchedFlashcardsIds = getContext<string[]>('searchedFlashcardsIds');
 	const searchesIds = getContext<string[]>('searchesIds');
 
-	async function deleteHistory() {
+	async function deleteFromHistory() {
 		loading = true;
 		try {
 			await Promise.all(
@@ -103,9 +106,34 @@
 
 		setTimeout(() => ($deleteDrawerDialogOpen = false), 150);
 
-		toast.success('Quizzes deleted successfully. Redirecting to the home page...');
+		toast.success('Searches deleted successfully. Redirecting to the home page...');
 
 		goto('/');
+	}
+
+	async function deleteCompletely() {
+		loading = true;
+		try {
+			await pocketbase.collection('searches').delete(currentSearch.id);
+		} catch (error) {
+			console.error('Error deleting search history:', error);
+		}
+
+		try {
+			await pocketbase.collection('flashcard').delete(currentSearch.flashcard);
+		} catch (error) {
+			console.error('Error deleting search history:', error);
+			toast.error('Error deleting search history. Please try again later.');
+			return;
+		}
+
+		$openHistory = false;
+		loading = false;
+		clickedDeletedCompletely = false;
+
+		setTimeout(() => ($deleteDrawerDialogOpen = false), 150);
+
+		toast.success('Search and its flashcard deleted completely.');
 	}
 
 	$: sortedSearches = (() => {
@@ -136,7 +164,11 @@
 	})();
 </script>
 
-<DeleteDrawerAlertDialog onClick={deleteHistory} />
+{#if clickedDeletedCompletely}
+	<DeleteDrawerAlertDialog onClick={deleteCompletely} />
+{:else}
+	<DeleteDrawerAlertDialog onClick={deleteFromHistory} />
+{/if}
 
 <NestedSearchDrawerDialog />
 
@@ -191,22 +223,41 @@
 						)}
 					>
 						<Card.Header class="relative">
-							<Card.Title class="line-clamp-3	hover:line-clamp-none">
-								{search?.expand?.flashcard?.name}
-							</Card.Title>
+							<Card.Title class="line-clamp-3	flex items-start justify-between gap-2">
+								<p class="line-clamp-3">{search?.expand?.flashcard?.name}</p>
 
-							{#if sortedSearches.length > 0}
-								<Button
-									size="icon"
-									variant="none"
-									class="absolute right-2 top-1 size-fit"
-									disabled={isCreatingNewFlashcardBox ||
-										$searchedWordStore.id === search?.expand?.flashcard?.id}
-									on:click={() => deleteFlashcardFromSearch(search)}
-								>
-									<CircleX class="size-4 text-red-700" />
-								</Button>
-							{/if}
+								{#if sortedSearches.length > 0}
+									<DropdownMenu.Root>
+										<DropdownMenu.Trigger>
+											<Button
+												size="icon"
+												variant="none"
+												disabled={isCreatingNewFlashcardBox ||
+													$searchedWordStore.id === search?.expand?.flashcard?.id}
+											>
+												<EllipsisVertical class="size-4" />
+											</Button>
+										</DropdownMenu.Trigger>
+
+										<DropdownMenu.Content>
+											<DropdownMenu.Group>
+												<DropdownMenu.Item on:click={() => deleteFlashcardFromSearch(search)}>
+													Delete From Search History
+												</DropdownMenu.Item>
+												<DropdownMenu.Item
+													on:click={() => {
+														currentSearch = search;
+														clickedDeletedCompletely = true;
+														$deleteDrawerDialogOpen = true;
+													}}
+												>
+													Delete Completely
+												</DropdownMenu.Item>
+											</DropdownMenu.Group>
+										</DropdownMenu.Content>
+									</DropdownMenu.Root>
+								{/if}
+							</Card.Title>
 						</Card.Header>
 						<Card.Content class="flex flex-wrap gap-1 overflow-auto">
 							{#if search?.expand?.flashcard?.name !== search.searchQuery && search.searchQuery !== ''}

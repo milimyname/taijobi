@@ -5,7 +5,7 @@ export const load = async ({ locals }) => {
 
 	const paragraphs = await locals.pb.collection('paragraphs').getFullList({
 		filter: `user = "${locals.pb.authStore.model?.id}"`,
-		fields: 'id,files,formatted_ai_data,ocr_data,created',
+		fields: 'id,files,formatted_ai_data,ocr_data,created,name',
 	});
 
 	return { paragraphs };

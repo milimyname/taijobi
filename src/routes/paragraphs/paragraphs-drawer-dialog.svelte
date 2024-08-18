@@ -16,12 +16,16 @@
 	import DeleteDrawerAlertDialog from '$lib/components/drawer-alert-dialogs/delete-drawer-alert-dialog.svelte';
 	import { toast } from 'svelte-sonner';
 	import { page } from '$app/stores';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 
 	let sortedByDate = true;
 	let inputValue = '';
 	let currentParagraphs: RecordModel | null = $page.params?.slug
 		? $paragraphs.find((p) => p.id === $page.params.slug)
 		: null;
+
+	let newName: string;
+	let isParagraphsNameEditable = false;
 
 	function onCloseDrawer() {
 		setTimeout(() => ($openHistory = false), 100);
@@ -53,6 +57,28 @@
 		goto('/paragraphs');
 
 		toast.success('Paragraph deleted successfully! Redirecting to paragraphs page...');
+	}
+
+	async function renameChat() {
+		if (!currentParagraphs) return;
+
+		try {
+			await pocketbase.collection('paragraphs').update(currentParagraphs?.id, {
+				name: newName,
+			});
+
+			// filter out the deleted chat
+			$paragraphs = $paragraphs.map((chat) => {
+				if (chat.id === currentParagraphs?.id) chat.name = newName;
+				return chat;
+			});
+
+			isParagraphsNameEditable = false;
+		} catch (error) {
+			console.error('Error renaming chat:', error);
+		}
+
+		toast.success('Paragraphs renamed successfully! Redirecting to chat page...');
 	}
 
 	$: sortedParagraphs = (() => {
@@ -129,18 +155,55 @@
 					>
 						<Card.Header class="relative">
 							<Card.Title class="flex items-center justify-between">
-								<span>{p.name || 'Not given'}</span>
-								<Button
-									size="icon"
-									variant="none"
-									class="size-fit"
-									on:click={() => {
-										currentParagraphs = p;
-										$deleteDrawerDialogOpen = true;
-									}}
-								>
-									<EllipsisVertical class="size-4 " />
-								</Button>
+								{#if isParagraphsNameEditable && currentParagraphs?.id === p.id}
+									<Input
+										class="rename-input w-full md:w-28"
+										placeholder="Click Enter to save value"
+										bind:value={newName}
+									/>
+								{:else}
+									<span>{p.name || 'Not given'}</span>
+								{/if}
+
+								{#if isParagraphsNameEditable && currentParagraphs?.id === p.id}
+									<Button size="icon" class="size-8" on:click={renameChat}>+</Button>
+								{:else}
+									<DropdownMenu.Root>
+										<DropdownMenu.Trigger>
+											<Button
+												size="icon"
+												variant="none"
+												on:click={() => {
+													isParagraphsNameEditable = false;
+													newName = '';
+												}}
+											>
+												<EllipsisVertical class="size-4 " />
+											</Button>
+										</DropdownMenu.Trigger>
+
+										<DropdownMenu.Content>
+											<DropdownMenu.Group>
+												<DropdownMenu.Item
+													on:click={() => {
+														currentParagraphs = p;
+														$deleteDrawerDialogOpen = true;
+													}}
+												>
+													Delete
+												</DropdownMenu.Item>
+												<DropdownMenu.Item
+													on:click={() => {
+														currentParagraphs = p;
+														isParagraphsNameEditable = true;
+													}}
+												>
+													Rename
+												</DropdownMenu.Item>
+											</DropdownMenu.Group>
+										</DropdownMenu.Content>
+									</DropdownMenu.Root>
+								{/if}
 							</Card.Title>
 						</Card.Header>
 						<Card.Content class="flex flex-wrap gap-1 overflow-auto">
@@ -160,7 +223,7 @@
 									</Badge>
 								</Tooltip.Trigger>
 								<Tooltip.Content>
-									<p>Search Date</p>
+									<p>Created Date</p>
 								</Tooltip.Content>
 							</Tooltip.Root>
 						</Card.Content>
