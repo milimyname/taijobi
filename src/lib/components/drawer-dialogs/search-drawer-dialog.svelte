@@ -35,7 +35,7 @@
 	let isCreatingNewFlashcardBox = false;
 	let loading = false;
 	let clickedDeletedCompletely = false;
-	let currentSearch: RecordModel | null = null;
+	let currentSearch: RecordModel;
 
 	function onCloseDrawer() {
 		setTimeout(() => ($openHistory = false), 150);
@@ -244,15 +244,18 @@
 												<DropdownMenu.Item on:click={() => deleteFlashcardFromSearch(search)}>
 													Delete From Search History
 												</DropdownMenu.Item>
-												<DropdownMenu.Item
-													on:click={() => {
-														currentSearch = search;
-														clickedDeletedCompletely = true;
-														$deleteDrawerDialogOpen = true;
-													}}
-												>
-													Delete Completely
-												</DropdownMenu.Item>
+
+												{#if search.expand && search.user === search.expand.flashcard.user}
+													<DropdownMenu.Item
+														on:click={() => {
+															currentSearch = search;
+															clickedDeletedCompletely = true;
+															$deleteDrawerDialogOpen = true;
+														}}
+													>
+														Delete Completely
+													</DropdownMenu.Item>
+												{/if}
 											</DropdownMenu.Group>
 										</DropdownMenu.Content>
 									</DropdownMenu.Root>
