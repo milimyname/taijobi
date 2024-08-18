@@ -48,7 +48,7 @@
 
 		<DropdownMenu.Content class="hidden lg:block">
 			<DropdownMenu.Item
-				class="flex justify-between text-sm text-muted-foreground"
+				class="flex cursor-pointer justify-between gap-2 text-sm text-muted-foreground"
 				on:click={() => ($openSearch = true)}
 			>
 				<span>Search</span>
@@ -60,13 +60,13 @@
 			</DropdownMenu.Item>
 			<DropdownMenu.Item
 				on:click={fetchRandomSearch}
-				class="flex justify-between text-sm text-muted-foreground"
+				class="flex cursor-pointer justify-between gap-2 text-sm text-muted-foreground"
 			>
 				<span> Search History </span>
 				<kbd
 					class="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100"
 				>
-					<span class="text-xs">{getHotkeyPrefix()}</span>K
+					<span class="text-xs">{getHotkeyPrefix()}</span>S
 				</kbd>
 			</DropdownMenu.Item>
 		</DropdownMenu.Content>
