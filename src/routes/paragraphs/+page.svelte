@@ -4,6 +4,7 @@
 	import { toast } from 'svelte-sonner';
 	import { paragraphs } from '$lib/utils/stores';
 	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 
 	let dropzoneElement: HTMLElement;
 	let loading = false;
@@ -67,6 +68,9 @@
 								onClick: () => goto(`/paragraphs/${paragraphsRecordID}`),
 							},
 						});
+
+						// if user still on the same page, redirect to the new paragraph page
+						if ($page.url.pathname === '/paragraphs') goto(`/paragraphs/${paragraphsRecordID}`);
 					} else {
 						processingReject(`Failed to process the image: ${error}`);
 					}

@@ -17,8 +17,6 @@
 	let worker: Worker;
 	let editable = false;
 
-	onMount(() => {});
-
 	onMount(() => {
 		const setup = async () => {
 			const UploadWorker = await import('$lib/workers/upload-worker?worker');
