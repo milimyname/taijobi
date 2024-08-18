@@ -32,7 +32,7 @@
 			disabled={$paragraphs.length === 0}
 			on:click={() => ($openHistory = true)}
 		>
-			<Settings class="size-4" />
+			<Settings class="size-5" />
 		</Button>
 	</nav>
 

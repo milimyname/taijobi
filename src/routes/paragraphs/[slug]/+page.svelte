@@ -7,6 +7,7 @@
 	import { toast } from 'svelte-sonner';
 	import { loading } from '$lib/utils/stores';
 	import { goto } from '$app/navigation';
+	import { Textarea } from '$lib/components/ui/textarea';
 
 	export let data;
 
@@ -14,6 +15,9 @@
 	let tabValue = $page.url.search.split('=')[1] || 'extracted';
 
 	let worker: Worker;
+	let editable = false;
+
+	onMount(() => {});
 
 	onMount(() => {
 		const setup = async () => {
@@ -91,6 +95,25 @@
 		}
 	}
 
+	async function saveEdit() {
+		$loading = true;
+
+		try {
+			await pocketbase.collection('paragraphs').update(data.paragraphs.id, {
+				ocr_data: {
+					fullText: data.paragraphs.ocr_data.fullText,
+				},
+			});
+
+			toast.success('Saved successfully');
+		} catch (error) {
+			toast.error('Failed to save');
+		}
+
+		$loading = false;
+		editable = false;
+	}
+
 	onDestroy(() => {
 		// destroy client when component is destroyed
 		pocketbase?.authStore?.clear();
@@ -98,36 +121,54 @@
 </script>
 
 <div class="mt-10 flex size-full md:mt-20">
-	<Tabs.Root value={tabValue} class="px-5">
+	<Tabs.Root value={tabValue} class="w-full px-5">
 		<Tabs.List>
 			<Tabs.Trigger value="extracted">Extracted</Tabs.Trigger>
 			<Tabs.Trigger value="details" disabled={!data.paragraphs.formatted_ai_data?.meaning}>
 				Processed
 			</Tabs.Trigger>
 		</Tabs.List>
-		<Tabs.Content value="extracted" class="pb-5">
-			<h2 class="size-full text-balance font-medium">
-				One to One extracted text from
-				<Button variant="link" href={data.paragraphs?.url} class="px-0" target="_blank">
-					this image
-				</Button>
-			</h2>
-			<p class="size-full text-balance text-xl">
-				{@html data.paragraphs?.ocr_data.fullText}
-			</p>
+		<Tabs.Content value="extracted" class="w-full space-y-4 pb-10">
+			<div class="flex items-center gap-2">
+				<div class="flex items-center gap-2">
+					<h2 class="size-full text-balance font-medium">Meaning from</h2>
+					<Button variant="link" href={data.paragraphs?.url} class="p-0" target="_blank">
+						this image
+					</Button>
+				</div>
+
+				<Button size="sm" variant="outline" on:click={() => (editable = !editable)}>Edit</Button>
+
+				{#if editable}
+					<Button size="sm" variant="outline" on:click={saveEdit}>Save</Button>
+				{/if}
+			</div>
+
+			{#if !editable}
+				<p class="size-full text-balance text-xl">
+					{@html data.paragraphs?.ocr_data.fullText}
+				</p>
+			{:else}
+				<Textarea
+					bind:value={data.paragraphs.ocr_data.fullText}
+					rows={data.paragraphs.ocr_data.fullText.split('\n').length}
+				/>
+			{/if}
 		</Tabs.Content>
 
-		<Tabs.Content value="details" class="space-y-4">
-			<h2 class="size-full text-balance font-medium">
-				Meaning from
-				<Button variant="link" href={data.paragraphs?.url} class="px-0" target="_blank">
-					this image
-				</Button>
+		<Tabs.Content value="details" class="space-y-4 pb-10">
+			<div class="flex items-center gap-2">
+				<div class="flex items-center gap-2">
+					<h2 class="size-full text-balance font-medium">Meaning from</h2>
+					<Button variant="link" href={data.paragraphs?.url} class="p-0" target="_blank">
+						this image
+					</Button>
+				</div>
 
-				<Button class="ml-2" size="sm" on:click={regenerate} disabled={$loading} loading={$loading}>
+				<Button size="sm" on:click={regenerate} disabled={$loading} loading={$loading}>
 					Regenerate
 				</Button>
-			</h2>
+			</div>
 
 			{#if data.paragraphs.formatted_ai_data}
 				<div class="space-y-4">
