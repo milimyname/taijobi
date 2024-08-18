@@ -47,6 +47,7 @@ export const POST = async ({ request, locals }) => {
 
 					flashcard = await locals.pb.collection('flashcard').update(flashcard.id, {
 						'searches+': newSearch.id,
+						user: locals.pb.authStore.model?.id,
 					});
 
 					return flashcard;
