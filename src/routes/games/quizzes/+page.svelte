@@ -37,7 +37,7 @@
 	let value = '';
 	let sortedByDate = false;
 	let hiddenExamples = false;
-	let loading = false;
+	let loadingStates = new Map();
 
 	type Type = {
 		value: string;
@@ -94,29 +94,6 @@
 
 	setContext('quizForm', superFrmQuiz);
 
-	$: selectedType = types.find((t) => t.value === value) ?? null;
-
-	$: quizzes = (() => {
-		// First, filter by selectedType if any, then apply hiddenExamples filter
-		let filteredQuizzes = data.quizzes
-			.filter((quiz: RecordModel) => !selectedType || quiz.type === selectedType.value)
-			.filter(
-				(quiz: RecordModel) =>
-					!hiddenExamples || (quiz.id !== 'hiragana' && quiz.id !== 'katakana'),
-			);
-
-		// Then, sort the filtered quizzes based on sortedByDate
-		return sortedByDate
-			? filteredQuizzes.sort(
-					(a: RecordModel, b: RecordModel) =>
-						Number(new Date(b.created)) - Number(new Date(a.created)),
-				)
-			: filteredQuizzes.sort(
-					(a: RecordModel, b: RecordModel) =>
-						Number(new Date(a.created)) - Number(new Date(b.created)),
-				);
-	})();
-
 	// We want to refocus the trigger button when the user selects
 	// an item from the list so users can continue navigating the
 	// rest of the form with the keyboard.
@@ -128,7 +105,9 @@
 	}
 
 	async function deleteQuiz() {
-		loading = true;
+		loadingStates.set(currentQuiz.id, true);
+		loadingStates = loadingStates;
+
 		try {
 			// Update quiz count in flashcardBox
 			const flashcardBox = await pocketbase
@@ -156,12 +135,36 @@
 		quizzes = quizzes.filter((q) => q.id !== currentQuiz.id);
 
 		// $openHistory = false;
-		loading = false;
+		loadingStates.set(currentQuiz.id, false);
+		loadingStates = loadingStates;
 
 		setTimeout(() => ($deleteDrawerDialogOpen = false), 150);
 
 		toast.success('Search history deleted successfully.');
 	}
+
+	$: selectedType = types.find((t) => t.value === value) ?? null;
+
+	$: quizzes = (() => {
+		// First, filter by selectedType if any, then apply hiddenExamples filter
+		let filteredQuizzes = data.quizzes
+			.filter((quiz: RecordModel) => !selectedType || quiz.type === selectedType.value)
+			.filter(
+				(quiz: RecordModel) =>
+					!hiddenExamples || (quiz.id !== 'hiragana' && quiz.id !== 'katakana'),
+			);
+
+		// Then, sort the filtered quizzes based on sortedByDate
+		return sortedByDate
+			? filteredQuizzes.sort(
+					(a: RecordModel, b: RecordModel) =>
+						Number(new Date(b.created)) - Number(new Date(a.created)),
+				)
+			: filteredQuizzes.sort(
+					(a: RecordModel, b: RecordModel) =>
+						Number(new Date(a.created)) - Number(new Date(b.created)),
+				);
+	})();
 </script>
 
 <DeleteDrawerAlertDialog onClick={deleteQuiz} />
@@ -265,7 +268,7 @@
 
 						{#if quiz.id !== 'hiragana' && quiz.id !== 'katakana'}
 							<DeleteTrashButton
-								{loading}
+								loading={loadingStates.get(quiz.id)}
 								className="my-auto"
 								onClick={(e) => {
 									e.preventDefault();
