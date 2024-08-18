@@ -13,7 +13,7 @@
 	size="icon"
 	{loading}
 	variant="none"
-	class={cn('p-2', className)}
+	class={cn('p-0', className)}
 	on:click={(e) => {
 		onClick(e);
 		$deleteDrawerDialogOpen = true;

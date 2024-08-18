@@ -25,7 +25,7 @@
 
 	onMount(() => {
 		function handleKeydown(e: KeyboardEvent) {
-			if (e.key === 'h' && (e.metaKey || e.ctrlKey)) {
+			if (e.key === 'j' && (e.metaKey || e.ctrlKey)) {
 				e.preventDefault();
 				fetchRandomSearch();
 			}
@@ -41,32 +41,32 @@
 {#if $page.data.isLoggedIn}
 	<DropdownMenu.Root>
 		<DropdownMenu.Trigger
-			class="fixed bottom-5 left-6 hidden text-sm text-muted-foreground transition-transform lg:block"
+			class="add-btn fixed bottom-5 left-6 hidden text-sm text-muted-foreground transition-transform lg:block"
 		>
 			<CircleHelp class="size-5" />
 		</DropdownMenu.Trigger>
 
 		<DropdownMenu.Content class="hidden lg:block">
 			<DropdownMenu.Item
-				class="flex cursor-pointer justify-between gap-2 text-sm text-muted-foreground"
+				class="add-btn flex cursor-pointer justify-between gap-2 text-sm text-muted-foreground"
 				on:click={() => ($openSearch = true)}
 			>
 				<span>Search</span>
 				<kbd
 					class="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100"
 				>
-					<span class="text-xs">{getHotkeyPrefix()}</span>K
+					<span class="text-xs">{getHotkeyPrefix()}</span>k
 				</kbd>
 			</DropdownMenu.Item>
 			<DropdownMenu.Item
 				on:click={fetchRandomSearch}
-				class="flex cursor-pointer justify-between gap-2 text-sm text-muted-foreground"
+				class="add-btn flex cursor-pointer justify-between gap-2 text-sm text-muted-foreground"
 			>
 				<span> Search History </span>
 				<kbd
 					class="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100"
 				>
-					<span class="text-xs">{getHotkeyPrefix()}</span>S
+					<span class="text-xs">{getHotkeyPrefix()}</span>j
 				</kbd>
 			</DropdownMenu.Item>
 		</DropdownMenu.Content>
