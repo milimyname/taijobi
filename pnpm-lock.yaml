@@ -22,10 +22,10 @@ importers:
         version: 0.83.0(svelte@4.2.16)
       '@sglkc/kuroshiro':
         specifier: github:sglkc/kuroshiro-ts
-        version: https://codeload.github.com/sglkc/kuroshiro-ts/tar.gz/3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a
+        version: git+https://git@github.com:sglkc/kuroshiro-ts.git#3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a
       '@sglkc/kuroshiro-analyzer-kuromoji':
         specifier: github:sglkc/kuroshiro-analyzer-kuromoji-ts
-        version: https://codeload.github.com/sglkc/kuroshiro-analyzer-kuromoji-ts/tar.gz/67d1c9718f4b5aef7c9e345ca6406d541227c664
+        version: git+https://git@github.com:sglkc/kuroshiro-analyzer-kuromoji-ts.git#67d1c9718f4b5aef7c9e345ca6406d541227c664
       '@sveltejs/vite-plugin-svelte':
         specifier: ^3.1.1
         version: 3.1.1(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33))
@@ -154,8 +154,8 @@ importers:
         specifier: ^8.10.0
         version: 8.10.0(eslint@8.57.0)
       eslint-plugin-svelte:
-        specifier: ^2.35.1
-        version: 2.38.0(eslint@8.57.0)(svelte@4.2.16)
+        specifier: ^2.43.0
+        version: 2.43.0(eslint@8.57.0)(svelte@4.2.16)
       postcss:
         specifier: ^8.4.35
         version: 8.4.38
@@ -757,6 +757,7 @@ packages:
   '@humanwhocodes/config-array@0.11.14':
     resolution: {integrity: sha512-3T8LkOmg45BV5FICb15QQMsyUSWrQ8AygVfC7ZG32zOalnqrilm018ZVCw0eapXux8FtA33q8PSRSstjee3jSg==}
     engines: {node: '>=10.10.0'}
+    deprecated: Use @eslint/config-array instead
 
   '@humanwhocodes/module-importer@1.0.1':
     resolution: {integrity: sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA==}
@@ -764,6 +765,7 @@ packages:
 
   '@humanwhocodes/object-schema@2.0.3':
     resolution: {integrity: sha512-93zYdMES/c1D69yZiKDBj0V24vqNzB/koF26KPaagAfd3P/4gUlh3Dys5ogAK+Exi9QyzlD8x/08Zt7wIKcDcA==}
+    deprecated: Use @eslint/object-schema instead
 
   '@internationalized/date@3.5.3':
     resolution: {integrity: sha512-X9bi8NAEHAjD8yzmPYT2pdJsbe+tYSEBAfowtlxJVJdZR3aK8Vg7ZUT1Fm5M47KLzp/M1p1VwAaeSma3RT7biw==}
@@ -996,12 +998,12 @@ packages:
   '@sglkc/kuromoji@1.1.0':
     resolution: {integrity: sha512-uKxXYUM5XNjZw0ia0yMYTI3jHSh/c1gEMNvcvS6J49B4mI+PAq8iRYPTxh2ma0RWm45LyWWrILxCJAIXpi/pww==}
 
-  '@sglkc/kuroshiro-analyzer-kuromoji@https://codeload.github.com/sglkc/kuroshiro-analyzer-kuromoji-ts/tar.gz/67d1c9718f4b5aef7c9e345ca6406d541227c664':
-    resolution: {tarball: https://codeload.github.com/sglkc/kuroshiro-analyzer-kuromoji-ts/tar.gz/67d1c9718f4b5aef7c9e345ca6406d541227c664}
+  '@sglkc/kuroshiro-analyzer-kuromoji@git+https://git@github.com:sglkc/kuroshiro-analyzer-kuromoji-ts.git#67d1c9718f4b5aef7c9e345ca6406d541227c664':
+    resolution: {commit: 67d1c9718f4b5aef7c9e345ca6406d541227c664, repo: git@github.com:sglkc/kuroshiro-analyzer-kuromoji-ts.git, type: git}
     version: 1.0.1
 
-  '@sglkc/kuroshiro@https://codeload.github.com/sglkc/kuroshiro-ts/tar.gz/3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a':
-    resolution: {tarball: https://codeload.github.com/sglkc/kuroshiro-ts/tar.gz/3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a}
+  '@sglkc/kuroshiro@git+https://git@github.com:sglkc/kuroshiro-ts.git#3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a':
+    resolution: {commit: 3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a, repo: git@github.com:sglkc/kuroshiro-ts.git, type: git}
     version: 1.0.1
     engines: {node: '>=6.5.0'}
 
@@ -1672,8 +1674,8 @@ packages:
     resolution: {integrity: sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==}
     engines: {node: '>=10'}
 
-  eslint-compat-utils@0.5.0:
-    resolution: {integrity: sha512-dc6Y8tzEcSYZMHa+CMPLi/hyo1FzNeonbhJL7Ol0ccuKQkwopJcJBA9YL/xmMTLU1eKigXo9vj9nALElWYSowg==}
+  eslint-compat-utils@0.5.1:
+    resolution: {integrity: sha512-3z3vFexKIEnjHE3zCMRo6fn/e44U7T1khUjg+Hp0ZQMCigh28rALD0nPFBcGZuiLC5rLZa2ubQHDRln09JfU2Q==}
     engines: {node: '>=12'}
     peerDependencies:
       eslint: '>=6.0.0'
@@ -1684,12 +1686,12 @@ packages:
     peerDependencies:
       eslint: '>=7.0.0'
 
-  eslint-plugin-svelte@2.38.0:
-    resolution: {integrity: sha512-IwwxhHzitx3dr0/xo0z4jjDlb2AAHBPKt+juMyKKGTLlKi1rZfA4qixMwnveU20/JTHyipM6keX4Vr7LZFYc9g==}
+  eslint-plugin-svelte@2.43.0:
+    resolution: {integrity: sha512-REkxQWvg2pp7QVLxQNa+dJ97xUqRe7Y2JJbSWkHSuszu0VcblZtXkPBPckkivk99y5CdLw4slqfPylL2d/X4jQ==}
     engines: {node: ^14.17.0 || >=16.0.0}
     peerDependencies:
       eslint: ^7.0.0 || ^8.0.0-0 || ^9.0.0-0
-      svelte: ^3.37.0 || ^4.0.0 || ^5.0.0-next.112
+      svelte: ^3.37.0 || ^4.0.0 || ^5.0.0-next.191
     peerDependenciesMeta:
       svelte:
         optional: true
@@ -1879,10 +1881,12 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
+    deprecated: Glob versions prior to v9 are no longer supported
 
   glob@8.1.0:
     resolution: {integrity: sha512-r8hpEjiQEYlF2QU0df3dS+nxxSIreXQS1qRhMJM0Q5NDdR386C7jb7Hwwod8Fgiuex+k0GFjgft18yvxm5XoCQ==}
     engines: {node: '>=12'}
+    deprecated: Glob versions prior to v9 are no longer supported
 
   globals@11.12.0:
     resolution: {integrity: sha512-WOBp/EEGUiIsJSp7wcv/y6MO+lV9UoncWqxuFfm8eBwzWNgyfBd6Gz+IeKQ9jCmyhoH99g15M3T+QaVHFjizVA==}
@@ -1988,6 +1992,7 @@ packages:
 
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
+    deprecated: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
 
   inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
@@ -2123,8 +2128,8 @@ packages:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
     engines: {node: '>=6'}
 
-  known-css-properties@0.30.0:
-    resolution: {integrity: sha512-VSWXYUnsPu9+WYKkfmJyLKtIvaRJi1kXUqVmBACORXZQxT5oZDsoZ2vQP+bQFDnWtpI/4eq3MLoRMjI2fnLzTQ==}
+  known-css-properties@0.34.0:
+    resolution: {integrity: sha512-tBECoUqNFbyAY4RrbqsBQqDFpGXAEbdD5QKr8kACx3+rnArmuuR22nKQWKazvp07N9yjTyDZaw/20UIH8tL9DQ==}
 
   kuromoji@0.1.2:
     resolution: {integrity: sha512-V0dUf+C2LpcPEXhoHLMAop/bOht16Dyr+mDiIE39yX3vqau7p80De/koFqpiTcL1zzdZlc3xuHZ8u5gjYRfFaQ==}
@@ -2476,6 +2481,10 @@ packages:
     resolution: {integrity: sha512-A0RVJrX+IUkVZbW3ClroRWurercFhieevHB38sr2+l9eUClMqome3LmEmnhlNy+5Mr2EYN6B2Kaw9wYdd+VHiw==}
     engines: {node: '>=4'}
 
+  postcss-selector-parser@6.1.2:
+    resolution: {integrity: sha512-Q8qQfPiZ+THO/3ZrOrO0cJJKfpYCagtMUkXbnEfmgUjwXg6z/WBeOyS9APBBPCTSiDV+s4SwQGu8yFsiMRIudg==}
+    engines: {node: '>=4'}
+
   postcss-value-parser@4.2.0:
     resolution: {integrity: sha512-1NNCs6uurfkVbeXG4S8JFT9t19m45ICnif8zWLd5oPSZ50QnwMfK+H3jv408d4jw/7Bttv5axS5IiHoLaVNHeQ==}
 
@@ -2631,10 +2640,12 @@ packages:
 
   rimraf@2.7.1:
     resolution: {integrity: sha512-uWjbaKIK3T1OSVptzX7Nl6PvQ3qAGtKEtVRjRuazjfL3Bx5eI409VZSqgND+4UNnmzLVdPj9FqFJNPqBZFve4w==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
   rimraf@3.0.2:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
   rollup@4.17.2:
@@ -2793,11 +2804,11 @@ packages:
     peerDependencies:
       svelte: ^4.0.0
 
-  svelte-eslint-parser@0.36.0:
-    resolution: {integrity: sha512-/6YmUSr0FAVxW8dXNdIMydBnddPMHzaHirAZ7RrT21XYdgGGZMh0LQG6CZsvAFS4r2Y4ItUuCQc8TQ3urB30mQ==}
+  svelte-eslint-parser@0.41.0:
+    resolution: {integrity: sha512-L6f4hOL+AbgfBIB52Z310pg1d2QjRqm7wy3kI1W6hhdhX5bvu7+f0R6w4ykp5HoDdzq+vGhIJmsisaiJDGmVfA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
-      svelte: ^3.37.0 || ^4.0.0 || ^5.0.0-next.115
+      svelte: ^3.37.0 || ^4.0.0 || ^5.0.0-next.191
     peerDependenciesMeta:
       svelte:
         optional: true
@@ -3331,7 +3342,7 @@ snapshots:
   '@babel/code-frame@7.24.7':
     dependencies:
       '@babel/highlight': 7.24.7
-      picocolors: 1.0.0
+      picocolors: 1.0.1
 
   '@babel/generator@7.17.7':
     dependencies:
@@ -3374,7 +3385,7 @@ snapshots:
       '@babel/helper-validator-identifier': 7.24.7
       chalk: 2.4.2
       js-tokens: 4.0.0
-      picocolors: 1.0.0
+      picocolors: 1.0.1
 
   '@babel/parser@7.24.7':
     dependencies:
@@ -3694,7 +3705,7 @@ snapshots:
   '@jridgewell/gen-mapping@0.3.5':
     dependencies:
       '@jridgewell/set-array': 1.2.1
-      '@jridgewell/sourcemap-codec': 1.4.15
+      '@jridgewell/sourcemap-codec': 1.5.0
       '@jridgewell/trace-mapping': 0.3.25
 
   '@jridgewell/resolve-uri@3.1.2': {}
@@ -3708,7 +3719,7 @@ snapshots:
   '@jridgewell/trace-mapping@0.3.25':
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
-      '@jridgewell/sourcemap-codec': 1.4.15
+      '@jridgewell/sourcemap-codec': 1.5.0
 
   '@js-sdsl/ordered-map@4.4.2': {}
 
@@ -3884,11 +3895,11 @@ snapshots:
       doublearray: 0.0.2
       fflate: 0.8.2
 
-  '@sglkc/kuroshiro-analyzer-kuromoji@https://codeload.github.com/sglkc/kuroshiro-analyzer-kuromoji-ts/tar.gz/67d1c9718f4b5aef7c9e345ca6406d541227c664':
+  '@sglkc/kuroshiro-analyzer-kuromoji@git+https://git@github.com:sglkc/kuroshiro-analyzer-kuromoji-ts.git#67d1c9718f4b5aef7c9e345ca6406d541227c664':
     dependencies:
       '@sglkc/kuromoji': 1.1.0
 
-  '@sglkc/kuroshiro@https://codeload.github.com/sglkc/kuroshiro-ts/tar.gz/3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a':
+  '@sglkc/kuroshiro@git+https://git@github.com:sglkc/kuroshiro-ts.git#3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a':
     dependencies:
       '@babel/runtime': 7.24.5
 
@@ -4449,7 +4460,7 @@ snapshots:
 
   code-red@1.0.4:
     dependencies:
-      '@jridgewell/sourcemap-codec': 1.4.15
+      '@jridgewell/sourcemap-codec': 1.5.0
       '@types/estree': 1.0.5
       acorn: 8.11.3
       estree-walker: 3.0.3
@@ -4688,7 +4699,7 @@ snapshots:
 
   escape-string-regexp@4.0.0: {}
 
-  eslint-compat-utils@0.5.0(eslint@8.57.0):
+  eslint-compat-utils@0.5.1(eslint@8.57.0):
     dependencies:
       eslint: 8.57.0
       semver: 7.6.2
@@ -4697,25 +4708,23 @@ snapshots:
     dependencies:
       eslint: 8.57.0
 
-  eslint-plugin-svelte@2.38.0(eslint@8.57.0)(svelte@4.2.16):
+  eslint-plugin-svelte@2.43.0(eslint@8.57.0)(svelte@4.2.16):
     dependencies:
       '@eslint-community/eslint-utils': 4.4.0(eslint@8.57.0)
-      '@jridgewell/sourcemap-codec': 1.4.15
-      debug: 4.3.4
+      '@jridgewell/sourcemap-codec': 1.5.0
       eslint: 8.57.0
-      eslint-compat-utils: 0.5.0(eslint@8.57.0)
+      eslint-compat-utils: 0.5.1(eslint@8.57.0)
       esutils: 2.0.3
-      known-css-properties: 0.30.0
-      postcss: 8.4.38
-      postcss-load-config: 3.1.4(postcss@8.4.38)
-      postcss-safe-parser: 6.0.0(postcss@8.4.38)
-      postcss-selector-parser: 6.0.16
+      known-css-properties: 0.34.0
+      postcss: 8.4.41
+      postcss-load-config: 3.1.4(postcss@8.4.41)
+      postcss-safe-parser: 6.0.0(postcss@8.4.41)
+      postcss-selector-parser: 6.1.2
       semver: 7.6.2
-      svelte-eslint-parser: 0.36.0(svelte@4.2.16)
+      svelte-eslint-parser: 0.41.0(svelte@4.2.16)
     optionalDependencies:
       svelte: 4.2.16
     transitivePeerDependencies:
-      - supports-color
       - ts-node
 
   eslint-scope@5.1.1:
@@ -5239,7 +5248,7 @@ snapshots:
 
   kleur@4.1.5: {}
 
-  known-css-properties@0.30.0: {}
+  known-css-properties@0.34.0: {}
 
   kuromoji@0.1.2:
     dependencies:
@@ -5300,7 +5309,7 @@ snapshots:
 
   magic-string@0.30.10:
     dependencies:
-      '@jridgewell/sourcemap-codec': 1.4.15
+      '@jridgewell/sourcemap-codec': 1.5.0
 
   magic-string@0.30.11:
     dependencies:
@@ -5490,12 +5499,12 @@ snapshots:
       camelcase-css: 2.0.1
       postcss: 8.4.38
 
-  postcss-load-config@3.1.4(postcss@8.4.38):
+  postcss-load-config@3.1.4(postcss@8.4.41):
     dependencies:
       lilconfig: 2.1.0
       yaml: 1.10.2
     optionalDependencies:
-      postcss: 8.4.38
+      postcss: 8.4.41
 
   postcss-load-config@4.0.2(postcss@8.4.38):
     dependencies:
@@ -5516,13 +5525,13 @@ snapshots:
       postcss: 8.4.38
       postcss-selector-parser: 6.0.16
 
-  postcss-safe-parser@6.0.0(postcss@8.4.38):
+  postcss-safe-parser@6.0.0(postcss@8.4.41):
     dependencies:
-      postcss: 8.4.38
+      postcss: 8.4.41
 
-  postcss-scss@4.0.9(postcss@8.4.38):
+  postcss-scss@4.0.9(postcss@8.4.41):
     dependencies:
-      postcss: 8.4.38
+      postcss: 8.4.41
 
   postcss-selector-parser@6.0.10:
     dependencies:
@@ -5530,6 +5539,11 @@ snapshots:
       util-deprecate: 1.0.2
 
   postcss-selector-parser@6.0.16:
+    dependencies:
+      cssesc: 3.0.0
+      util-deprecate: 1.0.2
+
+  postcss-selector-parser@6.1.2:
     dependencies:
       cssesc: 3.0.0
       util-deprecate: 1.0.2
@@ -5722,7 +5736,7 @@ snapshots:
 
   sorcery@0.11.0:
     dependencies:
-      '@jridgewell/sourcemap-codec': 1.4.15
+      '@jridgewell/sourcemap-codec': 1.5.0
       buffer-crc32: 0.2.13
       minimist: 1.2.8
       sander: 0.5.1
@@ -5836,13 +5850,13 @@ snapshots:
     dependencies:
       svelte: 4.2.16
 
-  svelte-eslint-parser@0.36.0(svelte@4.2.16):
+  svelte-eslint-parser@0.41.0(svelte@4.2.16):
     dependencies:
       eslint-scope: 7.2.2
       eslint-visitor-keys: 3.4.3
       espree: 9.6.1
-      postcss: 8.4.38
-      postcss-scss: 4.0.9(postcss@8.4.38)
+      postcss: 8.4.41
+      postcss-scss: 4.0.9(postcss@8.4.41)
     optionalDependencies:
       svelte: 4.2.16
 
@@ -6077,7 +6091,7 @@ snapshots:
     dependencies:
       browserslist: 4.23.0
       escalade: 3.1.2
-      picocolors: 1.0.0
+      picocolors: 1.0.1
 
   uri-js@4.4.1:
     dependencies:
