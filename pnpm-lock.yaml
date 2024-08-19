@@ -22,10 +22,10 @@ importers:
         version: 0.83.0(svelte@4.2.16)
       '@sglkc/kuroshiro':
         specifier: github:sglkc/kuroshiro-ts
-        version: https://codeload.github.com/sglkc/kuroshiro-ts/tar.gz/3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a
+        version: git+https://git@github.com:sglkc/kuroshiro-ts.git#3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a
       '@sglkc/kuroshiro-analyzer-kuromoji':
         specifier: github:sglkc/kuroshiro-analyzer-kuromoji-ts
-        version: https://codeload.github.com/sglkc/kuroshiro-analyzer-kuromoji-ts/tar.gz/67d1c9718f4b5aef7c9e345ca6406d541227c664
+        version: git+https://git@github.com:sglkc/kuroshiro-analyzer-kuromoji-ts.git#67d1c9718f4b5aef7c9e345ca6406d541227c664
       '@sveltejs/vite-plugin-svelte':
         specifier: ^3.1.1
         version: 3.1.1(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33))
@@ -716,20 +716,14 @@ packages:
   '@exodus/schemasafe@1.3.0':
     resolution: {integrity: sha512-5Aap/GaRupgNx/feGBwLLTVv8OQFfv3pq2lPRzPg9R+IOBnDgghTGW7l7EuVXOvg5cc/xSAlRW8rBrjIC3Nvqw==}
 
-  '@floating-ui/core@1.6.1':
-    resolution: {integrity: sha512-42UH54oPZHPdRHdw6BgoBD6cg/eVTmVrFcgeRDM3jbO7uxSoipVcmcIGFcA5jmOHO5apcyvBhkSKES3fQJnu7A==}
-
   '@floating-ui/core@1.6.6':
     resolution: {integrity: sha512-Vkvsw6EcpMHjvZZdMkSY+djMGFbt7CRssW99Ne8tar2WLnZ/l3dbxeTShbLQj+/s35h+Qb4cmnob+EzwtjrXGQ==}
 
-  '@floating-ui/dom@1.6.5':
-    resolution: {integrity: sha512-Nsdud2X65Dz+1RHjAIP0t8z5e2ff/IRbei6BqFrl1urT8sDVzM1HMQ+R0XcU5ceRfyO3I6ayeqIfh+6Wb8LGTw==}
+  '@floating-ui/dom@1.6.10':
+    resolution: {integrity: sha512-fskgCFv8J8OamCmyun8MfjB1Olfn+uZKjOKZ0vhYF3gRmEUXcGOjxWL8bBr7i4kIuPZ2KD2S3EUIOxnjC8kl2A==}
 
-  '@floating-ui/dom@1.6.9':
-    resolution: {integrity: sha512-zB1PcI350t4tkm3rvUhSRKa9sT7vH5CrAbQxW+VaPYJXKAO0gsg4CTueL+6Ajp7XzAQC8CW4Jj1Wgqc0sB6oUQ==}
-
-  '@floating-ui/utils@0.2.6':
-    resolution: {integrity: sha512-0KI3zGxIUs1KDR/pjQPdJH4Z8nGBm0yJ5WRoRfdw1Kzeh45jkIfA0rmD0kBF6fKHH+xaH7g8y4jIXyAV5MGK3g==}
+  '@floating-ui/utils@0.2.7':
+    resolution: {integrity: sha512-X8R8Oj771YRl/w+c1HqAC1szL8zWQRwFvgDwT129k9ACdBoud/+/rX9V0qiMl6LWUdP9voC2nDVZYPMQQsb6eA==}
 
   '@gcornut/valibot-json-schema@0.31.0':
     resolution: {integrity: sha512-3xGptCurm23e7nuPQkdrE5rEs1FeTPHhAUsBuwwqG4/YeZLwJOoYZv+fmsppUEfo5y9lzUwNQrNqLS/q7HMc7g==}
@@ -757,6 +751,7 @@ packages:
   '@humanwhocodes/config-array@0.11.14':
     resolution: {integrity: sha512-3T8LkOmg45BV5FICb15QQMsyUSWrQ8AygVfC7ZG32zOalnqrilm018ZVCw0eapXux8FtA33q8PSRSstjee3jSg==}
     engines: {node: '>=10.10.0'}
+    deprecated: Use @eslint/config-array instead
 
   '@humanwhocodes/module-importer@1.0.1':
     resolution: {integrity: sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA==}
@@ -764,6 +759,7 @@ packages:
 
   '@humanwhocodes/object-schema@2.0.3':
     resolution: {integrity: sha512-93zYdMES/c1D69yZiKDBj0V24vqNzB/koF26KPaagAfd3P/4gUlh3Dys5ogAK+Exi9QyzlD8x/08Zt7wIKcDcA==}
+    deprecated: Use @eslint/object-schema instead
 
   '@internationalized/date@3.5.3':
     resolution: {integrity: sha512-X9bi8NAEHAjD8yzmPYT2pdJsbe+tYSEBAfowtlxJVJdZR3aK8Vg7ZUT1Fm5M47KLzp/M1p1VwAaeSma3RT7biw==}
@@ -996,12 +992,12 @@ packages:
   '@sglkc/kuromoji@1.1.0':
     resolution: {integrity: sha512-uKxXYUM5XNjZw0ia0yMYTI3jHSh/c1gEMNvcvS6J49B4mI+PAq8iRYPTxh2ma0RWm45LyWWrILxCJAIXpi/pww==}
 
-  '@sglkc/kuroshiro-analyzer-kuromoji@https://codeload.github.com/sglkc/kuroshiro-analyzer-kuromoji-ts/tar.gz/67d1c9718f4b5aef7c9e345ca6406d541227c664':
-    resolution: {tarball: https://codeload.github.com/sglkc/kuroshiro-analyzer-kuromoji-ts/tar.gz/67d1c9718f4b5aef7c9e345ca6406d541227c664}
+  '@sglkc/kuroshiro-analyzer-kuromoji@git+https://git@github.com:sglkc/kuroshiro-analyzer-kuromoji-ts.git#67d1c9718f4b5aef7c9e345ca6406d541227c664':
+    resolution: {commit: 67d1c9718f4b5aef7c9e345ca6406d541227c664, repo: git@github.com:sglkc/kuroshiro-analyzer-kuromoji-ts.git, type: git}
     version: 1.0.1
 
-  '@sglkc/kuroshiro@https://codeload.github.com/sglkc/kuroshiro-ts/tar.gz/3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a':
-    resolution: {tarball: https://codeload.github.com/sglkc/kuroshiro-ts/tar.gz/3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a}
+  '@sglkc/kuroshiro@git+https://git@github.com:sglkc/kuroshiro-ts.git#3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a':
+    resolution: {commit: 3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a, repo: git@github.com:sglkc/kuroshiro-ts.git, type: git}
     version: 1.0.1
     engines: {node: '>=6.5.0'}
 
@@ -1879,10 +1875,12 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
+    deprecated: Glob versions prior to v9 are no longer supported
 
   glob@8.1.0:
     resolution: {integrity: sha512-r8hpEjiQEYlF2QU0df3dS+nxxSIreXQS1qRhMJM0Q5NDdR386C7jb7Hwwod8Fgiuex+k0GFjgft18yvxm5XoCQ==}
     engines: {node: '>=12'}
+    deprecated: Glob versions prior to v9 are no longer supported
 
   globals@11.12.0:
     resolution: {integrity: sha512-WOBp/EEGUiIsJSp7wcv/y6MO+lV9UoncWqxuFfm8eBwzWNgyfBd6Gz+IeKQ9jCmyhoH99g15M3T+QaVHFjizVA==}
@@ -1988,6 +1986,7 @@ packages:
 
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
+    deprecated: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
 
   inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
@@ -2631,10 +2630,12 @@ packages:
 
   rimraf@2.7.1:
     resolution: {integrity: sha512-uWjbaKIK3T1OSVptzX7Nl6PvQ3qAGtKEtVRjRuazjfL3Bx5eI409VZSqgND+4UNnmzLVdPj9FqFJNPqBZFve4w==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
   rimraf@3.0.2:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
   rollup@4.17.2:
@@ -3606,25 +3607,16 @@ snapshots:
   '@exodus/schemasafe@1.3.0':
     optional: true
 
-  '@floating-ui/core@1.6.1':
-    dependencies:
-      '@floating-ui/utils': 0.2.6
-
   '@floating-ui/core@1.6.6':
     dependencies:
-      '@floating-ui/utils': 0.2.6
+      '@floating-ui/utils': 0.2.7
 
-  '@floating-ui/dom@1.6.5':
-    dependencies:
-      '@floating-ui/core': 1.6.1
-      '@floating-ui/utils': 0.2.6
-
-  '@floating-ui/dom@1.6.9':
+  '@floating-ui/dom@1.6.10':
     dependencies:
       '@floating-ui/core': 1.6.6
-      '@floating-ui/utils': 0.2.6
+      '@floating-ui/utils': 0.2.7
 
-  '@floating-ui/utils@0.2.6': {}
+  '@floating-ui/utils@0.2.7': {}
 
   '@gcornut/valibot-json-schema@0.31.0':
     dependencies:
@@ -3721,8 +3713,8 @@ snapshots:
 
   '@melt-ui/svelte@0.61.2(svelte@4.2.16)':
     dependencies:
-      '@floating-ui/core': 1.6.1
-      '@floating-ui/dom': 1.6.5
+      '@floating-ui/core': 1.6.6
+      '@floating-ui/dom': 1.6.10
       '@internationalized/date': 3.5.3
       dequal: 2.0.3
       focus-trap: 7.5.4
@@ -3732,7 +3724,7 @@ snapshots:
   '@melt-ui/svelte@0.76.2(svelte@4.2.16)':
     dependencies:
       '@floating-ui/core': 1.6.6
-      '@floating-ui/dom': 1.6.9
+      '@floating-ui/dom': 1.6.10
       '@internationalized/date': 3.5.5
       dequal: 2.0.3
       focus-trap: 7.5.4
@@ -3742,7 +3734,7 @@ snapshots:
   '@melt-ui/svelte@0.83.0(svelte@4.2.16)':
     dependencies:
       '@floating-ui/core': 1.6.6
-      '@floating-ui/dom': 1.6.9
+      '@floating-ui/dom': 1.6.10
       '@internationalized/date': 3.5.5
       dequal: 2.0.3
       focus-trap: 7.5.4
@@ -3884,11 +3876,11 @@ snapshots:
       doublearray: 0.0.2
       fflate: 0.8.2
 
-  '@sglkc/kuroshiro-analyzer-kuromoji@https://codeload.github.com/sglkc/kuroshiro-analyzer-kuromoji-ts/tar.gz/67d1c9718f4b5aef7c9e345ca6406d541227c664':
+  '@sglkc/kuroshiro-analyzer-kuromoji@git+https://git@github.com:sglkc/kuroshiro-analyzer-kuromoji-ts.git#67d1c9718f4b5aef7c9e345ca6406d541227c664':
     dependencies:
       '@sglkc/kuromoji': 1.1.0
 
-  '@sglkc/kuroshiro@https://codeload.github.com/sglkc/kuroshiro-ts/tar.gz/3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a':
+  '@sglkc/kuroshiro@git+https://git@github.com:sglkc/kuroshiro-ts.git#3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a':
     dependencies:
       '@babel/runtime': 7.24.5
 
