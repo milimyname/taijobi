@@ -70,7 +70,7 @@
 			progressData = JSON.parse(localStorage.getItem(`quizProgress_${data.quiz.id}`) || '[]');
 			const storedQuestionId = localStorage.getItem(`currentQuestion_${data.quiz.id}`);
 			currentQuestion = storedQuestionId ? parseInt(storedQuestionId) : 0;
-			currentFlashcard = flashcards[currentQuestion];
+			currentFlashcard = flashcards[currentQuestion] ? flashcards[currentQuestion] : flashcards[0];
 
 			// Get a random number between 0 and the length of the flashcards array
 			shuffledOptions = generateShuffledOptions(flashcards);
@@ -193,12 +193,12 @@
 
 	$: if (currentFlashcard && !isWon) {
 		const sourceFlashcards = flashcards.length > 0 ? flashcards : data.flashcards;
-		currentFlashcard = sourceFlashcards[currentQuestion];
+		currentFlashcard = sourceFlashcards[currentQuestion]
+			? sourceFlashcards[currentQuestion]
+			: sourceFlashcards[0];
 		shuffledOptions = generateShuffledOptions(sourceFlashcards);
 		shuffleArray(shuffledOptions);
 	}
-
-	// $: if (isWon) setTimeout(() => (isWon = false), 5000);
 
 	function showCorrectAnswer() {
 		const buttons = document.querySelectorAll('.quiz-btn') as NodeListOf<HTMLButtonElement>;

@@ -59,6 +59,7 @@
 
 	function clickOnQuizForm(box: RecordModel) {
 		$clickedQuizForm = true;
+		$openConjugation = false;
 
 		$quizFormData.flashcardBox = box.id;
 		$quizFormData.name = box.name;

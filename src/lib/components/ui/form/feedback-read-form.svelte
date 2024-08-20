@@ -50,7 +50,7 @@
 				<Form.Label>Description</Form.Label>
 				<Textarea
 					data-vaul-no-drag
-					class="resize-y"
+					class="h-40 resize-y md:h-72"
 					{...attrs}
 					value={$formData.description}
 					on:change={(e) => handleInput(e, 'description')}

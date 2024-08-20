@@ -54,11 +54,11 @@
 		/>
 		{#if type === 'name'}
 			<h2 class={flashcard?.meaning.length > 2 ? 'text-2xl sm:text-4xl' : 'text-5xl sm:text-8xl'}>
-				{flashcard?.meaning}
+				{flashcard?.meaning ?? shuffledOptions[0]}
 			</h2>
 		{:else}
 			<h2 class={flashcard?.name.length > 2 ? 'text-3xl sm:text-4xl' : 'text-4xl  sm:text-8xl'}>
-				{flashcard?.name}
+				{flashcard?.name ?? shuffledOptions[0]}
 			</h2>
 		{/if}
 

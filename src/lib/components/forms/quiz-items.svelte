@@ -39,7 +39,7 @@
 </script>
 
 <ScrollArea class="h-[32rem] w-full">
-	<div class="select-quiz-data swap-items mb-auto">
+	<div class="select-quiz-data swap-items mb-auto px-5">
 		{#if $clickedKanjiForm && $page.url.pathname.includes('kanji')}
 			<ul class="grid grid-cols-2 gap-3 px-5 xm:grid-cols-4 sm:grid-cols-8">
 				{#each Object.keys(kanji) as letter, i}

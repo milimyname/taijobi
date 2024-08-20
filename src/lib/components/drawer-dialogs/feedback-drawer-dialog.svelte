@@ -37,7 +37,7 @@
 <DrawerDialog.Root open={$clickedReport} onClose={onCloseDrawer} onOutsideClick={onCloseDrawer}>
 	<DrawerDialog.Content
 		className={cn(
-			'right-0 flex flex-col max-sm:fixed max-sm:bottom-0 max-sm:left-0 max-sm:max-h-[56dvh]',
+			'right-0 max-w-3xl flex flex-col max-sm:fixed max-sm:bottom-0 max-sm:left-0 max-sm:max-h-[56dvh]',
 			$deleteDrawerDialogOpen && 'z-60',
 		)}
 	>

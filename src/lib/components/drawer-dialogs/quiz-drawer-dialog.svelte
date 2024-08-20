@@ -14,6 +14,8 @@
 	export let loading: boolean;
 
 	function onCloseDrawer() {
+		goto('/games/quizzes');
+
 		setTimeout(() => (open = false), 100);
 	}
 
@@ -21,7 +23,7 @@
 </script>
 
 <DrawerDialog.Root {open} onOutsideClick={onCloseDrawer} onClose={onCloseDrawer}>
-	<DrawerDialog.Content className="px-5 space-y-5 max-md:max-h-[96dvh]">
+	<DrawerDialog.Content className="px-5 max-w-3xl space-y-5 max-md:max-h-[96dvh]">
 		<DrawerDialog.Header class="p-0 text-left">
 			<DrawerDialog.Title>Quiz Result</DrawerDialog.Title>
 			<DrawerDialog.Description>
@@ -32,7 +34,7 @@
 				{/if}
 			</DrawerDialog.Description>
 		</DrawerDialog.Header>
-		<ScrollArea class="max-h-[32rem] w-full">
+		<ScrollArea class="max-h-[32rem] w-full md:px-5">
 			{#if progressData.length > 0}
 				<div class="grid grid-cols-2 gap-2">
 					{#each progressData as item}
@@ -40,25 +42,19 @@
 						{#if item.score === 1}
 							<Badge variant="outline" class="my-auto size-fit justify-self-end">Correct</Badge>
 						{:else}
-							<Badge variant="destructive" class="my-auto size-fit justify-self-end"
-								>Incorrect</Badge
-							>
+							<Badge variant="destructive" class="my-auto size-fit justify-self-end">
+								Incorrect
+							</Badge>
 						{/if}
 					{/each}
 				</div>
 			{/if}
 		</ScrollArea>
 
-		<!-- <Button on:click={startOver} class="max-sm:hidden">Start Over</Button> -->
 		<DrawerDialog.Footer className="md:block px-0">
 			<Button on:click={startOver} {loading} disabled={loading} class="w-full">Start Over</Button>
 			<DrawerDialog.Close asChild let:builder>
-				<Button
-					builders={[builder]}
-					variant="outline"
-					class="md:hidden"
-					on:click={() => goto('/games/quizzes')}>Cancel</Button
-				>
+				<Button builders={[builder]} variant="outline" class="md:hidden">Cancel</Button>
 			</DrawerDialog.Close>
 		</DrawerDialog.Footer>
 	</DrawerDialog.Content>

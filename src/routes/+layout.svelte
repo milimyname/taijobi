@@ -46,6 +46,11 @@
 	});
 </script>
 
+<svelte:head>
+	<title>Taijobi</title>
+	<meta name="Taijobi" content="Taijobi" />
+</svelte:head>
+
 <svelte:window bind:innerWidth={$innerWidthStore} bind:innerHeight={$innerHeightStore} />
 
 <Umami />
