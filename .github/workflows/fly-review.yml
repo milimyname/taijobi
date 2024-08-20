@@ -39,13 +39,7 @@ jobs:
         id: deploy
         uses: superfly/fly-pr-review-apps@1.2.1
         with:
-          secrets: |
-            "VITE_POCKETBASE_URL: ${{ secrets.VITE_POCKETBASE_URL }}"
-            "OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}"
-            "DEMO_PASSWORD: ${{ secrets.DEMO_PASSWORD }}"
-            "DEMO_EMAIL: ${{ secrets.DEMO_EMAIL }}"
-            "DOCUMENTAI_PROCESSOR_NAME: ${{ secrets.DOCUMENTAI_PROCESSOR_NAME }}"
-            "DOCUMENTAI_ENDPOINT: ${{ secrets.DOCUMENTAI_ENDPOINT }}"
+          secrets: VITE_POCKETBASE_URL={{ secrets.VITE_POCKETBASE_URL } OPENAI_API_KEY={{ secrets.OPENAI_API_KEY } DEMO_PASSWORD={{ secrets.DEMO_PASSWORD } DEMO_EMAIL={{ secrets.DEMO_EMAIL } DOCUMENTAI_PROCESSOR_NAME={{ secrets.DOCUMENTAI_PROCESSOR_NAME } DOCUMENTAI_ENDPOINT={{ secrets.DOCUMENTAI_ENDPOINT }}
 
       - name: Clean up GitHub environment
         uses: strumwolf/delete-deployment-environment@v2
