@@ -24,23 +24,14 @@ ARG VITE_POCKETBASE_URL
 ARG DEMO_PASSWORD
 ARG DEMO_EMAIL
 ARG OPENAI_API_KEY
-ARG DOCUMENTAI_ENDPOINT
-ARG DOCUMENTAI_PROCESSOR_NAME
-ARG GCLOUD_AUTH_BASE_64
 RUN --mount=type=secret,id=VITE_POCKETBASE_URL \
-    --mount=type=secret,id=DEMO_PASSWORD \
-    --mount=type=secret,id=DEMO_EMAIL \
-    --mount=type=secret,id=OPENAI_API_KEY \
-    --mount=type=secret,id=DOCUMENTAI_ENDPOINT \
-    --mount=type=secret,id=DOCUMENTAI_PROCESSOR_NAME \
-    --mount=type=secret,id=GCLOUD_AUTH_BASE_64 \
-    export VITE_POCKETBASE_URL="$(cat /run/secrets/VITE_POCKETBASE_URL)" && \
-    export DEMO_PASSWORD="$(cat /run/secrets/DEMO_PASSWORD)" && \
-    export DEMO_EMAIL="$(cat /run/secrets/DEMO_EMAIL)" && \
-    export OPENAI_API_KEY="$(cat /run/secrets/OPENAI_API_KEY)" && \
-    export DOCUMENTAI_ENDPOINT="$(cat /run/secrets/DOCUMENTAI_ENDPOINT)" && \
-    export DOCUMENTAI_PROCESSOR_NAME="$(cat /run/secrets/DOCUMENTAI_PROCESSOR_NAME)" && \
-    export GCLOUD_AUTH_BASE_64="$(cat /run/secrets/GCLOUD_AUTH_BASE_64)" && \
+    VITE_POCKETBASE_URL="$(cat /run/secrets/VITE_POCKETBASE_URL)" && \
+    OPENAI_API_KEY="$(cat /run/secrets/OPENAI_API_KEY)" && \
+    DEMO_PASSWORD="$(cat /run/secrets/DEMO_PASSWORD)" && \
+    DEMO_EMAIL="$(cat /run/secrets/DEMO_EMAIL)" && \
+    DOCUMENTAI_ENDPOINT="$(cat /run/secrets/DOCUMENTAI_ENDPOINT)" && \
+    DOCUMENTAI_PROCESSOR_NAME="$(cat /run/secrets/DOCUMENTAI_PROCESSOR_NAME)" && \
+    GCLOUD_AUTH_BASE_64="$(cat /run/secrets/GCLOUD_AUTH_BASE_64)" && \
     pnpm run build
 
 # Remove dev dependencies
@@ -58,7 +49,7 @@ ENV PORT=3000
 
 ENV NODE_ENV production
 
-# Set the environment variables here. It's important to understand that this value will not be
+# Set the environment variable here. It's important to understand that this value will not be
 # the secret value from the build stage, but rather a placeholder to be set at container runtime.
 ENV VITE_POCKETBASE_URL=${VITE_POCKETBASE_URL}
 ENV DEMO_PASSWORD=${DEMO_PASSWORD}
