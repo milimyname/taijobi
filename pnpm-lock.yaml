@@ -193,8 +193,8 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0(tailwindcss@3.4.6)
       tslib:
-        specifier: ^2.6.2
-        version: 2.6.2
+        specifier: ^2.6.3
+        version: 2.6.3
       typescript:
         specifier: ^5.4.2
         version: 5.4.5
@@ -2980,8 +2980,8 @@ packages:
   tslib@2.4.0:
     resolution: {integrity: sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==}
 
-  tslib@2.6.2:
-    resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
+  tslib@2.6.3:
+    resolution: {integrity: sha512-xNvxJEOUiWPGhUuUdQgAJPKOOJfGnIyKySOc09XkKsgdUV/3E2zvwZYdejjmRgPCgcym1juLH3226yA7sEFJKQ==}
 
   tsutils@3.21.0:
     resolution: {integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==}
@@ -3973,7 +3973,7 @@ snapshots:
 
   '@swc/helpers@0.5.12':
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.6.3
 
   '@tailwindcss/container-queries@0.1.1(tailwindcss@3.4.6)':
     dependencies:
@@ -5885,7 +5885,7 @@ snapshots:
   svelte-sequential-preprocessor@2.0.1:
     dependencies:
       svelte: 4.2.16
-      tslib: 2.6.2
+      tslib: 2.6.3
 
   svelte-sonner@0.3.24(svelte@4.2.16):
     dependencies:
@@ -6052,7 +6052,7 @@ snapshots:
   tslib@2.4.0:
     optional: true
 
-  tslib@2.6.2: {}
+  tslib@2.6.3: {}
 
   tsutils@3.21.0(typescript@5.4.5):
     dependencies:
