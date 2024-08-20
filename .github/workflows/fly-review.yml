@@ -1,4 +1,4 @@
-name: Deploy Review App
+name: Staging App
 on:
   # Run this workflow on every PR event. Existing review apps will be updated when the PR is updated.
   pull_request:
@@ -9,6 +9,11 @@ env:
   # Set these to your Fly.io organization and preferred region.
   FLY_REGION: ams
   FLY_ORG: personal
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  DEMO_PASSWORD: ${{ secrets.DEMO_PASSWORD }}
+  DEMO_EMAIL: ${{ secrets.DEMO_EMAIL }}
+  DOCUMENTAI_PROCESSOR_NAME: ${{ secrets.DOCUMENTAI_PROCESSOR_NAME }}
+  DOCUMENTAI_ENDPOINT: ${{ secrets.DOCUMENTAI_ENDPOINT }}
 
 jobs:
   review_app:
@@ -32,5 +37,11 @@ jobs:
       - name: Deploy PR app to Fly.io
         id: deploy
         uses: superfly/fly-pr-review-apps@1.2.1
+
+      - name: Clean up GitHub environment
+        uses: strumwolf/delete-deployment-environment@v2
+        if: ${{ github.event.action == 'closed' }}
         with:
-          secrets: OPENAI_API_KEY={{ secrets.OPENAI_API_KEY }} DEMO_PASSWORD={{ secrets.DEMO_PASSWORD }} DEMO_EMAIL={{ secrets.DEMO_EMAIL }} DOCUMENTAI_PROCESSOR_NAME={{ secrets.DOCUMENTAI_PROCESSOR_NAME }} DOCUMENTAI_ENDPOINT={{ secrets.DOCUMENTAI_ENDPOINT }}
+          # ⚠️ The provided token needs permission for admin write:org
+          token: ${{ secrets.GITHUB_TOKEN }}
+          environment: pr-${{ github.event.number }}
