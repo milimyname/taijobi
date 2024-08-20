@@ -105,9 +105,7 @@
 		{/each}
 
 		{#if $messages.length === 0}
-			<p class="mt-40 text-balance text-center text-gray-500">
-				No messages yet. Please type something below
-			</p>
+			<p class="mt-40 text-balance text-center text-gray-500">cool test page</p>
 		{/if}
 	</ul>
 	<form
