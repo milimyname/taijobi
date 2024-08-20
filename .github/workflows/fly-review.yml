@@ -37,7 +37,7 @@ jobs:
 
       - name: Deploy PR app to Fly.io
         id: deploy
-        uses: JoeyRichter/fly-pr-review-apps#1
+        uses: JoeyRichter/fly-pr-review-apps@main
         with:
           build_secrets: |
             VITE_POCKETBASE_URL=${{ secrets.VITE_POCKETBASE_URL }}
