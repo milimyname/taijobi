@@ -37,7 +37,7 @@ jobs:
 
       - name: Deploy PR app to Fly.io
         id: deploy
-        uses: superfly/fly-pr-review-apps@1.2.1
+        uses: superfly/flyctl-actions/setup-flyctl@master
       - run: |
           flyctl deploy --remote-only \
             --build-secret VITE_POCKETBASE_URL=${{ secrets.VITE_POCKETBASE_URL }} \
@@ -52,7 +52,7 @@ jobs:
           DEMO_PASSWORD: ${{ secrets.DEMO_PASSWORD }}
           DEMO_EMAIL: ${{ secrets.DEMO_EMAIL }}
           DOCUMENTAI_PROCESSOR_NAME: ${{ secrets.DOCUMENTAI_PROCESSOR_NAME }}
-          DOCUMENTAI_ENDPOINT: ${{ secrets.DOCUMENTAI_ENDPOINT }}}
+          DOCUMENTAI_ENDPOINT: ${{ secrets.DOCUMENTAI_ENDPOINT }}
 
       - name: Clean up GitHub environment
         uses: strumwolf/delete-deployment-environment@v2
