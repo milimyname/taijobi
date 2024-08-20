@@ -25,13 +25,13 @@ ARG DEMO_PASSWORD
 ARG DEMO_EMAIL
 ARG OPENAI_API_KEY
 RUN --mount=type=secret,id=VITE_POCKETBASE_URL \
-    VITE_POCKETBASE_URL="$(cat /run/secrets/VITE_POCKETBASE_URL)" && \
-    OPENAI_API_KEY="$(cat /run/secrets/OPENAI_API_KEY)" && \
-    DEMO_PASSWORD="$(cat /run/secrets/DEMO_PASSWORD)" && \
-    DEMO_EMAIL="$(cat /run/secrets/DEMO_EMAIL)" && \
-    DOCUMENTAI_ENDPOINT="$(cat /run/secrets/DOCUMENTAI_ENDPOINT)" && \
-    DOCUMENTAI_PROCESSOR_NAME="$(cat /run/secrets/DOCUMENTAI_PROCESSOR_NAME)" && \
-    GCLOUD_AUTH_BASE_64="$(cat /run/secrets/GCLOUD_AUTH_BASE_64)" && \
+    export VITE_POCKETBASE_URL="$(cat /run/secrets/VITE_POCKETBASE_URL)" && \
+    export OPENAI_API_KEY="$(cat /run/secrets/OPENAI_API_KEY)" && \
+    export DEMO_PASSWORD="$(cat /run/secrets/DEMO_PASSWORD)" && \
+    export DEMO_EMAIL="$(cat /run/secrets/DEMO_EMAIL)" && \
+    export DOCUMENTAI_ENDPOINT="$(cat /run/secrets/DOCUMENTAI_ENDPOINT)" && \
+    export DOCUMENTAI_PROCESSOR_NAME="$(cat /run/secrets/DOCUMENTAI_PROCESSOR_NAME)" && \
+    export GCLOUD_AUTH_BASE_64="$(cat /run/secrets/GCLOUD_AUTH_BASE_64)" && \
     pnpm run build
 
 # Remove dev dependencies
