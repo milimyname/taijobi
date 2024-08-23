@@ -9,10 +9,12 @@
 	import { page } from '$app/stores';
 	import { pocketbase } from '$lib/utils/pocketbase';
 	import { chats } from '$lib/utils/stores.js';
+	import { browser } from '$app/environment';
 
 	export let data;
 
 	const chatID = $page.params.slug;
+	let textArea: HTMLTextAreaElement;
 
 	const { input, handleSubmit, messages, isLoading } = useChat({
 		api: '/api/openai/chat',
@@ -67,29 +69,13 @@
 	});
 
 	onMount(() => {
-		const textarea = document.querySelector('textarea');
-		if (textarea) {
-			textarea.addEventListener('keydown', (event) => {
-				if (event.key === 'Enter' && !event.shiftKey) {
-					event.preventDefault();
-					handleSubmit(event);
-				}
-			});
-		}
+		textArea = document.querySelector('textarea') as HTMLTextAreaElement;
 	});
 
-	// Update the height of the textarea based on the input content
-	$: if (typeof window !== 'undefined' && $input) {
-		const textarea = document.querySelector('textarea');
-		if (textarea) {
-			textarea.style.height = (textarea.scrollHeight > 40 ? textarea.scrollHeight : 40) + 'px';
-		}
-	}
+	$: if (browser && $input && textArea)
+		textArea.style.height = (textArea.scrollHeight > 40 ? textArea.scrollHeight - 10 : 40) + 'px';
 
-	$: if (typeof window !== 'undefined' && $input === '') {
-		const textarea = document.querySelector('textarea');
-		if (textarea) textarea.style.height = '40px';
-	}
+	$: if (browser && $input === '' && textArea) textArea.style.height = '40px';
 
 	$: chatMessages = [...data?.messages, ...$messages];
 </script>

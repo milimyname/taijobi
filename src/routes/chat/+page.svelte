@@ -11,6 +11,8 @@
 	import { chats } from '$lib/utils/stores';
 	import { browser } from '$app/environment';
 
+	let textArea: HTMLTextAreaElement;
+
 	const { input, handleSubmit, messages, isLoading } = useChat({
 		api: '/api/openai/chat',
 		async onFinish(message) {
@@ -64,31 +66,13 @@
 	});
 
 	onMount(() => {
-		const textarea = document.querySelector('textarea');
-		if (textarea) {
-			textarea.addEventListener('keydown', (event) => {
-				if (event.key === 'Enter' && !event.shiftKey) {
-					event.preventDefault();
-					handleSubmit(event);
-				}
-			});
-		}
+		textArea = document.querySelector('textarea') as HTMLTextAreaElement;
 	});
 
-	$: if (browser && $input) {
-		const textarea = document.querySelector('textarea');
-		if (textarea) {
-			// Reset the height
-			textarea.style.height = 'auto';
-			// Set the new height
-			textarea.style.height = (textarea.scrollHeight > 40 ? textarea.scrollHeight : 40) + 'px';
-		}
-	}
+	$: if (browser && $input && textArea)
+		textArea.style.height = (textArea.scrollHeight > 40 ? textArea.scrollHeight - 10 : 40) + 'px';
 
-	$: if (browser && $input === '') {
-		const textarea = document.querySelector('textarea');
-		if (textarea) textarea.style.height = '40px';
-	}
+	$: if (browser && $input === '' && textArea) textArea.style.height = '40px';
 </script>
 
 <section class="size-full space-y-4 pt-5">
