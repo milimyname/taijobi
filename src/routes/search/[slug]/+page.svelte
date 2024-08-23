@@ -20,6 +20,7 @@
 	import { slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 	import SearchDrawerDialog from '$lib/components/drawer-dialogs/search-drawer-dialog.svelte';
+	import { pocketbase } from '$lib/utils/pocketbase';
 
 	export let data;
 
@@ -121,7 +122,21 @@
 		{#if $searchedWordStore?.flashcardBox}
 			<Button
 				variant="outline"
-				on:click={() => goto(`/flashcards/${$searchedWordStore?.flashcardBox}`)}
+				on:click={async () => {
+					const flashcardCollection = await pocketbase
+						.collection('flashcardBoxes')
+						.getFirstListItem(`id = "${$searchedWordStore?.flashcardBox}"`, {
+							fields: 'flashcardCollection',
+						});
+
+					if (flashcardCollection)
+						localStorage.setItem(
+							'currentFlashcardCollectionId',
+							flashcardCollection.flashcardCollection,
+						);
+
+					goto(`/flashcards/${$searchedWordStore?.flashcardBox}`);
+				}}
 			>
 				Go to Flashcard
 			</Button>

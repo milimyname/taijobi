@@ -26,7 +26,7 @@ export const load = async ({ locals, params }) => {
 
 		const searches = await locals.pb.collection('searches').getFullList({
 			filter: `user = "${locals.pb.authStore.model?.id}"`,
-			expand: 'flashcard.flashcardBox.flashcardCollection',
+			expand: 'flashcard.flashcardBox',
 		});
 
 		const flashcardCollections = await locals.pb.collection('flashcardCollections').getFullList({

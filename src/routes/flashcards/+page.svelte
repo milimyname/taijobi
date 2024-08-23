@@ -32,6 +32,7 @@
 
 	let savedCollection: RecordModel;
 	let visibleCards: RecordModel[] = [];
+	let nextCollectionId: string;
 
 	// Flashcard collection form:
 	const superFrmCollection = superForm(data.form, {
@@ -99,19 +100,18 @@
 
 	// Function to handle card removal/swipe
 	function discardCard() {
-		const lastCard = data.flashcardCollections[data.flashcardCollections.length - 1];
-		data.flashcardCollections = data.flashcardCollections.slice(
-			0,
-			data.flashcardCollections.length - 1,
-		);
+		const lastCard = visibleCards[visibleCards.length - 1];
+
+		// Get the next collection id to show
+		nextCollectionId = visibleCards[visibleCards.length - 2]?.id;
+
+		visibleCards = visibleCards.slice(0, visibleCards.length - 1);
 
 		setTimeout(() => {
-			data.flashcardCollections = [lastCard, ...data.flashcardCollections];
+			visibleCards = [lastCard, ...visibleCards];
 
 			// Show one more card when discarding
-			if (visibleCardsCount < data.flashcardCollections.length) {
-				visibleCardsCount = data.flashcardCollections.length;
-			}
+			if (visibleCardsCount < visibleCards.length) visibleCardsCount = visibleCards.length;
 		}, 100);
 	}
 
@@ -150,6 +150,7 @@
 				name={card.name}
 				id={card.id}
 				description={card.description}
+				{nextCollectionId}
 				type={card.type}
 				{index}
 				totalCount={visibleCardsCount}
@@ -160,8 +161,9 @@
 			{#each visibleCards as card, index}
 				<FlashcardCollection
 					name={card.name}
-					id={card.id}
+					id={card}
 					description={card.description}
+					{nextCollectionId}
 					type={card.type}
 					{index}
 					totalCount={visibleCardsCount}

@@ -52,8 +52,7 @@
 			// Close the form if there is no error
 			$nestedSearchDrawerOpen = false;
 			$selectedConjugatingFlashcards = [];
-			// Set it to the current flashcard collection
-			// localStorage.setItem('currentFlashcardCollectionId', form.data.collectionId);
+
 			toast('New Conjugation Quiz created successfully', {
 				action: {
 					label: 'See it now',

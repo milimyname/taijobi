@@ -31,6 +31,7 @@
 	export let index: number;
 	export let id: string;
 	export let totalCount: number;
+	export let nextCollectionId: string;
 
 	let form: SuperForm<Infer<FlashcardCollectionSchema>> = getContext('collectionForm');
 
@@ -120,7 +121,7 @@
 			$showCollections = true;
 			$currentFlashcardCollectionId = id;
 
-			localStorage.setItem('currentFlashcardCollectionId', id);
+			localStorage.setItem('currentFlashcardCollectionId', nextCollectionId || id);
 
 			$flashcardsBoxType = type;
 
@@ -132,7 +133,7 @@
 
 			$rotateY = -60;
 
-			localStorage.setItem('currentFlashcardCollectionId', id);
+			localStorage.setItem('currentFlashcardCollectionId', nextCollectionId || id);
 
 			setTimeout(() => {
 				$x = -$innerWidthStore;
@@ -274,7 +275,7 @@
 			$currentFlashcardCollectionId = id;
 			$flashcardsBoxType = type;
 
-			localStorage.setItem('currentFlashcardCollectionId', id);
+			localStorage.setItem('currentFlashcardCollectionId', nextCollectionId || id);
 
 			isClicked = true;
 		}
@@ -285,7 +286,7 @@
 			$x = -1000;
 			$skippedFlashcard = true;
 
-			localStorage.setItem('currentFlashcardCollectionId', id);
+			localStorage.setItem('currentFlashcardCollectionId', nextCollectionId || id);
 		}
 	}
 

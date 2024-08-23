@@ -40,7 +40,7 @@
 	action="?/delete"
 	use:enhance
 	class={cn(
-		'edit-form z-[1000] flex size-full flex-col rounded-t-2xl bg-white max-md:px-4',
+		'edit-form z-[1000] flex size-full flex-col space-y-2 rounded-t-2xl bg-white max-md:px-4',
 		!disabled && 'gap-5',
 	)}
 >
@@ -65,7 +65,6 @@
 				<button type="button" on:click={() => (showImage = true)} class="underline">
 					Show Image
 				</button>
-				<p class="text-sm">Create a new report to change the image</p>
 			</div>
 		{/if}
 	</div>
