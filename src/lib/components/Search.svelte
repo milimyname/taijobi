@@ -12,7 +12,6 @@
 
 	let search = '';
 	let fetchedData: any[] = getRandomKanji();
-	let paragraphs: any[] = [];
 	let value: string = fetchedData[0].id;
 
 	// Fetch flashcards from the server
@@ -45,6 +44,10 @@
 					})),
 				];
 			}
+
+			// Set first item to currentHoveredFlashcard
+			await tick();
+			currentHoveredFlashcard = fetchedData[0];
 		} catch (error) {
 			console.error(error);
 		}
