@@ -32,7 +32,6 @@
 
 	let savedCollection: RecordModel;
 	let visibleCards: RecordModel[] = [];
-	let nextCollectionId: string;
 
 	// Flashcard collection form:
 	const superFrmCollection = superForm(data.form, {
@@ -89,7 +88,7 @@
 						},
 					},
 				});
-				$newFlashcardBoxId = form.data.id;
+				$newFlashcardBoxId = form.data.id as string;
 			}
 
 			$clickedAddFlahcardBox = false;
@@ -103,7 +102,12 @@
 		const lastCard = visibleCards[visibleCards.length - 1];
 
 		// Get the next collection id to show
-		nextCollectionId = visibleCards[visibleCards.length - 2]?.id;
+		const nextCollectionId = visibleCards[visibleCards.length - 2]?.id;
+
+		console.log('nextCollectionId', nextCollectionId);
+
+		if (nextCollectionId) localStorage.setItem('currentFlashcardCollectionId', nextCollectionId);
+		else localStorage.setItem('currentFlashcardCollectionId', lastCard.id);
 
 		visibleCards = visibleCards.slice(0, visibleCards.length - 1);
 
@@ -125,6 +129,12 @@
 			) as RecordModel;
 
 			visibleCards = [...visibleCards.slice(0, visibleCards.length - 1), savedCollection];
+		}
+
+		// if there is undefined in visibleCards, remove it and remove local storage
+		if (visibleCards.includes(undefined) || visibleCards.includes(null)) {
+			visibleCards = visibleCards.filter((card) => card != null);
+			localStorage.removeItem('currentFlashcardCollectionId');
 		}
 	});
 
@@ -150,7 +160,6 @@
 				name={card.name}
 				id={card.id}
 				description={card.description}
-				{nextCollectionId}
 				type={card.type}
 				{index}
 				totalCount={visibleCardsCount}
@@ -161,9 +170,8 @@
 			{#each visibleCards as card, index}
 				<FlashcardCollection
 					name={card.name}
-					id={card}
+					id={card.id}
 					description={card.description}
-					{nextCollectionId}
 					type={card.type}
 					{index}
 					totalCount={visibleCardsCount}
