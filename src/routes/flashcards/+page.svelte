@@ -104,8 +104,6 @@
 		// Get the next collection id to show
 		const nextCollectionId = visibleCards[visibleCards.length - 2]?.id;
 
-		console.log('nextCollectionId', nextCollectionId);
-
 		if (nextCollectionId) localStorage.setItem('currentFlashcardCollectionId', nextCollectionId);
 		else localStorage.setItem('currentFlashcardCollectionId', lastCard.id);
 
