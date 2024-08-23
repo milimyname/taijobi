@@ -59,10 +59,13 @@
 
 	$: if (wordFlashcard) audioSource = '';
 
-	$: showEdit =
-		$page.data.isLoggedIn &&
-		(($flashcardsBoxType !== 'original' && islocalBoxTypeOriginal !== 'original') ||
-			$page.data.isAdmin);
+	$: isOriginal =
+		$flashcardsBoxType &&
+		$flashcardsBoxType !== 'original' &&
+		islocalBoxTypeOriginal &&
+		islocalBoxTypeOriginal !== 'original';
+
+	$: showEdit = $page.data.isLoggedIn && (isOriginal || $page.data.isAdmin);
 </script>
 
 {#if audioSource}
