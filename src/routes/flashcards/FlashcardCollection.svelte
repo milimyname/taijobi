@@ -119,7 +119,7 @@
 			$x = $innerWidthStore;
 
 			$showCollections = true;
-			$currentFlashcardCollectionId = id;
+			$currentFlashcardCollectionId = nextCollectionId || id;
 
 			localStorage.setItem('currentFlashcardCollectionId', nextCollectionId || id);
 
@@ -272,7 +272,7 @@
 			$rotateY = 60;
 			$x = 1000;
 			$showCollections = true;
-			$currentFlashcardCollectionId = id;
+			$currentFlashcardCollectionId = nextCollectionId || id;
 			$flashcardsBoxType = type;
 
 			localStorage.setItem('currentFlashcardCollectionId', nextCollectionId || id);
