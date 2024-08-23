@@ -34,7 +34,7 @@
 				{/if}
 			</DrawerDialog.Description>
 		</DrawerDialog.Header>
-		<ScrollArea class="max-h-[32rem] w-full md:px-5">
+		<ScrollArea class="h-[32rem] w-full md:px-5">
 			{#if progressData.length > 0}
 				<div class="grid grid-cols-2 gap-2">
 					{#each progressData as item}
