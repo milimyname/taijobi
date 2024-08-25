@@ -43,6 +43,8 @@
 
 			// Set visible cards count to the total number of flashcard collections
 			visibleCardsCount = data.flashcardCollections.length;
+
+			$currentFlashcardCollectionId = form.data.id as string;
 		},
 	});
 
