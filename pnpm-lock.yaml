@@ -22,10 +22,10 @@ importers:
         version: 0.83.0(svelte@4.2.16)
       '@sglkc/kuroshiro':
         specifier: github:sglkc/kuroshiro-ts
-        version: https://codeload.github.com/sglkc/kuroshiro-ts/tar.gz/3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a
+        version: git+https://git@github.com:sglkc/kuroshiro-ts.git#3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a
       '@sglkc/kuroshiro-analyzer-kuromoji':
         specifier: github:sglkc/kuroshiro-analyzer-kuromoji-ts
-        version: https://codeload.github.com/sglkc/kuroshiro-analyzer-kuromoji-ts/tar.gz/67d1c9718f4b5aef7c9e345ca6406d541227c664
+        version: git+https://git@github.com:sglkc/kuroshiro-analyzer-kuromoji-ts.git#67d1c9718f4b5aef7c9e345ca6406d541227c664
       '@sveltejs/vite-plugin-svelte':
         specifier: ^3.1.1
         version: 3.1.1(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33))
@@ -757,6 +757,7 @@ packages:
   '@humanwhocodes/config-array@0.11.14':
     resolution: {integrity: sha512-3T8LkOmg45BV5FICb15QQMsyUSWrQ8AygVfC7ZG32zOalnqrilm018ZVCw0eapXux8FtA33q8PSRSstjee3jSg==}
     engines: {node: '>=10.10.0'}
+    deprecated: Use @eslint/config-array instead
 
   '@humanwhocodes/module-importer@1.0.1':
     resolution: {integrity: sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA==}
@@ -764,6 +765,7 @@ packages:
 
   '@humanwhocodes/object-schema@2.0.3':
     resolution: {integrity: sha512-93zYdMES/c1D69yZiKDBj0V24vqNzB/koF26KPaagAfd3P/4gUlh3Dys5ogAK+Exi9QyzlD8x/08Zt7wIKcDcA==}
+    deprecated: Use @eslint/object-schema instead
 
   '@internationalized/date@3.5.3':
     resolution: {integrity: sha512-X9bi8NAEHAjD8yzmPYT2pdJsbe+tYSEBAfowtlxJVJdZR3aK8Vg7ZUT1Fm5M47KLzp/M1p1VwAaeSma3RT7biw==}
@@ -877,8 +879,8 @@ packages:
   '@protobufjs/utf8@1.1.0':
     resolution: {integrity: sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw==}
 
-  '@rollup/plugin-commonjs@25.0.7':
-    resolution: {integrity: sha512-nEvcR+LRjEjsaSsc4x3XZfCCvZIaSMenZu/OiwOKGN2UhQpAYI7ru7czFvyWbErlpoGjnSX3D5Ch5FcMA3kRWQ==}
+  '@rollup/plugin-commonjs@25.0.8':
+    resolution: {integrity: sha512-ZEZWTK5n6Qde0to4vS9Mr5x/0UZoqCxPVR9KRUjU4kA2sO7GEUn1fop0DAwpO6z0Nw/kJON9bDmSxdWxO/TT1A==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       rollup: ^2.68.0||^3.0.0||^4.0.0
@@ -996,12 +998,12 @@ packages:
   '@sglkc/kuromoji@1.1.0':
     resolution: {integrity: sha512-uKxXYUM5XNjZw0ia0yMYTI3jHSh/c1gEMNvcvS6J49B4mI+PAq8iRYPTxh2ma0RWm45LyWWrILxCJAIXpi/pww==}
 
-  '@sglkc/kuroshiro-analyzer-kuromoji@https://codeload.github.com/sglkc/kuroshiro-analyzer-kuromoji-ts/tar.gz/67d1c9718f4b5aef7c9e345ca6406d541227c664':
-    resolution: {tarball: https://codeload.github.com/sglkc/kuroshiro-analyzer-kuromoji-ts/tar.gz/67d1c9718f4b5aef7c9e345ca6406d541227c664}
+  '@sglkc/kuroshiro-analyzer-kuromoji@git+https://git@github.com:sglkc/kuroshiro-analyzer-kuromoji-ts.git#67d1c9718f4b5aef7c9e345ca6406d541227c664':
+    resolution: {commit: 67d1c9718f4b5aef7c9e345ca6406d541227c664, repo: git@github.com:sglkc/kuroshiro-analyzer-kuromoji-ts.git, type: git}
     version: 1.0.1
 
-  '@sglkc/kuroshiro@https://codeload.github.com/sglkc/kuroshiro-ts/tar.gz/3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a':
-    resolution: {tarball: https://codeload.github.com/sglkc/kuroshiro-ts/tar.gz/3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a}
+  '@sglkc/kuroshiro@git+https://git@github.com:sglkc/kuroshiro-ts.git#3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a':
+    resolution: {commit: 3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a, repo: git@github.com:sglkc/kuroshiro-ts.git, type: git}
     version: 1.0.1
     engines: {node: '>=6.5.0'}
 
@@ -1879,10 +1881,12 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
+    deprecated: Glob versions prior to v9 are no longer supported
 
   glob@8.1.0:
     resolution: {integrity: sha512-r8hpEjiQEYlF2QU0df3dS+nxxSIreXQS1qRhMJM0Q5NDdR386C7jb7Hwwod8Fgiuex+k0GFjgft18yvxm5XoCQ==}
     engines: {node: '>=12'}
+    deprecated: Glob versions prior to v9 are no longer supported
 
   globals@11.12.0:
     resolution: {integrity: sha512-WOBp/EEGUiIsJSp7wcv/y6MO+lV9UoncWqxuFfm8eBwzWNgyfBd6Gz+IeKQ9jCmyhoH99g15M3T+QaVHFjizVA==}
@@ -1988,6 +1992,7 @@ packages:
 
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
+    deprecated: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
 
   inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
@@ -2631,10 +2636,12 @@ packages:
 
   rimraf@2.7.1:
     resolution: {integrity: sha512-uWjbaKIK3T1OSVptzX7Nl6PvQ3qAGtKEtVRjRuazjfL3Bx5eI409VZSqgND+4UNnmzLVdPj9FqFJNPqBZFve4w==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
   rimraf@3.0.2:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
   rollup@4.17.2:
@@ -3794,14 +3801,14 @@ snapshots:
 
   '@protobufjs/utf8@1.1.0': {}
 
-  '@rollup/plugin-commonjs@25.0.7(rollup@4.17.2)':
+  '@rollup/plugin-commonjs@25.0.8(rollup@4.17.2)':
     dependencies:
       '@rollup/pluginutils': 5.1.0(rollup@4.17.2)
       commondir: 1.0.1
       estree-walker: 2.0.2
       glob: 8.1.0
       is-reference: 1.2.1
-      magic-string: 0.30.10
+      magic-string: 0.30.11
     optionalDependencies:
       rollup: 4.17.2
 
@@ -3884,11 +3891,11 @@ snapshots:
       doublearray: 0.0.2
       fflate: 0.8.2
 
-  '@sglkc/kuroshiro-analyzer-kuromoji@https://codeload.github.com/sglkc/kuroshiro-analyzer-kuromoji-ts/tar.gz/67d1c9718f4b5aef7c9e345ca6406d541227c664':
+  '@sglkc/kuroshiro-analyzer-kuromoji@git+https://git@github.com:sglkc/kuroshiro-analyzer-kuromoji-ts.git#67d1c9718f4b5aef7c9e345ca6406d541227c664':
     dependencies:
       '@sglkc/kuromoji': 1.1.0
 
-  '@sglkc/kuroshiro@https://codeload.github.com/sglkc/kuroshiro-ts/tar.gz/3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a':
+  '@sglkc/kuroshiro@git+https://git@github.com:sglkc/kuroshiro-ts.git#3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a':
     dependencies:
       '@babel/runtime': 7.24.5
 
@@ -3911,7 +3918,7 @@ snapshots:
 
   '@sveltejs/adapter-node@5.0.1(@sveltejs/kit@2.5.18(@sveltejs/vite-plugin-svelte@3.1.1(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))':
     dependencies:
-      '@rollup/plugin-commonjs': 25.0.7(rollup@4.17.2)
+      '@rollup/plugin-commonjs': 25.0.8(rollup@4.17.2)
       '@rollup/plugin-json': 6.1.0(rollup@4.17.2)
       '@rollup/plugin-node-resolve': 15.2.3(rollup@4.17.2)
       '@sveltejs/kit': 2.5.18(@sveltejs/vite-plugin-svelte@3.1.1(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33)))(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33))
@@ -5861,7 +5868,7 @@ snapshots:
     dependencies:
       '@types/pug': 2.0.10
       detect-indent: 6.1.0
-      magic-string: 0.30.10
+      magic-string: 0.30.11
       sorcery: 0.11.0
       strip-indent: 3.0.0
       svelte: 4.2.16
