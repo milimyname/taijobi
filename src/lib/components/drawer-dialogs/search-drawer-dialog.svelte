@@ -16,7 +16,6 @@
 	import { ArrowDown01, ArrowDown10, EllipsisVertical, Plus } from 'lucide-svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import * as Tooltip from '$lib/components/ui/tooltip';
-	import { CircleX } from 'lucide-svelte';
 	import { pocketbase } from '$lib/utils/pocketbase';
 	import NestedSearchDrawerDialog from './nested-search-drawer-dialog.svelte';
 	import { cn, isDesktop } from '$lib/utils';
