@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { IS_DESKTOP } from '$lib/utils/constagitnts';
+	import { IS_DESKTOP } from '$lib/utils/constants';
 	import {
 		showNav,
 		innerWidthStore,
