@@ -85,7 +85,7 @@
 		</DrawerDialog.Trigger>
 	{/if}
 	<DrawerDialog.Content
-		class="right-0 flex flex-col max-sm:fixed max-sm:bottom-0 max-sm:left-0 max-sm:max-h-[56dvh]"
+		class="right-0 flex max-w-3xl flex-col max-sm:fixed max-sm:bottom-0 max-sm:left-0 max-sm:max-h-[56dvh]"
 	>
 		<div class="flex w-full flex-col max-md:overflow-auto md:gap-4">
 			<DrawerDialog.Header>

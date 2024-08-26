@@ -39,8 +39,12 @@
 				conjugationData = [
 					{
 						name: '',
-						positive: 'Affirmative',
-						negative: 'Negative',
+						positive: {
+							plain: 'Affirmative',
+						},
+						negative: {
+							plain: 'Negative',
+						},
 					},
 					...data,
 				];
@@ -88,6 +92,42 @@
 		}
 	}
 
+	async function generateAISentences() {
+		loadingStates.set('ai-sentences', true);
+		loadingStates = loadingStates; // Trigger reactivity
+		try {
+			// Check if there are no examples, call openai to get examples
+			const res = await fetch('/api/openai', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ input: wordFlashcard?.name, type: 'text' }),
+			});
+
+			const newExamples = await res.json();
+
+			if (newExamples.length === 0) throw new Error('No examples found');
+
+			if (!newExamples[0]?.furigana) {
+				toast.error(
+					'No examples found. Please try again or leave a feedback by clicking the 🐞 above.',
+				);
+
+				return;
+			}
+
+			examples = [...newExamples, ...examples];
+
+			toast.success('New examples generated successfully');
+		} catch (e) {
+			console.error(e);
+		} finally {
+			loadingStates.set('ai-sentences', false);
+			loadingStates = loadingStates; // Trigger reactivity
+		}
+	}
+
 	async function convertTextToSpeech(input: string, index: number) {
 		loadingStates.set(index, true);
 		loadingStates = loadingStates; // Trigger reactivity
@@ -117,6 +157,7 @@
 	}
 
 	function onOutsideClickDrawer() {
+		activeTab = wordFlashcard?.notes ? 'note' : 'sentence';
 		if ($isDesktop) return ($showCustomContent = false);
 
 		setTimeout(() => ($showCustomContent = false), 100);
@@ -142,25 +183,37 @@
 	<DrawerDialog.Content
 		class={cn(
 			'fixed bottom-0 left-0 right-0 max-h-[96%]',
-			$isDesktop && 'left-1/2 w-fit max-w-2xl',
+			$isDesktop && 'left-1/2 w-fit max-w-3xl',
 		)}
 	>
 		<div class="-mt-2 overflow-y-scroll">
 			<Tabs.Root value={activeTab} onValueChange={(v) => (activeTab = v)}>
-				<Tabs.List class="sticky top-0 mx-auto flex w-fit">
-					<Tabs.Trigger value="note" disabled={!wordFlashcard?.notes}>
-						<Scroll class="size-5" />
-					</Tabs.Trigger>
-					<Tabs.Trigger
-						value="conjugation"
-						disabled={conjugationData?.error || wordFlashcard?.type !== 'word'}
-					>
-						<WholeWord class="size-5" />
-					</Tabs.Trigger>
-					<Tabs.Trigger value="sentence">
-						<Text class="size-5" />
-					</Tabs.Trigger>
-				</Tabs.List>
+				<div class="sticky top-0 mx-auto flex w-fit items-center">
+					<Tabs.List>
+						<Tabs.Trigger value="note" disabled={!wordFlashcard?.notes}>
+							<Scroll class="size-5" />
+						</Tabs.Trigger>
+						<Tabs.Trigger
+							value="conjugation"
+							disabled={conjugationData?.error || wordFlashcard?.type !== 'word'}
+						>
+							<WholeWord class="size-5" />
+						</Tabs.Trigger>
+						<Tabs.Trigger value="sentence">
+							<Text class="size-5" />
+						</Tabs.Trigger>
+					</Tabs.List>
+
+					{#if activeTab === 'sentence'}
+						<Button
+							variant="outline"
+							on:click={() => generateAISentences()}
+							loading={loadingStates.get('ai-sentences')}
+						>
+							New
+						</Button>
+					{/if}
+				</div>
 				<Tabs.Content value="note" class="px-5">{wordFlashcard?.notes}</Tabs.Content>
 				<Tabs.Content value="conjugation" class="px-5">
 					{#if conjugationData && !conjugationData?.error}
@@ -168,14 +221,14 @@
 							{#each conjugationData as data, i}
 								<p class="lg:text-md text-[10px]">{data?.name}</p>
 
-								{#if data?.positive_furigana}
+								{#if data?.positive?.furigana}
 									<p
 										class={cn(
 											'lg:text-md text-[10px]',
 											i !== 0 && 'text-sm font-semibold lg:text-lg',
 										)}
 									>
-										{@html data?.positive_furigana}
+										{@html data?.positive?.furigana}
 									</p>
 								{:else}
 									<p
@@ -184,17 +237,17 @@
 											i !== 0 && 'text-sm font-semibold lg:text-lg',
 										)}
 									>
-										{data?.positive}
+										{data?.positive?.plain}
 									</p>
 								{/if}
-								{#if data?.negative_furigana}
+								{#if data?.negative?.furigana}
 									<p
 										class={cn(
 											'lg:text-md text-[10px]',
 											i !== 0 && 'text-sm font-semibold lg:text-lg',
 										)}
 									>
-										{@html data?.negative_furigana}
+										{@html data?.negative?.furigana}
 									</p>
 								{:else}
 									<p
@@ -203,7 +256,7 @@
 											i !== 0 && 'text-sm font-semibold lg:text-lg',
 										)}
 									>
-										{data?.negative}
+										{data?.negative?.plain}
 									</p>
 								{/if}
 							{/each}
