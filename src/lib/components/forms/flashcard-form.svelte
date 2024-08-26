@@ -11,6 +11,7 @@
 	import { type SuperForm, type Infer } from 'sveltekit-superforms';
 	import { getContext } from 'svelte';
 	import { clickOutside } from '$lib/utils/clickOutside';
+	import { isDesktop } from '$lib/utils';
 
 	let form: SuperForm<Infer<FlashcardSchema>> = getContext('flashcardForm');
 
@@ -72,7 +73,12 @@
 						</div>
 					{/if}
 				</Form.Label>
-				<Input {...attrs} value={$formData.name} on:change={(e) => handleInput(e, 'name')} />
+
+				{#if $isDesktop}
+					<Input {...attrs} bind:value={$formData.name} />
+				{:else}
+					<Input {...attrs} value={$formData.name} on:change={(e) => handleInput(e, 'name')} />
+				{/if}
 			</Form.Control>
 			<Form.FieldErrors />
 		</Form.Field>
@@ -108,7 +114,16 @@
 		<Form.Field {form} name="meaning">
 			<Form.Control let:attrs>
 				<Form.Label>Meaning</Form.Label>
-				<Input {...attrs} value={$formData.meaning} on:change={(e) => handleInput(e, 'meaning')} />
+
+				{#if $isDesktop}
+					<Input {...attrs} bind:value={$formData.meaning} />
+				{:else}
+					<Input
+						{...attrs}
+						value={$formData.meaning}
+						on:change={(e) => handleInput(e, 'meaning')}
+					/>
+				{/if}
 			</Form.Control>
 			<Form.FieldErrors />
 		</Form.Field>
@@ -116,8 +131,16 @@
 		{#if $currentFlashcardTypeStore !== 'kanji'}
 			<Form.Field {form} name="romaji">
 				<Form.Control let:attrs>
-					<Form.Label>Romaji/Furigana</Form.Label>
-					<Input {...attrs} value={$formData.romaji} on:change={(e) => handleInput(e, 'romaji')} />
+					<Form.Label>Romanji/Furigana</Form.Label>
+					{#if $isDesktop}
+						<Input {...attrs} bind:value={$formData.romaji} />
+					{:else}
+						<Input
+							{...attrs}
+							value={$formData.romaji}
+							on:change={(e) => handleInput(e, 'romaji')}
+						/>
+					{/if}
 				</Form.Control>
 				<Form.FieldErrors />
 			</Form.Field>
@@ -126,12 +149,17 @@
 		<Form.Field {form} name="notes">
 			<Form.Control let:attrs>
 				<Form.Label>Notes</Form.Label>
-				<Textarea
-					{...attrs}
-					class="resize-none"
-					value={$formData.notes}
-					on:change={(e) => handleInput(e, 'notes')}
-				/>
+
+				{#if $isDesktop}
+					<Textarea {...attrs} class="resize-none" bind:value={$formData.notes} />
+				{:else}
+					<Textarea
+						{...attrs}
+						class="resize-none"
+						value={$formData.notes}
+						on:change={(e) => handleInput(e, 'notes')}
+					/>
+				{/if}
 			</Form.Control>
 			<Form.FieldErrors />
 		</Form.Field>

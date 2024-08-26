@@ -26,7 +26,6 @@
 	import DeleteTrashButton from '$lib/components/delete-trash-button.svelte';
 	import { getContext } from 'svelte';
 	import { pocketbase } from '$lib/utils/pocketbase';
-	import { invalidateAll } from '$app/navigation';
 
 	export let form: SuperForm<Infer<FlashcardCollectionSchema>>;
 
@@ -80,8 +79,6 @@
 		$clickedAddFlahcardBox = false;
 		$clickedEditFlashcard = false;
 		$selectedQuizItems = [];
-
-		// invalidateAll();
 	}
 
 	$: open = $clickedAddFlashcardCollection || $clickedAddFlahcardBox;
@@ -103,6 +100,8 @@
 			$flashcardBoxes.length > 1);
 
 	$: $disabledSubmitCollection = $formData.name === '' || !isTainted($tainted);
+
+	$: console.log($formData.name === '');
 </script>
 
 <DeleteDrawerAlertDialog onClick={deleteCollectionOrBox} />
@@ -237,7 +236,7 @@
 							Add
 						</Button>
 					</DrawerDialog.Close>
-					<DrawerDialog.Footer className="md:hidden p-0">
+					<DrawerDialog.Footer className="p-0">
 						<DrawerDialog.Close asChild let:builder>
 							<Button
 								builders={[builder]}

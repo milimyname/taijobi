@@ -6,7 +6,7 @@
 
 	export let form: SuperForm<Infer<SignupSchema>>;
 
-	const { form: formData, enhance } = form;
+	const { form: formData, enhance, delayed } = form;
 </script>
 
 <form method="POST" use:enhance class="flex h-full w-full flex-col gap-24 p-10 md:gap-0">
@@ -52,6 +52,8 @@
 		</Form.Field>
 
 		<Form.Button
+			loading={$delayed}
+			disabled={$delayed}
 			class="text-md w-full rounded-md bg-black py-2 font-medium text-white shadow-lg transition duration-200 visited:-translate-x-4 hover:bg-gray-700 active:translate-y-1 active:shadow-sm md:w-2/3"
 		>
 			Sign up

@@ -5,6 +5,7 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
+	import { isDesktop } from '$lib/utils';
 
 	export let disabled = false;
 
@@ -39,15 +40,26 @@
 	<div class="mb-auto flex flex-col gap-5">
 		<fieldset class="flex w-full flex-col gap-2">
 			<Label for="description">Description</Label>
-			<Textarea
-				data-vaul-no-drag
-				class="resize-y"
-				name="description"
-				maxlength={1000}
-				required
-				value={$feedbackDescription}
-				on:change={(e) => handleInput(e, 'description')}
-			/>
+			{#if $isDesktop}
+				<Textarea
+					data-vaul-no-drag
+					class="resize-y"
+					name="description"
+					maxlength={1000}
+					required
+					bind:value={$feedbackDescription}
+				/>
+			{:else}
+				<Textarea
+					data-vaul-no-drag
+					class="resize-y"
+					name="description"
+					maxlength={1000}
+					required
+					value={$feedbackDescription}
+					on:change={(e) => handleInput(e, 'description')}
+				/>
+			{/if}
 		</fieldset>
 		<input
 			type="file"

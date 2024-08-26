@@ -15,6 +15,7 @@
 		newFlashcardBoxId,
 		showDropdown,
 		selectQuizItemsForm,
+		currentFlashcardCollectionId,
 	} from '$lib/utils/stores';
 	import { IS_DESKTOP } from '$lib/utils/constants';
 	import { FolderEdit } from 'lucide-svelte';
@@ -117,6 +118,7 @@
 			$x = $innerWidthStore;
 
 			$showCollections = true;
+			$currentFlashcardCollectionId = id;
 
 			$flashcardsBoxType = type;
 
@@ -128,9 +130,7 @@
 
 			$rotateY = -60;
 
-			setTimeout(() => {
-				$x = -$innerWidthStore;
-			}, 100);
+			setTimeout(() => ($x = -$innerWidthStore), 100);
 
 			$skippedFlashcard = true;
 		}
@@ -266,6 +266,7 @@
 			$x = 1000;
 			$showCollections = true;
 			$flashcardsBoxType = type;
+			$currentFlashcardCollectionId = id;
 
 			isClicked = true;
 		}

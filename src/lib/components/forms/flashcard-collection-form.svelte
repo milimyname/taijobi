@@ -12,6 +12,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { page } from '$app/stores';
+	import { isDesktop } from '$lib/utils';
 
 	export let form: SuperForm<Infer<FlashcardCollectionSchema>>;
 
@@ -50,12 +51,11 @@
 		<Form.Field {form} name="name">
 			<Form.Control let:attrs>
 				<Form.Label>Name</Form.Label>
-				<Input
-					{...attrs}
-					value={$formData.name}
-					on:change={(e) => handleInput(e, 'name')}
-					disabled={!$page.data.isAdmin && $flashcardsBoxType === 'original'}
-				/>
+				{#if $isDesktop}
+					<Input {...attrs} bind:value={$formData.name} />
+				{:else}
+					<Input {...attrs} value={$formData.name} on:input={(e) => handleInput(e, 'name')} />
+				{/if}
 			</Form.Control>
 			<Form.FieldErrors />
 		</Form.Field>
@@ -63,13 +63,17 @@
 		<Form.Field {form} name="description">
 			<Form.Control let:attrs>
 				<Form.Label>Description</Form.Label>
-				<Textarea
-					{...attrs}
-					class="resize-none"
-					value={$formData.description}
-					on:change={(e) => handleInput(e, 'description')}
-					disabled={!$page.data.isAdmin && $flashcardsBoxType === 'original'}
-				/>
+
+				{#if $isDesktop}
+					<Textarea {...attrs} class="resize-none" bind:value={$formData.description} />
+				{:else}
+					<Textarea
+						{...attrs}
+						class="resize-none"
+						value={$formData.description}
+						on:change={(e) => handleInput(e, 'description')}
+					/>
+				{/if}
 			</Form.Control>
 			<Form.FieldErrors />
 		</Form.Field>
@@ -77,7 +81,7 @@
 		<input type="hidden" name="id" value={$formData.id} />
 		<input type="hidden" name="flashcardCollection" value={$currentFlashcardCollectionId} />
 	</div>
-	{#if $page.data.isAdmin || $flashcardsBoxType !== 'original'}
+	{#if $page.data.isAdmin || $flashcardsBoxType !== 'original' || $clickedAddFlashcardCollection}
 		{#if $clickedEditFlashcard}
 			<button
 				formaction="?/update"
