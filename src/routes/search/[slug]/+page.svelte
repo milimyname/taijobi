@@ -16,7 +16,7 @@
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { setContext } from 'svelte';
 	import { toast } from 'svelte-sonner';
-	import CallBackButton from '$lib/components/callback-btn.svelte';
+	import CallbackBtn from '$lib/components/callback-btn.svelte';
 	import { slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 	import SearchDrawerDialog from '$lib/components/drawer-dialogs/search-drawer-dialog.svelte';
@@ -142,6 +142,6 @@
 			</Button>
 		{/if}
 
-		<CallBackButton />
+		<CallbackBtn />
 	</div>
 </section>

@@ -100,8 +100,6 @@
 			$flashcardBoxes.length > 1);
 
 	$: $disabledSubmitCollection = $formData.name === '' || !isTainted($tainted);
-
-	$: console.log($formData.name === '');
 </script>
 
 <DeleteDrawerAlertDialog onClick={deleteCollectionOrBox} />

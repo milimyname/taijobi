@@ -21,7 +21,7 @@
 			<Dices class="size-5" />
 		{:else}
 			<Pencil class="size-5" />
+			<span>Return</span>
 		{/if}
-		<span>Return</span>
 	</button>
 {/if}
