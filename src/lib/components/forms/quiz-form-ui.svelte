@@ -43,7 +43,7 @@
 
 <DrawerDialog.Root bind:open={$clickedQuizForm} {onOutsideClick}>
 	<DrawerDialog.Overlay class="fixed inset-0 z-[100] bg-black/10" />
-	<DrawerDialog.Content class="z-[104] h-fit max-h-fit">
+	<DrawerDialog.Content class="z-[104]">
 		<DrawerDialog.Header>
 			<DrawerDialog.Title>Create a quiz</DrawerDialog.Title>
 		</DrawerDialog.Header>
