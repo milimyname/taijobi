@@ -1,3 +1,4 @@
+import { kanji } from '$lib/static/kanji.js';
 import { countKanji } from '$lib/utils';
 import { flashcardCollectionSchema, quizSchema } from '$lib/utils/zodSchema';
 import { fail } from '@sveltejs/kit';
@@ -284,6 +285,76 @@ export const actions = {
 				timeLimit: form.data.timeLimit,
 				flashcards,
 			});
+
+			form.data.id = quiz.id;
+		} catch (_) {
+			return setError(form, 'name', 'Cannot create a quiz. Try again later.');
+		}
+
+		return { form };
+	},
+	addKanjiQuiz: async ({ request, locals }) => {
+		const form = await superValidate(request, zod(quizSchema));
+
+		// Convenient validation check:
+		if (!form.valid) return fail(400, { form });
+
+		// Check if user selected custom flashcards
+		const selectedQuizItems = form.data.selectedQuizItems?.split('---');
+
+		// Create the flashcards
+		let flashcards: {
+			name: string;
+			meaning: string;
+			onyomi?: string;
+			kunyomi?: string;
+		}[] = [];
+
+		// Remove the first item from selectedQuizItems if it is empty
+		if (selectedQuizItems && selectedQuizItems.length > 0 && selectedQuizItems[0] === '')
+			selectedQuizItems.shift();
+
+		if (selectedQuizItems && selectedQuizItems.length > 0 && +form.data.startCount === 1) {
+			// Find all the flashcards
+			selectedQuizItems[0].split(',').forEach((item) => {
+				// Find the kanji in the kanji object
+				const foundKanji = kanji[item];
+
+				if (foundKanji) {
+					flashcards.push({
+						name: item,
+						meaning: foundKanji.meaning,
+						onyomi: foundKanji.onyomi.join(','),
+						kunyomi: foundKanji.kunyomi.join(','),
+					});
+				}
+			});
+		} else {
+			// Convert to an array
+			const kanjiArray = Object.entries(kanji);
+
+			flashcards = kanjiArray.slice(0, +form.data.maxCount).map((kanji) => {
+				return {
+					name: kanji[0],
+					meaning: kanji[1].meaning,
+					onyomi: kanji[1].onyomi.join(','),
+					kunyomi: kanji[1].kunyomi.join(','),
+				};
+			});
+		}
+		try {
+			const quiz = await locals.pb.collection('quizzes').create({
+				name: form.data.name,
+				choice: form.data.choice,
+				type: form.data.type,
+				userId: locals.pb.authStore.model?.id,
+				maxCount: +form.data.maxCount,
+				startCount: +form.data.startCount,
+				timeLimit: form.data.timeLimit,
+				flashcards,
+			});
+
+			console.log(quiz);
 
 			form.data.id = quiz.id;
 		} catch (_) {

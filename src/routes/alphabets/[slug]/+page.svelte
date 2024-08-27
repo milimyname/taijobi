@@ -13,6 +13,8 @@
 		kanjiStore,
 		kanjiLength,
 		selectedQuizItems,
+		startRangeQuizForm,
+		endRangeQuizForm,
 	} from '$lib/utils/stores';
 	import { cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
@@ -36,7 +38,7 @@
 
 	export let data;
 
-	let canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D;
+	let canvas: HTMLCanvasElement;
 
 	const rotateYCard = tweened(0, {
 		duration: 2000,
@@ -101,7 +103,6 @@
 	// Get canvas and context
 	onMount(() => {
 		canvas = document.querySelector('canvas') as HTMLCanvasElement;
-		ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
 	});
 
 	$: $currentAlphabet = $page.url.pathname.split('/')[2] as 'hiragana' | 'katakana' | 'kanji';
@@ -119,8 +120,13 @@
 			$selectedQuizItems = [];
 			goto(`/games/quizzes/${form.data.id}`);
 		},
-		onSubmit: async () => {
+		onSubmit: async ({ formData }) => {
 			$clickedQuizForm = false;
+
+			console.log($startRangeQuizForm, $endRangeQuizForm);
+			// It is a workaround since it cannot capture the form data from nested drawer/dialog components
+			formData.set('startCount', $startRangeQuizForm);
+			formData.set('maxCount', $endRangeQuizForm);
 		},
 	});
 </script>

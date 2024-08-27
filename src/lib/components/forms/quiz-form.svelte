@@ -50,7 +50,7 @@
 			{#if $selectedQuizItems.length !== 0}
 				Selected Quiz Items ({$selectedQuizItems.length})
 			{:else}
-				Selected Range ({$startRangeQuizForm} - {$endRangeQuizForm})
+				Selected Range ({$startRangeQuizForm} - {$endRangeQuizForm || '10'})
 			{/if}
 		</Button>
 
@@ -124,7 +124,7 @@
 		<input type="hidden" name="selectedQuizItems" value={$formData.selectedQuizItems} />
 	</div>
 
-	<button formaction="/flashcards?/addQuiz" class="w-full">
+	<button formaction="/flashcards?/addKanjiQuiz" class="w-full">
 		<slot />
 	</button>
 </form>
