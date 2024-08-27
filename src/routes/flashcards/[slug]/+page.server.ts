@@ -7,6 +7,7 @@ import { superValidate, setError } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { isKanji } from 'wanakana';
 
+
 export const load = async () => {
 	return {
 		form: await superValidate(zod(flashcardSchema)),
@@ -59,9 +60,10 @@ export const actions = {
 				romaji: form.data.romaji,
 				furigana: form.data.name,
 				type: form.data.type,
-				partOfSpeech: classifyWord(name),
+				partOfSpeech: form.data.partOfSpeech || classifyWord(name),
 				notes: form.data.notes,
 				flashcardBox: params.slug,
+				user: locals.pb.authStore.model?.id,
 			});
 		} catch (e) {
 			return setError(form, 'name', 'Flashcard name is already taken.');
@@ -108,7 +110,7 @@ export const actions = {
 				meaning: form.data.meaning,
 				romaji: form.data.romaji || '',
 				furigana: form.data.name,
-				partOfSpeech: classifyWord(name),
+				partOfSpeech: form.data.partOfSpeech || classifyWord(name),
 				type: form.data.type,
 				notes: form.data.notes || '',
 			});

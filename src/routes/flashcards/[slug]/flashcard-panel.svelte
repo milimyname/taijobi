@@ -65,7 +65,9 @@
 		islocalBoxTypeOriginal &&
 		islocalBoxTypeOriginal !== 'original';
 
-	$: showEdit = $page.data.isLoggedIn && (isOriginal || $page.data.isAdmin);
+	$: createdByUser = $page.data.user.id === wordFlashcard?.user;
+
+	$: showEdit = $page.data.isLoggedIn && (isOriginal || $page.data.isAdmin || createdByUser);
 </script>
 
 {#if audioSource}
@@ -135,6 +137,8 @@
 								notes: wordFlashcard?.notes,
 								type: wordFlashcard?.type ?? '',
 								romaji: wordFlashcard?.romaji,
+								user: wordFlashcard?.user,
+								partOfSpeech: wordFlashcard?.partOfSpeech,
 							},
 						});
 

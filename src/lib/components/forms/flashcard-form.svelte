@@ -3,19 +3,16 @@
 	import * as Select from '$lib/components/ui/select';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { fly } from 'svelte/transition';
-	import { quintOut } from 'svelte/easing';
 	import { HelpCircle } from 'lucide-svelte';
 	import * as Form from '$lib/components/ui/form';
 	import { type FlashcardSchema } from '$lib/utils/zodSchema';
 	import { type SuperForm, type Infer } from 'sveltekit-superforms';
 	import { getContext } from 'svelte';
-	import { clickOutside } from '$lib/utils/clickOutside';
 	import { isDesktop } from '$lib/utils';
+	import { page } from '$app/stores';
+	import ResponsiveTooltip from '$lib/components/responsive-tooltip.svelte';
 
 	let form: SuperForm<Infer<FlashcardSchema>> = getContext('flashcardForm');
-
-	let showInfo = false;
 
 	const { form: formData, enhance } = form;
 
@@ -28,6 +25,11 @@
 		value: $formData.type,
 		label: $formData.type,
 	};
+
+	$: selectedPartOfSpeech = {
+		value: $formData.partOfSpeech,
+		label: $formData.partOfSpeech,
+	};
 </script>
 
 <form method="POST" action="?/delete" use:enhance class="quiz-form w-full max-md:px-4">
@@ -36,26 +38,12 @@
 			<Form.Control let:attrs>
 				<Form.Label class="mb-2 flex items-center gap-2">
 					Name
-					<button
-						type="button"
-						on:click={() => (showInfo = !showInfo)}
-						use:clickOutside={() => (showInfo = false)}
-						class="relative hover:fill-black/50"
-					>
-						<HelpCircle class="size-4 transition-transform hover:scale-125" />
-					</button>
 
-					{#if showInfo}
-						<div
-							transition:fly={{
-								delay: 0,
-								duration: 1000,
-								opacity: 0,
-								y: 1000,
-								easing: quintOut,
-							}}
-							class="absolute bottom-0 left-0 isolate z-[100] h-2/3 w-full rounded-md bg-blue-200 p-4 text-black"
-						>
+					<ResponsiveTooltip>
+						<span slot="trigger">
+							<HelpCircle class="size-4 transition-transform hover:scale-125" />
+						</span>
+						<div class="max-w-xs text-sm">
 							<p>If you wanna use custom furigana, please use the following format:</p>
 							<ul class="my-2 text-xl">
 								<li>
@@ -71,7 +59,7 @@
 								one and don't forget to close it with a slash
 							</p>
 						</div>
-					{/if}
+					</ResponsiveTooltip>
 				</Form.Label>
 
 				{#if $isDesktop}
@@ -110,6 +98,46 @@
 			</Form.Control>
 			<Form.FieldErrors />
 		</Form.Field>
+
+		{#if $page.data.user.id === $formData.user || $page.data.isAdmin}
+			<Form.Field {form} name="partOfSpeech">
+				<Form.Control let:attrs>
+					<Form.Label class="flex items-center gap-2">
+						Part of speech
+
+						<ResponsiveTooltip>
+							<span slot="trigger">
+								<HelpCircle class="size-4 transition-transform hover:scale-125" />
+							</span>
+							<div class="max-w-xs text-sm">
+								<p>
+									Part of speech is the type of the flashcard. It can be adjective, verb, unknown,
+									etc. Useful for conjugations when the flashcard got classified wrong. Note: Only
+									adjectives and verbs can be conjugated.
+								</p>
+							</div>
+						</ResponsiveTooltip>
+					</Form.Label>
+					<Select.Root
+						selected={selectedPartOfSpeech}
+						onSelectedChange={(v) => {
+							v && ($formData.partOfSpeech = v.value);
+						}}
+					>
+						<Select.SelectTrigger {...attrs}>
+							<Select.Value />
+						</Select.SelectTrigger>
+						<Select.Content>
+							<Select.Item value="adjective" label="adjective">adjective</Select.Item>
+							<Select.Item value="verb" label="verb">verb</Select.Item>
+							<Select.Item value="unknown" label="unknown">unknown</Select.Item>
+						</Select.Content>
+					</Select.Root>
+					<input hidden bind:value={$formData.partOfSpeech} name={attrs.name} />
+				</Form.Control>
+				<Form.FieldErrors />
+			</Form.Field>
+		{/if}
 
 		<Form.Field {form} name="meaning">
 			<Form.Control let:attrs>

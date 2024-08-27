@@ -169,6 +169,8 @@
 		generateExampleSentences();
 
 	$: if ($showCustomContent && wordFlashcard) examples = [];
+
+	$: conjguationDisabled = conjugationData?.error || wordFlashcard?.partOfSpeech === 'unknown';
 </script>
 
 {#if audioSource}
@@ -193,10 +195,7 @@
 						<Tabs.Trigger value="note" disabled={!wordFlashcard?.notes}>
 							<Scroll class="size-5" />
 						</Tabs.Trigger>
-						<Tabs.Trigger
-							value="conjugation"
-							disabled={conjugationData?.error || wordFlashcard?.type !== 'word'}
-						>
+						<Tabs.Trigger value="conjugation" disabled={conjguationDisabled}>
 							<WholeWord class="size-5" />
 						</Tabs.Trigger>
 						<Tabs.Trigger value="sentence">

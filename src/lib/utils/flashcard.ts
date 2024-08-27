@@ -24,56 +24,64 @@ export function getFlashcardPartOfSpeech(partOfSpeech: string) {
 	return p;
 }
 
-export function classifyWord(word: string) {
-	// More nuanced logic to determine if the word is a verb or an adjective
+export function classifyWord(word: string): 'verb' | 'adjective' | 'noun' | 'unknown' {
+	// Helper function to check if a word ends with any of the given endings
+	const endsWithAny = (word: string, endings: string[]) =>
+		endings.some((ending) => word.endsWith(ending));
 
-	// Check for verbs
-	// Verbs in plain form can end with any character in the 'う' row of the kana table
+	// Verb patterns
 	const verbEndings = ['う', 'く', 'す', 'つ', 'ぬ', 'ふ', 'む', 'る', 'ぐ', 'ぶ'];
-	const masuEnding = 'ます';
-	const teEnding = 'て';
-	const taEnding = 'た';
-	const extendedVerbEndings = [
-		'いる',
+	const verbForms = ['ます', 'て', 'た', 'ない', 'なかった', 'れる', 'られる', 'せる', 'させる'];
+	const ichidanVerbs = [
 		'える',
-		'れる',
-		'せる',
-		'てる',
-		'ける',
-		'ねる',
-		'べる',
-		'める',
-		'るる',
+		'いる',
+		'きる',
+		'ぎる',
+		'しる',
+		'じる',
+		'ちる',
+		'にる',
+		'ひる',
+		'びる',
+		'みる',
+		'りる',
 	];
 
-	// Check for adjectives
-	// i-adjectives end in 'い', but not all words ending in 'い' are adjectives
-	const iAdjectiveEnding = 'い';
-	const naAdjectiveHint = 'な'; // This is just a hint, not definitive
+	// Adjective patterns
+	const iAdjEnding = 'い';
+	const naAdjEndings = ['な', 'に'];
+	const commonNaAdj = ['きれい', 'ゆうめい', 'しずか', 'たいせつ', 'じゆう', 'けんこう'];
 
-	const lastCharacter = word.slice(-1);
-	const secondLastCharacter = word.slice(-2, -1);
+	// Noun patterns (expanded)
+	const nounEndings = ['さ', 'み', 'け', 'ち', 'つ', 'り', 'しさ', 'さま', 'どの', 'かた'];
 
+	// Check for verbs
 	if (
-		verbEndings.includes(lastCharacter) ||
-		word.endsWith(masuEnding) ||
-		word.endsWith(teEnding) ||
-		word.endsWith(taEnding) ||
-		extendedVerbEndings.some((ending) => word.endsWith(ending))
+		endsWithAny(word, verbEndings) ||
+		endsWithAny(word, verbForms) ||
+		(word.endsWith('る') && endsWithAny(word.slice(0, -1), ichidanVerbs))
 	) {
 		return 'verb';
-	} else if (lastCharacter === iAdjectiveEnding && secondLastCharacter !== naAdjectiveHint) {
-		// Check if it's likely an i-adjective
-		// This is a simplistic check; in reality, some nouns end in 'い'
-		return 'adjective';
-	} else if (
-		word.endsWith(naAdjectiveHint) ||
-		(secondLastCharacter === naAdjectiveHint && lastCharacter === iAdjectiveEnding)
-	) {
-		// Words that end in 'な' or 'ない' could be na-adjectives
-		// However, this can also include nouns followed by the particle 'な'
+	}
+
+	// Check for i-adjectives
+	if (word.endsWith(iAdjEnding) && !['という', 'ない', 'らしい', 'っぽい'].includes(word)) {
 		return 'adjective';
 	}
 
-	return 'unknown'; // Fallback case
+	// Check for na-adjectives
+	if (endsWithAny(word, naAdjEndings) || commonNaAdj.includes(word)) {
+		return 'adjective';
+	}
+
+	// Check for nouns (expanded check)
+	if (
+		endsWithAny(word, nounEndings) ||
+		(word.length > 1 && ['人', '物', '所'].includes(word.slice(-1)))
+	) {
+		return 'noun';
+	}
+
+	// If no patterns match, return unknown
+	return 'unknown';
 }
