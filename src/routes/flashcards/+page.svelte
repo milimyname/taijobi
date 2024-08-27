@@ -100,7 +100,7 @@
 	setContext('boxForm', superFrmBox);
 
 	// Function to handle card removal/swipe
-	function discardCard() {
+	function discardCard(timeout = 100) {
 		// Get the last card from the data flashcard collections
 		const lastCard = data.flashcardCollections[data.flashcardCollections.length - 1];
 
@@ -124,13 +124,10 @@
 
 			// Show one more card when discarding
 			visibleCardsCount = data.flashcardCollections.length;
-		}, 100);
+		}, timeout);
 	}
 
 	onMount(() => {
-		// Fix the bug when it gets wrong order
-		discardCard();
-
 		const savedId = localStorage.getItem('currentFlashcardCollectionId');
 		if (savedId !== null) $currentFlashcardCollectionId = savedId;
 		// Reorder data flashcard collections based on the current flashcard collection id or local storage
@@ -139,7 +136,13 @@
 				(collection) => collection.id === $currentFlashcardCollectionId,
 			) as RecordModel;
 
-			visibleCards = [...visibleCards.slice(0, visibleCards.length - 1), savedCollection];
+			// Fix the bug when it gets wrong order
+			discardCard(0);
+
+			// Remove the saved collection from the data flashcard collections
+			setTimeout(() => {
+				visibleCards = [...visibleCards.slice(0, visibleCards.length - 1), savedCollection];
+			}, 10);
 		}
 
 		// if there is undefined in visibleCards, remove it and remove local storage
@@ -150,7 +153,7 @@
 	});
 
 	$: if ($skippedFlashcard) {
-		setTimeout(() => discardCard(), 200);
+		setTimeout(discardCard, 200);
 		$skippedFlashcard = false;
 	}
 
