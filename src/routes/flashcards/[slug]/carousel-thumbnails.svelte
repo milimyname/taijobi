@@ -17,6 +17,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { cn, getFlashcardHeight, getFlashcardWidth } from '$lib/utils';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
+	import { Button } from '$lib/components/ui/button';
 
 	export let currentIndex: number;
 
@@ -275,33 +276,51 @@
 </script>
 
 <!-- Toggle Drawing Mode -->
-<div class="flex items-center justify-center gap-2">
+<div class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white">
 	<Tooltip.Root>
 		<Tooltip.Trigger>
-			<button
-				on:click={() => ($canIdrawMultipleTimes = false)}
-				class="block rounded-full border bg-white p-2 shadow-sm transition-all"
-			>
-				<FileText class="size-5" />
-			</button>
+			<Button variant="none" size="icon" class="flex items-center" on:click={removeLastStroke}>
+				<Undo2 class="size-5" />
+			</Button>
 		</Tooltip.Trigger>
 		<Tooltip.Content>
-			<p>Back to Flashcard</p>
+			<p>Undo last stroke</p>
 		</Tooltip.Content>
 	</Tooltip.Root>
 
 	<Tooltip.Root>
 		<Tooltip.Trigger>
-			<button
+			<Button
+				variant="none"
+				size="icon"
+				class="flex items-center"
+				on:click={(e) => {
+					e.preventDefault();
+					clearFabricCanvas();
+				}}
+			>
+				<CircleX class="size-5" />
+			</Button>
+		</Tooltip.Trigger>
+		<Tooltip.Content>
+			<p>Clear</p>
+		</Tooltip.Content>
+	</Tooltip.Root>
+
+	<Tooltip.Root>
+		<Tooltip.Trigger>
+			<Button
+				variant="none"
+				size="icon"
+				class="flex items-center"
 				on:click={() => (isDrawingMode = !isDrawingMode)}
-				class="block rounded-full border bg-white p-2 shadow-sm transition-all"
 			>
 				{#if isDrawingMode}
 					<PenTool class="size-5" />
 				{:else}
 					<Hand class="size-5" />
 				{/if}
-			</button>
+			</Button>
 		</Tooltip.Trigger>
 		<Tooltip.Content>
 			<p>{isDrawingMode ? 'Drawing Mode' : 'Move Mode'}</p>
@@ -310,29 +329,17 @@
 
 	<Tooltip.Root>
 		<Tooltip.Trigger>
-			<button
-				on:click={removeLastStroke}
-				class="block rounded-full border bg-white p-2 shadow-sm transition-all"
+			<Button
+				variant="none"
+				size="icon"
+				class="flex items-center"
+				on:click={() => ($canIdrawMultipleTimes = false)}
 			>
-				<Undo2 class="size-5" />
-			</button>
+				<FileText class="size-5" />
+			</Button>
 		</Tooltip.Trigger>
 		<Tooltip.Content>
-			<p>Undo</p>
-		</Tooltip.Content>
-	</Tooltip.Root>
-
-	<Tooltip.Root>
-		<Tooltip.Trigger>
-			<button
-				on:click|preventDefault={clearFabricCanvas}
-				class="block rounded-full border bg-white p-2 shadow-sm transition-all"
-			>
-				<CircleX class="size-5" />
-			</button>
-		</Tooltip.Trigger>
-		<Tooltip.Content>
-			<p>Clear All</p>
+			<p>Back to flashcard</p>
 		</Tooltip.Content>
 	</Tooltip.Root>
 </div>

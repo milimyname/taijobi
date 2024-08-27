@@ -101,11 +101,16 @@
 
 	// Function to handle card removal/swipe
 	function discardCard() {
-		const lastCard = visibleCards[visibleCards.length - 1];
+		// Get the last card from the data flashcard collections
+		const lastCard = data.flashcardCollections[data.flashcardCollections.length - 1];
+
+		// Remove the last card from the visibleCards
+		data.flashcardCollections = data.flashcardCollections.filter((card) => card.id !== lastCard.id);
 
 		// Get the next collection id to show
 		const nextCollectionId = visibleCards[visibleCards.length - 2]?.id;
 
+		// Set the next collection id to the local storage and current flashcard collection id
 		if (nextCollectionId) {
 			localStorage.setItem('currentFlashcardCollectionId', nextCollectionId);
 			$currentFlashcardCollectionId = nextCollectionId;
@@ -114,17 +119,18 @@
 			$currentFlashcardCollectionId = lastCard.id;
 		}
 
-		visibleCards = visibleCards.slice(0, visibleCards.length - 1);
-
 		setTimeout(() => {
-			visibleCards = [lastCard, ...visibleCards];
+			data.flashcardCollections = [lastCard, ...data.flashcardCollections];
 
 			// Show one more card when discarding
-			if (visibleCardsCount < visibleCards.length) visibleCardsCount = visibleCards.length;
+			visibleCardsCount = data.flashcardCollections.length;
 		}, 100);
 	}
 
 	onMount(() => {
+		// Fix the bug when it gets wrong order
+		discardCard();
+
 		const savedId = localStorage.getItem('currentFlashcardCollectionId');
 		if (savedId !== null) $currentFlashcardCollectionId = savedId;
 		// Reorder data flashcard collections based on the current flashcard collection id or local storage

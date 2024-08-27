@@ -2,6 +2,8 @@
 	import { clearCanvas, redrawCanvas } from '$lib/utils/actions';
 	import { animateSVG, strokes, showLetterDrawing } from '$lib/utils/stores';
 	import { Undo2, Eraser, RefreshCcw, FileText } from 'lucide-svelte';
+	import * as Tooltip from '$lib/components/ui/tooltip';
+	import { Button } from '$lib/components/ui/button/';
 
 	export let canvas: HTMLCanvasElement;
 	export let showAnimation: boolean = true;
@@ -22,27 +24,63 @@
 	<slot name="find" />
 
 	<div class="flex items-center justify-between gap-8 rounded-full bg-black px-4 py-2 text-white">
-		<button on:click|preventDefault={undoLastStroke}>
-			<Undo2 class="size-5" />
-		</button>
+		<Tooltip.Root>
+			<Tooltip.Trigger>
+				<Button variant="none" size="icon" class="flex items-center" on:click={undoLastStroke}>
+					<Undo2 class="size-5" />
+				</Button>
+			</Tooltip.Trigger>
+			<Tooltip.Content>
+				<p>Undo last stroke</p>
+			</Tooltip.Content>
+		</Tooltip.Root>
 		<slot name="remove">
-			<button on:click|preventDefault={removeEverything}>
-				<Eraser class="size-5" />
-			</button>
+			<Tooltip.Root>
+				<Tooltip.Trigger>
+					<Button variant="none" size="icon" class="flex items-center" on:click={removeEverything}>
+						<Eraser class="size-5" />
+					</Button>
+				</Tooltip.Trigger>
+				<Tooltip.Content>
+					<p>Clear</p>
+				</Tooltip.Content>
+			</Tooltip.Root>
 		</slot>
 		{#if showAnimation}
-			<button
-				on:click|preventDefault={() => {
-					$animateSVG = !$animateSVG;
-					// setTimeout(() => ($animateSVG = true), 250);
-				}}
-				class="transition-transform active:rotate-180"
-			>
-				<RefreshCcw class="size-5" />
-			</button>
+			<Tooltip.Root>
+				<Tooltip.Trigger>
+					<Button
+						variant="none"
+						size="icon"
+						class="flex items-center"
+						on:click={() => {
+							$animateSVG = !$animateSVG;
+							// setTimeout(() => ($animateSVG = true), 250);
+						}}
+					>
+						<RefreshCcw class="size-5" />
+					</Button>
+				</Tooltip.Trigger>
+				<Tooltip.Content>
+					<p>Animate</p>
+				</Tooltip.Content>
+			</Tooltip.Root>
 		{/if}
-		<button on:click={() => ($showLetterDrawing = false)}>
-			<FileText class="size-5" />
-		</button>
+
+		<Tooltip.Root>
+			<Tooltip.Trigger>
+				<Button
+					variant="none"
+					size="icon"
+					class="flex items-center"
+					on:click={() => ($showLetterDrawing = false)}
+				>
+					<FileText class="size-5" />
+				</Button>
+			</Tooltip.Trigger>
+			<Tooltip.Content>
+				<p>Return to flashcard</p>
+			</Tooltip.Content>
+		</Tooltip.Root>
 	</div>
 </div>
