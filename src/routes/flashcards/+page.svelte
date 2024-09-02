@@ -27,9 +27,7 @@
 	export let data;
 
 	// Reactive variable to keep track of visible cards
-	let visibleCardsCount =
-		data.flashcardCollections.length > 5 ? 5 : data.flashcardCollections.length;
-
+	let visibleCardsCount = data.flashcardCollections.length || 5;
 	let savedCollection: RecordModel;
 	let visibleCards: RecordModel[] = [];
 
@@ -108,7 +106,7 @@
 		data.flashcardCollections = data.flashcardCollections.filter((card) => card.id !== lastCard.id);
 
 		// Get the next collection id to show
-		const nextCollectionId = visibleCards[visibleCards.length - 2]?.id;
+		const nextCollectionId = visibleCards.at(-2)?.id;
 
 		// Set the next collection id to the local storage and current flashcard collection id
 		if (nextCollectionId) {
@@ -127,6 +125,13 @@
 		}, timeout);
 	}
 
+	// Function to update visible cards
+	function updateVisibleCards() {
+		visibleCards = data.flashcardCollections.slice(0, visibleCardsCount).sort((a, b) => {
+			return +new Date(b.updatedAt) - +new Date(a.updatedAt);
+		});
+	}
+
 	onMount(() => {
 		const savedId = localStorage.getItem('currentFlashcardCollectionId');
 		if (savedId !== null) $currentFlashcardCollectionId = savedId;
@@ -136,13 +141,11 @@
 				(collection) => collection.id === $currentFlashcardCollectionId,
 			) as RecordModel;
 
-			// Fix the bug when it gets wrong order
-			discardCard(0);
-
-			// Remove the saved collection from the data flashcard collections
-			setTimeout(() => {
-				visibleCards = [...visibleCards.slice(0, visibleCards.length - 1), savedCollection];
-			}, 10);
+			// Ensure visible cards are updated
+			data.flashcardCollections = [
+				...data.flashcardCollections.filter((card) => card.id !== savedCollection.id),
+				savedCollection,
+			];
 		}
 
 		// if there is undefined in visibleCards, remove it and remove local storage
@@ -157,10 +160,8 @@
 		$skippedFlashcard = false;
 	}
 
-	// Show the first 5 cards by updatedAt
-	$: visibleCards = data.flashcardCollections.slice(0, visibleCardsCount).sort((a, b) => {
-		return +new Date(b.updatedAt) - +new Date(a.updatedAt);
-	});
+	// Use the updateVisibleCards function to keep visibleCards reactive
+	$: if (data.flashcardCollections) updateVisibleCards();
 </script>
 
 <FlashcardCollectionUI form={$clickedAddFlahcardBox ? superFrmBox : superFrmCollection} />
