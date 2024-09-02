@@ -40,7 +40,7 @@
 			else $clickedAddFlashcardCollection = false;
 
 			// Set visible cards count to the total number of flashcard collections
-			visibleCardsCount = data.flashcardCollections.length;
+			// visibleCardsCount = data.flashcardCollections.length;
 
 			$currentFlashcardCollectionId = form.data.id as string;
 		},
@@ -142,10 +142,11 @@
 			) as RecordModel;
 
 			// Ensure visible cards are updated
-			data.flashcardCollections = [
-				...data.flashcardCollections.filter((card) => card.id !== savedCollection.id),
-				savedCollection,
-			];
+			if (savedCollection)
+				data.flashcardCollections = [
+					...data.flashcardCollections.filter((card) => card.id !== savedCollection?.id),
+					savedCollection,
+				];
 		}
 
 		// if there is undefined in visibleCards, remove it and remove local storage
