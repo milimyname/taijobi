@@ -12,6 +12,7 @@ updates:
       include: 'scope'
     open-pull-requests-limit: 10
     target-branch: 'dev'
+    lockfile-only: false
 
   - package-ecosystem: 'github-actions'
     directory: '/'
