@@ -128,12 +128,16 @@ export const actions = {
 		if (form.id === 'collection') {
 			try {
 				// Create a new collection of flashcards
-				await locals.pb.collection('flashcardCollections').create({
+				const newCollection = await locals.pb.collection('flashcardCollections').create({
 					name: form.data.name,
 					description: form.data.description,
 					userId: locals?.pb.authStore.model?.id,
 					type: 'custom',
 				});
+
+				form.data.id = newCollection.id;
+
+				return { form };
 			} catch (_) {
 				return setError(form, 'name', 'Collection already exists');
 			}
@@ -175,10 +179,18 @@ export const actions = {
 		if (form.id === 'collection') {
 			try {
 				// Create a new collection of flashcards
-				await locals.pb.collection('flashcardCollections').update(form.data.id, {
-					name: form.data.name,
-					description: form.data.description,
-				});
+				const newCollection = await locals.pb
+					.collection('flashcardCollections')
+					.update(form.data.id, {
+						name: form.data.name,
+						description: form.data.description,
+					});
+
+				form.data.id = newCollection.id;
+				//@ts-ignore
+				form.data.formAction = 'update';
+
+				return { form };
 			} catch (_) {
 				return setError(form, 'name', 'Collection cannot be edited now.');
 			}

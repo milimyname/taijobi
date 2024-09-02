@@ -35,12 +35,26 @@
 	const superFrmCollection = superForm(data.form, {
 		validators: zodClient(flashcardCollectionSchema),
 		onUpdated: ({ form }) => {
+			// Set visible cards count to the total number of flashcard collections
+			if ($clickedEditFlashcard && !form.data.actionForm) {
+				visibleCardsCount = data.flashcardCollections.length;
+				// Remove the current flashcard collection from the visible cards
+				data.flashcardCollections = data.flashcardCollections.filter(
+					(collection) =>
+						collection.id !== form.data.id || collection.id !== $currentFlashcardCollectionId,
+				);
+			}
+
+			// Put new added flashcard collection to the top of the list
+			if ($clickedAddFlashcardCollection && !$clickedEditFlashcard) {
+				localStorage.setItem('currentFlashcardCollectionId', form.data.id as string);
+				visibleCards = [...visibleCards, form.data];
+				visibleCardsCount = data.flashcardCollections.length;
+			}
+
 			// Keep the form open if there is an error
 			if (form.errors.name) $clickedAddFlashcardCollection = true;
 			else $clickedAddFlashcardCollection = false;
-
-			// Set visible cards count to the total number of flashcard collections
-			// visibleCardsCount = data.flashcardCollections.length;
 
 			$currentFlashcardCollectionId = form.data.id as string;
 		},

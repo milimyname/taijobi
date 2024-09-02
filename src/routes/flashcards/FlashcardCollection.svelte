@@ -143,6 +143,12 @@
 	function onTouchStart(event: TouchEvent) {
 		if (preventedDefault) event.preventDefault();
 
+		// Go to a newly created flashcard box
+		if ((event.target as Element).closest('.toaster')) {
+			goto(`/flashcards/${$newFlashcardBoxId}`);
+			return;
+		}
+
 		// Freeze cards when drawer is open
 		if ($clickedFeedback || $clickedAddFlahcardBox || $clickedAddFlashcardCollection) return;
 
@@ -192,12 +198,6 @@
 
 		if ((event.target as Element).closest('.search-btn')) {
 			return ($openSearch = true);
-		}
-
-		// Go to a newly created flashcard box
-		if ((event.target as Element).closest('.toaster')) {
-			goto(`/flashcards/${$newFlashcardBoxId}`);
-			return;
 		}
 
 		isDragging = true;
@@ -345,7 +345,7 @@
 	<h2>{name}</h2>
 	<div class="flex h-40 w-full flex-col justify-between rounded-xl bg-blue-400 p-4">
 		<p>
-			{description}
+			{description ?? ''}
 		</p>
 
 		{#if type !== 'original' || $page.data.isAdmin}
