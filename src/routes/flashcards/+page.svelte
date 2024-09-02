@@ -12,6 +12,7 @@
 		startRangeQuizForm,
 		endRangeQuizForm,
 		newFlashcardBoxId,
+		deleteDrawerDialogOpen,
 	} from '$lib/utils/stores.js';
 	import FlashcardCollection from './FlashcardCollection.svelte';
 	import { goto } from '$app/navigation';
@@ -36,7 +37,7 @@
 		validators: zodClient(flashcardCollectionSchema),
 		onUpdated: ({ form }) => {
 			// Set visible cards count to the total number of flashcard collections
-			if ($clickedEditFlashcard && !form.data.actionForm) {
+			if (form.data.formAction && form.data.formAction === 'delete') {
 				visibleCardsCount = data.flashcardCollections.length;
 				// Remove the current flashcard collection from the visible cards
 				data.flashcardCollections = data.flashcardCollections.filter(
@@ -46,7 +47,7 @@
 			}
 
 			// Put new added flashcard collection to the top of the list
-			if ($clickedAddFlashcardCollection && !$clickedEditFlashcard) {
+			if (form.data.formAction && form.data.formAction === 'add') {
 				localStorage.setItem('currentFlashcardCollectionId', form.data.id as string);
 				visibleCards = [...visibleCards, form.data];
 				visibleCardsCount = data.flashcardCollections.length;
@@ -196,7 +197,7 @@
 			/>
 		{/each}
 	{:else}
-		<div class="flex cursor-pointer items-center justify-center">
+		<div class="flex items-center justify-center">
 			{#each visibleCards as card, index}
 				<FlashcardCollection
 					name={card.name}

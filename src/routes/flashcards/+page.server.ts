@@ -136,6 +136,8 @@ export const actions = {
 				});
 
 				form.data.id = newCollection.id;
+				//@ts-ignore
+				form.data.formAction = 'add';
 
 				return { form };
 			} catch (_) {
@@ -221,6 +223,11 @@ export const actions = {
 			try {
 				// Delete the flashcard
 				await locals.pb.collection('flashcardCollections').delete(form.data.id);
+
+				//@ts-ignore
+				form.data.formAction = 'delete';
+
+				return { form };
 			} catch (_) {
 				return setError(form, 'name', 'Collection cannot be deleted now.');
 			}
