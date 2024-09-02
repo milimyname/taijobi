@@ -39,6 +39,10 @@
 	};
 
 	$endRangeQuizForm = $maxFlashcards;
+
+	$: formaction = $page.url.pathname.includes('kanji')
+		? '/flashcards?/addKanjiQuiz'
+		: '/flashcards?/addQuiz';
 </script>
 
 <form method="POST" use:enhance class="quiz-form z-[99] space-y-4 max-md:px-4">
@@ -124,7 +128,7 @@
 		<input type="hidden" name="selectedQuizItems" value={$formData.selectedQuizItems} />
 	</div>
 
-	<button formaction="/flashcards?/addKanjiQuiz" class="w-full">
+	<button {formaction} class="w-full">
 		<slot />
 	</button>
 </form>

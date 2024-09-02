@@ -5,6 +5,7 @@
 	import type { ProgressDataItem } from '$lib/utils/ambient';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index';
 	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 
 	export let isWon: boolean;
 	export let correctAnswers: number;
@@ -15,6 +16,9 @@
 
 	function onCloseDrawer() {
 		goto('/games/quizzes');
+
+		// Clear the progress data
+		localStorage.removeItem(`quizProgress_${$page.params.slug}`);
 
 		setTimeout(() => (open = false), 100);
 	}
