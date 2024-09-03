@@ -70,7 +70,7 @@
 	});
 
 	$: if (browser && $input && textArea)
-		textArea.style.height = (textArea.scrollHeight > 40 ? textArea.scrollHeight - 10 : 40) + 'px';
+		textArea.style.height = (textArea.scrollHeight > 50 ? textArea.scrollHeight - 10 : 40) + 'px';
 
 	$: if (browser && $input === '' && textArea) textArea.style.height = '40px';
 </script>
@@ -103,6 +103,7 @@
 			<Button
 				type="submit"
 				disabled={!$input.trim() || $isLoading}
+				loading={$isLoading}
 				size="icon"
 				variant="outline"
 				class="absolute bottom-1.5 right-2 mt-auto size-7"

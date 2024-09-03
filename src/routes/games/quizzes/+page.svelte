@@ -246,7 +246,7 @@
 		</div>
 		<Button size="sm" on:click={() => ($openConjugation = true)}>Create</Button>
 	</div>
-	<div class="grid grid-flow-row gap-4 max-md:pb-5 md:grid-cols-3">
+	<div class="grid grid-flow-row gap-4 pb-5 md:grid-cols-3">
 		{#each quizzes as quiz}
 			{@const anyProgress = browser && localStorage.getItem(`quizProgress_${quiz.id}`)}
 			<a

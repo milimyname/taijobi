@@ -67,7 +67,6 @@
 		"jsdom": "^24.0.0",
 		"kamiya-codec": "^4.11.0",
 		"kuroshiro-analyzer-kuromoji": "^1.1.0",
-		"linkedom": "^0.18.3",
 		"lucide-svelte": "^0.378.0",
 		"openai": "^4.29.0",
 		"pnpm": "^8.15.4",
