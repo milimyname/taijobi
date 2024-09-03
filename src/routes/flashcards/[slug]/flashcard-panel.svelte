@@ -65,7 +65,7 @@
 		islocalBoxTypeOriginal &&
 		islocalBoxTypeOriginal !== 'original';
 
-	$: createdByUser = $page.data.user.id === wordFlashcard?.user;
+	$: createdByUser = $page.data.user?.id === wordFlashcard?.user;
 
 	$: showEdit = $page.data.isLoggedIn && (isOriginal || $page.data.isAdmin || createdByUser);
 </script>

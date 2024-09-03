@@ -36,6 +36,11 @@
 				user: $page.data.user.id,
 			});
 
+			// Update user with the chat
+			await pocketbase.collection('users').update($page.data.user.id, {
+				'chats+': chat.id,
+			});
+
 			const newMessages = await Promise.all(
 				$messages.map((message) =>
 					pocketbase.collection('messages').create(

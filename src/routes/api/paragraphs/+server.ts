@@ -73,6 +73,10 @@ export const POST = async ({ request, locals }) => {
 	const paragraphsRecord = await locals.pb.collection('paragraphs').create(formData);
 	console.timeEnd('upload');
 
+	await locals.pb.collection('users').update(locals.pb.authStore.model.id, {
+		'paragraphs+': paragraphsRecord.id,
+	});
+
 	// Process the file with Document AI
 	if (file) {
 		try {

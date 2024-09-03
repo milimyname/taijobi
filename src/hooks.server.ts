@@ -29,7 +29,7 @@ export async function handle({ event, resolve }) {
 	// send back the default 'pb_auth' cookie to the client with the latest store state
 	response.headers.set(
 		'set-cookie',
-		event.locals.pb.authStore.exportToCookie({ sameSite: 'Lax', secure: prod }),
+		event.locals.pb.authStore.exportToCookie({ sameSite: 'Lax', secure: prod, httpOnly: false }),
 	);
 
 	return response;

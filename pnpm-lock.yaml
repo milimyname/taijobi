@@ -81,8 +81,8 @@ importers:
         specifier: ^8.15.4
         version: 8.15.8
       pocketbase:
-        specifier: ^0.21.1
-        version: 0.21.2
+        specifier: ^0.21.5
+        version: 0.21.5
       svelte-easy-crop:
         specifier: ^2.0.3
         version: 2.0.3(svelte@4.2.16)
@@ -2390,8 +2390,8 @@ packages:
     engines: {node: '>=16.14'}
     hasBin: true
 
-  pocketbase@0.21.2:
-    resolution: {integrity: sha512-XZdgU9dEv3TPjexDRHy5feYrZrJhWqxTki8ClFGpsnC51G3Qkwoa/U7CVG72jYcLDP3p0HiEhRUUevnlryWkHA==}
+  pocketbase@0.21.5:
+    resolution: {integrity: sha512-bnI/uinnQps+ElSlzxkc4yvwuSFfKcoszDtXH/4QT2FhGq2mJVUvDlxn+rjRXVntUjPfmMG5LEPZ1eGqV6ssog==}
 
   postcss-import@15.1.0:
     resolution: {integrity: sha512-hpr+J05B2FVYUAXHeK1YyI267J/dDDhMU6B6civm8hSY1jYJnBXxzKDKDswzJmtLHryrjhnDjqqp/49t8FALew==}
@@ -5439,7 +5439,7 @@ snapshots:
 
   pnpm@8.15.8: {}
 
-  pocketbase@0.21.2: {}
+  pocketbase@0.21.5: {}
 
   postcss-import@15.1.0(postcss@8.4.38):
     dependencies:

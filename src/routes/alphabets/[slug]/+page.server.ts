@@ -46,12 +46,16 @@ async function getOrCreateKanjiId(pb: Pocketbase, userId: string) {
 		description: 'It is a list of saved kanji.',
 	});
 
-	await pb.collection('flashcardCollections').create({
+	const newFlashcardCollection = await pb.collection('flashcardCollections').create({
 		name: 'Taijobi',
 		description: 'It is a list of saved flashcards by Taijobi.',
 		userId,
 		type: 'custom',
 		'flashcardBoxes+': flashcardBox.id,
+	});
+
+	await pb.collection('users').update(userId, {
+		'flashcardCollections+': newFlashcardCollection,
 	});
 
 	return flashcardBox.id;
@@ -122,6 +126,10 @@ export const actions = {
 				flashcardBox: kanjiId,
 				timeLimit: form.data.timeLimit,
 				flashcards: JSON.stringify(flashcards),
+			});
+
+			await locals.pb.collection('users').update(locals?.pb.authStore.model?.id, {
+				'quizzes+': quiz.id,
 			});
 		} catch (_) {
 			return setError(form, 'name', `Error creating quiz. Please try again.`);

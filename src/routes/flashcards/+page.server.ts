@@ -139,6 +139,10 @@ export const actions = {
 				//@ts-ignore
 				form.data.formAction = 'add';
 
+				await locals.pb.collection('users').update(locals?.pb.authStore.model?.id, {
+					'flashcardCollections+': newCollection.id,
+				});
+
 				return { form };
 			} catch (_) {
 				return setError(form, 'name', 'Collection already exists');
@@ -306,6 +310,10 @@ export const actions = {
 			});
 
 			form.data.id = quiz.id;
+
+			await locals.pb.collection('users').update(locals?.pb.authStore.model?.id, {
+				'quizzes+': quiz.id,
+			});
 		} catch (_) {
 			return setError(form, 'name', 'Cannot create a quiz. Try again later.');
 		}
@@ -373,9 +381,11 @@ export const actions = {
 				flashcards,
 			});
 
-			console.log(quiz);
-
 			form.data.id = quiz.id;
+
+			await locals.pb.collection('users').update(locals?.pb.authStore.model?.id, {
+				'quizzes+': quiz.id,
+			});
 		} catch (_) {
 			return setError(form, 'name', 'Cannot create a quiz. Try again later.');
 		}

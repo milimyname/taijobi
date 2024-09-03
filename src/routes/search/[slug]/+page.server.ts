@@ -116,6 +116,10 @@ export const actions = {
 					type: 'custom',
 				});
 
+				await locals.pb.collection('users').update(locals?.pb.authStore.model?.id, {
+					'flashcardCollections+': newCollection.id,
+				});
+
 				const newBox = await locals.pb.collection('flashcardBoxes').create({
 					name: form.data.boxName,
 					flashcardCollection: newCollection.id,

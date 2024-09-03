@@ -30,7 +30,12 @@ export const actions = {
 		data.append('userId', locals.pb.authStore.model?.id);
 
 		try {
-			await locals.pb.collection('feedbacks').create(data);
+			const newFeedback = await locals.pb.collection('feedbacks').create(data);
+
+			// Update users table with feedbacks id
+			await locals.pb.collection('users').update(locals.pb.authStore.model?.id, {
+				'feedbacks+': newFeedback.id,
+			});
 		} catch (e) {
 			console.log(e);
 		}
