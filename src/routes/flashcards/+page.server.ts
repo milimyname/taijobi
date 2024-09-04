@@ -302,7 +302,7 @@ export const actions = {
 				choice: form.data.choice,
 				type: form.data.type,
 				userId: locals.pb.authStore.model?.id,
-				maxCount: +form.data.maxCount,
+				maxCount: +form.data.maxCount + 1,
 				startCount: +form.data.startCount,
 				flashcardBox: form.data.flashcardBox,
 				timeLimit: form.data.timeLimit,

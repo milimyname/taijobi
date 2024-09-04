@@ -26,6 +26,8 @@
 	const { form: formData } = form;
 
 	let selectedFlashcardBox: string;
+	let rangeDisabled = false;
+	let error = '';
 
 	async function onSwapFlashcards() {
 		// Swap the flashcards
@@ -45,9 +47,41 @@
 
 		invalidateAll();
 	}
+
+	function onRangeSave() {
+		$selectQuizItemsForm = false;
+	}
+
+	function onClose() {
+		// Start cannot be less than 1
+		if (+$startRangeQuizForm < 1) {
+			$startRangeQuizForm = '1';
+			$selectQuizItemsForm = true;
+		}
+
+		// End cannot be greater than max flashcards
+		if (+$endRangeQuizForm > +$maxFlashcards) {
+			$endRangeQuizForm = $maxFlashcards;
+			$selectQuizItemsForm = true;
+		}
+	}
+
+	$: if (+$startRangeQuizForm < 1) {
+		rangeDisabled = true;
+		error = 'Start cannot be less than 1';
+	} else if (+$startRangeQuizForm > +$endRangeQuizForm) {
+		rangeDisabled = true;
+		error = 'Start cannot be greater than end';
+	} else if (+$endRangeQuizForm > +$maxFlashcards) {
+		rangeDisabled = true;
+		error = 'End cannot be greater than max flashcards';
+	} else {
+		rangeDisabled = false;
+		error = '';
+	}
 </script>
 
-<DrawerDialog.Root bind:open={$selectQuizItemsForm}>
+<DrawerDialog.Root bind:open={$selectQuizItemsForm} onOutsideClick={onClose}>
 	<DrawerDialog.Content className="z-[120] md:max-w-3xl md:p-0">
 		<Tabs.Root value="range">
 			<Tabs.List class="mx-4 flex flex-1 max-md:mt-10  md:m-5">
@@ -149,17 +183,15 @@
 							</Form.Control>
 							<Form.FieldErrors />
 						</Form.Field>
+
+						{#if error}
+							<p class="text-sm font-bold text-red-400">{error}</p>
+						{/if}
 					</div>
 
 					<div class="flex flex-col gap-2 pb-5">
 						<DrawerDialog.Close asChild let:builder>
-							<Button
-								builders={[builder]}
-								on:click={() => ($selectQuizItemsForm = false)}
-								class="w-full"
-							>
-								Save
-							</Button>
+							<Button on:click={onRangeSave} class="w-full" disabled={rangeDisabled}>Save</Button>
 						</DrawerDialog.Close>
 
 						<DrawerDialog.Footer className="md:hidden p-0">

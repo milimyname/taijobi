@@ -150,7 +150,10 @@
 
 			setTimeout(() => {
 				localStorage.removeItem(`currentQuestion_${data.quiz.id}`);
+				removeBackground();
 			}, 260);
+
+			return;
 		} else {
 			// Save the user's answer
 			localStorage.setItem(`quizProgress_${data.quiz.id}`, JSON.stringify(progressData));
@@ -272,29 +275,15 @@
 {/if}
 
 {#if currentFlashcard}
-	{#if flashcards.length > 0}
-		<Quiz
-			flashcard={flashcards[currentQuestion]}
-			ratio={currentQuestion / flashcards.length}
-			timeLeft={data.quiz.timeLimit ? timeLeft : undefined}
-			{duration}
-			{nextQuestion}
-			type={data.quiz.type}
-			flashcardBox={data.quiz.flashcardBox}
-			{shuffledOptions}
-			{selectAnswer}
-		/>
-	{:else}
-		<Quiz
-			flashcard={data.flashcards[currentQuestion]}
-			ratio={currentQuestion / data.flashcards.length}
-			timeLeft={data.quiz.timeLimit ? timeLeft : undefined}
-			{duration}
-			{nextQuestion}
-			type={data.quiz.type}
-			flashcardBox={data.quiz.flashcardBox}
-			{shuffledOptions}
-			{selectAnswer}
-		/>
-	{/if}
+	<Quiz
+		flashcard={data.flashcards[currentQuestion]}
+		ratio={currentQuestion / data.flashcards.length}
+		timeLeft={data.quiz.timeLimit ? timeLeft : undefined}
+		{duration}
+		{nextQuestion}
+		type={data.quiz.type}
+		flashcardBox={data.quiz.flashcardBox}
+		{shuffledOptions}
+		{selectAnswer}
+	/>
 {/if}

@@ -111,6 +111,8 @@
 		$loading = false;
 		editable = false;
 	}
+
+	console.log($page.url.pathname === '/paragraphs');
 </script>
 
 <div class="mt-10 flex size-full md:mt-20">

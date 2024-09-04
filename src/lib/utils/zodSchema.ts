@@ -129,20 +129,41 @@ export const feedbackSchema = z.object({
 
 export type FeedbackSchema = typeof feedbackSchema;
 
-export const quizSchema = z.object({
-	name: z.string().nonempty({ message: 'Name is required.' }),
-	choice: z.string().default('2'),
-	type: z.string().default('name'),
-	maxCount: z.string().default('10'),
-	startCount: z.string().default('1'),
-	score: z.number().default(0),
-	flashcardBox: z.string(),
-	userId: z.string(),
-	timeLimit: z.boolean().default(false),
-	id: z.string().optional(),
-	flashcards: z.string().optional(),
-	selectedQuizItems: z.string().optional().default(''),
-});
+export const quizSchema = z
+	.object({
+		name: z.string().nonempty({ message: 'Name is required.' }),
+		choice: z.string().default('2'),
+		type: z.string().default('name'),
+		maxCount: z.string().default('10'),
+		startCount: z
+			.string()
+			.default('1')
+			.refine((data) => parseInt(data) >= 1, {
+				message: 'Start count cannot be less than 1.',
+			}),
+		score: z.number().default(0),
+		flashcardBox: z.string(),
+		userId: z.string(),
+		timeLimit: z.boolean().default(false),
+		id: z.string().optional(),
+		flashcards: z.string().optional(),
+		selectedQuizItems: z.string().optional().default(''),
+		endCount: z.string().default('10'), // Added endCount field
+		maxFlashcards: z.string(), // Added maxFlashcards field
+	})
+	.refine(
+		(data) => {
+			const start = parseInt(data.startCount);
+			const end = parseInt(data.endCount);
+			const max = parseInt(data.maxFlashcards);
+
+			return start <= end && end <= max;
+		},
+		{
+			message: 'Invalid range. Ensure start ≤ end ≤ max flashcards.',
+			path: ['startCount', 'endCount'],
+		},
+	);
 
 export type QuizSchema = typeof quizSchema;
 

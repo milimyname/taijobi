@@ -67,12 +67,7 @@
 			{@html currentFlashcardFurigana}
 		</p>
 	{:else}
-		<p
-			class={cn(
-				'vertical text-balance text-5xl leading-normal tracking-widest',
-				longWord > 15 && 'text-xl',
-			)}
-		>
+		<p class={cn('vertical text-balance text-5xl leading-normal', longWord > 15 && 'text-xl')}>
 			{@html currentFlashcardFurigana}
 		</p>
 	{/if}

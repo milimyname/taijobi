@@ -10,8 +10,10 @@
 	let loading = false;
 	let worker: Worker;
 	let dropzone: Dropzone;
+	let isMounted = false;
 
 	onMount(() => {
+		isMounted = true;
 		let cleanup = () => {};
 
 		const setup = async () => {
@@ -70,7 +72,8 @@
 						});
 
 						// if user still on the same page, redirect to the new paragraph page
-						if ($page.url.pathname === '/paragraphs') goto(`/paragraphs/${paragraphsRecordID}`);
+						if (isMounted && $page.url.pathname === '/paragraphs')
+							goto(`/paragraphs/${paragraphsRecordID}`);
 					} else {
 						processingReject(`Failed to process the image: ${error}`);
 					}
@@ -128,7 +131,10 @@
 
 		setup();
 
-		return () => cleanup();
+		return () => {
+			cleanup();
+			isMounted = false;
+		};
 	});
 </script>
 

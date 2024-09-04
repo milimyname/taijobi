@@ -30,6 +30,7 @@
 	import { quizSchema } from '$lib/utils/zodSchema';
 	import { setContext } from 'svelte';
 	import { zodClient } from 'sveltekit-superforms/adapters';
+	import ResponsiveTooltip from '$lib/components/responsive-tooltip.svelte';
 
 	export let data;
 
@@ -280,28 +281,44 @@
 					</div>
 
 					<div class="flex gap-2">
-						<Badge variant="outline">
-							{quiz.type}
-						</Badge>
+						<ResponsiveTooltip>
+							<div slot="trigger">
+								<Badge variant="outline">
+									{quiz.type}
+								</Badge>
+							</div>
+							<div class="max-w-xs text-sm">
+								<p>Quiz Type</p>
+							</div>
+						</ResponsiveTooltip>
 
-						<Badge variant="outline">
-							{quiz.maxCount}
-						</Badge>
+						{#if quiz.maxCount}
+							<ResponsiveTooltip>
+								<button slot="trigger" on:click={(e) => e.preventDefault()}>
+									<Badge variant="outline">
+										{quiz.maxCount}
+									</Badge>
+								</button>
+								<div class="max-w-xs text-sm">
+									<p>Flashcards Count</p>
+								</div>
+							</ResponsiveTooltip>
+						{/if}
 					</div>
 				</div>
 
 				<div class="flex flex-wrap justify-between gap-2">
-					<button
-						class="self-center rounded-full font-bold"
+					<a
+						href="/games/quizzes/{quiz.id}"
+						class="self-center rounded-full font-medium"
 						on:click={() => {
 							localStorage.removeItem(`flashcards_${quiz.id}`);
 							localStorage.removeItem(`currentQuestion_${quiz.id}`);
 							localStorage.removeItem(`quizProgress_${quiz.id}`);
-							goto(`/games/quizzes/${quiz.id}`);
 						}}
 					>
 						Restart
-					</button>
+					</a>
 					{#if anyProgress}
 						<button
 							class="self-center rounded-full font-bold"

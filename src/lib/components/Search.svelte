@@ -75,7 +75,7 @@
 
 		// If it is a paragraph, go to the paragraph page and highlight the searched word
 		if ($searchedWordStore.type && $searchedWordStore.type === 'paragraph') {
-			const tabValue = isRomaji(search) ? 'details' : 'formatted';
+			const tabValue = isRomaji(search) ? 'details' : 'extracted';
 
 			const baseUrl = '/paragraphs/' + $searchedWordStore.id + `?tab=${tabValue}`;
 			await goto(baseUrl);
