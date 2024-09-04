@@ -68,11 +68,6 @@
 			});
 	});
 
-	onDestroy(() => {
-		// destroy client when component is destroyed
-		pocketbase?.authStore?.clear();
-	});
-
 	$: feedbacks = (() => {
 		// Then, sort the filtered quizzes based on sortedByDate
 
@@ -108,7 +103,7 @@
 	<div class="grid grid-flow-row gap-4 max-md:pb-5 md:grid-cols-3">
 		{#each feedbacks as feedback}
 			<button
-				class="flex w-full flex-col justify-between gap-2 rounded-lg border p-4 transition-all hover:shadow-md md:hover:scale-105"
+				class="flex w-full flex-col justify-between gap-2 overflow-hidden rounded-lg border p-4 transition-all hover:shadow-md md:hover:scale-105"
 				on:click={() => onClickFeedback(feedback)}
 			>
 				<p class="line-clamp-3 text-left text-sm">{feedback.description}</p>

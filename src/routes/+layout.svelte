@@ -16,6 +16,7 @@
 	import { afterNavigate, onNavigate } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { isDesktop } from '$lib/utils';
+	import { page } from '$app/stores';
 
 	// Clear strokes on navigation
 	afterNavigate(() => {

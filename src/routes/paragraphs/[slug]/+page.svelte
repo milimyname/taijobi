@@ -111,11 +111,6 @@
 		$loading = false;
 		editable = false;
 	}
-
-	onDestroy(() => {
-		// destroy client when component is destroyed
-		pocketbase?.authStore?.clear();
-	});
 </script>
 
 <div class="mt-10 flex size-full md:mt-20">
