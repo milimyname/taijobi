@@ -1,4 +1,3 @@
-import { kuroshiro } from '$lib/server/kuroshiro.js';
 import { type RecordModel } from 'pocketbase';
 
 // Create demo data for hiragana and katakana quizzes
@@ -20,28 +19,9 @@ async function createDemoData(fetch: typeof window.fetch, expandedFlashcard: Rec
 
 				// Only get the conjugation that the user selected
 				const conjugation = await Promise.all(
-					data
-						.filter((c: { name: string }, i: number) => {
-							return expandedFlashcard.settings.includes(c.name);
-						})
-						.map(async (c: any) => {
-							try {
-								return {
-									...c,
-									negativeKana: await kuroshiro.convert(c.negative, {
-										to: 'hiragana',
-										mode: 'normal',
-									}),
-									positiveKana: await kuroshiro.convert(c.positive, {
-										to: 'hiragana',
-										mode: 'normal',
-									}),
-								};
-							} catch (error) {
-								console.error('Error converting kana for', c.name, error);
-								return { ...c, error: 'Failed to convert kana.' };
-							}
-						}),
+					data.filter((c: { name: string }) => {
+						return expandedFlashcard.settings.includes(c.name);
+					}),
 				);
 
 				return {

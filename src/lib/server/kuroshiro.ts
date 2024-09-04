@@ -14,4 +14,8 @@ async function convertToFurigana(word: string) {
 	return await kuroshiro.convert(word, { to: 'hiragana', mode: 'furigana' });
 }
 
-export { kuroshiro, convertToFurigana };
+async function convertToKana(word: string) {
+	return await kuroshiro.convert(word, { to: 'hiragana', mode: 'normal' });
+}
+
+export { kuroshiro, convertToFurigana, convertToKana };

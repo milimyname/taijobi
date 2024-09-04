@@ -6,26 +6,32 @@
 	import Confetti from 'svelte-confetti';
 	import type { ProgressDataItem } from '$lib/utils/ambient.d.ts';
 	import QuizDrawerDialog from '$lib/components/drawer-dialogs/quiz-drawer-dialog.svelte';
-	import {  isHiragana } from 'wanakana';
+	import { isHiragana } from 'wanakana';
 
 	export let data;
+
+	let loading = false;
 
 	type ConjugationList = {
 		name: string;
 		id: string;
 		flashcards: VerbConjugationResult[];
 		settings?: string[];
+		conjugation: VerbConjugationResult[];
 	};
 
 	type VerbConjugationResult = {
 		name: string;
-		positive: string;
-		positive_furigana: string;
-		negative: string;
-		negative_furigana: string;
-		furigana?: string;
-		negativeKana: string;
-		positiveKana: string;
+		positive: {
+			plain: string;
+			furigana: string;
+			kana: string;
+		};
+		negative: {
+			plain: string;
+			furigana: string;
+			kana: string;
+		};
 	};
 
 	// let conjugationsList: ConjugationList[] = data.conjugationDemoList[0].flashcards;
@@ -57,8 +63,6 @@
 
 		const verb = conjugationsList[currentVerbIndex];
 
-		let verbRandomIndex = Math.floor(Math.random() * verb.conjugation.length);
-
 		const conjugations = settings
 			? verb.conjugation.filter((c) => settings.includes(c.name))
 			: verb.conjugation;
@@ -67,13 +71,8 @@
 
 		let questionRandomIndex = Math.floor(Math.random() * conjugations.length);
 
+		// Get random positive or negative name from conjugations
 		question = conjugations[questionRandomIndex];
-
-		// Get random positive or negative name from  verb.conjugation[verbRandomIndex]
-		question.furigana =
-			Math.random() < 0.5
-				? verb.conjugation[verbRandomIndex].negative_furigana
-				: verb.conjugation[verbRandomIndex].positive_furigana;
 	}
 
 	onMount(() => {
@@ -94,21 +93,26 @@
 		setupNewQuestion();
 	}
 
-	function checkAnswer(answerType: string) {
-		if (isHiragana(answerType)) {
+	function checkAnswer(answer: string) {
+		if (isHiragana(answer))
 			isCorrect = isNegative
-				? question.negativeKana === answerType
-				: question.positiveKana === answerType;
-		} else {
-			isCorrect = isNegative ? question.negative === answerType : question.positive === answerType;
-		}
+				? question.negative.kana === answer
+				: question.positive.kana === answer;
+		else
+			isCorrect = isNegative
+				? question.negative.plain === answer
+				: question.positive.plain === answer;
+
+		console.log(question);
 
 		if (isCorrect) {
 			correctAnswers++;
 			progressData = [
 				...progressData,
 				{
-					name: isNegative ? question.negative : question.positive + ' (' + question.name + ')',
+					name: isNegative
+						? question.negative.plain
+						: question.positive.plain + ' (' + question.name + ')',
 					score: 1,
 				},
 			];
@@ -116,7 +120,9 @@
 			progressData = [
 				...progressData,
 				{
-					name: isNegative ? question.negative : question.positive + ' (' + question.name + ')',
+					name: isNegative
+						? question.negative.plain
+						: question.positive.plain + ' (' + question.name + ')',
 					score: 0,
 				},
 			];
@@ -124,11 +130,13 @@
 	}
 
 	function startOver() {
+		loading = true;
 		currentQuestionIndex = 0;
 		currentVerbIndex = 0;
 		correctAnswers = 0;
 		progressData = [];
 		isWon = false;
+		loading = false;
 	}
 </script>
 
@@ -147,6 +155,7 @@
 		/>
 	</div>
 	<QuizDrawerDialog
+		{loading}
 		{isWon}
 		{startOver}
 		{correctAnswers}

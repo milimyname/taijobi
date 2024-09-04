@@ -67,12 +67,12 @@
 			<p>{isNegative ? 'Negative' : ''} {question?.name}</p>
 
 			<h2 class="text-4xl">
-				{@html question?.furigana}
+				{@html question?.positive.furigana}
 			</h2>
 
 			{#if isSubmitted}
 				<h4 class="absolute text-xl">
-					{@html isNegative ? question?.negative : question?.positive}
+					{@html isNegative ? question?.negative.plain : question?.positive.plain}
 				</h4>
 			{/if}
 		</div>

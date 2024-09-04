@@ -1,6 +1,5 @@
-import { convertToFurigana } from '$lib/server/kuroshiro';
+import { convertToFurigana, convertToKana } from '$lib/server/kuroshiro';
 import codec from 'kamiya-codec';
-import { isHiragana } from 'wanakana';
 
 export function getDictionaryForm(verb: string): string {
 	// Special verbs directly mapping
@@ -200,10 +199,12 @@ export async function conjugateVerb(plain: string) {
 			positive: {
 				plain,
 				furigana: await convertToFurigana(plain),
+				kana: await convertToKana(plain),
 			},
 			negative: {
 				plain: combineWithNoun(nai),
 				furigana: await convertToFurigana(combineWithNoun(nai)),
+				kana: await convertToKana(nai),
 			},
 		},
 		{
@@ -211,10 +212,12 @@ export async function conjugateVerb(plain: string) {
 			positive: {
 				plain: combineWithNoun(masu),
 				furigana: await convertToFurigana(combineWithNoun(masu)),
+				kana: await convertToKana(masu),
 			},
 			negative: {
 				plain: combineWithNoun(masen),
 				furigana: await convertToFurigana(combineWithNoun(masen)),
+				kana: await convertToKana(masen),
 			},
 		},
 		{
@@ -222,10 +225,12 @@ export async function conjugateVerb(plain: string) {
 			positive: {
 				plain: combineWithNoun(ta),
 				furigana: await convertToFurigana(combineWithNoun(ta)),
+				kana: await convertToKana(ta),
 			},
 			negative: {
 				plain: combineWithNoun(nakatta),
 				furigana: await convertToFurigana(combineWithNoun(nakatta)),
+				kana: await convertToKana(nakatta),
 			},
 		},
 		{
@@ -233,10 +238,12 @@ export async function conjugateVerb(plain: string) {
 			positive: {
 				plain: combineWithNoun(mashita),
 				furigana: await convertToFurigana(combineWithNoun(mashita)),
+				kana: await convertToKana(mashita),
 			},
 			negative: {
 				plain: combineWithNoun(masendeshita),
 				furigana: await convertToFurigana(combineWithNoun(masendeshita)),
+				kana: await convertToKana(masendeshita),
 			},
 		},
 		{
@@ -244,10 +251,12 @@ export async function conjugateVerb(plain: string) {
 			positive: {
 				plain: combineWithNoun(te),
 				furigana: await convertToFurigana(combineWithNoun(te)),
+				kana: await convertToKana(te),
 			},
 			negative: {
 				plain: combineWithNoun(nakute),
 				furigana: await convertToFurigana(combineWithNoun(nakute)),
+				kana: await convertToKana(nakute),
 			},
 		},
 		{
@@ -255,10 +264,12 @@ export async function conjugateVerb(plain: string) {
 			positive: {
 				plain: combineWithNoun(rero),
 				furigana: await convertToFurigana(combineWithNoun(rero)),
+				kana: await convertToKana(rero),
 			},
 			negative: {
 				plain: combineWithNoun(renai),
 				furigana: await convertToFurigana(combineWithNoun(renai)),
+				kana: await convertToKana(renai),
 			},
 		},
 		{
@@ -266,10 +277,12 @@ export async function conjugateVerb(plain: string) {
 			positive: {
 				plain: combineWithNoun(passive),
 				furigana: await convertToFurigana(combineWithNoun(passive)),
+				kana: await convertToKana(passive),
 			},
 			negative: {
 				plain: combineWithNoun(passiveNegative),
 				furigana: await convertToFurigana(combineWithNoun(passiveNegative)),
+				kana: await convertToKana(passiveNegative),
 			},
 		},
 		{
@@ -277,10 +290,12 @@ export async function conjugateVerb(plain: string) {
 			positive: {
 				plain: combineWithNoun(causative),
 				furigana: await convertToFurigana(combineWithNoun(causative)),
+				kana: await convertToKana(causative),
 			},
 			negative: {
 				plain: combineWithNoun(causativeNegative),
 				furigana: await convertToFurigana(combineWithNoun(causativeNegative)),
+				kana: await convertToKana(causativeNegative),
 			},
 		},
 		{
@@ -288,10 +303,12 @@ export async function conjugateVerb(plain: string) {
 			positive: {
 				plain: combineWithNoun(sasu),
 				furigana: await convertToFurigana(combineWithNoun(sasu)),
+				kana: await convertToKana(sasu),
 			},
 			negative: {
 				plain: combineWithNoun(sanai),
 				furigana: await convertToFurigana(combineWithNoun(sanai)),
+				kana: await convertToKana(sanai),
 			},
 		},
 		{
@@ -299,10 +316,12 @@ export async function conjugateVerb(plain: string) {
 			positive: {
 				plain: combineWithNoun(serareru),
 				furigana: await convertToFurigana(combineWithNoun(serareru)),
+				kana: await convertToKana(serareru),
 			},
 			negative: {
 				plain: combineWithNoun(serarenai),
 				furigana: await convertToFurigana(combineWithNoun(serarenai)),
+				kana: await convertToKana(serarenai),
 			},
 		},
 		{
@@ -310,10 +329,12 @@ export async function conjugateVerb(plain: string) {
 			positive: {
 				plain: combineWithNoun(sareru),
 				furigana: await convertToFurigana(combineWithNoun(sareru)),
+				kana: await convertToKana(sareru),
 			},
 			negative: {
 				plain: combineWithNoun(sarenai),
 				furigana: await convertToFurigana(combineWithNoun(sarenai)),
+				kana: await convertToKana(sarenai),
 			},
 		},
 		{
@@ -321,10 +342,12 @@ export async function conjugateVerb(plain: string) {
 			positive: {
 				plain: combineWithNoun(ro),
 				furigana: await convertToFurigana(combineWithNoun(ro)),
+				kana: await convertToKana(ro),
 			},
 			negative: {
 				plain: combineWithNoun(rona),
 				furigana: await convertToFurigana(combineWithNoun(rona)),
+				kana: await convertToKana(rona),
 			},
 		},
 		{
@@ -332,10 +355,12 @@ export async function conjugateVerb(plain: string) {
 			positive: {
 				plain: combineWithNoun(reba),
 				furigana: await convertToFurigana(combineWithNoun(reba)),
+				kana: await convertToKana(reba),
 			},
 			negative: {
 				plain: combineWithNoun(nakereba),
 				furigana: await convertToFurigana(combineWithNoun(nakereba)),
+				kana: await convertToKana(nakereba),
 			},
 		},
 	];
@@ -360,14 +385,14 @@ export async function conjugateAdjective(adjective: string) {
 	const te = codec.adjConjugate(adjective, 'ConjunctiveTe', isIAdj);
 
 	// Helper function to join multiple forms and generate furigana
-	async function processForm(
-		form: string[],
-		separator = '<br>',
-	): Promise<{ plain: string; furigana: string }> {
+	type ReturnPromise = { plain: string; furigana: string; kana: string };
+
+	async function processForm(form: string[], separator = '<br>'): Promise<ReturnPromise> {
 		const plainText = form.join(separator);
 		return {
 			plain: plainText,
 			furigana: await convertToFurigana(plainText),
+			kana: await convertToKana(plainText),
 		};
 	}
 
