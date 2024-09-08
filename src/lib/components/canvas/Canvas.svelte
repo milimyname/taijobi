@@ -13,16 +13,19 @@
 
 	export let rotationY: number = 0;
 	export let canvas: HTMLCanvasElement;
+	export let customWidth: number | undefined = undefined;
+	export let customHeight: number | undefined = undefined;
 
+	let loading = false;
 	let ctx: CanvasRenderingContext2D;
 
 	let isDrawing = true;
 
-	function startDrawing(event: MouseEvent | TouchEvent) {
+	async function startDrawing(event: MouseEvent | TouchEvent) {
 		isDrawing = true;
 
 		$lastPoint = getXY(event);
-		$strokes.push({ points: [getXY(event)], color: $strokeColor });
+		$strokes = [...$strokes, { points: [getXY(event)], color: $strokeColor }];
 		event.preventDefault();
 	}
 
@@ -67,8 +70,9 @@
 	let width = 350;
 	let height = 400;
 
-	$: if ($innerWidthStore) width = getFlashcardWidth($innerWidthStore);
-	$: if ($innerHeightStore) height = getFlashcardHeight($innerWidthStore, $innerHeightStore);
+	$: if ($innerWidthStore) width = customWidth || getFlashcardWidth($innerWidthStore);
+	$: if ($innerHeightStore)
+		height = customHeight || getFlashcardHeight($innerWidthStore, $innerHeightStore);
 </script>
 
 <canvas

@@ -20,8 +20,10 @@
 	import { page } from '$app/stores';
 	import { cn } from '$lib/utils';
 
+	export let className = '';
+
 	let longPressTimer: any;
-	let canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D;
+	let canvas: HTMLCanvasElement;
 
 	function undoLastStroke() {
 		if ($strokes.length > 0) {
@@ -33,7 +35,6 @@
 	// Get canvas and context
 	onMount(() => {
 		canvas = document.querySelector('canvas') as HTMLCanvasElement;
-		ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
 	});
 
 	function getContrastColor(hexColor: string): string {
@@ -60,6 +61,7 @@
 		class={cn(
 			'mx-auto flex h-14 w-20 select-none items-center justify-center rounded-full bg-black p-2 text-white transition-all sm:gap-20 lg:bottom-5',
 			!$isLongPress && 'w-full justify-between px-10 py-4',
+			className,
 		)}
 	>
 		<button

@@ -43,6 +43,15 @@ export const actions = {
 		// Login user
 		await locals.pb.collection('users').authWithPassword(form.data.email, form.data.password);
 
+		// Create a Taijobi flashacard
+		if (locals.pb.authStore.model)
+			await locals.pb.collection('flashcardCollections').create({
+				name: 'Taijobi',
+				description: 'It is a list of saved flashcards by Taijobi.',
+				userId: locals.pb.authStore.model.id,
+				type: 'custom',
+			});
+
 		throw redirect(303, '/');
 	},
 };

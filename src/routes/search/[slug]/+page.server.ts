@@ -87,6 +87,7 @@ async function createCopiedFlashcards(
 						partOfSpeech: flashcard?.partOfSpeech,
 						copiedFlashcard: flashcard?.id,
 						flashcardBox: boxId,
+						user: pb.authStore.model?.id,
 					},
 					{
 						requestKey: null,

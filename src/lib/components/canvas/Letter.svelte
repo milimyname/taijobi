@@ -12,6 +12,7 @@
 		kanjiWidthMulitplier,
 		searchKanji,
 		currentFlashcard,
+		selectedLetter,
 	} from '$lib/utils/stores';
 	import { draw } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
@@ -19,6 +20,7 @@
 	import { katakana } from '$lib/static/katakana';
 	import { kanji } from '$lib/static/kanji';
 	import { page } from '$app/stores';
+	import { cn } from '$lib/utils';
 
 	type SavedLetter = {
 		[x: string]: any;
@@ -29,10 +31,10 @@
 	export let saved: SavedLetter = {
 		name: '',
 	};
+	export let className = '';
 
 	// Determine which object (hiragana, katakana, kanji) to use based on the URL path
-	let currentObject: any;
-
+	let currentObject: any = {};
 	// Set the current letter and object based on the currentAlphabet
 	function setCurrentLetterAndObject(store: string[], object: any) {
 		$currentLetter = store[Math.min($progressSlider - 1, store.length - 1)];
@@ -131,18 +133,18 @@
 	}
 </script>
 
-{#if currentObject[$currentLetter]}
+{#if $selectedLetter || currentObject[$currentLetter]}
 	<svg
 		xmlns="http://www.w3.org/2000/svg"
 		viewBox="0 0 110 117"
 		fill="none"
-		class="absolute {$currentAlphabet === 'hiragana' || $currentAlphabet === 'katakana'
-			? 'left-1/2 top-1/2'
-			: 'left-1/2 top-1/2'}
-		{rotationY > 5 ? 'hidden' : 'block'} sm:w-26 w-80
-		-translate-x-1/2 -translate-y-1/2 overflow-hidden opacity-20 sm:left-[50%] sm:top-1/2 sm:-translate-y-1/2"
+		class={cn(
+			'sm:w-26 absolute left-1/2 top-1/2 block w-80 -translate-x-1/2 -translate-y-1/2 overflow-hidden opacity-20 sm:left-[50%] sm:top-1/2 sm:-translate-y-1/2',
+			rotationY > 5 && 'hidden',
+			className,
+		)}
 	>
-		{#each currentObject[$currentLetter].ds as path, index}
+		{#each $selectedLetter?.ds || currentObject[$currentLetter].ds as path, index (($selectedLetter || currentObject[$currentLetter]).id + '-' + index)}
 			{#if $animateSVG}
 				<path
 					d={path}

@@ -79,6 +79,7 @@
 		<Form.Button
 			variant="ghost"
 			on:click={gotoAuthProvider}
+			disabled={$submitting}
 			class="text-md flex w-full items-center justify-center rounded-md border-2 border-black py-2 font-medium text-black shadow-lg transition duration-200 visited:-translate-x-4 active:translate-y-1 active:shadow-sm md:w-2/3"
 		>
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-6 w-6">
@@ -95,6 +96,7 @@
 				$formData.password = 'milimyname';
 			}}
 			variant="ghost"
+			disabled={$submitting}
 			class="text-md flex w-full items-center justify-center rounded-md border-2 border-black py-2 font-medium text-black shadow-lg transition duration-200 visited:-translate-x-4 active:translate-y-1 active:shadow-sm md:w-2/3"
 		>
 			Mili's Account

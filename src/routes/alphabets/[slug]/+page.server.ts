@@ -33,29 +33,30 @@ export const load = async ({ locals, parent }) => {
 };
 
 async function getOrCreateKanjiId(pb: Pocketbase, userId: string) {
-	const existingFlashcards = await pb.collection('flashcardBoxes').getFullList({
+	const existingFlashcardBoxes = await pb.collection('flashcardBoxes').getFullList({
 		filter: `userId = "${userId}" && name = "漢字"`,
 	});
 
 	// If the user already has a flashcard box, return it
-	if (existingFlashcards.length > 0) return existingFlashcards[0].id;
+	if (existingFlashcardBoxes.length > 0) return existingFlashcardBoxes[0].id;
+
+	const taijobiCollection = await pb
+		.collection('flashcardCollections')
+		.getFirstListItem(`name="Taijobi" && userId="${userId}"`);
 
 	const flashcardBox = await pb.collection('flashcardBoxes').create({
 		name: '漢字',
 		userId,
 		description: 'It is a list of saved kanji.',
-	});
-
-	const newFlashcardCollection = await pb.collection('flashcardCollections').create({
-		name: 'Taijobi',
-		description: 'It is a list of saved flashcards by Taijobi.',
-		userId,
-		type: 'custom',
-		'flashcardBoxes+': flashcardBox.id,
+		flashcardCollection: taijobiCollection.id,
 	});
 
 	await pb.collection('users').update(userId, {
-		'flashcardCollections+': newFlashcardCollection,
+		'flashcardCollections+': taijobiCollection.id,
+	});
+
+	await pb.collection('flashcardCollections').update(taijobiCollection.id, {
+		'flashcardBoxes+': flashcardBox.id,
 	});
 
 	return flashcardBox.id;

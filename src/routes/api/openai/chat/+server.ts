@@ -4,6 +4,7 @@ import { tool } from 'ai';
 import { isRomaji } from 'wanakana';
 import { z } from 'zod';
 
+
 export const POST = async ({ request, locals }) => {
 	if (!locals.pb.authStore.isValid) return new Response('Unauthorized', { status: 401 });
 
@@ -37,6 +38,7 @@ export const POST = async ({ request, locals }) => {
 						type,
 						romaji,
 						partOfSpeech,
+						user: locals.pb.authStore.model?.id,
 					});
 
 					const newSearch = await locals.pb.collection('searches').create({

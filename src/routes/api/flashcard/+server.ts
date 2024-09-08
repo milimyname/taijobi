@@ -149,6 +149,7 @@ export const POST: RequestHandler = async ({ locals, request, fetch }) => {
 				romaji: data.romaji,
 				furigana,
 				partOfSpeech,
+				user: locals.pb.authStore.model.id,
 			});
 
 			const newSearch = await locals.pb.collection('searches').create({

@@ -83,12 +83,19 @@
 			);
 		} catch (e) {
 			// Create a new flash card
-			await pocketbase.collection('flashcard').create({
+			const flashcard = await pocketbase.collection('flashcard').create({
 				name: $currentLetter,
 				meaning: kanji[$currentLetter].meaning,
 				flashcardBox: data.kanjiId,
 				type: 'kanji',
+				user: $page.data.user.id,
 			});
+
+			// update the flashcard box
+			if (data.kanjiId)
+				await pocketbase.collection('flashcardBoxes').update(data.kanjiId, {
+					'flashcards+': flashcard.id,
+				});
 
 			// Add the word to the flashcards array
 			data.flashcard = [

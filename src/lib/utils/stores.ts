@@ -85,3 +85,11 @@ export const paragraphs = writable<RecordModel[]>([]);
 export const showDropdown = writable(false);
 export const disabledSubmitCollection = writable(true);
 export const loading = writable(false);
+
+export const selectedLetter = writable<{
+	name: string;
+	ds: string[];
+	onyomi?: string[];
+	kunyomi?: string[];
+	meaning?: string;
+}>();

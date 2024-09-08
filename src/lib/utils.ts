@@ -1,4 +1,6 @@
+import { hiragana } from '$lib/static/hiragana';
 import { kanji } from '$lib/static/kanji';
+import { katakana } from '$lib/static/katakana';
 import {
 	IS_DESKTOP,
 	XM_SMALL_SCREEN,
@@ -35,8 +37,8 @@ export function cn(...inputs: ClassValue[]) {
 export const isDesktop = mediaQuery('(min-width: 768px)');
 export const isMinScreenLG = mediaQuery('(min-width: 1024px)');
 
-// Get 3 random kanji characterS
-export const getRandomKanji = () => {
+// Get random kanji characterS
+export const getRandomKanji = (number = 3) => {
 	// Convert to an array
 	const kanjiArray = Object.entries(kanji);
 
@@ -44,29 +46,40 @@ export const getRandomKanji = () => {
 	const randomIndex = Math.floor(Math.random() * kanjiArray.length);
 
 	// Return the kanji character at the index array of objects with name as key and meaning
-	return [
-		{
-			name: kanjiArray[randomIndex][0],
-			meaning: kanjiArray[randomIndex][1].meaning,
-			onyomi: kanjiArray[randomIndex][1].onyomi,
-			kunyomi: kanjiArray[randomIndex][1].kunyomi,
+	return kanjiArray
+		.slice(randomIndex, randomIndex + number)
+		.map(([name, { meaning, onyomi, kunyomi, ds }]) => ({
+			name,
+			meaning,
+			onyomi,
+			kunyomi,
 			id: Math.random().toString(36).substr(2, 9),
-		},
-		{
-			name: kanjiArray[randomIndex + 1][0],
-			meaning: kanjiArray[randomIndex + 1][1].meaning,
-			onyomi: kanjiArray[randomIndex + 1][1].onyomi,
-			kunyomi: kanjiArray[randomIndex + 1][1].kunyomi,
-			id: Math.random().toString(36).substr(2, 9),
-		},
-		{
-			name: kanjiArray[randomIndex + 2][0],
-			meaning: kanjiArray[randomIndex + 2][1].meaning,
-			onyomi: kanjiArray[randomIndex + 2][1].onyomi,
-			kunyomi: kanjiArray[randomIndex + 2][1].kunyomi,
-			id: Math.random().toString(36).substr(2, 9),
-		},
-	];
+			ds,
+		}));
+};
+
+export const getRandomKatakana = (number = 3) => {
+	const katakanaArray = Object.entries(katakana);
+
+	const randomIndex = Math.floor(Math.random() * katakanaArray.length);
+
+	return katakanaArray.slice(randomIndex, randomIndex + number).map((name) => ({
+		name: name[0],
+		ds: name[1].ds,
+		id: Math.random().toString(36).substr(2, 9),
+	}));
+};
+
+export const getRandomHiragana = (number = 3) => {
+	const hiraganaArray = Object.entries(hiragana);
+
+	const randomIndex = Math.floor(Math.random() * hiraganaArray.length);
+
+	return hiraganaArray.slice(randomIndex, randomIndex + number).map((name) => ({
+		name: name[0],
+		ds: name[1].ds,
+		id: Math.random().toString(36).substr(2, 9),
+	}));
 };
 
 export const getFlashcardHeight = (width: number, height: number) =>
