@@ -17,6 +17,7 @@
 	import type { RecordModel } from 'pocketbase';
 	import { goto } from '$app/navigation';
 	import Confetti from 'svelte-confetti';
+	import { browser } from '$app/environment';
 
 	let currentStep = 0;
 	let isOpen = false;
@@ -207,6 +208,8 @@
 
 		canvas = document.querySelector('canvas') as HTMLCanvasElement;
 	});
+
+	$: if ($page.data.isLoggedIn && $page.data.user.isOnboarded && browser) isOpen = false;
 </script>
 
 {#if currentStep === 6}
