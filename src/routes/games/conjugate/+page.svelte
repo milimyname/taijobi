@@ -223,7 +223,9 @@
 				<ArrowDown01 class="mr-2 size-5" />
 			{/if} <span>Sorted by date</span>
 		</Button>
-		<Button size="sm" on:click={() => ($openConjugation = true)}>Create</Button>
+		<Button size="sm" on:click={() => ($openConjugation = true)} disabled={!data.isLoggedIn}
+			>Create</Button
+		>
 	</div>
 	<div class="grid grid-flow-row gap-4 md:grid-cols-3">
 		{#each conjugations as conjugation}

@@ -38,6 +38,7 @@ export const load = async ({ locals, parent }) => {
 					...createFakeData(),
 				},
 			],
+			quizForm: await superValidate(zod(quizSchema)),
 		};
 
 	// Get user id from authStore

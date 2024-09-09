@@ -1,13 +1,9 @@
 import { conjugationFormSchema } from '$lib/utils/zodSchema.js';
-import { redirect } from '@sveltejs/kit';
 import type { RecordModel } from 'pocketbase';
 import { fail, setError, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 
 export const load = async ({ locals }) => {
-	// If user is not logged in, do nothing
-	if (!locals.pb.authStore.isValid) redirect(303, '/login');
-
 	// Get a quiz
 	const ogCollections = await locals.pb.collection('flashcardCollections').getFullList({
 		filter: `userId = "${locals.pb.authStore.model?.id}" || type = "original"`,

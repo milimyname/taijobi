@@ -245,7 +245,9 @@
 				</Popover.Content>
 			</Popover.Root>
 		</div>
-		<Button size="sm" on:click={() => ($openConjugation = true)}>Create</Button>
+		<Button size="sm" on:click={() => ($openConjugation = true)} disabled={!data.isLoggedIn}>
+			Create
+		</Button>
 	</div>
 	<div class="grid grid-flow-row gap-4 pb-5 md:grid-cols-3">
 		{#each quizzes as quiz}
