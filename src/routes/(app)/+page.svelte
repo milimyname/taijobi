@@ -60,7 +60,7 @@
 					});
 					return;
 				}}
-				class="w-full rounded-lg border-2 border-black bg-alphabetGreen p-4 text-center text-xl sm:p-14 sm:text-4xl"
+				class="w-full rounded-lg border-2 border-black bg-alphabetGreen py-8 text-center text-xl font-normal sm:text-4xl md:p-14"
 			>
 				Chat
 			</Button>
@@ -117,7 +117,7 @@
 					});
 					return;
 				}}
-				class="w-full rounded-lg border-2 border-black bg-alphabetGreen p-4 text-center text-xl sm:p-14 sm:text-4xl"
+				class="w-full rounded-lg border-2 border-black bg-alphabetGreen py-8 text-center text-xl font-normal sm:text-4xl md:p-14"
 			>
 				Paragraphs
 			</Button>
