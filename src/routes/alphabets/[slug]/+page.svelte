@@ -35,6 +35,7 @@
 	import { goto } from '$app/navigation';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { onMount } from 'svelte';
+	import { toast } from 'svelte-sonner';
 
 	export let data;
 
@@ -151,7 +152,18 @@
 			{#if $currentAlphabet === 'kanji'}
 				<button
 					on:click={() => {
-						if (!$page.data.isLoggedIn) return goto('/login');
+						if (!$page.data.isLoggedIn) {
+							toast('Please login to access this feature.', {
+								action: {
+									label: 'Login',
+									onClick: () => {
+										goto('/login');
+									},
+								},
+							});
+							return;
+						}
+
 						handleSavedKanji();
 						savedKanji = !savedKanji;
 					}}

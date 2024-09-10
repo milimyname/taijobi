@@ -21,6 +21,8 @@
 	import type { FlashcardSchema } from '$lib/utils/zodSchema';
 	import { Button } from '$lib/components/ui/button/';
 	import * as Tooltip from '$lib/components/ui/tooltip';
+	import { toast } from 'svelte-sonner';
+	import { goto } from '$app/navigation';
 
 	export let wordFlashcard: FlashcardType | undefined;
 
@@ -86,6 +88,18 @@
 				{loading}
 				disabled={loading}
 				on:click={async () => {
+					if (!$page.data.isLoggedIn) {
+						toast('Please login to access this feature.', {
+							action: {
+								label: 'Login',
+								onClick: () => {
+									goto('/login');
+								},
+							},
+						});
+						return;
+					}
+
 					if (audioSource === '') await convertTextToSpeech();
 					if (audioElement) audioElement.play();
 				}}

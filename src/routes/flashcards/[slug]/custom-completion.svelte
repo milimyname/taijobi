@@ -7,6 +7,8 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { showCustomContent } from '$lib/utils/stores';
 	import { toast } from 'svelte-sonner';
+	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
 
 	export let wordFlashcard: FlashcardType | undefined;
 
@@ -185,7 +187,7 @@
 	<DrawerDialog.Content
 		class={cn(
 			'fixed bottom-0 left-0 right-0 max-h-[96%]',
-			$isDesktop && 'left-1/2 w-fit max-w-3xl',
+			$isDesktop && 'left-1/2 h-2/3 w-fit max-w-3xl',
 		)}
 	>
 		<div class="-mt-2 overflow-y-scroll">
@@ -206,7 +208,21 @@
 					{#if activeTab === 'sentence'}
 						<Button
 							variant="outline"
-							on:click={() => generateAISentences()}
+							on:click={() => {
+								if (!$page.data.isLoggedIn) {
+									toast('Please login to access this feature.', {
+										action: {
+											label: 'Login',
+											onClick: () => {
+												goto('/login');
+											},
+										},
+									});
+									return;
+								}
+
+								generateAISentences();
+							}}
 							loading={loadingStates.get('ai-sentences')}
 						>
 							New
@@ -279,6 +295,18 @@
 									loading={loadingStates.get(index)}
 									class="p-0"
 									on:click={async () => {
+										if (!$page.data.isLoggedIn) {
+											toast('Please login to access this feature.', {
+												action: {
+													label: 'Login',
+													onClick: () => {
+														goto('/login');
+													},
+												},
+											});
+											return;
+										}
+
 										await convertTextToSpeech(kanji, index);
 
 										if (audioElement) audioElement.play();

@@ -1,5 +1,9 @@
 <script>
 	import { dev } from '$app/environment';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
+	import { Button } from '$lib/components/ui/button';
+	import { toast } from 'svelte-sonner';
 </script>
 
 <section
@@ -35,12 +39,32 @@
 			</a>
 		{/if}
 
-		<a
-			href="/chat"
-			class="w-full rounded-lg border-2 border-black bg-alphabetGreen p-4 text-center text-xl sm:p-10 sm:text-4xl"
-		>
-			Chat
-		</a>
+		{#if $page.data.isLoggedIn}
+			<a
+				href="/chat"
+				class="w-full rounded-lg border-2 border-black bg-alphabetGreen p-4 text-center text-xl sm:p-10 sm:text-4xl"
+			>
+				Chat
+			</a>
+		{:else}
+			<Button
+				variant="none"
+				on:click={() => {
+					toast('Please login to access this feature.', {
+						action: {
+							label: 'Login',
+							onClick: () => {
+								goto('/login');
+							},
+						},
+					});
+					return;
+				}}
+				class="w-full rounded-lg border-2 border-black bg-alphabetGreen p-4 text-center text-xl sm:p-14 sm:text-4xl"
+			>
+				Chat
+			</Button>
+		{/if}
 
 		<a
 			href="/find"
@@ -72,11 +96,31 @@
 		</a>
 	</div>
 	<div class="flex flex-col gap-2">
-		<a
-			href="/paragraphs"
-			class="w-full rounded-lg border-2 border-black bg-alphabetGreen p-4 text-center text-xl sm:p-10 sm:text-4xl"
-		>
-			Paragraphs
-		</a>
+		{#if $page.data.isLoggedIn}
+			<a
+				href="/paragraphs"
+				class="w-full rounded-lg border-2 border-black bg-alphabetGreen p-4 text-center text-xl sm:p-10 sm:text-4xl"
+			>
+				Paragraphs
+			</a>
+		{:else}
+			<Button
+				variant="none"
+				on:click={() => {
+					toast('Please login to access this feature.', {
+						action: {
+							label: 'Login',
+							onClick: () => {
+								goto('/login');
+							},
+						},
+					});
+					return;
+				}}
+				class="w-full rounded-lg border-2 border-black bg-alphabetGreen p-4 text-center text-xl sm:p-14 sm:text-4xl"
+			>
+				Paragraphs
+			</Button>
+		{/if}
 	</div>
 </section>

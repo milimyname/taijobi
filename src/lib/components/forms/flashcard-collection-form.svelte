@@ -52,9 +52,14 @@
 			<Form.Control let:attrs>
 				<Form.Label>Name</Form.Label>
 				{#if $isDesktop}
-					<Input {...attrs} bind:value={$formData.name} />
+					<Input {...attrs} bind:value={$formData.name} disabled={!$page.data.isLoggedIn} />
 				{:else}
-					<Input {...attrs} value={$formData.name} on:input={(e) => handleInput(e, 'name')} />
+					<Input
+						{...attrs}
+						value={$formData.name}
+						on:input={(e) => handleInput(e, 'name')}
+						disabled={!$page.data.isLoggedIn}
+					/>
 				{/if}
 			</Form.Control>
 			<Form.FieldErrors />
@@ -65,13 +70,19 @@
 				<Form.Label>Description</Form.Label>
 
 				{#if $isDesktop}
-					<Textarea {...attrs} class="resize-none" bind:value={$formData.description} />
+					<Textarea
+						{...attrs}
+						class="resize-none"
+						bind:value={$formData.description}
+						disabled={!$page.data.isLoggedIn}
+					/>
 				{:else}
 					<Textarea
 						{...attrs}
 						class="resize-none"
 						value={$formData.description}
 						on:change={(e) => handleInput(e, 'description')}
+						disabled={!$page.data.isLoggedIn}
 					/>
 				{/if}
 			</Form.Control>
