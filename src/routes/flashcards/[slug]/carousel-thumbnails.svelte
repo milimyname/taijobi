@@ -18,6 +18,7 @@
 	import { cn, getFlashcardHeight, getFlashcardWidth } from '$lib/utils';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import { Button } from '$lib/components/ui/button';
+	import { toast } from 'svelte-sonner';
 
 	export let currentIndex: number;
 
@@ -36,6 +37,34 @@
 	let savedDrawings: string[] = [];
 	let fabricCanvas: fabric.Canvas;
 	let fabricCanvasMap = new Map();
+
+	// Add these constants at the top of your file
+	const MAX_STORAGE_SIZE = 4.5 * 1024 * 1024; // 4.5MB (leaving some buffer)
+	const STORAGE_CHECK_INTERVAL = 10; // Check every 10 saves
+
+	// Add this function to your existing code
+	function clearOldDrawings(slug: string, currentIndex: number): void {
+		const keys = Object.keys(localStorage).filter((key) => key.startsWith(`${slug}-`));
+		keys.sort((a, b) => {
+			const timeA = localStorage.getItem(`${a}-timestamp`);
+			const timeB = localStorage.getItem(`${b}-timestamp`);
+			return (timeB ? parseInt(timeB) : 0) - (timeA ? parseInt(timeA) : 0);
+		});
+
+		let totalSize = 0;
+		for (const key of keys) {
+			totalSize += localStorage.getItem(key)?.length || 0;
+		}
+
+		while (totalSize > MAX_STORAGE_SIZE && keys.length > 0) {
+			const key = keys.pop();
+			if (key) {
+				totalSize -= localStorage.getItem(key)?.length || 0;
+				localStorage.removeItem(key);
+				localStorage.removeItem(`${key}-timestamp`);
+			}
+		}
+	}
 
 	// Function to load saved drawings from localStorage
 	function loadDrawing(id: string) {
@@ -88,12 +117,32 @@
 		}
 	}
 
+	// Modify your saveDrawing function
+	let saveCount = 0;
 	function saveDrawing() {
-		// Serialize the canvas to JSON
-		const jsonCanvas = fabricCanvas.toJSON();
-		localStorage.setItem(canvasId, JSON.stringify(jsonCanvas));
-	}
+		try {
+			const jsonCanvas = JSON.stringify(fabricCanvas.toJSON());
+			localStorage.setItem(canvasId, jsonCanvas);
+			localStorage.setItem(`${canvasId}-timestamp`, Date.now().toString());
 
+			saveCount++;
+			if (saveCount % STORAGE_CHECK_INTERVAL === 0)
+				clearOldDrawings($page.params.slug, currentIndex);
+		} catch (error) {
+			console.error('Error saving drawing:', error);
+			// Attempt to clear space and retry
+			clearOldDrawings($page.params.slug, currentIndex);
+			toast.info('Cleared some space, retrying to save drawing...');
+			try {
+				const jsonCanvas = JSON.stringify(fabricCanvas.toJSON());
+				localStorage.setItem(canvasId, jsonCanvas);
+				localStorage.setItem(`${canvasId}-timestamp`, Date.now().toString());
+			} catch (retryError) {
+				console.error('Failed to save drawing after clearing space:', retryError);
+				toast.error('Failed to save drawing after clearing space');
+			}
+		}
+	}
 	const initializeFabricCanvas = () => {
 		for (let i = 0; i < NUM_OF_THUMBAILS; i++) {
 			fabricCanvas = new fabric.Canvas(`${$page.params.slug}-${currentIndex}-${i}`, {

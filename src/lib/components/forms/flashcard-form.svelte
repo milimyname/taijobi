@@ -159,7 +159,7 @@
 		{#if $currentFlashcardTypeStore !== 'kanji'}
 			<Form.Field {form} name="romaji">
 				<Form.Control let:attrs>
-					<Form.Label>Romanji/Furigana</Form.Label>
+					<Form.Label>Romaji/Furigana</Form.Label>
 					{#if $isDesktop}
 						<Input {...attrs} bind:value={$formData.romaji} />
 					{:else}

@@ -6,6 +6,7 @@
 	import { openHistory, openSearch } from '$lib/utils/stores';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
+	import { toast } from 'svelte-sonner';
 
 	async function fetchRandomSearch() {
 		$openHistory = true;
@@ -16,6 +17,13 @@
 			if (!response.ok) throw new Error('Failed to fetch searches');
 
 			const data = await response.json();
+
+			if (!data.randomSearch) {
+				toast.info('No search history found', {
+					description: `Please search for something first by clicking ${getHotkeyPrefix()} k or below in the quistion mark icon`,
+				});
+				return;
+			}
 
 			goto('/search/' + data.randomSearch.id);
 		} catch (error) {
