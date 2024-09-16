@@ -3,10 +3,14 @@
 	import { cn } from '$lib/utils';
 	import type { InputEvents } from '.';
 
-	type $$Props = HTMLInputAttributes;
+	type $$Props = HTMLInputAttributes & {
+		ref?: HTMLInputElement;
+	};
+
 	type $$Events = InputEvents;
 
 	let className: $$Props['class'] = undefined;
+	export let ref: $$Props['ref'] = undefined;
 	export let value: $$Props['value'] = undefined;
 	export { className as class };
 </script>
@@ -17,6 +21,7 @@
 		className,
 	)}
 	bind:value
+	bind:this={ref}
 	on:blur
 	on:change
 	on:click

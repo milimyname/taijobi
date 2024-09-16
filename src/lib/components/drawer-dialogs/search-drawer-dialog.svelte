@@ -138,28 +138,46 @@
 	$: sortedSearches = (() => {
 		if (!searches) return [];
 
+		let filteredSearches = searches;
+
 		// Filter the searches based on the input value
 		if (inputValue !== '') {
-			return searches.filter((search: RecordModel) =>
+			filteredSearches = filteredSearches.filter((search: RecordModel) =>
 				search?.expand?.flashcard?.name.toLowerCase().includes(inputValue.toLowerCase()),
 			);
 		}
+
 		// Distinct the searches based on the flashcard id
-		searches = searches.filter(
+		filteredSearches = filteredSearches.filter(
 			(search: RecordModel, index: number, self: RecordModel[]) =>
 				index ===
 				self.findIndex((s) => s.expand && s.expand.flashcard.id === search.expand.flashcard.id),
 		);
 
-		return sortedByDate
-			? searches.sort(
+		// Sort the searches based on the sortedByDate flag
+		filteredSearches = sortedByDate
+			? filteredSearches.sort(
 					(a: RecordModel, b: RecordModel) =>
 						Number(new Date(b.created)) - Number(new Date(a.created)),
 				)
-			: searches.sort(
+			: filteredSearches.sort(
 					(a: RecordModel, b: RecordModel) =>
 						Number(new Date(a.created)) - Number(new Date(b.created)),
 				);
+
+		// If $searchedWordStore is not empty, move the corresponding search to the front
+		if ($searchedWordStore) {
+			const searchedWordIndex = filteredSearches.findIndex(
+				(search: RecordModel) => search.expand?.flashcard?.id === $searchedWordStore.id,
+			);
+
+			if (searchedWordIndex !== -1) {
+				const [searchedWord] = filteredSearches.splice(searchedWordIndex, 1);
+				filteredSearches.unshift(searchedWord);
+			}
+		}
+
+		return filteredSearches;
 	})();
 </script>
 

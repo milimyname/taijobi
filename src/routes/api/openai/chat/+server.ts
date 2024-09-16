@@ -4,7 +4,6 @@ import { tool } from 'ai';
 import { isRomaji } from 'wanakana';
 import { z } from 'zod';
 
-
 export const POST = async ({ request, locals }) => {
 	if (!locals.pb.authStore.isValid) return new Response('Unauthorized', { status: 401 });
 
@@ -69,6 +68,7 @@ export const POST = async ({ request, locals }) => {
 				8. Offer cultural insights when relevant to enhance language understanding.
 				9. Adapt your teaching style to the student's needs and preferences.
 				10. Provide examples and context to help reinforce new vocabulary and grammar concepts.
+				11. When user says yeap, yeah etc. for saving flashcard, use the "new_flashcard" tool to save the flashcard.
 
 				Please response in only html format. without markdown.
 		`,

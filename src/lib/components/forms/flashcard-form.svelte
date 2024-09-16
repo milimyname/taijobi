@@ -39,7 +39,7 @@
 				<Form.Label class="mb-2 flex items-center gap-2">
 					Name
 
-					<ResponsiveTooltip>
+					<ResponsiveTooltip tabindex={-1}>
 						<span slot="trigger">
 							<HelpCircle class="size-4 transition-transform hover:scale-125" />
 						</span>
@@ -63,9 +63,9 @@
 				</Form.Label>
 
 				{#if $isDesktop}
-					<Input {...attrs} bind:value={$formData.name} />
+					<Input bind:value={$formData.name} {...attrs} />
 				{:else}
-					<Input {...attrs} value={$formData.name} on:change={(e) => handleInput(e, 'name')} />
+					<Input value={$formData.name} on:change={(e) => handleInput(e, 'name')} {...attrs} />
 				{/if}
 			</Form.Control>
 			<Form.FieldErrors />

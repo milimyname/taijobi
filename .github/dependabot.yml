@@ -6,13 +6,26 @@ updates:
       interval: 'weekly'
     versioning-strategy: 'auto'
     allow:
-      - dependency-type: 'all'
+      - dependency-type: 'development'
     commit-message:
       prefix: 'chore'
+      prefix-development: 'chore(deps-dev)'
       include: 'scope'
     open-pull-requests-limit: 10
     target-branch: 'dev'
     lockfile-only: false
+    labels:
+      - 'dependencies'
+      - 'devDependencies'
+    groups:
+      dev-dependencies:
+        dependency-type: 'development'
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+    files:
+      - 'package.json'
+      - 'pnpm-lock.yaml'
 
   - package-ecosystem: 'github-actions'
     directory: '/'

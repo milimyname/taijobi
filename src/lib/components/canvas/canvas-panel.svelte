@@ -7,12 +7,14 @@
 
 	export let canvas: HTMLCanvasElement;
 	export let showAnimation: boolean = true;
+	export let customUndoLastStroke = () => {};
 
 	function undoLastStroke() {
 		if ($strokes.length > 0) {
 			$strokes.pop();
 			redrawCanvas(canvas);
 		}
+		if (customUndoLastStroke) customUndoLastStroke();
 	}
 
 	function removeEverything() {

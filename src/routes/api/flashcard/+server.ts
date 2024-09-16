@@ -94,7 +94,7 @@ export const POST: RequestHandler = async ({ locals, request, fetch }) => {
 				search,
 			}),
 			expand: 'flashcardBox',
-			fields: `id, name, meaning, type, furigana, flashcardBox, expand.flashcardBox.name`,
+			fields: `id, name, meaning, type, furigana, flashcardBox, expand.flashcardBox.name, searches`,
 		});
 
 		const paragraphFilter = `user = "${locals.pb.authStore.model?.id}" && (formatted_ai_data.kana ~ {:search} || formatted_ai_data.meaning ~ {:search})`;

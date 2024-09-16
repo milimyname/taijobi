@@ -1,5 +1,5 @@
 import { classifyWord } from '$lib/utils/flashcard';
-import { conjugateVerb, getDictionaryForm, conjugateAdjective } from './common';
+import { conjugateVerb, conjugateAdjective } from './common';
 import { json } from '@sveltejs/kit';
 
 export async function POST({ request }) {
@@ -11,8 +11,7 @@ export async function POST({ request }) {
 
 	switch (wordType) {
 		case 'verb': {
-			const conjuctive = getDictionaryForm(word);
-			return json(await conjugateVerb(conjuctive));
+			return json(await conjugateVerb(word));
 		}
 		case 'adjective':
 			return json(await conjugateAdjective(word));
