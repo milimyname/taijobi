@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import Canvas from '$lib/components/canvas/Canvas.svelte';
-	import { clearCanvas } from '$lib/utils/actions';
+	import { clearCanvas, redrawCanvas } from '$lib/utils/actions';
 	import { Eraser, Plus } from 'lucide-svelte';
 	import handwriting from '$lib/utils/handwriting.js';
 	import { toast } from 'svelte-sonner';
@@ -120,10 +120,10 @@
 		if (letter === '' && word) {
 			const foundFlashcards = await fetchFlashcards(word);
 
-			console.log('Found the word:', foundFlashcards);
+			if (foundFlashcards?.length === 1 && foundFlashcards[0]?.searches.length > 0) {
+				const search = foundFlashcards[0]?.searches[0];
 
-			if (!Array.isArray(foundFlashcards)) {
-				goto(`/search/${foundFlashcards?.id}?callback=${callback}`);
+				goto(`/search/${search}?callback=${callback}`);
 
 				return;
 			}
@@ -168,23 +168,16 @@
 		if (!kanjiExists || !letter) {
 			const foundFlashcards = await fetchFlashcards(letter);
 
-			if (!foundFlashcards || foundFlashcards.length === 0) {
-				console.log('Found the kanji:', foundFlashcards);
+			if (!foundFlashcards) {
 				return toast.error(
 					'This kanji is not available. Please leave a feedback by clicking the 🐞 above',
 				);
 			}
 
 			// Redirect to the search page
-			$searchedWordStore = foundFlashcards[0];
+			$searchedWordStore = Array.isArray(foundFlashcards) ? foundFlashcards[0] : foundFlashcards;
 
-			const newSearch = await pocketbase.collection('searches').create({
-				flashcard: foundFlashcards[0].id,
-				user: $page.data.user.id,
-				searchQuery: letter,
-			});
-
-			return goto(`/search/${newSearch.id}`);
+			return goto(`/search/${$searchedWordStore.id}`);
 		}
 
 		// Redirect to the kanji page
@@ -242,7 +235,18 @@
 		<Canvas {canvas} />
 	</div>
 
-	<CanvasPanel {canvas} showAnimation={false}>
+	<CanvasPanel
+		{canvas}
+		showAnimation={false}
+		customUndoLastStroke={() => {
+			// CLear handwritingInstance
+			handwritingInstance.erase();
+
+			recognizedLetters = [];
+
+			redrawCanvas(canvas);
+		}}
+	>
 		<button
 			slot="remove"
 			disabled={loading}
@@ -254,7 +258,7 @@
 				recognizedLetters = [];
 			}}
 		>
-			<Eraser class="size-4" />
+			<Eraser class="size-5" />
 		</button>
 		<button
 			disabled={loading}

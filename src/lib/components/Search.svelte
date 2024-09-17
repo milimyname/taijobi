@@ -22,7 +22,7 @@
 		try {
 			const res = await fetch('/api/flashcard', {
 				method: 'POST',
-				body: JSON.stringify({ search }),
+				body: JSON.stringify({ search: search.trim() }),
 			});
 
 			if (!res.ok) return new Error('Failed to fetch flashcards');
@@ -112,7 +112,7 @@
 
 	// Function to highlight matching text
 	function highlightText(text: string) {
-		const regex = new RegExp(`(${search})`, 'gi');
+		const regex = new RegExp(`(${search.trim()})`, 'gi');
 		return text.replace(regex, '<mark>$1</mark>');
 	}
 

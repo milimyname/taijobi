@@ -5,11 +5,12 @@
 
 	export let triggerClass = '';
 	export let contentClass = '';
+	export let tabindex = 0;
 </script>
 
 {#if $isDesktop}
 	<Tooltip.Root>
-		<Tooltip.Trigger class={triggerClass}>
+		<Tooltip.Trigger class={triggerClass} {tabindex}>
 			<slot name="trigger">
 				<!-- Default trigger content if no slot is provided -->
 				<span>Hover me</span>

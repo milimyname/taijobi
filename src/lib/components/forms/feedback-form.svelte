@@ -43,7 +43,7 @@
 			{#if $isDesktop}
 				<Textarea
 					data-vaul-no-drag
-					class="resize-y"
+					class="h-40 resize-y md:h-72"
 					name="description"
 					maxlength={1000}
 					required
