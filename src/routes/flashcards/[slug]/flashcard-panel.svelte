@@ -118,13 +118,16 @@
 				variant="none"
 				size="icon"
 				class="flex items-center"
-				on:click={() => ($canIdrawMultipleTimes = true)}
+				on:click={() => {
+					toast.info('Expect some issues with this feature. Please report them.');
+					$canIdrawMultipleTimes = true;
+				}}
 			>
 				<GalleryHorizontalEnd class="size-5" />
 			</Button>
 		</Tooltip.Trigger>
 		<Tooltip.Content>
-			<p>Draw multiple times</p>
+			<p>Draw multiple times (🚧 WIP)</p>
 		</Tooltip.Content>
 	</Tooltip.Root>
 
