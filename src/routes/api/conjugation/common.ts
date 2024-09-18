@@ -6,6 +6,27 @@ function getDictionaryForm(verb: string): string {
 	const specialCases: { [key: string]: string } = {
 		します: 'する',
 		きます: 'くる',
+		// -iru verbs that are actually godan
+		入ります: '入る',
+		切ります: '切る',
+		散ります: '散る',
+		走ります: '走る',
+		知ります: '知る',
+		練ります: '練る',
+
+		// -eru verbs that are actually godan
+		帰ります: '帰る',
+		蹴ります: '蹴る',
+
+		// Other exceptions
+		あります: 'ある',
+		います: 'いる',
+		行きます: '行く',
+		問います: '問う',
+		湯がきます: '湯がく',
+		居ます: '居る',
+		請います: '請う',
+		浴びます: '浴びる',
 	};
 
 	if (specialCases[verb]) return specialCases[verb];
