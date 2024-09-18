@@ -4,6 +4,7 @@
 	import { showAppNav, showNav, openSearch } from '$lib/utils/stores';
 	import { clickOutside } from '$lib/utils/clickOutside';
 	import { HelpCircle, CircleUser, Dices, LogOut, GraduationCap, Command } from 'lucide-svelte';
+	import { page } from '$app/stores';
 </script>
 
 {#if $showNav}
@@ -55,7 +56,13 @@
 					class="flex w-full justify-between p-4"
 				>
 					<LogOut class="size-6" />
-					<h4 class="text-xl font-medium">Log out</h4>
+					<h4 class="text-xl font-medium">
+						{#if $page.data.isLoggedIn}
+							Log out
+						{:else}
+							Log in
+						{/if}
+					</h4>
 				</button>
 			</form>
 		</div>
