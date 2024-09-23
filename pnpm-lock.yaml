@@ -12,8 +12,8 @@ importers:
         specifier: ^0.0.36
         version: 0.0.36(zod@3.23.8)
       '@ai-sdk/svelte':
-        specifier: ^0.0.15
-        version: 0.0.15(svelte@4.2.16)(zod@3.23.8)
+        specifier: ^0.0.49
+        version: 0.0.49(svelte@4.2.16)(zod@3.23.8)
       '@google-cloud/documentai':
         specifier: ^8.8.0
         version: 8.8.0
@@ -22,10 +22,10 @@ importers:
         version: 0.83.0(svelte@4.2.16)
       '@sglkc/kuroshiro':
         specifier: github:sglkc/kuroshiro-ts
-        version: https://codeload.github.com/sglkc/kuroshiro-ts/tar.gz/3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a
+        version: git+https://git@github.com:sglkc/kuroshiro-ts.git#3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a
       '@sglkc/kuroshiro-analyzer-kuromoji':
         specifier: github:sglkc/kuroshiro-analyzer-kuromoji-ts
-        version: https://codeload.github.com/sglkc/kuroshiro-analyzer-kuromoji-ts/tar.gz/67d1c9718f4b5aef7c9e345ca6406d541227c664
+        version: git+https://git@github.com:sglkc/kuroshiro-analyzer-kuromoji-ts.git#67d1c9718f4b5aef7c9e345ca6406d541227c664
       '@sveltejs/vite-plugin-svelte':
         specifier: ^3.1.1
         version: 3.1.1(svelte@4.2.16)(vite@5.2.11(@types/node@18.19.33))
@@ -219,6 +219,15 @@ packages:
       zod:
         optional: true
 
+  '@ai-sdk/provider-utils@1.0.19':
+    resolution: {integrity: sha512-p02Fq5Mnc8T6nwRBN1Iaou8YXvN1sDS6hbmJaD5UaRbXjizbh+8rpFS/o7jqAHTwf3uHCDitP3pnODyHdc/CDQ==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.0.0
+    peerDependenciesMeta:
+      zod:
+        optional: true
+
   '@ai-sdk/provider-utils@1.0.2':
     resolution: {integrity: sha512-57f6O4OFVNEpI8Z8o+K40tIB3YQiTw+VCql/qrAO9Utq7Ti1o6+X9tvm177DlZJL7ft0Rwzvgy48S9YhrEKgmA==}
     engines: {node: '>=18'}
@@ -234,6 +243,10 @@ packages:
 
   '@ai-sdk/provider@0.0.12':
     resolution: {integrity: sha512-oOwPQD8i2Ynpn22cur4sk26FW3mSy6t6/X/K1Ay2yGBKYiSpRyLfObhOrZEGsXDx+3euKy4nEZ193R36NM+tpQ==}
+    engines: {node: '>=18'}
+
+  '@ai-sdk/provider@0.0.23':
+    resolution: {integrity: sha512-oAc49O5+xypVrKM7EUU5P/Y4DUL4JZUWVxhejoAVOTOl3WZUEWsMbP3QZR+TrimQIsS0WR/n9UuF6U0jPdp0tQ==}
     engines: {node: '>=18'}
 
   '@ai-sdk/react@0.0.25':
@@ -257,15 +270,6 @@ packages:
       solid-js:
         optional: true
 
-  '@ai-sdk/svelte@0.0.15':
-    resolution: {integrity: sha512-k4WwNgAddrQhumC6ogjZ/MPEk9kn3xEcD4CLX4CURX7y+641ktDIcZr5KeS+4o9U/jTrjSbYBJVr5HjoWm+Ixg==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      svelte: ^3.0.0 || ^4.0.0
-    peerDependenciesMeta:
-      svelte:
-        optional: true
-
   '@ai-sdk/svelte@0.0.19':
     resolution: {integrity: sha512-eRBNXUshfwzYm3iaPCIZeV+XHZ0Hkrgj+V0Jy3bGvVzDX0cAs0EAxGPqYFArLFhuEBqiTQrW3QYL540GWYPl6g==}
     engines: {node: '>=18'}
@@ -275,8 +279,17 @@ packages:
       svelte:
         optional: true
 
-  '@ai-sdk/ui-utils@0.0.12':
-    resolution: {integrity: sha512-ivveEuneZPOUKqcIqZRCr2NUD+LJC8mYfL7jJRWaCr+JZqdYZ+5uR/nc8GKCly2TcC9/qoF3zxQuZEn0c5805g==}
+  '@ai-sdk/svelte@0.0.49':
+    resolution: {integrity: sha512-gV0MhaWxkatjf7uJrCAHO3bWrihokNUwGhuMCgyG+y53lwJKAYhR0zCoDRM2HnTJ89fdnx/PVe3R9fOWEVY5qA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      svelte: ^3.0.0 || ^4.0.0
+    peerDependenciesMeta:
+      svelte:
+        optional: true
+
+  '@ai-sdk/ui-utils@0.0.16':
+    resolution: {integrity: sha512-DWPj2gPtY+MfEwxPeUZ/pLlKzfvL2u0p2fZLCYDJhJJgFWkvjvKUejRYH9M5uj8zTkZlwi92Gy+vZ20jto5zwQ==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.0.0
@@ -284,8 +297,8 @@ packages:
       zod:
         optional: true
 
-  '@ai-sdk/ui-utils@0.0.16':
-    resolution: {integrity: sha512-DWPj2gPtY+MfEwxPeUZ/pLlKzfvL2u0p2fZLCYDJhJJgFWkvjvKUejRYH9M5uj8zTkZlwi92Gy+vZ20jto5zwQ==}
+  '@ai-sdk/ui-utils@0.0.44':
+    resolution: {integrity: sha512-0qiyun/n5zqJzQs/WfQT86dZE5DiDhSHJc7b7ZGLYvNMztHkRQmak2zUCZP4IyGVZEicyEPQK6NEEpBgkmd3Dg==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.0.0
@@ -754,6 +767,7 @@ packages:
   '@humanwhocodes/config-array@0.11.14':
     resolution: {integrity: sha512-3T8LkOmg45BV5FICb15QQMsyUSWrQ8AygVfC7ZG32zOalnqrilm018ZVCw0eapXux8FtA33q8PSRSstjee3jSg==}
     engines: {node: '>=10.10.0'}
+    deprecated: Use @eslint/config-array instead
 
   '@humanwhocodes/module-importer@1.0.1':
     resolution: {integrity: sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA==}
@@ -761,6 +775,7 @@ packages:
 
   '@humanwhocodes/object-schema@2.0.3':
     resolution: {integrity: sha512-93zYdMES/c1D69yZiKDBj0V24vqNzB/koF26KPaagAfd3P/4gUlh3Dys5ogAK+Exi9QyzlD8x/08Zt7wIKcDcA==}
+    deprecated: Use @eslint/object-schema instead
 
   '@internationalized/date@3.5.3':
     resolution: {integrity: sha512-X9bi8NAEHAjD8yzmPYT2pdJsbe+tYSEBAfowtlxJVJdZR3aK8Vg7ZUT1Fm5M47KLzp/M1p1VwAaeSma3RT7biw==}
@@ -993,12 +1008,12 @@ packages:
   '@sglkc/kuromoji@1.1.0':
     resolution: {integrity: sha512-uKxXYUM5XNjZw0ia0yMYTI3jHSh/c1gEMNvcvS6J49B4mI+PAq8iRYPTxh2ma0RWm45LyWWrILxCJAIXpi/pww==}
 
-  '@sglkc/kuroshiro-analyzer-kuromoji@https://codeload.github.com/sglkc/kuroshiro-analyzer-kuromoji-ts/tar.gz/67d1c9718f4b5aef7c9e345ca6406d541227c664':
-    resolution: {tarball: https://codeload.github.com/sglkc/kuroshiro-analyzer-kuromoji-ts/tar.gz/67d1c9718f4b5aef7c9e345ca6406d541227c664}
+  '@sglkc/kuroshiro-analyzer-kuromoji@git+https://git@github.com:sglkc/kuroshiro-analyzer-kuromoji-ts.git#67d1c9718f4b5aef7c9e345ca6406d541227c664':
+    resolution: {commit: 67d1c9718f4b5aef7c9e345ca6406d541227c664, repo: git@github.com:sglkc/kuroshiro-analyzer-kuromoji-ts.git, type: git}
     version: 1.0.1
 
-  '@sglkc/kuroshiro@https://codeload.github.com/sglkc/kuroshiro-ts/tar.gz/3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a':
-    resolution: {tarball: https://codeload.github.com/sglkc/kuroshiro-ts/tar.gz/3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a}
+  '@sglkc/kuroshiro@git+https://git@github.com:sglkc/kuroshiro-ts.git#3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a':
+    resolution: {commit: 3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a, repo: git@github.com:sglkc/kuroshiro-ts.git, type: git}
     version: 1.0.1
     engines: {node: '>=6.5.0'}
 
@@ -1892,10 +1907,12 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
+    deprecated: Glob versions prior to v9 are no longer supported
 
   glob@8.1.0:
     resolution: {integrity: sha512-r8hpEjiQEYlF2QU0df3dS+nxxSIreXQS1qRhMJM0Q5NDdR386C7jb7Hwwod8Fgiuex+k0GFjgft18yvxm5XoCQ==}
     engines: {node: '>=12'}
+    deprecated: Glob versions prior to v9 are no longer supported
 
   globals@11.12.0:
     resolution: {integrity: sha512-WOBp/EEGUiIsJSp7wcv/y6MO+lV9UoncWqxuFfm8eBwzWNgyfBd6Gz+IeKQ9jCmyhoH99g15M3T+QaVHFjizVA==}
@@ -1995,6 +2012,7 @@ packages:
 
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
+    deprecated: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
 
   inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
@@ -2650,10 +2668,12 @@ packages:
 
   rimraf@2.7.1:
     resolution: {integrity: sha512-uWjbaKIK3T1OSVptzX7Nl6PvQ3qAGtKEtVRjRuazjfL3Bx5eI409VZSqgND+4UNnmzLVdPj9FqFJNPqBZFve4w==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
   rimraf@3.0.2:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
   rollup@4.17.2:
@@ -3224,6 +3244,11 @@ packages:
     peerDependencies:
       zod: ^3.22.4
 
+  zod-to-json-schema@3.23.2:
+    resolution: {integrity: sha512-uSt90Gzc/tUfyNqxnjlfBs8W6WSGpNBv0rVsNxP/BVSMHMKGdthPYff4xtCHYloJGM0CFxFsb3NbC0eqPhfImw==}
+    peerDependencies:
+      zod: ^3.23.3
+
   zod-to-json-schema@3.23.3:
     resolution: {integrity: sha512-TYWChTxKQbRJp5ST22o/Irt9KC5nj7CdBKYB/AosCRdj/wxEMvv4NNaj9XVUHDOIp53ZxArGhnw5HMZziPFjog==}
     peerDependencies:
@@ -3249,6 +3274,15 @@ snapshots:
     optionalDependencies:
       zod: 3.23.8
 
+  '@ai-sdk/provider-utils@1.0.19(zod@3.23.8)':
+    dependencies:
+      '@ai-sdk/provider': 0.0.23
+      eventsource-parser: 1.1.2
+      nanoid: 3.3.6
+      secure-json-parse: 2.7.0
+    optionalDependencies:
+      zod: 3.23.8
+
   '@ai-sdk/provider-utils@1.0.2(zod@3.23.8)':
     dependencies:
       '@ai-sdk/provider': 0.0.12
@@ -3263,6 +3297,10 @@ snapshots:
       json-schema: 0.4.0
 
   '@ai-sdk/provider@0.0.12':
+    dependencies:
+      json-schema: 0.4.0
+
+  '@ai-sdk/provider@0.0.23':
     dependencies:
       json-schema: 0.4.0
 
@@ -3281,16 +3319,6 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  '@ai-sdk/svelte@0.0.15(svelte@4.2.16)(zod@3.23.8)':
-    dependencies:
-      '@ai-sdk/provider-utils': 1.0.2(zod@3.23.8)
-      '@ai-sdk/ui-utils': 0.0.12(zod@3.23.8)
-      sswr: 2.1.0(svelte@4.2.16)
-    optionalDependencies:
-      svelte: 4.2.16
-    transitivePeerDependencies:
-      - zod
-
   '@ai-sdk/svelte@0.0.19(svelte@4.2.16)(zod@3.23.8)':
     dependencies:
       '@ai-sdk/provider-utils': 1.0.2(zod@3.23.8)
@@ -3301,17 +3329,30 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  '@ai-sdk/ui-utils@0.0.12(zod@3.23.8)':
+  '@ai-sdk/svelte@0.0.49(svelte@4.2.16)(zod@3.23.8)':
+    dependencies:
+      '@ai-sdk/provider-utils': 1.0.19(zod@3.23.8)
+      '@ai-sdk/ui-utils': 0.0.44(zod@3.23.8)
+      sswr: 2.1.0(svelte@4.2.16)
+    optionalDependencies:
+      svelte: 4.2.16
+    transitivePeerDependencies:
+      - zod
+
+  '@ai-sdk/ui-utils@0.0.16(zod@3.23.8)':
     dependencies:
       '@ai-sdk/provider-utils': 1.0.2(zod@3.23.8)
       secure-json-parse: 2.7.0
     optionalDependencies:
       zod: 3.23.8
 
-  '@ai-sdk/ui-utils@0.0.16(zod@3.23.8)':
+  '@ai-sdk/ui-utils@0.0.44(zod@3.23.8)':
     dependencies:
-      '@ai-sdk/provider-utils': 1.0.2(zod@3.23.8)
+      '@ai-sdk/provider': 0.0.23
+      '@ai-sdk/provider-utils': 1.0.19(zod@3.23.8)
+      json-schema: 0.4.0
       secure-json-parse: 2.7.0
+      zod-to-json-schema: 3.23.2(zod@3.23.8)
     optionalDependencies:
       zod: 3.23.8
 
@@ -3896,11 +3937,11 @@ snapshots:
       doublearray: 0.0.2
       fflate: 0.8.2
 
-  '@sglkc/kuroshiro-analyzer-kuromoji@https://codeload.github.com/sglkc/kuroshiro-analyzer-kuromoji-ts/tar.gz/67d1c9718f4b5aef7c9e345ca6406d541227c664':
+  '@sglkc/kuroshiro-analyzer-kuromoji@git+https://git@github.com:sglkc/kuroshiro-analyzer-kuromoji-ts.git#67d1c9718f4b5aef7c9e345ca6406d541227c664':
     dependencies:
       '@sglkc/kuromoji': 1.1.0
 
-  '@sglkc/kuroshiro@https://codeload.github.com/sglkc/kuroshiro-ts/tar.gz/3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a':
+  '@sglkc/kuroshiro@git+https://git@github.com:sglkc/kuroshiro-ts.git#3873d5b3c2c14eb5ce8ed2930ed56ee41416cb5a':
     dependencies:
       '@babel/runtime': 7.24.5
 
@@ -6245,6 +6286,10 @@ snapshots:
   zlibjs@0.3.1: {}
 
   zod-to-json-schema@3.22.5(zod@3.23.8):
+    dependencies:
+      zod: 3.23.8
+
+  zod-to-json-schema@3.23.2(zod@3.23.8):
     dependencies:
       zod: 3.23.8
 
