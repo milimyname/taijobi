@@ -22,6 +22,7 @@ function getDictionaryForm(verb: string): string {
 		あります: 'ある',
 		います: 'いる',
 		行きます: '行く',
+		起きます: '起きる',
 		問います: '問う',
 		湯がきます: '湯がく',
 		居ます: '居る',
