@@ -150,6 +150,7 @@ export const actions = {
 			}
 		}
 
+		// If collection id is not new but box id is new, then create a new box and add the flashcards to it
 		if (form.data.collectionId !== 'new-collection' && form.data.boxId === 'new-box') {
 			try {
 				const newFlashcards = await createCopiedFlashcards(locals.pb, form.data.flashcards);
@@ -162,6 +163,10 @@ export const actions = {
 				});
 
 				form.data.boxId = newBox.id;
+
+				await locals.pb.collection('flashcardCollections').update(form.data.collectionId, {
+					'flashcardBoxes+': newBox.id,
+				});
 
 				return { form };
 			} catch (error) {
