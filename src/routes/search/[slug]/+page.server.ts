@@ -153,16 +153,23 @@ export const actions = {
 		// If collection id is not new but box id is new, then create a new box and add the flashcards to it
 		if (form.data.collectionId !== 'new-collection' && form.data.boxId === 'new-box') {
 			try {
-				const newFlashcards = await createCopiedFlashcards(locals.pb, form.data.flashcards);
-
 				const newBox = await locals.pb.collection('flashcardBoxes').create({
 					name: form.data.boxName,
 					flashcardCollection: form.data.collectionId,
 					userId: locals?.pb.authStore.model?.id,
-					'flashcards+': newFlashcards?.map((flashcard) => flashcard.id),
 				});
 
 				form.data.boxId = newBox.id;
+
+				const newFlashcards = await createCopiedFlashcards(
+					locals.pb,
+					form.data.flashcards,
+					newBox.id,
+				);
+
+				await locals.pb.collection('flashcardBoxes').update(newBox.id, {
+					'flashcards+': newFlashcards?.map((flashcard) => flashcard.id),
+				});
 
 				await locals.pb.collection('flashcardCollections').update(form.data.collectionId, {
 					'flashcardBoxes+': newBox.id,
