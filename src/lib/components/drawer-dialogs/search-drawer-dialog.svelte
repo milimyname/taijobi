@@ -16,7 +16,6 @@
 	import { goto } from '$app/navigation';
 	import { ArrowDown01, ArrowDown10, EllipsisVertical, Plus } from 'lucide-svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
-	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { pocketbase } from '$lib/utils/pocketbase';
 	import NestedSearchDrawerDialog from './nested-search-drawer-dialog.svelte';
 	import { cn, isDesktop } from '$lib/utils';
@@ -27,6 +26,7 @@
 	import { quintOut } from 'svelte/easing';
 	import { slide } from 'svelte/transition';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
+	import ResponsiveTooltip from '$lib/components/responsive-tooltip.svelte';
 
 	export let searches: RecordModel[];
 
@@ -310,45 +310,43 @@
 								{/if}
 							</Card.Title>
 						</Card.Header>
-						<Card.Content class="flex flex-wrap gap-1 overflow-auto">
+						<Card.Content class="flex flex-wrap gap-1 overflow-hidden">
 							{#if search?.expand?.flashcard?.name !== search.searchQuery && search.searchQuery !== ''}
-								<Tooltip.Root>
-									<ScrollArea class="max-w-fit" orientation="horizontal">
-										<Tooltip.Trigger>
-											<Badge class="truncate">
-												{search.searchQuery}
-											</Badge>
-										</Tooltip.Trigger>
-									</ScrollArea>
-									<Tooltip.Content>
+								<ResponsiveTooltip align="start">
+									<div slot="trigger">
+										<Badge class="overflow-auto max-sm:max-w-40">
+											{search.searchQuery}
+										</Badge>
+									</div>
+									<div class="text-sm">
 										<p>Search Keyword</p>
-									</Tooltip.Content>
-								</Tooltip.Root>
+									</div>
+								</ResponsiveTooltip>
 							{/if}
 
 							{#if search?.expand?.flashcard?.expand?.flashcardBox?.name}
-								<Tooltip.Root>
-									<Tooltip.Trigger>
+								<ResponsiveTooltip>
+									<div slot="trigger">
 										<Badge variant="outline" class="truncate">
 											{search?.expand?.flashcard?.expand?.flashcardBox?.name}
 										</Badge>
-									</Tooltip.Trigger>
-									<Tooltip.Content>
+									</div>
+									<div class="text-sm">
 										<p>Flashcard Box Name</p>
-									</Tooltip.Content>
-								</Tooltip.Root>
+									</div>
+								</ResponsiveTooltip>
 							{/if}
 
-							<Tooltip.Root>
-								<Tooltip.Trigger>
+							<ResponsiveTooltip>
+								<div slot="trigger">
 									<Badge variant="outline">
 										{new Date(search?.created).toLocaleDateString()}
 									</Badge>
-								</Tooltip.Trigger>
-								<Tooltip.Content>
-									<p>Search Date</p>
-								</Tooltip.Content>
-							</Tooltip.Root>
+								</div>
+								<div class="text-sm">
+									<p>Search Date: {new Date(search?.created).toLocaleString()}</p>
+								</div>
+							</ResponsiveTooltip>
 						</Card.Content>
 						<Card.Footer>
 							{#if !isCreatingNewFlashcardBox}
