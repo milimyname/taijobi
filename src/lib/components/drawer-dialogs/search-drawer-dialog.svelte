@@ -10,6 +10,7 @@
 		selectedSearchFlashcards,
 		searchedWordStore,
 		deleteDrawerDialogOpen,
+		loading as storedLoading,
 	} from '$lib/utils/stores';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index';
 	import { goto } from '$app/navigation';
@@ -249,7 +250,12 @@
 			</DrawerDialog.Description>
 			{#if $selectedSearchFlashcards.length > 0 && $isDesktop}
 				<div transition:slide={{ duration: 300, easing: quintOut, axis: 'y' }} class="w-full">
-					<Button class="w-full" on:click={() => ($nestedSearchDrawerOpen = true)}>
+					<Button
+						class="w-full"
+						on:click={() => ($nestedSearchDrawerOpen = true)}
+						loading={$storedLoading}
+						disabled={$storedLoading}
+					>
 						Create Flashcard Box
 					</Button>
 				</div>
