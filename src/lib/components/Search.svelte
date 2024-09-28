@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { searchedWordStore, openSearch, searchKanji, loading } from '$lib/utils/stores';
+	import { searchedWordStore, openSearch, searchKanji, storedLoading } from '$lib/utils/stores';
 	import { onMount, tick } from 'svelte';
 	import { cn, getRandomKanji } from '$lib/utils.js';
 	import * as Command from '$lib/components/ui/command';
@@ -17,7 +17,7 @@
 	// Fetch flashcards from the server
 	async function fetchFlashcards() {
 		if (search === '') return;
-		$loading = true;
+		$storedLoading = 'searching';
 
 		try {
 			const res = await fetch('/api/flashcard', {
@@ -52,7 +52,7 @@
 			console.error(error);
 		}
 
-		$loading = false;
+		$storedLoading = undefined;
 	}
 
 	onMount(() => {

@@ -6,7 +6,7 @@
 		nestedSearchDrawerOpen,
 		openHistory,
 		selectedSearchFlashcards,
-		loading,
+		storedLoading,
 	} from '$lib/utils/stores';
 	import { cn, getFlashcardHeight, getFlashcardWidth } from '$lib/utils';
 	import Button from '$lib/components/ui/button/button.svelte';
@@ -32,17 +32,17 @@
 	}
 
 	// Clear stored loading sta
-	$loading = false;
+	$storedLoading = undefined;
 
 	// Search for Flashcard collection form:
 	const superSearchForm = superForm(data.form, {
 		dataType: 'json',
 		validators: zodClient(searchCollectionSchema),
 		onSubmit: () => {
-			$loading = true;
+			$storedLoading = 'creating-box';
 		},
 		onUpdated: ({ form }) => {
-			$loading = false;
+			$storedLoading = undefined;
 
 			// Keep the form open if there is an error
 			if (Object.keys(form.errors).length !== 0) return ($nestedSearchDrawerOpen = true);

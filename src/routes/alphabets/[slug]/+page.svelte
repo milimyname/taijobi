@@ -131,7 +131,6 @@
 		onSubmit: async ({ formData }) => {
 			$clickedQuizForm = false;
 
-			console.log($startRangeQuizForm, $endRangeQuizForm);
 			// It is a workaround since it cannot capture the form data from nested drawer/dialog components
 			formData.set('startCount', $startRangeQuizForm);
 			formData.set('maxCount', $endRangeQuizForm);

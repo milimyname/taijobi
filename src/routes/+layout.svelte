@@ -8,7 +8,7 @@
 		innerHeightStore,
 		strokes,
 		openSearch,
-		loading,
+		storedLoading,
 	} from '$lib/utils/stores';
 	import Search from '$lib/components/Search.svelte';
 	import { Toaster } from '$lib/components/ui/sonner';
@@ -42,7 +42,7 @@
 
 		// Prevent user from reloading the page while something is loading
 		window.addEventListener('beforeunload', (event) => {
-			if ($loading) event.preventDefault();
+			if ($storedLoading) event.preventDefault();
 		});
 	});
 </script>

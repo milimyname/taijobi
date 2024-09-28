@@ -96,7 +96,6 @@ function getCausativeForm(verb: string, shortened = false) {
 
 export async function conjugateVerb(word: string) {
 	const plain = getPlainForm(word);
-	console.log('Conjugating verb:', word, plain);
 
 	// Check if the verb is a compound verb ending with する
 	const isCompoundSuru = plain.endsWith('する');

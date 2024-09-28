@@ -2,7 +2,7 @@
 	import { Command as CommandPrimitive } from 'cmdk-sv';
 	import { LoaderCircle, Search } from 'lucide-svelte';
 	import { cn } from '$lib/utils';
-	import { loading } from '$lib/utils/stores';
+	import { storedLoading } from '$lib/utils/stores';
 
 	type $$Props = CommandPrimitive.InputProps;
 
@@ -12,7 +12,7 @@
 </script>
 
 <div class="flex items-center border-b px-2" data-cmdk-input-wrapper="">
-	{#if $loading}
+	{#if $storedLoading === 'searching'}
 		<LoaderCircle class="mr-2 size-5 shrink-0 animate-spin" />
 	{:else}
 		<Search class="mr-2 size-5 shrink-0 opacity-50" />

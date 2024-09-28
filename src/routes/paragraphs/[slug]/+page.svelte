@@ -5,7 +5,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import * as Tabs from '$lib/components/ui/tabs';
 	import { toast } from 'svelte-sonner';
-	import { loading } from '$lib/utils/stores';
+	import { storedLoading } from '$lib/utils/stores';
 	import { goto } from '$app/navigation';
 	import { Textarea } from '$lib/components/ui/textarea';
 
@@ -40,7 +40,7 @@
 	});
 
 	async function regenerate() {
-		$loading = true;
+		$storedLoading = 'regenerating';
 
 		try {
 			let processingResolve: () => void;
@@ -85,7 +85,7 @@
 				error: (error) => `Regenerating failed: ${error}`,
 				finally: () => {
 					worker.terminate();
-					$loading = false;
+					$storedLoading = undefined;
 				},
 			});
 		} catch (error) {
@@ -94,7 +94,7 @@
 	}
 
 	async function saveEdit() {
-		$loading = true;
+		$storedLoading = 'savingParagraph';
 
 		try {
 			await pocketbase.collection('paragraphs').update(data.paragraphs.id, {
@@ -108,11 +108,9 @@
 			toast.error('Failed to save');
 		}
 
-		$loading = false;
+		$storedLoading = undefined;
 		editable = false;
 	}
-
-	console.log($page.url.pathname === '/paragraphs');
 </script>
 
 <div class="mt-10 flex size-full md:mt-20">
@@ -160,7 +158,12 @@
 					</Button>
 				</div>
 
-				<Button size="sm" on:click={regenerate} disabled={$loading} loading={$loading}>
+				<Button
+					size="sm"
+					on:click={regenerate}
+					disabled={$storedLoading === 'regenerating'}
+					loading={$storedLoading === 'regenerating'}
+				>
 					Regenerate
 				</Button>
 			</div>

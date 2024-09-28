@@ -103,8 +103,6 @@
 				? question.negative.plain === answer
 				: question.positive.plain === answer;
 
-		console.log(question);
-
 		if (isCorrect) {
 			correctAnswers++;
 			progressData = [
