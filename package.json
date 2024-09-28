@@ -9,7 +9,8 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --plugin-search-dir . --check . && eslint .",
-		"format": "prettier --plugin-search-dir . --write ."
+		"format": "prettier --plugin-search-dir . --write .",
+		"test": "vitest"
 	},
 	"devDependencies": {
 		"@melt-ui/pp": "^0.3.2",
@@ -42,6 +43,7 @@
 		"tslib": "^2.6.2",
 		"typescript": "^5.4.2",
 		"vite": "^5.1.6",
+		"vitest": "^2.1.1",
 		"zod": "^3.22.4"
 	},
 	"type": "module",

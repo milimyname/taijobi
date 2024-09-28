@@ -1,68 +1,6 @@
 import { convertToFurigana, convertToKana } from '$lib/server/kuroshiro';
+import { getPlainForm } from '$lib/utils/getPlainForm';
 import codec from 'kamiya-codec';
-
-function getDictionaryForm(verb: string): string {
-	// Special verbs directly mapping
-	const specialCases: { [key: string]: string } = {
-		します: 'する',
-		きます: 'くる',
-		// -iru verbs that are actually godan
-		入ります: '入る',
-		切ります: '切る',
-		散ります: '散る',
-		走ります: '走る',
-		知ります: '知る',
-		練ります: '練る',
-
-		// -eru verbs that are actually godan
-		帰ります: '帰る',
-		蹴ります: '蹴る',
-
-		// Other exceptions
-		あります: 'ある',
-		います: 'いる',
-		行きます: '行く',
-		できます: 'できる',
-		起きます: '起きる',
-		問います: '問う',
-		湯がきます: '湯がく',
-		居ます: '居る',
-		請います: '請う',
-		浴びます: '浴びる',
-	};
-
-	if (specialCases[verb]) return specialCases[verb];
-
-	// Removing 'ます' to get the stem
-	const stem = verb.slice(0, -2);
-	// Getting the last kana in the stem
-	const lastKana = stem[stem.length - 1];
-
-	const group1: { [key: string]: string } = {
-		き: 'く',
-		ぎ: 'ぐ',
-		し: 'す',
-		ち: 'つ',
-		に: 'ぬ',
-		び: 'ぶ',
-		み: 'む',
-		い: 'う',
-		ひ: 'ふ',
-	};
-
-	// Ichidan verb check: ends with an 'e' sound (excluding 'り')
-	if ('えけせてねへめれげべぺ'.includes(lastKana) && lastKana !== 'り') return stem + 'る';
-
-	// Handle 'り' ending verbs
-	// For verbs like 借りる, we need to keep the る
-	if (lastKana === 'り') return stem + 'る';
-
-	// Godan verb conversion using the last kana map
-	if (group1[lastKana]) return stem.slice(0, -1) + group1[lastKana];
-
-	// Fallback: if no pattern matches, return the verb as is
-	return verb;
-}
 
 function determineVerbType(verb: string) {
 	if (verb.endsWith('る')) {
@@ -157,7 +95,7 @@ function getCausativeForm(verb: string, shortened = false) {
 }
 
 export async function conjugateVerb(word: string) {
-	const plain = getDictionaryForm(word);
+	const plain = getPlainForm(word);
 	console.log('Conjugating verb:', word, plain);
 
 	// Check if the verb is a compound verb ending with する
