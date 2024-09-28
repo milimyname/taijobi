@@ -63,6 +63,15 @@
 
 	async function deleteFlashcardFromSearch(search: RecordModel) {
 		try {
+			// Move to next sought word
+			const currentSearchIndex = sortedSearches.findIndex(
+				(search) => search.id === $searchedWordStore.id,
+			);
+			const nextSearch = sortedSearches[currentSearchIndex + 2];
+
+			if (nextSearch) $searchedWordStore = nextSearch.expand.flashcard;
+			else goto('/');
+
 			await pocketbase.collection('searches').delete(search.id);
 
 			searches = searches.filter((s) => s.id !== search.id);
@@ -133,6 +142,16 @@
 		setTimeout(() => ($deleteDrawerDialogOpen = false), 150);
 
 		toast.success('Search and its flashcard deleted completely.');
+
+		// Move to next sought word
+		const currentSearchIndex = searches.findIndex((search) => search.id === currentSearch.id);
+		const nextSearch = searches[currentSearchIndex + 1];
+
+		if (nextSearch) {
+			$searchedWordStore = nextSearch.expand.flashcard;
+		} else {
+			$searchedWordStore = null;
+		}
 	}
 
 	$: sortedSearches = (() => {
