@@ -103,7 +103,10 @@
 	})();
 </script>
 
-<DeleteDrawerAlertDialog onClick={deleteHistory} />
+<DeleteDrawerAlertDialog
+	onClick={deleteHistory}
+	description="This action cannot be undone. This will permanently delete your paragraph."
+/>
 
 <DrawerDialog.Root open={$openHistory} onOutsideClick={onClickOutSideClick} onClose={onCloseDrawer}>
 	<DrawerDialog.Content

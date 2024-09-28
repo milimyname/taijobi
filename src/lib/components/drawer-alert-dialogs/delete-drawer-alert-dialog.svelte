@@ -3,6 +3,8 @@
 	import { deleteDrawerDialogOpen } from '$lib/utils/stores';
 
 	export let onClick: () => void = () => {};
+	export let description =
+		'This action cannot be undone. This will permanently delete your account and remove your data from our servers.';
 
 	const onClose = () => setTimeout(() => ($deleteDrawerDialogOpen = false), 100);
 </script>
@@ -12,10 +14,7 @@
 	<DrawerAlertDialog.Content className="drawerNested z-[104]">
 		<DrawerAlertDialog.Header>
 			<DrawerAlertDialog.Title>Are you absolutely sure?</DrawerAlertDialog.Title>
-			<DrawerAlertDialog.Description>
-				This action cannot be undone. This will permanently delete your account and remove your data
-				from our servers.
-			</DrawerAlertDialog.Description>
+			<DrawerAlertDialog.Description>{description}</DrawerAlertDialog.Description>
 		</DrawerAlertDialog.Header>
 		<DrawerAlertDialog.Footer class="md:flex md:flex-row-reverse md:justify-start md:gap-2">
 			<DrawerAlertDialog.Cancel asChild>

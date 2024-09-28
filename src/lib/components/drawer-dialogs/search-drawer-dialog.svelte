@@ -182,9 +182,15 @@
 </script>
 
 {#if clickedDeletedCompletely}
-	<DeleteDrawerAlertDialog onClick={deleteCompletely} />
+	<DeleteDrawerAlertDialog
+		onClick={deleteCompletely}
+		description="This action cannot be undone. This will permanently delete the search and its flashcard."
+	/>
 {:else}
-	<DeleteDrawerAlertDialog onClick={deleteFromHistory} />
+	<DeleteDrawerAlertDialog
+		onClick={deleteFromHistory}
+		description="This action cannot be undone. This will permanently delete your search history."
+	/>
 {/if}
 
 <NestedSearchDrawerDialog />

@@ -168,7 +168,10 @@
 	})();
 </script>
 
-<DeleteDrawerAlertDialog onClick={deleteQuiz} />
+<DeleteDrawerAlertDialog
+	onClick={deleteQuiz}
+	description="this action cannot be undone. This will permanently delete the quiz."
+/>
 
 <CreateQuizDrawerDialog />
 

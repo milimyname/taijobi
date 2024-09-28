@@ -137,7 +137,10 @@
 
 <ConjugateDrawerDialog />
 
-<DeleteDrawerAlertDialog onClick={() => handleDelete(selectedConjugation?.id)} />
+<DeleteDrawerAlertDialog
+	onClick={() => handleDelete(selectedConjugation?.id)}
+	description="This action cannot be undone. This will permanently delete your conjugation."
+/>
 
 <DrawerDialog.Root open={showSettings} onOutsideClick={onOutsideClickDrawer} {onClose}>
 	<DrawerDialog.Content

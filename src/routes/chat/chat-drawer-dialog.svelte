@@ -117,7 +117,10 @@
 	}
 </script>
 
-<DeleteDrawerAlertDialog onClick={deleteChat} />
+<DeleteDrawerAlertDialog
+	onClick={deleteChat}
+	description="This action cannot be undone. This will permanently delete your chat."
+/>
 
 <DrawerDialog.Root open={$openHistory} onOutsideClick={onClickOutSideClick} onClose={onCloseDrawer}>
 	<DrawerDialog.Content

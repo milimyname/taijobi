@@ -32,7 +32,10 @@
 	$: disabled = !isTainted($tainted);
 </script>
 
-<DeleteDrawerAlertDialog onClick={deleteFeedback} />
+<DeleteDrawerAlertDialog
+	onClick={deleteFeedback}
+	description="This action cannot be undone. This will permanently delete your feedback."
+/>
 
 <DrawerDialog.Root open={$clickedReport} onClose={onCloseDrawer} onOutsideClick={onCloseDrawer}>
 	<DrawerDialog.Content

@@ -42,7 +42,11 @@
 	$: disabled = $formData.name === '' || $formData.type === '' || !isTainted($tainted);
 </script>
 
-<DeleteDrawerAlertDialog onClick={deleteFlashcard} />
+<DeleteDrawerAlertDialog
+	onClick={deleteFlashcard}
+	description="This action cannot be undone. This will permanently delete your flashcard."
+/>
+/>
 
 <DrawerDialog.Root
 	onClose={onOutsideClick}
