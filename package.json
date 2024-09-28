@@ -57,7 +57,7 @@
 		"ai": "^3.2.32",
 		"bits-ui": "^0.21.13",
 		"clsx": "^2.1.0",
-		"cmdk-sv": "^0.0.17",
+		"cmdk-sv": "^0.0.18",
 		"dropzone": "6.0.0-beta.2",
 		"embla-carousel-svelte": "^8.0.0",
 		"embla-carousel-wheel-gestures": "8.0.0-rc05",

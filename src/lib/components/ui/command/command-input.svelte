@@ -13,7 +13,7 @@
 
 <div class="flex items-center border-b px-2" data-cmdk-input-wrapper="">
 	{#if $loading}
-		<LoaderCircle class="mr-2 size-4  shrink-0 animate-spin" />
+		<LoaderCircle class="mr-2 size-5 shrink-0 animate-spin" />
 	{:else}
 		<Search class="mr-2 size-5 shrink-0 opacity-50" />
 	{/if}

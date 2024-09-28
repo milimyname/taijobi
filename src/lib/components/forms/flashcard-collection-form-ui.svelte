@@ -106,7 +106,6 @@
 	onClick={deleteCollectionOrBox}
 	description="This action cannot be undone. This will permanently delete your collection."
 />
-/>
 
 <DrawerDialog.Root bind:open={$swapFlashcards}>
 	<DrawerDialog.Overlay class="fixed inset-0 z-[100] bg-black/10" />

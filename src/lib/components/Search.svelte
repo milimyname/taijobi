@@ -207,7 +207,7 @@
 										error: 'Failed to search',
 									});
 								}}
-								class="fixed bottom-2 line-clamp-1 h-10 w-40 whitespace-pre break-words bg-black text-center text-white underline"
+								class="fixed bottom-2 line-clamp-1 h-10 w-40 overflow-auto whitespace-pre break-words bg-black text-center text-white underline"
 							>
 								<span class="italic">
 									{#if currentHoveredFlashcard?.expand}
