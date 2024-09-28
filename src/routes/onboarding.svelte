@@ -48,7 +48,7 @@
 		{ title: 'Drawing', content: 'Draw the letter on the canvas' },
 		{ title: 'Details', content: 'Details of the letter' },
 		{ title: 'Quiz', content: 'Test your knowledge with following words' },
-		{ title: 'Done', content: 'You are all set to go! Go to the craeted quiz.' },
+		{ title: 'Done', content: 'You are all set to go! Go to the created quiz.' },
 	];
 
 	const languageCards = [
