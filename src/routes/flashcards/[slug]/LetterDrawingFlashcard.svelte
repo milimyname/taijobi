@@ -71,7 +71,9 @@
 	$: if ($showLetterDrawing && isNonJapanase($currentFlashcard)) $showLetterDrawing = false;
 </script>
 
-<div style="perspective: 3000px; position: relative; transform: rotateY(${-$rotateYCard}deg);">
+<div
+	style="position: relative; transform: rotateY(${-$rotateYCard}deg); transform-style: preserve-3d; backface-visibility: hidden;"
+>
 	<span
 		class={cn(
 			'absolute left-1/2 top-3 z-40 block -translate-x-1/2 text-lg font-medium sm:top-5',
