@@ -166,7 +166,7 @@
 			choice: '2',
 			type: 'meaning',
 			userId: $page.data.user.id,
-			maxCount: '10',
+			maxCount: '11',
 			startCount: '1',
 			flashcardBox: newOnboardingBox.id,
 			flashcards: quizItems,

@@ -301,7 +301,7 @@
 							<ResponsiveTooltip>
 								<button slot="trigger" on:click={(e) => e.preventDefault()}>
 									<Badge variant="outline">
-										{quiz.maxCount}
+										{quiz.maxCount - 1}
 									</Badge>
 								</button>
 								<div class="max-w-xs text-sm">
