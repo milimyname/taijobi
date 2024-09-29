@@ -18,6 +18,7 @@
 	import { quintOut } from 'svelte/easing';
 	import { hiragana } from '$lib/static/hiragana';
 	import { katakana } from '$lib/static/katakana';
+	import kanjiData from '$lib/utils/kanjiData.json';
 	import { kanji } from '$lib/static/kanji';
 	import { page } from '$app/stores';
 	import { cn } from '$lib/utils';
@@ -133,7 +134,7 @@
 	}
 </script>
 
-{#if $selectedLetter || currentObject[$currentLetter]}
+{#if $selectedLetter || kanjiData[$currentLetter]}
 	<svg
 		xmlns="http://www.w3.org/2000/svg"
 		viewBox="0 0 110 117"
@@ -144,10 +145,10 @@
 			className,
 		)}
 	>
-		{#each $selectedLetter?.ds || currentObject[$currentLetter].ds as path, index (($selectedLetter || currentObject[$currentLetter]).id + '-' + index)}
+		{#each $selectedLetter?.ds || kanjiData[$currentLetter] as obj, index}
 			{#if $animateSVG}
 				<path
-					d={path}
+					d={obj?.d}
 					stroke="black"
 					stroke-width="3"
 					stroke-linecap="round"
