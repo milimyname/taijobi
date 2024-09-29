@@ -27,9 +27,9 @@
 	)
 		replaceStateWithQuery({
 			letter: $currentLetter,
-			meaning: kanji[$currentLetter].meaning,
-			onyomi: kanji[$currentLetter].onyomi.join(', '),
-			kunyomi: kanji[$currentLetter].kunyomi.join(', '),
+			meaning: kanji[$currentLetter]?.meaning,
+			onyomi: kanji[$currentLetter]?.onyomi.join(', '),
+			kunyomi: kanji[$currentLetter]?.kunyomi.join(', '),
 		});
 	else if (
 		browser &&
@@ -59,18 +59,18 @@
 		{#if $currentAlphabet === 'kanji' && kanji[$currentLetter]}
 			<h2 class="col-span-2 text-center text-6xl xm:text-9xl">{$currentLetter}</h2>
 			<div>
-				<h2 class="text-lg font-medium">{kanji[$currentLetter].meaning}</h2>
+				<h2 class="text-lg font-medium">{kanji[$currentLetter]?.meaning}</h2>
 				<p class=" text-sm text-gray-300 sm:text-sm">Meaning</p>
 			</div>
-			{#if kanji[$currentLetter].onyomi.length > 0}
+			{#if kanji[$currentLetter]?.onyomi.length > 0}
 				<div>
-					<h4 class="text-lg tracking-widest">{kanji[$currentLetter].onyomi}</h4>
+					<h4 class="text-lg tracking-widest">{kanji[$currentLetter]?.onyomi}</h4>
 					<p class=" text-sm text-gray-300">Onyomi</p>
 				</div>
 			{/if}
-			{#if kanji[$currentLetter].kunyomi.length > 0}
+			{#if kanji[$currentLetter]?.kunyomi.length > 0}
 				<div>
-					<h4 class="text-lg tracking-widest">{kanji[$currentLetter].kunyomi}</h4>
+					<h4 class="text-lg tracking-widest">{kanji[$currentLetter]?.kunyomi}</h4>
 					<p class="text-sm text-gray-300">Kunyomi</p>
 				</div>
 			{/if}

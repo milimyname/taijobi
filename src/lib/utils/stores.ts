@@ -1,7 +1,7 @@
 import { hiragana } from '$lib/static/hiragana';
-import { kanji } from '$lib/static/kanji';
 import { katakana } from '$lib/static/katakana';
 import type { FlashcardType } from '$lib/utils/ambient';
+import kanjiData from '$lib/utils/kanjiData.json';
 import type { RecordModel } from 'pocketbase';
 import { writable } from 'svelte/store';
 
@@ -48,7 +48,7 @@ export const hiraganaStore = writable(Object.keys(hiragana));
 export const katakanaStore = writable(Object.keys(katakana));
 
 // Get only keys from the kanji object
-export const kanjiStore = writable(Object.keys(kanji));
+export const kanjiStore = writable(Object.keys(kanjiData));
 
 export const searchedWordStore = writable<FlashcardType>(); // Use KanjiInfo as the value type
 export const openSearch = writable(false);
