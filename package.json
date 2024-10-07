@@ -71,7 +71,7 @@
 		"kuroshiro-analyzer-kuromoji": "^1.1.0",
 		"lucide-svelte": "^0.446.0",
 		"openai": "^4.61.1",
-		"pnpm": "^8.15.4",
+		"pnpm": "^9.12.1",
 		"pocketbase": "^0.21.5",
 		"svelte-easy-crop": "^2.0.3",
 		"svelte-legos": "^0.2.2",
