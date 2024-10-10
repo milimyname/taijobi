@@ -34,7 +34,7 @@ importers:
         version: 0.1.1(tailwindcss@3.4.6)
       ai:
         specifier: ^3.4.7
-        version: 3.4.7(openai@4.62.0(zod@3.23.8))(react@18.3.1)(sswr@2.1.0(svelte@4.2.16))(svelte@4.2.16)(vue@3.4.31(typescript@5.4.5))(zod@3.23.8)
+        version: 3.4.7(openai@4.67.2(zod@3.23.8))(react@18.3.1)(sswr@2.1.0(svelte@4.2.16))(svelte@4.2.16)(vue@3.4.31(typescript@5.4.5))(zod@3.23.8)
       bits-ui:
         specifier: ^0.21.15
         version: 0.21.15(svelte@4.2.16)
@@ -75,8 +75,8 @@ importers:
         specifier: ^0.446.0
         version: 0.446.0(svelte@4.2.16)
       openai:
-        specifier: ^4.61.1
-        version: 4.62.0(zod@3.23.8)
+        specifier: ^4.67.2
+        version: 4.67.2(zod@3.23.8)
       pnpm:
         specifier: ^8.15.4
         version: 8.15.8
@@ -1739,6 +1739,7 @@ packages:
   eslint@8.57.1:
     resolution: {integrity: sha512-ypowyDxpVSYpkXr9WPv2PAZCtNip1Mv5KTW0SCurXv/9iOpcrH9PaqUElksqEB6pChqHGDRCFTyrZlGhnLNGiA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
 
   esm-env@1.0.0:
@@ -2358,8 +2359,8 @@ packages:
   once@1.4.0:
     resolution: {integrity: sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w==}
 
-  openai@4.62.0:
-    resolution: {integrity: sha512-cPSsarEXoJENNwYMx/Xh/wuvnyYf8lPSR4zDVSnRvbcMHmKkDIzXhUVvPPfuI4M4T83x25gVnlW7huWEGKG+SA==}
+  openai@4.67.2:
+    resolution: {integrity: sha512-u4FJFGXgqEHrCYcD5jAD4nHj6JCiicH+/dskQY7qka9R6hOw29R0kOz7GwcA9k2JKcLf86lzAWPtPagPbO8KnQ==}
     hasBin: true
     peerDependencies:
       zod: ^3.23.8
@@ -4342,7 +4343,7 @@ snapshots:
     dependencies:
       humanize-ms: 1.2.1
 
-  ai@3.4.7(openai@4.62.0(zod@3.23.8))(react@18.3.1)(sswr@2.1.0(svelte@4.2.16))(svelte@4.2.16)(vue@3.4.31(typescript@5.4.5))(zod@3.23.8):
+  ai@3.4.7(openai@4.67.2(zod@3.23.8))(react@18.3.1)(sswr@2.1.0(svelte@4.2.16))(svelte@4.2.16)(vue@3.4.31(typescript@5.4.5))(zod@3.23.8):
     dependencies:
       '@ai-sdk/provider': 0.0.24
       '@ai-sdk/provider-utils': 1.0.20(zod@3.23.8)
@@ -4359,7 +4360,7 @@ snapshots:
       secure-json-parse: 2.7.0
       zod-to-json-schema: 3.23.2(zod@3.23.8)
     optionalDependencies:
-      openai: 4.62.0(zod@3.23.8)
+      openai: 4.67.2(zod@3.23.8)
       react: 18.3.1
       sswr: 2.1.0(svelte@4.2.16)
       svelte: 4.2.16
@@ -5523,7 +5524,7 @@ snapshots:
     dependencies:
       wrappy: 1.0.2
 
-  openai@4.62.0(zod@3.23.8):
+  openai@4.67.2(zod@3.23.8):
     dependencies:
       '@types/node': 18.19.33
       '@types/node-fetch': 2.6.11
