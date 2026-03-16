@@ -5,8 +5,8 @@ const config = {
 	kit: {
 		adapter: adapter(),
 		output: {
-			bundleStrategy: 'single',
-		},
+			bundleStrategy: 'single'
+		}
 	},
 	vitePlugin: {
 		dynamicCompileOptions: ({ filename }) =>

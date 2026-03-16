@@ -14,7 +14,7 @@ export default defineConfig({
 					res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
 					next();
 				});
-			},
-		},
-	],
+			}
+		}
+	]
 });

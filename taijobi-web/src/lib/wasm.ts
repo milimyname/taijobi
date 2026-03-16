@@ -205,7 +205,7 @@ export async function init(): Promise<void> {
 			js_console_log: (ptr: number, len: number) => {
 				try {
 					const mem = new Uint8Array(
-						(result.exports as { memory: WebAssembly.Memory }).memory.buffer,
+						(result.exports as { memory: WebAssembly.Memory }).memory.buffer
 					);
 					const msg = new TextDecoder().decode(mem.slice(ptr, ptr + len));
 					console.log('[taijobi]', msg);
@@ -213,8 +213,8 @@ export async function init(): Promise<void> {
 					console.log('[taijobi] (log failed, ptr=%d len=%d)', ptr, len);
 				}
 			},
-			js_time_ms: () => BigInt(Date.now()),
-		},
+			js_time_ms: () => BigInt(Date.now())
+		}
 	};
 
 	// Stub any unexpected imports to prevent instantiation failure
@@ -230,17 +230,14 @@ export async function init(): Promise<void> {
 		}
 	}
 
-	const result = await WebAssembly.instantiate(
-		compiled,
-		importObject as WebAssembly.Imports,
-	);
+	const result = await WebAssembly.instantiate(compiled, importObject as WebAssembly.Imports);
 	wasm = result.exports as unknown as WasmExports;
 
 	console.log(
 		'[taijobi] exports:',
 		WebAssembly.Module.exports(compiled)
 			.map((e) => e.name)
-			.join(', '),
+			.join(', ')
 	);
 
 	// Restore from OPFS
@@ -370,8 +367,7 @@ export function getDrillStats(): DrillStats {
 	if (!wasm) return { reviewed_today: 0, correct_today: 0, total_cards: 0, lexicon_count: 0 };
 	wasm.hanzi_reset_alloc();
 	const ptr = wasm.hanzi_get_drill_stats();
-	if (ptr === 0)
-		return { reviewed_today: 0, correct_today: 0, total_cards: 0, lexicon_count: 0 };
+	if (ptr === 0) return { reviewed_today: 0, correct_today: 0, total_cards: 0, lexicon_count: 0 };
 	const json = readLengthPrefixedString(ptr);
 	try {
 		return JSON.parse(json);
