@@ -1,0 +1,306 @@
+<script lang="ts">
+	import {
+		addWord,
+		removeWord,
+		updateWord,
+		getLexicon,
+		type LexiconEntry,
+		type AddWordResult,
+	} from '$lib/wasm';
+
+	let input = $state('');
+	let entries: LexiconEntry[] = $state([]);
+	let feedback: AddWordResult | null = $state(null);
+	let errorMsg = $state('');
+	let adding = $state(false);
+	let filter = $state('all');
+	let editingId = $state<string | null>(null);
+	let editTranslation = $state('');
+
+	function refresh() {
+		entries = getLexicon();
+	}
+
+	refresh();
+
+	let filtered = $derived(
+		filter === 'all' ? entries : entries.filter((e) => e.language === filter),
+	);
+
+	async function handleAdd() {
+		const word = input.trim();
+		if (!word || adding) return;
+		adding = true;
+		errorMsg = '';
+		feedback = null;
+		try {
+			const result = await addWord(word);
+			feedback = result;
+			input = '';
+			refresh();
+			setTimeout(() => (feedback = null), 3000);
+		} catch (e) {
+			errorMsg = e instanceof Error ? e.message : 'Failed to add word';
+			setTimeout(() => (errorMsg = ''), 3000);
+		} finally {
+			adding = false;
+		}
+	}
+
+	function handleKeydown(e: KeyboardEvent) {
+		if (e.key === 'Enter') handleAdd();
+	}
+
+	async function handleRemove(id: string) {
+		try {
+			await removeWord(id);
+			refresh();
+		} catch (e) {
+			errorMsg = e instanceof Error ? e.message : 'Failed to remove';
+			setTimeout(() => (errorMsg = ''), 3000);
+		}
+	}
+
+	function startEdit(entry: LexiconEntry) {
+		editingId = entry.id;
+		editTranslation = entry.translation ?? '';
+	}
+
+	function cancelEdit() {
+		editingId = null;
+		editTranslation = '';
+	}
+
+	async function saveEdit() {
+		if (!editingId) return;
+		try {
+			await updateWord(editingId, editTranslation);
+			editingId = null;
+			editTranslation = '';
+			refresh();
+		} catch (e) {
+			errorMsg = e instanceof Error ? e.message : 'Failed to update';
+			setTimeout(() => (errorMsg = ''), 3000);
+		}
+	}
+
+	function handleEditKeydown(e: KeyboardEvent) {
+		if (e.key === 'Enter') saveEdit();
+		if (e.key === 'Escape') cancelEdit();
+	}
+
+	function langTag(code: string): string {
+		switch (code) {
+			case 'zh':
+				return 'ZH';
+			case 'de':
+				return 'DE';
+			case 'en':
+				return 'EN';
+			default:
+				return code.toUpperCase();
+		}
+	}
+
+	function statusColor(entry: LexiconEntry): string {
+		if (entry.reps === 0) return 'bg-slate-300';
+		if (entry.stability > 5) return 'bg-[#2d6a4f]';
+		return 'bg-amber-500';
+	}
+
+	function statusTitle(entry: LexiconEntry): string {
+		if (entry.reps === 0) return 'Neu';
+		if (entry.stability > 5) return 'Gelernt';
+		return 'Wiederholen';
+	}
+</script>
+
+<!-- Quick Add Bar -->
+<section class="mt-4 px-0">
+	<div class="flex items-center gap-2">
+		<div
+			class="flex h-12 flex-1 items-center overflow-hidden rounded-xl border border-primary/10 bg-primary/5 px-4 transition-all focus-within:border-primary/30"
+		>
+			<input
+				type="text"
+				bind:value={input}
+				onkeydown={handleKeydown}
+				class="min-w-0 flex-1 border-none bg-transparent p-0 text-base font-normal placeholder:text-primary/40 focus:ring-0"
+				placeholder="Schnell hinzuf&uuml;gen..."
+			/>
+			<div class="flex items-center gap-1">
+				<button class="p-1 text-primary/60 hover:text-primary">
+					<span class="material-symbols-outlined text-[20px]">photo_camera</span>
+				</button>
+				<button class="p-1 text-primary/60 hover:text-primary">
+					<span class="material-symbols-outlined text-[20px]">mic</span>
+				</button>
+			</div>
+		</div>
+		<button
+			onclick={handleAdd}
+			disabled={adding || !input.trim()}
+			class="flex size-12 items-center justify-center rounded-xl bg-primary text-white shadow-sm transition-colors hover:bg-primary/90 disabled:opacity-50"
+		>
+			<span class="material-symbols-outlined">add</span>
+		</button>
+	</div>
+
+	{#if feedback}
+		<div
+			class="mt-2 rounded-xl border border-primary/20 bg-primary/5 px-4 py-2.5 text-sm text-primary"
+		>
+			Hinzugef&uuml;gt: <strong>{feedback.word}</strong>
+			<span class="ml-1 text-xs opacity-70">[{feedback.language}]</span>
+			{#if feedback.pinyin}
+				<span class="ml-1 text-xs">&mdash; {feedback.pinyin}</span>
+			{/if}
+			{#if feedback.translation}
+				<span class="ml-1 text-xs opacity-70">({feedback.translation})</span>
+			{/if}
+		</div>
+	{/if}
+
+	{#if errorMsg}
+		<div class="mt-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700">
+			{errorMsg}
+		</div>
+	{/if}
+</section>
+
+<!-- Filter Chips -->
+<section class="mt-4 flex gap-2 overflow-x-auto no-scrollbar">
+	<button
+		onclick={() => (filter = 'all')}
+		class="flex h-9 shrink-0 items-center justify-center rounded-full px-5 text-sm font-semibold transition-colors {filter === 'all'
+			? 'bg-primary text-white'
+			: 'bg-slate-100 text-slate-600'}"
+	>
+		Alle
+	</button>
+	<button
+		onclick={() => (filter = 'zh')}
+		class="flex h-9 shrink-0 items-center justify-center rounded-full px-5 text-sm font-medium transition-colors {filter === 'zh'
+			? 'bg-primary text-white'
+			: 'bg-slate-100 text-slate-600'}"
+	>
+		中文
+	</button>
+	<button
+		onclick={() => (filter = 'de')}
+		class="flex h-9 shrink-0 items-center justify-center rounded-full px-5 text-sm font-medium transition-colors {filter === 'de'
+			? 'bg-primary text-white'
+			: 'bg-slate-100 text-slate-600'}"
+	>
+		Deutsch
+	</button>
+	<button
+		onclick={() => (filter = 'en')}
+		class="flex h-9 shrink-0 items-center justify-center rounded-full px-5 text-sm font-medium transition-colors {filter === 'en'
+			? 'bg-primary text-white'
+			: 'bg-slate-100 text-slate-600'}"
+	>
+		English
+	</button>
+</section>
+
+<!-- Word List -->
+<section class="mt-6 space-y-6">
+	{#if filtered.length === 0}
+		<div class="rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm">
+			<span class="material-symbols-outlined mb-2 text-[32px] text-slate-300">book_2</span>
+			<p class="text-sm text-slate-500">
+				Noch keine W&ouml;rter. F&uuml;ge W&ouml;rter hinzu, die dir beim Lesen begegnen.
+			</p>
+		</div>
+	{:else}
+		<!-- Word group -->
+		<div>
+			<h3 class="mb-3 px-1 text-[11px] font-bold uppercase tracking-wider text-primary">
+				Lexikon ({filtered.length} W&ouml;rter)
+			</h3>
+			<div class="space-y-3">
+				{#each filtered as entry (entry.id)}
+					<div
+						class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm dark:border-white/5 dark:bg-slate-800/40"
+					>
+						{#if editingId === entry.id}
+							<!-- Edit mode -->
+							<div class="flex items-center gap-2">
+								<input
+									type="text"
+									bind:value={editTranslation}
+									onkeydown={handleEditKeydown}
+									placeholder="&Uuml;bersetzung..."
+									class="min-w-0 flex-1 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-slate-900 placeholder-primary/40 outline-none focus:border-primary/40"
+								/>
+								<button
+									onclick={saveEdit}
+									class="rounded-lg bg-primary p-2 text-white transition-colors hover:bg-primary/90"
+								>
+									<span class="material-symbols-outlined text-[18px]">check</span>
+								</button>
+								<button
+									onclick={cancelEdit}
+									class="rounded-lg bg-slate-100 p-2 text-slate-500 transition-colors hover:bg-slate-200"
+								>
+									<span class="material-symbols-outlined text-[18px]">close</span>
+								</button>
+							</div>
+						{:else}
+							<!-- Display mode -->
+							<div class="flex items-center">
+								<div class="min-w-0 flex-1">
+									<div class="mb-0.5 flex items-center gap-2">
+										<span
+											class="text-lg font-bold"
+											class:chinese-char={entry.language === 'zh'}>{entry.word}</span
+										>
+										<span
+											class="rounded bg-primary/5 px-1.5 py-0.5 text-[10px] font-bold text-primary"
+										>
+											{langTag(entry.language)}
+										</span>
+									</div>
+									<p class="text-[13px] text-slate-500">
+										{#if entry.pinyin}
+											{entry.pinyin}
+											{#if entry.translation} &bull; {/if}
+										{/if}
+										{#if entry.translation}
+											{entry.translation}
+										{:else if entry.reps === 0}
+											Neu
+										{:else}
+											{entry.reps} Wiederholungen
+										{/if}
+									</p>
+								</div>
+								<div class="flex items-center gap-1">
+									<button
+										onclick={() => startEdit(entry)}
+										class="rounded-lg p-1.5 text-slate-300 transition-colors hover:bg-slate-100 hover:text-primary"
+										title="Bearbeiten"
+									>
+										<span class="material-symbols-outlined text-[18px]">edit</span>
+									</button>
+									<button
+										onclick={() => handleRemove(entry.id)}
+										class="rounded-lg p-1.5 text-slate-300 transition-colors hover:bg-red-50 hover:text-red-600"
+										title="Entfernen"
+									>
+										<span class="material-symbols-outlined text-[18px]">delete</span>
+									</button>
+									<div
+										class="ml-1 size-2.5 rounded-full {statusColor(entry)}"
+										title={statusTitle(entry)}
+									></div>
+								</div>
+							</div>
+						{/if}
+					</div>
+				{/each}
+			</div>
+		</div>
+	{/if}
+</section>

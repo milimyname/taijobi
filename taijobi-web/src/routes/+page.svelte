@@ -1,78 +1,150 @@
 <script lang="ts">
-	import { getDueCount, getDueCards, type Card } from '$lib/wasm';
+	import { getDueCount, getDueCards, getDrillStats, type Card, type DrillStats } from '$lib/wasm';
 
 	let dueCount = $derived(getDueCount());
-	let previewCards: Card[] = $derived(getDueCards(3));
+	let previewCards: Card[] = $derived(getDueCards(5));
+	let stats: DrillStats = $derived(getDrillStats());
+
+	function accuracy(s: DrillStats): string {
+		if (s.reviewed_today === 0) return '—';
+		return Math.round((s.correct_today / s.reviewed_today) * 100) + '%';
+	}
 </script>
 
-<!-- Hero Card -->
-<section class="mt-4">
-	{#if dueCount > 0}
-		<div
-			class="relative overflow-hidden rounded-xl border border-border-subtle bg-white p-6 shadow-sm"
-		>
-			<div class="mb-8 flex items-start justify-between">
-				<div>
-					<span class="text-[11px] font-bold uppercase tracking-widest text-primary"
-						>Ready to Review</span
-					>
-					<h1 class="mt-1 text-2xl font-bold text-stone-900">{dueCount} Cards Due</h1>
-					<p class="mt-1 text-sm text-stone-500">
-						L&oacute;ng neu L5 vocabulary
-					</p>
-				</div>
-				<div class="chinese-char select-none text-5xl font-bold text-primary opacity-10">
-					课练
-				</div>
-			</div>
-			<a
-				href="/drill"
-				class="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3.5 font-semibold text-white shadow-md shadow-primary/20 transition-all hover:bg-primary/90 active:scale-[0.98]"
-			>
-				<span>Start Review</span>
-				<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
-			</a>
-		</div>
-	{:else}
-		<div
-			class="rounded-xl border border-border-subtle bg-white p-8 text-center shadow-sm"
-		>
-			<p class="text-2xl font-bold text-stone-900">All caught up!</p>
-			<p class="mt-2 text-sm text-stone-500">No cards due right now. Come back later.</p>
-		</div>
-	{/if}
+<!-- Greeting -->
+<section class="mb-6 mt-4">
+	<h1 class="text-3xl font-bold tracking-tight text-slate-900">Guten Morgen</h1>
 </section>
 
-<!-- Review Queue Preview -->
-{#if previewCards.length > 0}
-	<section class="mt-10">
-		<div class="mb-4 flex items-center justify-between">
-			<h3 class="text-[11px] font-bold uppercase tracking-[0.2em] text-stone-400">Queue</h3>
-			<a href="/drill" class="text-[11px] font-bold uppercase tracking-wider text-primary"
-				>Review All</a
-			>
-		</div>
-		<div class="space-y-3">
-			{#each previewCards as card}
-				<div
-					class="flex items-center rounded-xl border border-border-subtle bg-white p-4 shadow-sm"
+<!-- Hero Card -->
+{#if dueCount > 0}
+	<section class="mb-8">
+		<div class="relative overflow-hidden rounded-xl bg-primary p-6 shadow-lg shadow-primary/20">
+			<div class="absolute right-0 top-0 p-4 opacity-10">
+				<span class="material-symbols-outlined text-8xl rotate-12 text-white">auto_stories</span>
+			</div>
+			<div class="relative z-10">
+				<h2 class="mb-1 text-4xl font-bold text-white">{dueCount} Karten f&auml;llig</h2>
+				<p class="mb-6 text-sm font-medium text-white/80">
+					Gesch&auml;tzte Zeit: {Math.max(1, Math.round(dueCount * 0.5))} Min.
+				</p>
+				<a
+					href="/drill"
+					class="inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3 text-sm font-bold text-primary transition-colors hover:bg-slate-100"
 				>
+					Lernen starten
+					<span class="material-symbols-outlined text-sm">play_arrow</span>
+				</a>
+			</div>
+		</div>
+	</section>
+{:else}
+	<section class="mb-8">
+		<div class="rounded-xl border border-primary/10 bg-white p-8 text-center shadow-sm">
+			<p class="text-2xl font-bold text-slate-900">Alles erledigt!</p>
+			<p class="mt-2 text-sm text-slate-500">Keine Karten f&auml;llig. Komm sp&auml;ter wieder.</p>
+		</div>
+	</section>
+{/if}
+
+<!-- Today Stats -->
+<section class="mb-8">
+	<div class="flex items-center justify-between mb-4">
+		<h3 class="text-lg font-bold text-slate-900">Heute</h3>
+		{#if stats.reviewed_today > 0}
+			<span class="text-xs font-bold uppercase tracking-wider text-primary">
+				{accuracy(stats)} Genauigkeit
+			</span>
+		{/if}
+	</div>
+	<div
+		class="flex items-center justify-between rounded-xl border border-primary/10 bg-white p-4"
+	>
+		<div class="flex gap-2">
+			{#each Array(Math.min(stats.reviewed_today, 7)) as _, i (i)}
+				<div class="size-3 rounded-full bg-primary"></div>
+			{/each}
+			{#each Array(Math.max(0, 7 - Math.min(stats.reviewed_today, 7))) as _, i (i)}
+				<div class="size-3 rounded-full bg-primary/10"></div>
+			{/each}
+		</div>
+		<p class="text-sm text-slate-500">{stats.reviewed_today} / {stats.total_cards} gelernt</p>
+	</div>
+</section>
+
+<!-- Textbook / Pack Progress -->
+<section class="mb-8">
+	<div class="flex items-center justify-between mb-4">
+		<h3 class="text-lg font-bold text-slate-900">Deine Lehrb&uuml;cher</h3>
+	</div>
+	<div
+		class="flex items-center gap-4 rounded-xl border border-primary/5 bg-white p-4 shadow-sm"
+	>
+		<div class="flex size-16 shrink-0 items-center justify-center rounded-lg bg-primary/5">
+			<span class="material-symbols-outlined text-3xl text-primary">menu_book</span>
+		</div>
+		<div class="flex-1">
+			<div class="mb-1 flex items-start justify-between">
+				<div>
+					<h4 class="font-bold text-slate-900">L&oacute;ng neu</h4>
+					<p class="text-xs font-medium text-slate-500">Lektion 5</p>
+				</div>
+				<span class="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary"
+					>L5</span
+				>
+			</div>
+			<div class="mt-3">
+				<div class="mb-1 flex justify-between text-[10px] font-bold text-slate-400">
+					<span>FORTSCHRITT</span>
+					<span>{Math.round((stats.reviewed_today / Math.max(stats.total_cards, 1)) * 100)}%</span>
+				</div>
+				<div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
 					<div
-						class="chinese-char mr-4 flex size-12 items-center justify-center rounded-lg bg-surface text-2xl font-medium text-stone-800"
+						class="h-full rounded-full bg-primary"
+						style="width: {(stats.reviewed_today / Math.max(stats.total_cards, 1)) * 100}%"
+					></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- Recent Words -->
+{#if previewCards.length > 0}
+	<section class="mb-8">
+		<h3 class="mb-4 text-lg font-bold text-slate-900">Zuletzt gelernte W&ouml;rter</h3>
+		<div class="flex flex-wrap gap-2">
+			{#each previewCards.slice(0, 5) as card (card.id)}
+				<div
+					class="rounded-full border border-primary/5 bg-white px-4 py-2 shadow-sm"
+				>
+					<span class="font-medium text-slate-900" class:chinese-char={card.language === 'zh'}
+						>{card.word}</span
 					>
-						{card.word}
-					</div>
-					<div class="flex-1">
-						<div class="text-sm font-semibold text-stone-900">
-							{card.translation ?? '—'}
-						</div>
-						<div class="text-[11px] font-medium uppercase tracking-tight text-stone-400">
-							{card.pinyin ?? ''} {card.reps === 0 ? '• New' : '• Due'}
-						</div>
-					</div>
-					<span class="material-symbols-outlined text-[20px] text-stone-300">chevron_right</span>
+					{#if card.pinyin}
+						<span class="ml-2 text-sm text-slate-400">{card.pinyin}</span>
+					{/if}
 				</div>
 			{/each}
 		</div>
+	</section>
+{/if}
+
+<!-- Lexicon Link -->
+{#if stats.lexicon_count > 0}
+	<section class="mb-8">
+		<a
+			href="/lexicon"
+			class="flex items-center justify-between rounded-xl border border-primary/10 bg-white p-4 shadow-sm transition-colors hover:bg-primary/5"
+		>
+			<div class="flex items-center gap-3">
+				<span class="material-symbols-outlined text-primary">book</span>
+				<div>
+					<p class="font-bold text-slate-900">Lexikon</p>
+					<p class="text-xs text-slate-500">{stats.lexicon_count} W&ouml;rter gesammelt</p>
+				</div>
+			</div>
+			<span class="material-symbols-outlined text-slate-400">chevron_right</span>
+		</a>
 	</section>
 {/if}

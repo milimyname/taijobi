@@ -7,28 +7,25 @@
 **Goal:** libhanzi.wasm loads in browser, SQLite works in OPFS, FSRS schedules
 cards, and you can drill L5 vocabulary.
 
-**libhanzi (Zig):**
-- [ ] `build.zig` — compile sqlite3.c, output wasm32-freestanding
-- [ ] `db.zig` — schema v1 (cards, fsrs_state, review_log, meta tables)
-- [ ] `root.zig` — C ABI: init, close, alloc, free, get_db_ptr, get_db_size, restore_db
-- [ ] `fsrs.zig` — FSRS-5 scheduler: `schedule()` returns next intervals for each rating,
+**libhanzi (Zig):** ✅ DONE
+- [x] `build.zig` — compile sqlite3.c, output wasm32-freestanding (677KB WASM)
+- [x] `db.zig` — schema v1 (cards, fsrs_state, review_log, meta tables)
+- [x] `root.zig` — C ABI: init, close, alloc, free, get_db_ptr, get_db_size, restore_db
+- [x] `fsrs.zig` — FSRS-5 scheduler: `schedule()` returns next intervals for each rating,
   `review()` updates card state. Pure Zig, default parameters (~150 lines)
-- [ ] `types.zig` — Card, FSRSState, ReviewLog structs
-- [ ] Seed data: hardcode Long neu L5 vocabulary (~25 cards) in db.zig init
+- [x] `types.zig` — Card, FSRSState, ReviewLog structs + hand-written JSON serializer
+- [x] `sqlite_c.zig` — manual FFI (wimg pattern, isize destructors)
+- [x] Seed data: hardcode Long neu L5 vocabulary (25 cards) in db.zig init
 
-**hanzi-web (Svelte 5):**
-- [ ] Scaffold: SvelteKit + TailwindCSS v4 + Vite (copy wimg-web structure)
-- [ ] `wasm.ts` — load libhanzi.wasm, OPFS persistence (copy from wimg-web)
-- [ ] `service-worker.ts` — offline caching (copy from wimg-web)
-- [ ] COOP/COEP headers in vite.config.ts
-- [ ] Route: `/drill` — the core review loop
-  - Show card (hanzi + pinyin)
-  - Input field (type German translation)
-  - Reveal answer + rating buttons (Again/Hard/Good/Easy)
-  - FSRS intervals shown on each button
-  - Progress counter (12/25)
-- [ ] Route: `/` — minimal dashboard ("28 cards due", "Start Review" button)
-- [ ] PWA manifest + icons
+**taijobi-web (Svelte 5):** ✅ DONE
+- [x] Scaffold: SvelteKit + TailwindCSS v4 + Vite + Cloudflare adapter
+- [x] `wasm.ts` — load libtaijobi.wasm, OPFS persistence (wimg pattern)
+- [x] `service-worker.ts` — cache-first WASM, network-first app shell
+- [x] COOP/COEP headers in vite.config.ts + `_headers` for CF Pages
+- [x] Route: `/drill` — question→answer→complete state machine, rating buttons, keyboard 1-4
+- [x] Route: `/` — dashboard with due count + card queue preview
+- [x] PWA manifest
+- [x] "Jade Garden" design system: warm cream bg, jade green primary, Lexend font
 - [ ] Deploy to Cloudflare Pages
 
 **Success criteria:** Drill L5 vocab on phone during Schwebebahn commute.

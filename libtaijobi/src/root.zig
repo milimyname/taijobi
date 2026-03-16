@@ -6,6 +6,9 @@ const db_mod = @import("db.zig");
 const fsrs_mod = @import("fsrs.zig");
 
 const Db = db_mod.Db;
+const lexicon = @import("lexicon.zig");
+const lang_mod = @import("lang.zig");
+const cedict = @import("cedict.zig");
 
 // --- Fixed buffer allocator (64MB) ---
 const FBA_SIZE = 64 * 1024 * 1024;
@@ -124,6 +127,102 @@ export fn hanzi_reset_alloc() void {
     fba.reset();
 }
 
+// === Phase 1 — Lexicon + Dictionary ===
+
+export fn hanzi_add_word(word_ptr: [*]const u8, word_len: usize) ?[*]const u8 {
+    const db = &(global_db orelse return null);
+    const word = word_ptr[0..word_len];
+    const lang_code = lexicon.addWord(db.handle, word, null, now()) catch |err| {
+        const msg = switch (err) {
+            error.WordEmpty => "word is empty",
+            error.AlreadyExists => "word already exists",
+            error.PrepareFailed => "SQL prepare failed",
+            error.StepFailed => "SQL step failed",
+            error.NotFound => "not found",
+        };
+        setError(msg);
+        return null;
+    };
+
+    // Return JSON with the added word info + enrichment
+    var w = types.JsonWriter.init(&json_buf);
+    w.writeByte('{');
+    w.writeKey("word");
+    w.writeJsonString(word);
+    w.writeByte(',');
+    w.writeKey("language");
+    w.writeJsonString(lang_code);
+    w.writeByte(',');
+    w.writeKey("status");
+    w.writeJsonString("added");
+    // Include CEDICT enrichment if Chinese
+    if (std.mem.eql(u8, lang_code, "zh")) {
+        if (cedict.lookup(word)) |entry| {
+            w.writeByte(',');
+            w.writeKey("pinyin");
+            w.writeJsonString(entry.pinyin);
+            w.writeByte(',');
+            w.writeKey("translation");
+            w.writeJsonString(entry.english);
+        }
+    }
+    w.writeByte('}');
+    return makeLengthPrefixed(w.written());
+}
+
+export fn hanzi_remove_word(id_ptr: [*]const u8, id_len: usize) i32 {
+    const db = &(global_db orelse return -1);
+    const card_id = id_ptr[0..id_len];
+    lexicon.removeWord(db.handle, card_id) catch |err| {
+        const msg = switch (err) {
+            error.PrepareFailed => "SQL prepare failed",
+            error.StepFailed => "SQL step failed",
+            error.NotFound => "word not found",
+            error.WordEmpty => "word is empty",
+            error.AlreadyExists => "already exists",
+        };
+        setError(msg);
+        return -1;
+    };
+    return 0;
+}
+
+export fn hanzi_update_word(id_ptr: [*]const u8, id_len: usize, trans_ptr: [*]const u8, trans_len: usize) i32 {
+    const db = &(global_db orelse return -1);
+    const card_id = id_ptr[0..id_len];
+    const translation = trans_ptr[0..trans_len];
+    lexicon.updateWord(db.handle, card_id, translation, now()) catch |err| {
+        const msg = switch (err) {
+            error.PrepareFailed => "SQL prepare failed",
+            error.StepFailed => "SQL step failed",
+            error.NotFound => "word not found",
+            error.WordEmpty => "word is empty",
+            error.AlreadyExists => "already exists",
+        };
+        setError(msg);
+        return -1;
+    };
+    return 0;
+}
+
+export fn hanzi_lookup(query_ptr: [*]const u8, query_len: usize) ?[*]const u8 {
+    const query = query_ptr[0..query_len];
+    const json = cedict.search(query, 20, &json_buf) orelse return null;
+    return makeLengthPrefixed(json);
+}
+
+export fn hanzi_get_lexicon() ?[*]const u8 {
+    const db = &(global_db orelse return null);
+    const json = lexicon.getLexicon(db.handle, &json_buf) orelse return null;
+    return makeLengthPrefixed(json);
+}
+
+export fn hanzi_get_drill_stats() ?[*]const u8 {
+    const db = &(global_db orelse return null);
+    const json = lexicon.getDrillStats(db.handle, now(), &json_buf) orelse return null;
+    return makeLengthPrefixed(json);
+}
+
 // === WASM-only exports ===
 
 comptime {
@@ -151,4 +250,7 @@ test {
     _ = @import("types.zig");
     _ = @import("fsrs.zig");
     _ = @import("db.zig");
+    _ = @import("lang.zig");
+    _ = @import("lexicon.zig");
+    _ = @import("cedict.zig");
 }

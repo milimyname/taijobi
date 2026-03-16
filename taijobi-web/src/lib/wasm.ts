@@ -19,6 +19,38 @@ export interface Card {
 	};
 }
 
+export interface LexiconEntry {
+	id: string;
+	word: string;
+	language: string;
+	pinyin: string | null;
+	translation: string | null;
+	context: string | null;
+	reps: number;
+	stability: number;
+}
+
+export interface DrillStats {
+	reviewed_today: number;
+	correct_today: number;
+	total_cards: number;
+	lexicon_count: number;
+}
+
+export interface AddWordResult {
+	word: string;
+	language: string;
+	status: string;
+	pinyin?: string;
+	translation?: string;
+}
+
+export interface CedictResult {
+	simplified: string;
+	pinyin: string;
+	english: string;
+}
+
 interface WasmExports {
 	memory: WebAssembly.Memory;
 	hanzi_init: (path: number) => number;
@@ -30,6 +62,12 @@ interface WasmExports {
 	hanzi_get_due_cards: (limit: number) => number;
 	hanzi_get_due_count: () => number;
 	hanzi_review_card: (id: number, idLen: number, rating: number) => number;
+	hanzi_add_word: (word: number, len: number) => number;
+	hanzi_remove_word: (id: number, len: number) => number;
+	hanzi_update_word: (id: number, idLen: number, trans: number, transLen: number) => number;
+	hanzi_lookup: (query: number, len: number) => number;
+	hanzi_get_lexicon: () => number;
+	hanzi_get_drill_stats: () => number;
 	hanzi_db_ptr: () => number;
 	hanzi_db_size: () => number;
 	hanzi_db_load: (data: number, size: number) => number;
@@ -257,6 +295,90 @@ export async function reviewCard(id: string, rating: number): Promise<number> {
 	}
 	await opfsSave();
 	return rc;
+}
+
+export async function addWord(word: string): Promise<AddWordResult> {
+	if (!wasm) throw new Error('WASM not initialized');
+	wasm.hanzi_reset_alloc();
+	const encoded = new TextEncoder().encode(word);
+	const ptr = writeBytes(encoded);
+	const resultPtr = wasm.hanzi_add_word(ptr, encoded.length);
+	if (resultPtr === 0) {
+		throw new Error(getLastError('addWord failed'));
+	}
+	const json = readLengthPrefixedString(resultPtr);
+	await opfsSave();
+	return JSON.parse(json);
+}
+
+export async function removeWord(id: string): Promise<void> {
+	if (!wasm) throw new Error('WASM not initialized');
+	wasm.hanzi_reset_alloc();
+	const encoded = new TextEncoder().encode(id);
+	const ptr = writeBytes(encoded);
+	const rc = wasm.hanzi_remove_word(ptr, encoded.length);
+	if (rc !== 0) {
+		throw new Error(getLastError('removeWord failed'));
+	}
+	await opfsSave();
+}
+
+export async function updateWord(id: string, translation: string): Promise<void> {
+	if (!wasm) throw new Error('WASM not initialized');
+	wasm.hanzi_reset_alloc();
+	const idEncoded = new TextEncoder().encode(id);
+	const idPtr = writeBytes(idEncoded);
+	const transEncoded = new TextEncoder().encode(translation);
+	const transPtr = writeBytes(transEncoded);
+	const rc = wasm.hanzi_update_word(idPtr, idEncoded.length, transPtr, transEncoded.length);
+	if (rc !== 0) {
+		throw new Error(getLastError('updateWord failed'));
+	}
+	await opfsSave();
+}
+
+export function lookupCedict(query: string): CedictResult[] {
+	if (!wasm) return [];
+	wasm.hanzi_reset_alloc();
+	const encoded = new TextEncoder().encode(query);
+	const ptr = writeBytes(encoded);
+	const resultPtr = wasm.hanzi_lookup(ptr, encoded.length);
+	if (resultPtr === 0) return [];
+	const json = readLengthPrefixedString(resultPtr);
+	try {
+		return JSON.parse(json);
+	} catch {
+		return [];
+	}
+}
+
+export function getLexicon(): LexiconEntry[] {
+	if (!wasm) return [];
+	wasm.hanzi_reset_alloc();
+	const ptr = wasm.hanzi_get_lexicon();
+	if (ptr === 0) return [];
+	const json = readLengthPrefixedString(ptr);
+	try {
+		return JSON.parse(json);
+	} catch {
+		console.error('[taijobi] Failed to parse lexicon JSON');
+		return [];
+	}
+}
+
+export function getDrillStats(): DrillStats {
+	if (!wasm) return { reviewed_today: 0, correct_today: 0, total_cards: 0, lexicon_count: 0 };
+	wasm.hanzi_reset_alloc();
+	const ptr = wasm.hanzi_get_drill_stats();
+	if (ptr === 0)
+		return { reviewed_today: 0, correct_today: 0, total_cards: 0, lexicon_count: 0 };
+	const json = readLengthPrefixedString(ptr);
+	try {
+		return JSON.parse(json);
+	} catch {
+		console.error('[taijobi] Failed to parse drill stats JSON');
+		return { reviewed_today: 0, correct_today: 0, total_cards: 0, lexicon_count: 0 };
+	}
 }
 
 export function isReady(): boolean {

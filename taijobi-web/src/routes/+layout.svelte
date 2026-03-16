@@ -21,87 +21,92 @@
 	function isActive(path: string): boolean {
 		return page.url.pathname === path;
 	}
+
+	const pageTitle = $derived(
+		page.url.pathname === '/drill'
+			? 'Drill'
+			: page.url.pathname === '/lexicon'
+				? 'Lexikon'
+				: 'Taijobi',
+	);
 </script>
 
 <svelte:head>
-	<meta name="theme-color" content="#2d6a4f" />
+	<meta name="theme-color" content="#195c37" />
 	<link rel="manifest" href="/manifest.webmanifest" />
 </svelte:head>
 
 {#if error}
-	<div class="flex min-h-screen items-center justify-center bg-bg-light text-stone-900">
-		<div class="text-center px-6">
-			<p class="text-lg font-semibold text-red-600">Failed to load</p>
-			<p class="mt-2 text-sm text-stone-500">{error}</p>
+	<div class="flex min-h-screen items-center justify-center bg-bg-light text-slate-900">
+		<div class="px-6 text-center">
+			<p class="text-lg font-semibold text-red-600">Laden fehlgeschlagen</p>
+			<p class="mt-2 text-sm text-slate-500">{error}</p>
 		</div>
 	</div>
 {:else if !ready}
 	<div class="flex min-h-screen items-center justify-center bg-bg-light">
-		<p class="text-lg text-stone-400 font-medium">Loading...</p>
+		<p class="text-lg font-medium text-slate-400">Laden...</p>
 	</div>
 {:else}
-	<div class="relative mx-auto flex min-h-screen max-w-md flex-col bg-bg-light">
+	<div class="relative mx-auto flex min-h-screen max-w-[768px] flex-col bg-bg-light shadow-sm">
 		<!-- Header -->
 		<header
-			class="sticky top-0 z-10 flex items-center justify-between border-b border-border-subtle bg-bg-light/80 px-6 py-4 backdrop-blur-md"
+			class="sticky top-0 z-10 flex items-center justify-between border-b border-primary/10 bg-bg-light/80 px-4 py-4 backdrop-blur-md"
 		>
-			<div class="flex flex-col">
-				<span class="text-[10px] font-bold uppercase tracking-[0.15em] text-stone-400"
-					>TAIJOBI</span
-				>
-				<h2 class="text-xl font-semibold tracking-tight">
-					{page.url.pathname === '/drill' ? 'Review' : 'Today'}
-				</h2>
-			</div>
 			<div class="flex items-center gap-3">
-				<button
-					class="flex size-9 items-center justify-center rounded-full bg-stone-100 text-stone-600"
+				<div
+					class="flex size-10 items-center justify-center overflow-hidden rounded-full border border-primary/20 bg-primary/10"
 				>
-					<span class="material-symbols-outlined text-[20px]">search</span>
-				</button>
+					<span class="material-symbols-outlined text-primary">person</span>
+				</div>
+				<div>
+					<p class="text-xs font-medium uppercase tracking-wider text-slate-500">Dashboard</p>
+					<h2 class="text-lg font-bold leading-tight text-slate-900">{pageTitle}</h2>
+				</div>
 			</div>
+			<button
+				class="rounded-full p-2 text-slate-600 transition-colors hover:bg-slate-100"
+			>
+				<span class="material-symbols-outlined">notifications</span>
+			</button>
 		</header>
 
 		<!-- Main Content -->
-		<main class="flex-1 overflow-y-auto px-6 pb-24">
+		<main class="flex-1 overflow-y-auto px-4 pb-24">
 			{@render children()}
 		</main>
 
-		<!-- Bottom Navigation -->
+		<!-- Bottom Navigation — 3 tabs -->
 		<nav
-			class="fixed bottom-0 left-0 right-0 z-20 mx-auto max-w-md border-t border-border-subtle bg-bg-light/95 px-6 pb-6 pt-3 backdrop-blur-xl"
+			class="fixed bottom-0 left-0 right-0 z-20 mx-auto max-w-[768px] border-t border-primary/10 bg-bg-light/80 px-6 pb-6 pt-2 backdrop-blur-md"
 		>
 			<div class="flex items-center justify-between">
 				<a
 					href="/"
-					class="flex flex-col items-center gap-1.5 {isActive('/') ? 'text-primary' : 'text-stone-400 hover:text-primary'} transition-colors"
+					class="flex flex-col items-center gap-1 {isActive('/') ? 'text-primary' : 'text-slate-400 hover:text-primary'} transition-colors"
 				>
-					<span class="material-symbols-outlined {isActive('/') ? 'active-icon' : ''}">home</span
+					<span class="material-symbols-outlined {isActive('/') ? 'active-icon' : ''}"
+						>home</span
 					>
-					<span class="text-[10px] font-bold uppercase tracking-wide">Today</span>
+					<span class="text-[10px] font-bold uppercase tracking-wider">Start</span>
 				</a>
 				<a
 					href="/drill"
-					class="flex flex-col items-center gap-1.5 {isActive('/drill') ? 'text-primary' : 'text-stone-400 hover:text-primary'} transition-colors"
+					class="flex flex-col items-center gap-1 {isActive('/drill') ? 'text-primary' : 'text-slate-400 hover:text-primary'} transition-colors"
 				>
 					<span class="material-symbols-outlined {isActive('/drill') ? 'active-icon' : ''}"
-						>auto_stories</span
+						>style</span
 					>
-					<span class="text-[10px] font-bold uppercase tracking-wide">Review</span>
+					<span class="text-[10px] font-bold uppercase tracking-wider">&Uuml;ben</span>
 				</a>
 				<a
-					href="/"
-					class="flex flex-col items-center gap-1.5 text-stone-400 hover:text-primary transition-colors"
+					href="/lexicon"
+					class="flex flex-col items-center gap-1 {isActive('/lexicon') ? 'text-primary' : 'text-slate-400 hover:text-primary'} transition-colors"
 				>
-					<span class="material-symbols-outlined">analytics</span>
-					<span class="text-[10px] font-bold uppercase tracking-wide">Insights</span>
-				</a>
-				<a
-					href="/"
-					class="flex flex-col items-center gap-1.5 text-stone-400 hover:text-primary transition-colors"
-				>
-					<span class="material-symbols-outlined">settings</span>
-					<span class="text-[10px] font-bold uppercase tracking-wide">Settings</span>
+					<span class="material-symbols-outlined {isActive('/lexicon') ? 'active-icon' : ''}"
+						>more_horiz</span
+					>
+					<span class="text-[10px] font-bold uppercase tracking-wider">Mehr</span>
 				</a>
 			</div>
 		</nav>

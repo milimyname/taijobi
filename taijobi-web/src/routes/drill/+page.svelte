@@ -63,98 +63,125 @@
 		>
 			<span class="material-symbols-outlined text-[32px]">check_circle</span>
 		</div>
-		<p class="mt-4 text-2xl font-bold text-stone-900">Session Complete</p>
-		<p class="mt-2 text-sm text-stone-500">{reviewed} cards reviewed</p>
+		<p class="mt-4 text-2xl font-bold text-slate-900">Sitzung abgeschlossen</p>
+		<p class="mt-2 text-sm text-slate-500">{reviewed} Karten gelernt</p>
 		<a
 			href="/"
 			class="mt-8 rounded-lg bg-primary px-8 py-3 font-semibold text-white shadow-md shadow-primary/20 transition-all hover:bg-primary/90"
 		>
-			Back to Dashboard
+			Zur&uuml;ck zum Start
 		</a>
 	</div>
 {:else if card}
-	<!-- Progress -->
-	<div class="mb-6 mt-4 flex items-center gap-3">
-		<div class="h-2 flex-1 overflow-hidden rounded-full bg-stone-200/50">
-			<div
-				class="h-full rounded-full bg-primary transition-all"
-				style="width: {((index) / total) * 100}%"
-			></div>
-		</div>
-		<span class="text-[11px] font-bold text-stone-400">{index + 1}/{total}</span>
+	<!-- Progress counter -->
+	<div class="mb-8 mt-4 text-center">
+		<p class="text-lg font-bold text-slate-900">{index + 1} / {total}</p>
 	</div>
 
 	<!-- Card -->
-	<div
-		class="flex flex-col items-center rounded-xl border border-border-subtle bg-white p-8 shadow-sm"
-	>
-		<p class="chinese-char text-6xl font-light text-stone-900">{card.word}</p>
-		{#if card.pinyin}
-			<p class="mt-3 text-lg text-stone-400">{card.pinyin}</p>
-		{/if}
-
-		{#if phase === 'question'}
-			<input
-				type="text"
-				bind:value={input}
-				placeholder="Translation..."
-				class="mt-8 w-full rounded-lg border border-border-subtle bg-surface px-4 py-3 text-center text-stone-900 placeholder-stone-400 outline-none focus:border-primary"
-			/>
-			<button
-				onclick={reveal}
-				class="mt-4 w-full rounded-lg border border-border-subtle bg-stone-50 py-3 font-medium text-stone-600 transition-colors hover:bg-stone-100"
-			>
-				Show Answer
-			</button>
-		{:else}
-			<!-- Answer revealed -->
-			<div class="mt-8 w-full rounded-lg border border-border-subtle bg-surface px-6 py-4 text-center">
-				<p class="text-lg font-semibold text-stone-900">{card.translation ?? '—'}</p>
-				{#if input}
-					<p class="mt-2 text-sm text-stone-400">You typed: {input}</p>
+	<div class="flex flex-col items-center justify-center">
+		<div class="mb-8 text-center">
+			{#if card.language === 'zh'}
+				<h1 class="chinese-char mb-2 text-6xl font-bold tracking-tight text-slate-900">
+					{card.word}
+				</h1>
+				{#if card.pinyin}
+					<div class="flex items-center justify-center gap-3">
+						<p class="text-lg font-medium text-primary">{card.pinyin}</p>
+					</div>
 				{/if}
-			</div>
+			{:else}
+				<h1 class="mb-2 text-4xl font-bold tracking-tight text-slate-900">{card.word}</h1>
+			{/if}
+		</div>
 
-			<!-- Rating buttons -->
-			<div class="mt-6 grid w-full grid-cols-4 gap-2">
+		<!-- Input area -->
+		<div class="w-full max-w-md space-y-4">
+			{#if phase === 'question'}
+				<div class="relative">
+					<input
+						type="text"
+						bind:value={input}
+						placeholder="&Uuml;bersetzung eingeben..."
+						class="h-14 w-full rounded-xl border-2 border-primary bg-primary-light text-center text-lg text-slate-900 placeholder-primary/60 outline-none focus:ring-2 focus:ring-primary"
+					/>
+				</div>
 				<button
-					onclick={() => rate(1)}
-					class="flex flex-col items-center rounded-lg border border-red-200 bg-red-50 py-3 text-red-700 transition-colors hover:bg-red-100"
+					onclick={reveal}
+					class="h-14 w-full rounded-xl bg-primary text-lg font-bold text-white transition-all hover:opacity-90 active:scale-[0.98]"
 				>
-					<span class="text-sm font-semibold">Again</span>
-					<span class="text-[10px] font-bold text-red-400">{formatInterval(card.intervals.again)}</span>
+					Pr&uuml;fen
 				</button>
-				<button
-					onclick={() => rate(2)}
-					class="flex flex-col items-center rounded-lg border border-orange-200 bg-orange-50 py-3 text-orange-700 transition-colors hover:bg-orange-100"
+			{:else}
+				<!-- Answer revealed -->
+				<div
+					class="flex w-full items-stretch overflow-hidden rounded-xl border-2 border-primary bg-white"
 				>
-					<span class="text-sm font-semibold">Hard</span>
-					<span class="text-[10px] font-bold text-orange-400"
-						>{formatInterval(card.intervals.hard)}</span
+					<div class="flex-1 p-4 text-xl font-semibold text-primary">
+						{card.translation ?? '—'}
+					</div>
+					<div class="flex items-center bg-primary/5 px-4 text-primary">
+						<span class="material-symbols-outlined text-3xl font-bold">check_circle</span>
+					</div>
+				</div>
+
+				{#if input}
+					<p class="text-center text-sm text-slate-400">
+						Deine Antwort: <span class="font-medium">{input}</span>
+					</p>
+				{/if}
+
+				<!-- Rating buttons -->
+				<div class="mt-6 grid w-full grid-cols-4 gap-3">
+					<button
+						onclick={() => rate(1)}
+						class="flex flex-col items-center justify-center rounded-xl border border-red-200 bg-red-50 py-4 transition-all hover:brightness-95"
 					>
-				</button>
-				<button
-					onclick={() => rate(3)}
-					class="flex flex-col items-center rounded-lg border border-primary/20 bg-primary-light/50 py-3 text-primary transition-colors hover:bg-primary-light"
-				>
-					<span class="text-sm font-semibold">Good</span>
-					<span class="text-[10px] font-bold text-accent"
-						>{formatInterval(card.intervals.good)}</span
+						<span class="text-sm font-bold uppercase tracking-tighter text-red-700"
+							>Nochmal</span
+						>
+						<span class="mt-1 text-xs text-red-500"
+							>{formatInterval(card.intervals.again)}</span
+						>
+					</button>
+					<button
+						onclick={() => rate(2)}
+						class="flex flex-col items-center justify-center rounded-xl border border-amber-200 bg-amber-50 py-4 transition-all hover:brightness-95"
 					>
-				</button>
-				<button
-					onclick={() => rate(4)}
-					class="flex flex-col items-center rounded-lg border border-blue-200 bg-blue-50 py-3 text-blue-700 transition-colors hover:bg-blue-100"
-				>
-					<span class="text-sm font-semibold">Easy</span>
-					<span class="text-[10px] font-bold text-blue-400"
-						>{formatInterval(card.intervals.easy)}</span
+						<span class="text-sm font-bold uppercase tracking-tighter text-amber-700"
+							>Schwer</span
+						>
+						<span class="mt-1 text-xs text-amber-500"
+							>{formatInterval(card.intervals.hard)}</span
+						>
+					</button>
+					<button
+						onclick={() => rate(3)}
+						class="flex flex-col items-center justify-center rounded-xl border border-green-200 bg-green-50 py-4 transition-all hover:brightness-95"
 					>
-				</button>
-			</div>
-			<p class="mt-3 text-center text-[10px] font-medium uppercase tracking-wider text-stone-400">
-				Keyboard: 1-4
-			</p>
-		{/if}
+						<span class="text-sm font-bold uppercase tracking-tighter text-green-700">Gut</span>
+						<span class="mt-1 text-xs text-green-500"
+							>{formatInterval(card.intervals.good)}</span
+						>
+					</button>
+					<button
+						onclick={() => rate(4)}
+						class="flex flex-col items-center justify-center rounded-xl border-2 border-primary bg-white py-4 transition-all hover:bg-primary/5"
+					>
+						<span class="text-sm font-bold uppercase tracking-tighter text-primary"
+							>Einfach</span
+						>
+						<span class="mt-1 text-xs text-primary/70"
+							>{formatInterval(card.intervals.easy)}</span
+						>
+					</button>
+				</div>
+				<p
+					class="mt-3 text-center text-[10px] font-medium uppercase tracking-wider text-slate-400"
+				>
+					Tastatur: 1-4
+				</p>
+			{/if}
+		</div>
 	</div>
 {/if}

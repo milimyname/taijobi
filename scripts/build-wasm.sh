@@ -3,6 +3,10 @@ set -euo pipefail
 
 # Build libtaijobi for WASM
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+
+# Ensure CEDICT binary exists (downloads if needed)
+"$ROOT/scripts/build-cedict.sh"
+
 cd "$ROOT/libtaijobi"
 
 echo "=== Building libtaijobi.wasm ==="

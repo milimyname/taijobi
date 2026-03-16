@@ -11,6 +11,9 @@ zig-cache
 # WASM (built artifact — regenerate with scripts/build-wasm.sh)
 taijobi-web/static/libtaijobi.wasm
 
+# CEDICT binary (built artifact — regenerate with scripts/compile-cedict.py)
+libtaijobi/src/cedict.bin
+
 # OS
 .DS_Store
 Thumbs.db
