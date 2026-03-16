@@ -11,11 +11,11 @@ const ScheduleOutput = types.ScheduleOutput;
 
 // FSRS-5 default parameters (17 values)
 const w = [17]f64{
-    0.40255, 1.18385, 3.173,   15.69105, // w0-w3: initial stability per rating
-    7.1949,  0.5345,  1.4604, // w4-w6: initial difficulty
-    0.0046,  1.54575, 0.1192, 0.5058, // w7-w10: stability after success
-    1.86210, 0.1597,  0.4200, // w11-w13: stability after forget
-    2.18940, 0.0275,  0.4606, // w14-w16: short-term stability
+    0.40255, 1.18385, 3.173, 15.69105, // w0-w3: initial stability per rating
+    7.1949, 0.5345, 1.4604, // w4-w6: initial difficulty
+    0.0046, 1.54575, 0.1192, 0.5058, // w7-w10: stability after success
+    1.86210, 0.1597, 0.4200, // w11-w13: stability after forget
+    2.18940, 0.0275, 0.4606, // w14-w16: short-term stability
 };
 
 const DECAY: f64 = -0.5;
