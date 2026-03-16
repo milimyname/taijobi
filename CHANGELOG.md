@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.4 (2026-03-16)
+
+- fix: rename worker to taijobi, fix release artifact path
+
 ## v0.2.3 (2026-03-16)
 
 - Version bump
