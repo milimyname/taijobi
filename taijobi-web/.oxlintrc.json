@@ -1,0 +1,38 @@
+{
+	"$schema": "./node_modules/oxlint/configuration_schema.json",
+	"plugins": ["typescript", "unicorn"],
+	"categories": {
+		"correctness": "warn",
+		"suspicious": "warn"
+	},
+	"env": {
+		"builtin": true,
+		"browser": true,
+		"node": true
+	},
+	"ignorePatterns": [
+		"**/node_modules",
+		".svelte-kit",
+		"build",
+		"**/.wrangler",
+		"worker-configuration.d.ts"
+	],
+	"overrides": [
+		{
+			"files": ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
+			"rules": {
+				"no-var": "error",
+				"prefer-const": "error",
+				"prefer-rest-params": "error",
+				"prefer-spread": "error"
+			}
+		},
+		{
+			"files": ["**/*.svelte"],
+			"rules": {
+				"no-inner-declarations": "off",
+				"no-self-assign": "off"
+			}
+		}
+	]
+}

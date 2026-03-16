@@ -1,0 +1,139 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: mlugg/setup-zig@v2
+        with:
+          version: 0.15.2
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Download SQLite amalgamation
+        working-directory: libtaijobi/vendor
+        run: |
+          curl -fsSL https://www.sqlite.org/2026/sqlite-amalgamation-3520000.zip -o sqlite.zip
+          unzip -o sqlite.zip
+          cp sqlite-amalgamation-3520000/sqlite3.c sqlite3.c
+          cp sqlite-amalgamation-3520000/sqlite3.h sqlite3.h
+
+      - name: Zig fmt check
+        working-directory: libtaijobi
+        run: zig fmt --check src/
+
+      - name: Zig tests
+        working-directory: libtaijobi
+        run: zig build test
+
+      - name: Install web dependencies
+        working-directory: taijobi-web
+        run: bun install --frozen-lockfile
+
+      - name: oxfmt check
+        working-directory: taijobi-web
+        run: bunx oxfmt --check
+
+      - name: oxlint
+        working-directory: taijobi-web
+        run: bunx oxlint
+
+      - name: svelte-check
+        working-directory: taijobi-web
+        run: bun run check
+
+  build-and-deploy-web:
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: mlugg/setup-zig@v2
+        with:
+          version: 0.15.2
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Download SQLite amalgamation
+        working-directory: libtaijobi/vendor
+        run: |
+          curl -fsSL https://www.sqlite.org/2026/sqlite-amalgamation-3520000.zip -o sqlite.zip
+          unzip -o sqlite.zip
+          cp sqlite-amalgamation-3520000/sqlite3.c sqlite3.c
+          cp sqlite-amalgamation-3520000/sqlite3.h sqlite3.h
+
+      - name: Build WASM
+        run: ./scripts/build-wasm.sh
+
+      - name: Upload WASM artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: libtaijobi-wasm
+          path: taijobi-web/static/libtaijobi.wasm
+
+      - name: Install web dependencies
+        working-directory: taijobi-web
+        run: bun install --frozen-lockfile
+
+      - name: Build web
+        working-directory: taijobi-web
+        run: bun run build
+
+      - name: Deploy to Cloudflare Pages
+        working-directory: taijobi-web
+        run: bunx wrangler pages deploy .svelte-kit/cloudflare --project-name taijobi-web --branch main
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+  release:
+    needs: build-and-deploy-web
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: artifacts
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+
+          PREV_TAG=""
+          for t in $(git tag -l --sort=-v:refname | tail -n +2); do
+            if gh release view "$t" --json tagName >/dev/null 2>&1; then
+              PREV_TAG="$t"
+              break
+            fi
+          done
+
+          if [ -n "$PREV_TAG" ]; then
+            NOTES=$(git log --pretty=format:"- %s" "$PREV_TAG"..HEAD \
+              | grep -vE '^- (release|chore|ci|build): ' || echo "- Version bump")
+          else
+            NOTES=$(git log --pretty=format:"- %s" HEAD~20..HEAD \
+              | grep -vE '^- (release|chore|ci|build): ' || echo "- Version bump")
+          fi
+
+          echo "$NOTES" > release-notes.md
+
+          gh release create "$TAG" \
+            --title "$TAG" \
+            --notes-file release-notes.md \
+            artifacts/libtaijobi-wasm/taijobi-web/static/libtaijobi.wasm
