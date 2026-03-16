@@ -1,6 +1,6 @@
 {
 	"$schema": "./node_modules/wrangler/config-schema.json",
-	"name": "my-app",
+	"name": "taijobi",
 	"compatibility_date": "2026-03-16",
 	"compatibility_flags": ["nodejs_als"],
 	"main": ".svelte-kit/cloudflare/_worker.js",
@@ -10,4 +10,8 @@
 	},
 	"workers_dev": true,
 	"preview_urls": true
+	// To connect taijobi.com:
+	// 1. Add taijobi.com as a zone in Cloudflare dashboard
+	// 2. Update nameservers at your registrar to Cloudflare's
+	// 3. Uncomment: "custom_domains": ["taijobi.com"]
 }

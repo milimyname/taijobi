@@ -139,7 +139,16 @@ jobs:
 
           echo "$NOTES" > release-notes.md
 
-          gh release create "$TAG" \
-            --title "$TAG" \
-            --notes-file release-notes.md \
-            artifacts/libtaijobi-wasm/taijobi-web/static/libtaijobi.wasm
+          # Find the WASM artifact wherever download-artifact placed it
+          WASM=$(find artifacts -name 'libtaijobi.wasm' -type f | head -1)
+          if [ -z "$WASM" ]; then
+            echo "Warning: WASM artifact not found, creating release without it"
+            gh release create "$TAG" \
+              --title "$TAG" \
+              --notes-file release-notes.md
+          else
+            gh release create "$TAG" \
+              --title "$TAG" \
+              --notes-file release-notes.md \
+              "$WASM"
+          fi
