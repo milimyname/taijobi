@@ -28,6 +28,9 @@ jobs:
           cp sqlite-amalgamation-3520000/sqlite3.c sqlite3.c
           cp sqlite-amalgamation-3520000/sqlite3.h sqlite3.h
 
+      - name: Build CEDICT binary
+        run: ./scripts/build-cedict.sh
+
       - name: Zig fmt check
         working-directory: libtaijobi
         run: zig fmt --check src/
@@ -89,9 +92,9 @@ jobs:
         working-directory: taijobi-web
         run: bun run build
 
-      - name: Deploy to Cloudflare Pages
+      - name: Deploy to Cloudflare Workers
         working-directory: taijobi-web
-        run: bunx wrangler pages deploy .svelte-kit/cloudflare --project-name taijobi-web --branch main
+        run: bunx wrangler deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
