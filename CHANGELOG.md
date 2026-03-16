@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.0 (2026-03-16)
+
+- style: fix zig fmt in fsrs.zig
+
 ## v0.1.1 (2026-03-16)
 
 - feat: disable SSR, run as client-side SPA
