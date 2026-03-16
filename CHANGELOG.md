@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.2 (2026-03-16)
+
+- Version bump
+
 ## v0.2.1 (2026-03-16)
 
 - style: fix oxfmt formatting
