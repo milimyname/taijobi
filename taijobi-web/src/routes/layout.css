@@ -1,1 +1,43 @@
 @import 'tailwindcss';
+
+@theme {
+	--color-primary: #2d6a4f;
+	--color-accent: #52b788;
+	--color-primary-light: #d8f3dc;
+	--color-bg-light: #fdfaf1;
+	--color-bg-dark: #1a1c1a;
+	--color-surface: #f7f2e4;
+	--color-border-subtle: #e7e0d3;
+	--font-display: 'Lexend', 'Inter', sans-serif;
+}
+
+body {
+	min-height: 100dvh;
+}
+
+.material-symbols-outlined {
+	font-variation-settings:
+		'FILL' 0,
+		'wght' 300,
+		'GRAD' 0,
+		'opsz' 24;
+	font-size: 22px;
+}
+
+.active-icon {
+	font-variation-settings:
+		'FILL' 1,
+		'wght' 400;
+}
+
+.chinese-char {
+	font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+	display: none;
+}
+.no-scrollbar {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}

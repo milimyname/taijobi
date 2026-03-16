@@ -63,6 +63,34 @@ Inspired by libghostty and libwimg: the library is the product.
 
 ---
 
+## Design System — "Jade Garden"
+
+| Token | Light | Dark | Usage |
+|-------|-------|------|-------|
+| `primary` | `#2d6a4f` | `#2d6a4f` | Buttons, active nav, progress bars, links |
+| `accent` | `#52b788` | `#52b788` | Secondary actions, hover states, icon tints |
+| `primary-light` | `#d8f3dc` | — | Light jade tint backgrounds, badges |
+| `background` | `#fdfaf1` (warm cream) | `#1a1c1a` (deep green-black) | Page background |
+| `surface` | `#ffffff` / `#f7f2e4` | `white/5` / `stone-900/40` | Cards, inputs |
+| `border` | `stone-200/60` / `#e7e0d3` | `stone-800` / `emerald-800/20` | Card borders |
+| `text-primary` | `stone-900` | `stone-100` | Headings |
+| `text-secondary` | `stone-500` | `stone-400` | Body text, descriptions |
+| `text-muted` | `stone-400` | `stone-500` | Labels, timestamps |
+
+**Fonts:** Inter (UI), Lexend (display/headings), PingFang SC fallback (Chinese chars)
+
+**Key patterns:**
+- Warm cream background (`#fdfaf1`), not pure white
+- Cards: `bg-white dark:bg-white/5 border border-primary/5 rounded-xl shadow-sm shadow-primary/5`
+- Bottom nav: fixed, backdrop-blur, 4 tabs (Today/Library/Insights/Settings)
+- Progress bars: `bg-primary h-2 rounded-full`
+- Chinese characters: `text-4xl font-light` in cards, `text-6xl` in drill
+- Buttons: `bg-primary text-white font-semibold rounded-lg shadow-md shadow-primary/20`
+- Section headings: `text-[11px] font-bold uppercase tracking-[0.2em] text-stone-400`
+- Material Symbols Outlined icons (weight 300, no fill by default)
+
+---
+
 ## Detailed Documentation
 
 Split into `.claude/rules/` for context efficiency:

@@ -5,6 +5,11 @@ node_modules
 zig-out
 zig-cache
 .zig-cache
+.svelte-kit
+.wrangler
+
+# WASM (built artifact — regenerate with scripts/build-wasm.sh)
+taijobi-web/static/libtaijobi.wasm
 
 # OS
 .DS_Store
