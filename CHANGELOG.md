@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.1 (2026-03-16)
+
+- feat: disable SSR, run as client-side SPA
+- docs: update CLAUDE.md for Phase 1 completion
+- feat: Phase 1 — Personal Lexicon + CEDICT + Multi-Language
+
 ## v0.1.0 (2026-03-16)
 
 - feat: Phase 0 — Zig core + FSRS + Drill MVP
