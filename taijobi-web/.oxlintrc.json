@@ -15,7 +15,8 @@
 		".svelte-kit",
 		"build",
 		"**/.wrangler",
-		"worker-configuration.d.ts"
+		"worker-configuration.d.ts",
+		"src/app.d.ts"
 	],
 	"overrides": [
 		{
