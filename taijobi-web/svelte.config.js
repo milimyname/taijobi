@@ -9,6 +9,9 @@ const config = {
 		},
 		prerender: {
 			handleUnseenRoutes: 'ignore'
+		},
+		version: {
+			pollInterval: 5 * 60 * 1000
 		}
 	},
 	vitePlugin: {

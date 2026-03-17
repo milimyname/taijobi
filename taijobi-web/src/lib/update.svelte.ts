@@ -73,6 +73,7 @@ class UpdateStore {
 			}
 		});
 
+
 		navigator.serviceWorker.addEventListener('controllerchange', () => {
 			setLastVersion(APP_VERSION);
 			const overlay = document.createElement('div');
