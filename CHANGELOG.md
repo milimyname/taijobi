@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.4.0 (2026-03-17)
+
+- feat: Phase 3 — Deep Chinese Features
+- docs: update CLAUDE.md for Phase 2 completion
+
 ## v0.3.0 (2026-03-17)
 
 - feat: Phase 2 — Content Packs + Drill Filter + Update System
