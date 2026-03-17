@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.4.3 (2026-03-18)
+
+- feat: poll for app updates every 5 minutes via SvelteKit version config
+
 ## v0.4.2 (2026-03-18)
 
 - fix: ignore unseen dynamic routes in prerender
