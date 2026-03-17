@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.4.2 (2026-03-18)
+
+- fix: ignore unseen dynamic routes in prerender
+
 ## v0.4.1 (2026-03-18)
 
 - style: fix oxfmt formatting in wasm.ts
