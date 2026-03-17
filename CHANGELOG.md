@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.3.0 (2026-03-17)
+
+- feat: Phase 2 — Content Packs + Drill Filter + Update System
+
 ## v0.2.4 (2026-03-16)
 
 - fix: rename worker to taijobi, fix release artifact path
