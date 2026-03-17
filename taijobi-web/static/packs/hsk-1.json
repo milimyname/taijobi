@@ -1,0 +1,800 @@
+{
+	"id": "hsk-1",
+	"name": "HSK 1",
+	"version": 1,
+	"language_pair": "zh-en",
+	"lessons": [
+		{
+			"id": "hsk-1-01",
+			"title": "HSK 1 - Teil 1",
+			"sort_order": 1,
+			"vocabulary": [
+				{
+					"word": "爱",
+					"pinyin": "ài",
+					"translation": "to love; to be fond of; to like; affection; to be inclined (to do sth); to tend to (happen)"
+				},
+				{
+					"word": "八",
+					"pinyin": "bā",
+					"translation": "eight; 8"
+				},
+				{
+					"word": "爸爸",
+					"pinyin": "bà ba",
+					"translation": "(coll.) father; dad"
+				},
+				{
+					"word": "杯子",
+					"pinyin": "bēi zi",
+					"translation": "cup; glass"
+				},
+				{
+					"word": "北京",
+					"pinyin": "Běi jīng",
+					"translation": "Beijing, capital of the People's Republic of China"
+				},
+				{
+					"word": "本",
+					"pinyin": "běn",
+					"translation": "root; stem; origin; source; this; the current; original; inherent; originally; classifier for books, periodicals, files etc"
+				},
+				{
+					"word": "不",
+					"pinyin": "bù",
+					"translation": "no; not so; (bound form) not; un-"
+				},
+				{
+					"word": "不客气",
+					"pinyin": "bù kè qi",
+					"translation": "you're welcome; don't mention it; impolite; rude; blunt"
+				},
+				{
+					"word": "菜",
+					"pinyin": "cài",
+					"translation": "dish (type of food); vegetable; cuisine; (coll.) (one's) type; (of one's skills etc) weak; poor"
+				},
+				{
+					"word": "茶",
+					"pinyin": "chá",
+					"translation": "tea; tea plant"
+				},
+				{
+					"word": "吃",
+					"pinyin": "chī",
+					"translation": "to eat; to consume; to eat at (a cafeteria etc); to eradicate; to destroy; to absorb; to suffer (shock, injury, defeat etc)"
+				},
+				{
+					"word": "出租车",
+					"pinyin": "chū zū chē",
+					"translation": "taxi; (Tw) rental car"
+				},
+				{
+					"word": "打电话",
+					"pinyin": "dǎ diàn huà",
+					"translation": "to make a telephone call"
+				},
+				{
+					"word": "大",
+					"pinyin": "dà",
+					"translation": "big; large; great; older (than another person); eldest (as in 姐); greatly; freely; fully; (dialect) father; (dialect) uncle (father's brother)"
+				},
+				{
+					"word": "的",
+					"pinyin": "de",
+					"translation": "of; ~'s (possessive particle); (used after an attribute); (used to form a nominal expression); (used at the end of a declarative sentence for emphasis); also pr. [dì] or [di] in poetry and songs"
+				},
+				{
+					"word": "点",
+					"pinyin": "diǎn",
+					"translation": "point; dot; drop; speck; o'clock; point (in space or time); to draw a dot; to check on a list; to choose; to order (food in a restaurant); to touch briefly; to hint; to light; to ignite; to pour a liquid drop by drop; (old) one fifth of a two-hour watch 更; dot stroke in Chinese characters; classifier for items"
+				},
+				{
+					"word": "电脑",
+					"pinyin": "diàn nǎo",
+					"translation": "computer"
+				},
+				{
+					"word": "电视",
+					"pinyin": "diàn shì",
+					"translation": "television; TV"
+				},
+				{
+					"word": "电影",
+					"pinyin": "diàn yǐng",
+					"translation": "movie; film"
+				},
+				{
+					"word": "东西",
+					"pinyin": "dōng xī",
+					"translation": "east and west"
+				},
+				{
+					"word": "都",
+					"pinyin": "Dū",
+					"translation": "surname Du"
+				},
+				{
+					"word": "读",
+					"pinyin": "dòu",
+					"translation": "comma; phrase marked by pause"
+				},
+				{
+					"word": "对不起",
+					"pinyin": "duì bu qǐ",
+					"translation": "I'm sorry; excuse me; I beg your pardon; to let (sb) down; to disappoint"
+				},
+				{
+					"word": "多",
+					"pinyin": "duō",
+					"translation": "many; much; too many; in excess; (after a numeral) ... odd; how (to what extent) (Taiwan pr. [duó]); (bound form) multi-; poly-"
+				},
+				{
+					"word": "多少",
+					"pinyin": "duō shǎo",
+					"translation": "number; amount; somewhat"
+				}
+			]
+		},
+		{
+			"id": "hsk-1-02",
+			"title": "HSK 1 - Teil 2",
+			"sort_order": 2,
+			"vocabulary": [
+				{
+					"word": "儿子",
+					"pinyin": "ér zi",
+					"translation": "son"
+				},
+				{
+					"word": "二",
+					"pinyin": "èr",
+					"translation": "two; 2; (Beijing dialect) stupid"
+				},
+				{
+					"word": "饭馆",
+					"pinyin": "fàn guǎn",
+					"translation": "restaurant"
+				},
+				{
+					"word": "飞机",
+					"pinyin": "fēi jī",
+					"translation": "airplane"
+				},
+				{
+					"word": "分钟",
+					"pinyin": "fēn zhōng",
+					"translation": "minute"
+				},
+				{
+					"word": "高兴",
+					"pinyin": "gāo xìng",
+					"translation": "happy; glad; willing (to do sth); in a cheerful mood"
+				},
+				{
+					"word": "个",
+					"pinyin": "gě",
+					"translation": "used in 自个儿"
+				},
+				{
+					"word": "工作",
+					"pinyin": "gōng zuò",
+					"translation": "to work; (of a machine) to operate; job; work; task"
+				},
+				{
+					"word": "狗",
+					"pinyin": "gǒu",
+					"translation": "dog"
+				},
+				{
+					"word": "汉语",
+					"pinyin": "Hàn yǔ",
+					"translation": "Chinese language"
+				},
+				{
+					"word": "好",
+					"pinyin": "hǎo",
+					"translation": "good; appropriate; proper; all right!; (before a verb) easy to; (before a verb) good to; (before an adjective for exclamatory effect) so; (verb complement indicating completion); (of two people) close; on intimate terms; (after a personal pronoun) hello"
+				},
+				{
+					"word": "喝",
+					"pinyin": "hē",
+					"translation": "to drink; variant of 嗬"
+				},
+				{
+					"word": "和",
+					"pinyin": "hé",
+					"translation": "old variant of 和"
+				},
+				{
+					"word": "很",
+					"pinyin": "hěn",
+					"translation": "(adverb of degree); quite; very; awfully"
+				},
+				{
+					"word": "后面",
+					"pinyin": "hòu mian",
+					"translation": "the back; the rear; the last bit; behind; near the end; at the back; later; afterwards"
+				},
+				{
+					"word": "回",
+					"pinyin": "huí",
+					"translation": "to circle; to go back; to turn around; to answer; to return; to revolve; Hui ethnic group (Chinese Muslims); time; classifier for acts of a play; section or chapter (of a classic book)"
+				},
+				{
+					"word": "会",
+					"pinyin": "huì",
+					"translation": "can; to have the skill; to know how to; to be likely to; to be sure to; to meet; to get together; meeting; gathering; (suffix) union; group; association; (bound form) a moment (Taiwan pr. [huǐ])"
+				},
+				{
+					"word": "火车站",
+					"pinyin": "huǒ chē zhàn",
+					"translation": "train station"
+				},
+				{
+					"word": "几",
+					"pinyin": "jī",
+					"translation": "small table"
+				},
+				{
+					"word": "家",
+					"pinyin": "jiā",
+					"translation": "used in 家伙 and 家俱"
+				},
+				{
+					"word": "叫",
+					"pinyin": "jiào",
+					"translation": "to shout; to call; to order; to ask; to be called; by (indicates agent in the passive mood)"
+				},
+				{
+					"word": "今天",
+					"pinyin": "jīn tiān",
+					"translation": "today; at the present; now"
+				},
+				{
+					"word": "九",
+					"pinyin": "jiǔ",
+					"translation": "nine; 9"
+				},
+				{
+					"word": "开",
+					"pinyin": "kāi",
+					"translation": "to open (transitive or intransitive); (of ships, vehicles, troops etc) to start; to turn on; to put in operation; to operate; to run; to boil; to write out (a prescription, check, invoice etc); (directional complement) away; off; carat (gold); abbr. for Kelvin, 开尔文; abbr. for 开本, book format"
+				},
+				{
+					"word": "看",
+					"pinyin": "kān",
+					"translation": "to look after; to take care of; to watch; to guard"
+				}
+			]
+		},
+		{
+			"id": "hsk-1-03",
+			"title": "HSK 1 - Teil 3",
+			"sort_order": 3,
+			"vocabulary": [
+				{
+					"word": "看见",
+					"pinyin": "kàn jiàn",
+					"translation": "to see; to catch sight of"
+				},
+				{
+					"word": "块",
+					"pinyin": "kuài",
+					"translation": "lump; chunk; piece; classifier for pieces of cloth, cake, soap etc; (coll.) classifier for money and currency units"
+				},
+				{
+					"word": "来",
+					"pinyin": "lái",
+					"translation": "to come; (used as a substitute for a more specific verb); hither (directional complement for motion toward the speaker, as in 回来); ever since (as in 自古以来); for the past (amount of time); (prefix) the coming ...; the next ... (as in 来世); (between two verbs) in order to; (after a round number) approximately; (used after 得 to indicate possibility, as in 谈得来, or after 不 to indicate impossibility, as in 吃不来)"
+				},
+				{
+					"word": "老师",
+					"pinyin": "lǎo shī",
+					"translation": "teacher"
+				},
+				{
+					"word": "了",
+					"pinyin": "le",
+					"translation": "(completed action marker); (modal particle indicating change of state, situation now); (modal particle intensifying preceding clause)"
+				},
+				{
+					"word": "冷",
+					"pinyin": "Lěng",
+					"translation": "surname Leng"
+				},
+				{
+					"word": "里",
+					"pinyin": "lǐ",
+					"translation": "variant of 里"
+				},
+				{
+					"word": "零",
+					"pinyin": "líng",
+					"translation": "zero; nought; zero sign; fractional; fragmentary; odd (of numbers); (placed between two numbers to indicate a smaller quantity followed by a larger one); fraction; (in mathematics) remainder (after division); extra; to wither and fall; to wither"
+				},
+				{
+					"word": "六",
+					"pinyin": "liù",
+					"translation": "six; 6"
+				},
+				{
+					"word": "妈妈",
+					"pinyin": "mā ma",
+					"translation": "mama; mommy; mother"
+				},
+				{
+					"word": "吗",
+					"pinyin": "má",
+					"translation": "(coll.) what?"
+				},
+				{
+					"word": "买",
+					"pinyin": "mǎi",
+					"translation": "to buy; to purchase"
+				},
+				{
+					"word": "猫",
+					"pinyin": "māo",
+					"translation": "cat; (dialect) to hide oneself; (coll.) modem"
+				},
+				{
+					"word": "没",
+					"pinyin": "méi",
+					"translation": "(negative prefix for verbs) have not; not"
+				},
+				{
+					"word": "没关系",
+					"pinyin": "méi guān xi",
+					"translation": "it doesn't matter"
+				},
+				{
+					"word": "米饭",
+					"pinyin": "mǐ fàn",
+					"translation": "(cooked) rice"
+				},
+				{
+					"word": "名字",
+					"pinyin": "míng zi",
+					"translation": "name (of a person or thing)"
+				},
+				{
+					"word": "明天",
+					"pinyin": "míng tiān",
+					"translation": "tomorrow"
+				},
+				{
+					"word": "哪",
+					"pinyin": "nǎ",
+					"translation": "how; which"
+				},
+				{
+					"word": "那",
+					"pinyin": "Nā",
+					"translation": "surname Na"
+				},
+				{
+					"word": "呢",
+					"pinyin": "ne",
+					"translation": "particle indicating that a previously asked question is to be applied to the preceding word (\"What about ...?\", \"And ...?\"); particle for inquiring about location (\"Where is ...?\"); particle signaling a pause, to emphasize the preceding words and allow the listener time to take them on board (\"ok?\", \"are you with me?\"); (at the end of a declarative sentence) particle indicating continuation of a state or action; particle indicating strong affirmation"
+				},
+				{
+					"word": "能",
+					"pinyin": "Néng",
+					"translation": "surname Neng"
+				},
+				{
+					"word": "你",
+					"pinyin": "nǐ",
+					"translation": "you (informal, as opposed to courteous 您)"
+				},
+				{
+					"word": "年",
+					"pinyin": "Nián",
+					"translation": "surname Nian"
+				},
+				{
+					"word": "女儿",
+					"pinyin": "nǚ ér",
+					"translation": "daughter"
+				}
+			]
+		},
+		{
+			"id": "hsk-1-04",
+			"title": "HSK 1 - Teil 4",
+			"sort_order": 4,
+			"vocabulary": [
+				{
+					"word": "朋友",
+					"pinyin": "péng you",
+					"translation": "friend"
+				},
+				{
+					"word": "漂亮",
+					"pinyin": "piào liang",
+					"translation": "pretty; beautiful"
+				},
+				{
+					"word": "苹果",
+					"pinyin": "píng guǒ",
+					"translation": "apple"
+				},
+				{
+					"word": "七",
+					"pinyin": "qī",
+					"translation": "seven; 7"
+				},
+				{
+					"word": "前面",
+					"pinyin": "qián miàn",
+					"translation": "ahead; in front; preceding; above; also pr. [qián mian]"
+				},
+				{
+					"word": "钱",
+					"pinyin": "Qián",
+					"translation": "surname Qian"
+				},
+				{
+					"word": "请",
+					"pinyin": "qǐng",
+					"translation": "to ask; to invite; please (do sth); to treat (to a meal etc); to request"
+				},
+				{
+					"word": "去",
+					"pinyin": "qù",
+					"translation": "to go; to go to (a place); (of a time etc) last; just passed; to send; to remove; to get rid of; to reduce; to be apart from in space or time; to die (euphemism); to play (a part); (when used either before or after a verb) to go in order to do sth; (after a verb of motion indicates movement away from the speaker); (used after certain verbs to indicate detachment or separation)"
+				},
+				{
+					"word": "热",
+					"pinyin": "rè",
+					"translation": "to warm up; to heat up; hot (of weather); heat; fervent"
+				},
+				{
+					"word": "人",
+					"pinyin": "rén",
+					"translation": "person; people"
+				},
+				{
+					"word": "认识",
+					"pinyin": "rèn shi",
+					"translation": "to know; to recognize; to be familiar with; to get acquainted with sb; knowledge; understanding; awareness; cognition"
+				},
+				{
+					"word": "日",
+					"pinyin": "Rì",
+					"translation": "abbr. for 本, Japan"
+				},
+				{
+					"word": "三",
+					"pinyin": "Sān",
+					"translation": "surname San"
+				},
+				{
+					"word": "商店",
+					"pinyin": "shāng diàn",
+					"translation": "store; shop"
+				},
+				{
+					"word": "上",
+					"pinyin": "shǎng",
+					"translation": "used in 上声"
+				},
+				{
+					"word": "上午",
+					"pinyin": "shàng wǔ",
+					"translation": "morning"
+				},
+				{
+					"word": "少",
+					"pinyin": "shǎo",
+					"translation": "few; less; to lack; to be missing; to stop (doing sth); seldom"
+				},
+				{
+					"word": "什么",
+					"pinyin": "shén me",
+					"translation": "what?; something; anything"
+				},
+				{
+					"word": "十",
+					"pinyin": "shí",
+					"translation": "ten; 10"
+				},
+				{
+					"word": "时候",
+					"pinyin": "shí hou",
+					"translation": "time; length of time; moment; period"
+				},
+				{
+					"word": "是",
+					"pinyin": "shì",
+					"translation": "to be (followed by substantives only); correct; right; true; (respectful acknowledgement of a command) very well; (adverb for emphatic assertion)"
+				},
+				{
+					"word": "书",
+					"pinyin": "Shū",
+					"translation": "abbr. for 书经"
+				},
+				{
+					"word": "谁",
+					"pinyin": "shéi",
+					"translation": "who; also pr. [shuí]"
+				},
+				{
+					"word": "水",
+					"pinyin": "Shuǐ",
+					"translation": "surname Shui"
+				},
+				{
+					"word": "水果",
+					"pinyin": "shuǐ guǒ",
+					"translation": "fruit"
+				}
+			]
+		},
+		{
+			"id": "hsk-1-05",
+			"title": "HSK 1 - Teil 5",
+			"sort_order": 5,
+			"vocabulary": [
+				{
+					"word": "睡觉",
+					"pinyin": "shuì jiào",
+					"translation": "to go to bed; to sleep"
+				},
+				{
+					"word": "说话",
+					"pinyin": "shuō huà",
+					"translation": "to speak; to say; to talk; to gossip; to tell stories; talk; word"
+				},
+				{
+					"word": "四",
+					"pinyin": "sì",
+					"translation": "four; 4"
+				},
+				{
+					"word": "岁",
+					"pinyin": "suì",
+					"translation": "variant of 岁, year; years old"
+				},
+				{
+					"word": "他",
+					"pinyin": "tā",
+					"translation": "he; him (used for either sex when the sex is unknown or unimportant); (used before sb's name for emphasis); (used as a meaningless mock object); (literary) other"
+				},
+				{
+					"word": "她",
+					"pinyin": "tā",
+					"translation": "she"
+				},
+				{
+					"word": "太",
+					"pinyin": "tài",
+					"translation": "highest; greatest; too (much); very; extremely"
+				},
+				{
+					"word": "天气",
+					"pinyin": "tiān qì",
+					"translation": "weather"
+				},
+				{
+					"word": "听",
+					"pinyin": "yǐn",
+					"translation": "smile (archaic)"
+				},
+				{
+					"word": "同学",
+					"pinyin": "tóng xué",
+					"translation": "to study at the same school; fellow student; classmate"
+				},
+				{
+					"word": "喂",
+					"pinyin": "wéi",
+					"translation": "hello (when answering the phone)"
+				},
+				{
+					"word": "我",
+					"pinyin": "wǒ",
+					"translation": "I; me; my"
+				},
+				{
+					"word": "我们",
+					"pinyin": "wǒ men",
+					"translation": "we; us; ourselves; our"
+				},
+				{
+					"word": "五",
+					"pinyin": "wǔ",
+					"translation": "five; 5"
+				},
+				{
+					"word": "喜欢",
+					"pinyin": "xǐ huan",
+					"translation": "to like; to be fond of"
+				},
+				{
+					"word": "下",
+					"pinyin": "xià",
+					"translation": "down; downwards; below; lower; later; next (week etc); second (of two parts); to decline; to go down; to arrive at (a decision, conclusion etc); measure word to show the frequency of an action"
+				},
+				{
+					"word": "下午",
+					"pinyin": "xià wǔ",
+					"translation": "afternoon; p.m."
+				},
+				{
+					"word": "下雨",
+					"pinyin": "xià yǔ",
+					"translation": "to rain"
+				},
+				{
+					"word": "先生",
+					"pinyin": "xiān sheng",
+					"translation": "teacher; gentleman; sir; mister (Mr.); husband; (dialect) doctor"
+				},
+				{
+					"word": "现在",
+					"pinyin": "xiàn zài",
+					"translation": "now; at present; at the moment; modern; current; nowadays"
+				},
+				{
+					"word": "想",
+					"pinyin": "xiǎng",
+					"translation": "to think (about); to think of; to devise; to think (that); to believe (that); to desire; to want (to); to miss (feel wistful about the absence of)"
+				},
+				{
+					"word": "小",
+					"pinyin": "xiǎo",
+					"translation": "small; tiny; few; young"
+				},
+				{
+					"word": "小姐",
+					"pinyin": "xiǎo jie",
+					"translation": "young lady; miss; (slang) prostitute"
+				},
+				{
+					"word": "些",
+					"pinyin": "xiē",
+					"translation": "classifier indicating a small amount or small number greater than 1: some, a few, several"
+				},
+				{
+					"word": "写",
+					"pinyin": "xiě",
+					"translation": "to write"
+				}
+			]
+		},
+		{
+			"id": "hsk-1-06",
+			"title": "HSK 1 - Teil 6",
+			"sort_order": 6,
+			"vocabulary": [
+				{
+					"word": "谢谢",
+					"pinyin": "xiè xie",
+					"translation": "to thank; thanks; thank you"
+				},
+				{
+					"word": "星期",
+					"pinyin": "xīng qī",
+					"translation": "week; day of the week; Sunday"
+				},
+				{
+					"word": "学生",
+					"pinyin": "xué sheng",
+					"translation": "student; schoolchild"
+				},
+				{
+					"word": "学习",
+					"pinyin": "xué xí",
+					"translation": "to learn; to study"
+				},
+				{
+					"word": "学校",
+					"pinyin": "xué xiào",
+					"translation": "school"
+				},
+				{
+					"word": "一",
+					"pinyin": "yī",
+					"translation": "one; single; a (article); as soon as; entire; whole; all; throughout; \"one\" radical in Chinese characters (Kangxi radical 1); also pr. [yāo] for greater clarity when spelling out numbers digit by digit"
+				},
+				{
+					"word": "衣服",
+					"pinyin": "yī fu",
+					"translation": "clothes"
+				},
+				{
+					"word": "医生",
+					"pinyin": "yī shēng",
+					"translation": "doctor"
+				},
+				{
+					"word": "医院",
+					"pinyin": "yī yuàn",
+					"translation": "hospital"
+				},
+				{
+					"word": "椅子",
+					"pinyin": "yǐ zi",
+					"translation": "chair"
+				},
+				{
+					"word": "有",
+					"pinyin": "yǒu",
+					"translation": "to have; there is; (bound form) having; with; -ful; -ed; -al (as in 意 intentional)"
+				},
+				{
+					"word": "月",
+					"pinyin": "yuè",
+					"translation": "moon; month; monthly"
+				},
+				{
+					"word": "再见",
+					"pinyin": "zài jiàn",
+					"translation": "goodbye; see you again later"
+				},
+				{
+					"word": "在",
+					"pinyin": "zài",
+					"translation": "to exist; to be alive; (of sb or sth) to be (located) at; (used before a verb to indicate an action in progress)"
+				},
+				{
+					"word": "怎么",
+					"pinyin": "zěn me",
+					"translation": "how?; what?; why?"
+				},
+				{
+					"word": "怎么样",
+					"pinyin": "zěn me yàng",
+					"translation": "how?; how about?; how was it?; how are things?"
+				},
+				{
+					"word": "这",
+					"pinyin": "zhè",
+					"translation": "(pronoun) this; these; (bound form) this; the (followed by a noun); (bound form) this; these (followed by a classifier) (in this sense, commonly pr. [zhèi], esp. in Beijing)"
+				},
+				{
+					"word": "中国",
+					"pinyin": "Zhōng guó",
+					"translation": "China"
+				},
+				{
+					"word": "中午",
+					"pinyin": "zhōng wǔ",
+					"translation": "noon; midday"
+				},
+				{
+					"word": "住",
+					"pinyin": "zhù",
+					"translation": "to live; to dwell; to stay; to reside; to stop; (suffix indicating firmness, steadiness, or coming to a halt)"
+				},
+				{
+					"word": "桌子",
+					"pinyin": "zhuō zi",
+					"translation": "table; desk"
+				},
+				{
+					"word": "字",
+					"pinyin": "zì",
+					"translation": "letter; symbol; character; word; courtesy or style name traditionally given to males aged 20 in dynastic China"
+				},
+				{
+					"word": "昨天",
+					"pinyin": "zuó tiān",
+					"translation": "yesterday"
+				},
+				{
+					"word": "坐",
+					"pinyin": "Zuò",
+					"translation": "surname Zuo"
+				},
+				{
+					"word": "做",
+					"pinyin": "zuò",
+					"translation": "to make; to produce; to write; to compose; to do; to engage in; to hold (a party etc); (of a person) to be (an intermediary, a good student etc); to become (husband and wife, friends etc); (of a thing) to serve as; to be used for; to assume (an air or manner)"
+				}
+			]
+		}
+	]
+}

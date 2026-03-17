@@ -3,6 +3,8 @@
 	import { init, isReady } from '$lib/wasm';
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
+	import { updateStore } from '$lib/update.svelte';
+	import UpdateBanner from '../components/UpdateBanner.svelte';
 
 	let { children } = $props();
 	let ready = $state(false);
@@ -12,6 +14,7 @@
 		try {
 			await init();
 			ready = true;
+			updateStore.init();
 		} catch (e) {
 			error = e instanceof Error ? e.message : 'Failed to initialize';
 			console.error('[taijobi] init error:', e);
@@ -27,7 +30,11 @@
 			? 'Drill'
 			: page.url.pathname === '/lexicon'
 				? 'Lexikon'
-				: 'Taijobi',
+				: page.url.pathname === '/packs'
+					? 'Pakete'
+					: page.url.pathname.startsWith('/lessons')
+						? 'Lektionen'
+						: 'Taijobi',
 	);
 </script>
 
@@ -49,6 +56,18 @@
 	</div>
 {:else}
 	<div class="relative mx-auto flex min-h-screen max-w-[768px] flex-col bg-bg-light shadow-sm">
+		<!-- Update Banner -->
+		{#if updateStore.showBanner}
+			<button
+				onclick={() => (updateStore.sheetOpen = true)}
+				class="flex w-full items-center justify-center gap-2 bg-primary px-4 py-2 text-sm font-medium text-white"
+			>
+				<span class="material-symbols-outlined text-[16px]">sync</span>
+				Neue Version verf&uuml;gbar &mdash; tippen zum Aktualisieren
+			</button>
+		{/if}
+		<UpdateBanner />
+
 		<!-- Header -->
 		<header
 			class="sticky top-0 z-10 flex items-center justify-between border-b border-primary/10 bg-bg-light/80 px-4 py-4 backdrop-blur-md"
@@ -100,13 +119,13 @@
 					<span class="text-[10px] font-bold uppercase tracking-wider">&Uuml;ben</span>
 				</a>
 				<a
-					href="/lexicon"
-					class="flex flex-col items-center gap-1 {isActive('/lexicon') ? 'text-primary' : 'text-slate-400 hover:text-primary'} transition-colors"
+					href="/packs"
+					class="flex flex-col items-center gap-1 {isActive('/packs') || page.url.pathname.startsWith('/lessons') ? 'text-primary' : 'text-slate-400 hover:text-primary'} transition-colors"
 				>
-					<span class="material-symbols-outlined {isActive('/lexicon') ? 'active-icon' : ''}"
-						>more_horiz</span
+					<span class="material-symbols-outlined {isActive('/packs') || page.url.pathname.startsWith('/lessons') ? 'active-icon' : ''}"
+						>inventory_2</span
 					>
-					<span class="text-[10px] font-bold uppercase tracking-wider">Mehr</span>
+					<span class="text-[10px] font-bold uppercase tracking-wider">Pakete</span>
 				</a>
 			</div>
 		</nav>

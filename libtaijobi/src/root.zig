@@ -9,6 +9,7 @@ const Db = db_mod.Db;
 const lexicon = @import("lexicon.zig");
 const lang_mod = @import("lang.zig");
 const cedict = @import("cedict.zig");
+const curriculum = @import("curriculum.zig");
 
 // --- Fixed buffer allocator (64MB) ---
 const FBA_SIZE = 64 * 1024 * 1024;
@@ -127,6 +128,19 @@ export fn hanzi_reset_alloc() void {
     fba.reset();
 }
 
+export fn hanzi_get_due_cards_filtered(filter_ptr: [*]const u8, filter_len: usize, limit: u32) ?[*]const u8 {
+    const db = &(global_db orelse return null);
+    const filter = if (filter_len == 0) null else filter_ptr[0..filter_len];
+    const json = db.getDueCardsFiltered(limit, now(), filter, &json_buf) orelse return null;
+    return makeLengthPrefixed(json);
+}
+
+export fn hanzi_get_due_count_filtered(filter_ptr: [*]const u8, filter_len: usize) i32 {
+    const db = &(global_db orelse return -1);
+    const filter = if (filter_len == 0) null else filter_ptr[0..filter_len];
+    return db.getDueCountFiltered(now(), filter);
+}
+
 // === Phase 1 — Lexicon + Dictionary ===
 
 export fn hanzi_add_word(word_ptr: [*]const u8, word_len: usize) ?[*]const u8 {
@@ -223,6 +237,67 @@ export fn hanzi_get_drill_stats() ?[*]const u8 {
     return makeLengthPrefixed(json);
 }
 
+// === Phase 2 — Content Packs ===
+
+export fn hanzi_install_pack(json_ptr: [*]const u8, json_len: usize) i32 {
+    const db = &(global_db orelse return -1);
+    const json = json_ptr[0..json_len];
+    curriculum.installPack(db.handle, json, now()) catch |err| {
+        const msg = switch (err) {
+            error.InvalidJson => "invalid pack JSON",
+            error.PrepareFailed => "SQL prepare failed",
+            error.StepFailed => "SQL step failed",
+            error.PackNotFound => "pack not found",
+        };
+        setError(msg);
+        return -1;
+    };
+    return 0;
+}
+
+export fn hanzi_get_packs() ?[*]const u8 {
+    const db = &(global_db orelse return null);
+    const json = curriculum.getPacks(db.handle, &json_buf) orelse return null;
+    return makeLengthPrefixed(json);
+}
+
+export fn hanzi_remove_pack(id_ptr: [*]const u8, id_len: usize) i32 {
+    const db = &(global_db orelse return -1);
+    const pack_id = id_ptr[0..id_len];
+    curriculum.removePack(db.handle, pack_id) catch |err| {
+        const msg = switch (err) {
+            error.PrepareFailed => "SQL prepare failed",
+            error.StepFailed => "SQL step failed",
+            error.PackNotFound => "pack not found",
+            error.InvalidJson => "invalid JSON",
+        };
+        setError(msg);
+        return -1;
+    };
+    return 0;
+}
+
+export fn hanzi_get_lessons(pack_id_ptr: [*]const u8, pack_id_len: usize) ?[*]const u8 {
+    const db = &(global_db orelse return null);
+    const pack_id = pack_id_ptr[0..pack_id_len];
+    const json = curriculum.getLessons(db.handle, pack_id, &json_buf) orelse return null;
+    return makeLengthPrefixed(json);
+}
+
+export fn hanzi_get_vocabulary(lesson_id_ptr: [*]const u8, lesson_id_len: usize) ?[*]const u8 {
+    const db = &(global_db orelse return null);
+    const lesson_id = lesson_id_ptr[0..lesson_id_len];
+    const json = curriculum.getVocabulary(db.handle, lesson_id, &json_buf) orelse return null;
+    return makeLengthPrefixed(json);
+}
+
+export fn hanzi_get_progress(pack_id_ptr: [*]const u8, pack_id_len: usize) ?[*]const u8 {
+    const db = &(global_db orelse return null);
+    const pack_id = pack_id_ptr[0..pack_id_len];
+    const json = curriculum.getProgress(db.handle, pack_id, &json_buf) orelse return null;
+    return makeLengthPrefixed(json);
+}
+
 // === WASM-only exports ===
 
 comptime {
@@ -253,4 +328,5 @@ test {
     _ = @import("lang.zig");
     _ = @import("lexicon.zig");
     _ = @import("cedict.zig");
+    _ = @import("curriculum.zig");
 }

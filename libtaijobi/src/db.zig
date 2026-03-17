@@ -89,46 +89,99 @@ pub const Db = struct {
     }
 
     pub fn getDueCount(self: *Db, now_ms: i64) i32 {
+        return self.getDueCountFiltered(now_ms, null);
+    }
+
+    /// Get due count, optionally filtered by source.
+    /// filter: null = all, "lexicon" = personal words, anything else = pack_id
+    pub fn getDueCountFiltered(self: *Db, now_ms: i64, filter: ?[]const u8) i32 {
         var stmt: ?*sqlite.sqlite3_stmt = null;
-        const sql =
+
+        const sql_all =
             \\SELECT COUNT(*) FROM cards c
             \\LEFT JOIN fsrs_state f ON c.id = f.card_id
-            \\WHERE f.card_id IS NULL
-            \\   OR f.reps = 0
-            \\   OR f.next_review IS NULL
-            \\   OR CAST(f.next_review AS INTEGER) <= ?
+            \\WHERE (f.card_id IS NULL OR f.reps = 0 OR f.next_review IS NULL OR CAST(f.next_review AS INTEGER) <= ?)
         ;
-        if (sqlite.sqlite3_prepare_v2(self.handle, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK) {
-            return 0;
+        const sql_lexicon =
+            \\SELECT COUNT(*) FROM cards c
+            \\LEFT JOIN fsrs_state f ON c.id = f.card_id
+            \\WHERE (f.card_id IS NULL OR f.reps = 0 OR f.next_review IS NULL OR CAST(f.next_review AS INTEGER) <= ?)
+            \\  AND c.source_type = 'lexicon'
+        ;
+        const sql_pack =
+            \\SELECT COUNT(*) FROM cards c
+            \\LEFT JOIN fsrs_state f ON c.id = f.card_id
+            \\WHERE (f.card_id IS NULL OR f.reps = 0 OR f.next_review IS NULL OR CAST(f.next_review AS INTEGER) <= ?)
+            \\  AND c.pack_id = ?
+        ;
+
+        if (filter) |f| {
+            if (std.mem.eql(u8, f, "lexicon")) {
+                if (sqlite.sqlite3_prepare_v2(self.handle, sql_lexicon, @intCast(sql_lexicon.len), &stmt, null) != sqlite.SQLITE_OK) return 0;
+                defer _ = sqlite.sqlite3_finalize(stmt.?);
+                _ = sqlite.sqlite3_bind_int64(stmt.?, 1, now_ms);
+                if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_ROW) return 0;
+                return sqlite.sqlite3_column_int(stmt.?, 0);
+            } else {
+                if (sqlite.sqlite3_prepare_v2(self.handle, sql_pack, @intCast(sql_pack.len), &stmt, null) != sqlite.SQLITE_OK) return 0;
+                defer _ = sqlite.sqlite3_finalize(stmt.?);
+                _ = sqlite.sqlite3_bind_int64(stmt.?, 1, now_ms);
+                _ = sqlite.sqlite3_bind_text(stmt.?, 2, f.ptr, @intCast(f.len), sqlite.SQLITE_STATIC);
+                if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_ROW) return 0;
+                return sqlite.sqlite3_column_int(stmt.?, 0);
+            }
+        } else {
+            if (sqlite.sqlite3_prepare_v2(self.handle, sql_all, @intCast(sql_all.len), &stmt, null) != sqlite.SQLITE_OK) return 0;
+            defer _ = sqlite.sqlite3_finalize(stmt.?);
+            _ = sqlite.sqlite3_bind_int64(stmt.?, 1, now_ms);
+            if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_ROW) return 0;
+            return sqlite.sqlite3_column_int(stmt.?, 0);
         }
-        defer _ = sqlite.sqlite3_finalize(stmt.?);
-        _ = sqlite.sqlite3_bind_int64(stmt.?, 1, now_ms);
-        if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_ROW) return 0;
-        return sqlite.sqlite3_column_int(stmt.?, 0);
     }
 
     pub fn getDueCards(self: *Db, limit: u32, now_ms: i64, buf: []u8) ?[]const u8 {
+        return self.getDueCardsFiltered(limit, now_ms, null, buf);
+    }
+
+    pub fn getDueCardsFiltered(self: *Db, limit: u32, now_ms: i64, filter: ?[]const u8, buf: []u8) ?[]const u8 {
         var stmt: ?*sqlite.sqlite3_stmt = null;
-        const sql =
+
+        const select_cols =
             \\SELECT c.id, c.word, c.language, c.pinyin, c.translation, c.source_type,
             \\       COALESCE(f.difficulty, 5.0), COALESCE(f.stability, 0.0),
             \\       COALESCE(f.reps, 0), COALESCE(f.lapses, 0),
             \\       f.next_review
             \\FROM cards c
             \\LEFT JOIN fsrs_state f ON c.id = f.card_id
-            \\WHERE f.card_id IS NULL
-            \\   OR f.reps = 0
-            \\   OR f.next_review IS NULL
-            \\   OR CAST(f.next_review AS INTEGER) <= ?
-            \\ORDER BY COALESCE(f.reps, 0) ASC, COALESCE(f.next_review, '0') ASC
-            \\LIMIT ?
         ;
-        if (sqlite.sqlite3_prepare_v2(self.handle, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK) {
-            return null;
+        const where_due =
+            \\ WHERE (f.card_id IS NULL OR f.reps = 0 OR f.next_review IS NULL OR CAST(f.next_review AS INTEGER) <= ?)
+        ;
+        const order_limit =
+            \\ ORDER BY COALESCE(f.reps, 0) ASC, COALESCE(f.next_review, '0') ASC LIMIT ?
+        ;
+
+        const sql_all = select_cols ++ where_due ++ order_limit;
+        const sql_lexicon = select_cols ++ where_due ++ " AND c.source_type = 'lexicon'" ++ order_limit;
+        const sql_pack = select_cols ++ where_due ++ " AND c.pack_id = ?" ++ order_limit;
+
+        if (filter) |f| {
+            if (std.mem.eql(u8, f, "lexicon")) {
+                if (sqlite.sqlite3_prepare_v2(self.handle, sql_lexicon, @intCast(sql_lexicon.len), &stmt, null) != sqlite.SQLITE_OK) return null;
+                _ = sqlite.sqlite3_bind_int64(stmt.?, 1, now_ms);
+                _ = sqlite.sqlite3_bind_int(stmt.?, 2, @intCast(limit));
+            } else {
+                if (sqlite.sqlite3_prepare_v2(self.handle, sql_pack, @intCast(sql_pack.len), &stmt, null) != sqlite.SQLITE_OK) return null;
+                _ = sqlite.sqlite3_bind_int64(stmt.?, 1, now_ms);
+                _ = sqlite.sqlite3_bind_text(stmt.?, 2, f.ptr, @intCast(f.len), sqlite.SQLITE_STATIC);
+                _ = sqlite.sqlite3_bind_int(stmt.?, 3, @intCast(limit));
+            }
+        } else {
+            if (sqlite.sqlite3_prepare_v2(self.handle, sql_all, @intCast(sql_all.len), &stmt, null) != sqlite.SQLITE_OK) return null;
+            _ = sqlite.sqlite3_bind_int64(stmt.?, 1, now_ms);
+            _ = sqlite.sqlite3_bind_int(stmt.?, 2, @intCast(limit));
         }
         defer _ = sqlite.sqlite3_finalize(stmt.?);
-        _ = sqlite.sqlite3_bind_int64(stmt.?, 1, now_ms);
-        _ = sqlite.sqlite3_bind_int(stmt.?, 2, @intCast(limit));
 
         var w = JsonWriter.init(buf);
         w.writeByte('[');

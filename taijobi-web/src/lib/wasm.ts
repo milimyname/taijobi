@@ -61,6 +61,8 @@ interface WasmExports {
 	hanzi_get_error: () => number;
 	hanzi_get_due_cards: (limit: number) => number;
 	hanzi_get_due_count: () => number;
+	hanzi_get_due_cards_filtered: (filter: number, filterLen: number, limit: number) => number;
+	hanzi_get_due_count_filtered: (filter: number, filterLen: number) => number;
 	hanzi_review_card: (id: number, idLen: number, rating: number) => number;
 	hanzi_add_word: (word: number, len: number) => number;
 	hanzi_remove_word: (id: number, len: number) => number;
@@ -68,6 +70,12 @@ interface WasmExports {
 	hanzi_lookup: (query: number, len: number) => number;
 	hanzi_get_lexicon: () => number;
 	hanzi_get_drill_stats: () => number;
+	hanzi_install_pack: (json: number, len: number) => number;
+	hanzi_get_packs: () => number;
+	hanzi_remove_pack: (id: number, len: number) => number;
+	hanzi_get_lessons: (packId: number, len: number) => number;
+	hanzi_get_vocabulary: (lessonId: number, len: number) => number;
+	hanzi_get_progress: (packId: number, len: number) => number;
 	hanzi_db_ptr: () => number;
 	hanzi_db_size: () => number;
 	hanzi_db_load: (data: number, size: number) => number;
@@ -282,6 +290,29 @@ export function getDueCards(limit: number = 50): Card[] {
 	}
 }
 
+export function getDueCardsFiltered(filter: string, limit: number = 50): Card[] {
+	if (!wasm) return [];
+	wasm.hanzi_reset_alloc();
+	const encoded = new TextEncoder().encode(filter);
+	const ptr = filter ? writeBytes(encoded) : 0;
+	const resultPtr = wasm.hanzi_get_due_cards_filtered(ptr, encoded.length, limit);
+	if (resultPtr === 0) return [];
+	const json = readLengthPrefixedString(resultPtr);
+	try {
+		return JSON.parse(json);
+	} catch {
+		return [];
+	}
+}
+
+export function getDueCountFiltered(filter: string): number {
+	if (!wasm) return 0;
+	wasm.hanzi_reset_alloc();
+	const encoded = new TextEncoder().encode(filter);
+	const ptr = filter ? writeBytes(encoded) : 0;
+	return wasm.hanzi_get_due_count_filtered(ptr, encoded.length);
+}
+
 export async function reviewCard(id: string, rating: number): Promise<number> {
 	if (!wasm) return -1;
 	wasm.hanzi_reset_alloc();
@@ -374,6 +405,121 @@ export function getDrillStats(): DrillStats {
 	} catch {
 		console.error('[taijobi] Failed to parse drill stats JSON');
 		return { reviewed_today: 0, correct_today: 0, total_cards: 0, lexicon_count: 0 };
+	}
+}
+
+// --- Phase 2: Content Packs ---
+
+export interface Pack {
+	id: string;
+	name: string;
+	version: number;
+	language_pair: string;
+	word_count: number;
+}
+
+export interface Lesson {
+	id: string;
+	title: string | null;
+	sort_order: number;
+	total: number;
+	mastered: number;
+}
+
+export interface VocabEntry {
+	id: string;
+	word: string;
+	pinyin: string | null;
+	translation: string | null;
+	reps: number;
+	stability: number;
+}
+
+export interface PackProgress {
+	total: number;
+	reviewed: number;
+	mastered: number;
+}
+
+export async function installPack(json: string): Promise<void> {
+	if (!wasm) throw new Error('WASM not initialized');
+	wasm.hanzi_reset_alloc();
+	const encoded = new TextEncoder().encode(json);
+	const ptr = writeBytes(encoded);
+	const rc = wasm.hanzi_install_pack(ptr, encoded.length);
+	if (rc !== 0) {
+		throw new Error(getLastError('installPack failed'));
+	}
+	await opfsSave();
+}
+
+export function getPacks(): Pack[] {
+	if (!wasm) return [];
+	wasm.hanzi_reset_alloc();
+	const ptr = wasm.hanzi_get_packs();
+	if (ptr === 0) return [];
+	const json = readLengthPrefixedString(ptr);
+	try {
+		return JSON.parse(json);
+	} catch {
+		return [];
+	}
+}
+
+export async function removePack(id: string): Promise<void> {
+	if (!wasm) throw new Error('WASM not initialized');
+	wasm.hanzi_reset_alloc();
+	const encoded = new TextEncoder().encode(id);
+	const ptr = writeBytes(encoded);
+	const rc = wasm.hanzi_remove_pack(ptr, encoded.length);
+	if (rc !== 0) {
+		throw new Error(getLastError('removePack failed'));
+	}
+	await opfsSave();
+}
+
+export function getLessons(packId: string): Lesson[] {
+	if (!wasm) return [];
+	wasm.hanzi_reset_alloc();
+	const encoded = new TextEncoder().encode(packId);
+	const ptr = writeBytes(encoded);
+	const resultPtr = wasm.hanzi_get_lessons(ptr, encoded.length);
+	if (resultPtr === 0) return [];
+	const json = readLengthPrefixedString(resultPtr);
+	try {
+		return JSON.parse(json);
+	} catch {
+		return [];
+	}
+}
+
+export function getVocabulary(lessonId: string): VocabEntry[] {
+	if (!wasm) return [];
+	wasm.hanzi_reset_alloc();
+	const encoded = new TextEncoder().encode(lessonId);
+	const ptr = writeBytes(encoded);
+	const resultPtr = wasm.hanzi_get_vocabulary(ptr, encoded.length);
+	if (resultPtr === 0) return [];
+	const json = readLengthPrefixedString(resultPtr);
+	try {
+		return JSON.parse(json);
+	} catch {
+		return [];
+	}
+}
+
+export function getPackProgress(packId: string): PackProgress {
+	if (!wasm) return { total: 0, reviewed: 0, mastered: 0 };
+	wasm.hanzi_reset_alloc();
+	const encoded = new TextEncoder().encode(packId);
+	const ptr = writeBytes(encoded);
+	const resultPtr = wasm.hanzi_get_progress(ptr, encoded.length);
+	if (resultPtr === 0) return { total: 0, reviewed: 0, mastered: 0 };
+	const json = readLengthPrefixedString(resultPtr);
+	try {
+		return JSON.parse(json);
+	} catch {
+		return { total: 0, reviewed: 0, mastered: 0 };
 	}
 }
 

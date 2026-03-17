@@ -1,0 +1,51 @@
+[
+	{
+		"id": "long-neu-l5",
+		"name": "Lóng neu L5",
+		"language_pair": "zh-de",
+		"word_count": 25,
+		"description": "Konjunktionen, Zeitadverbien & Modalverben"
+	},
+	{
+		"id": "hsk-1",
+		"name": "HSK 1",
+		"language_pair": "zh-en",
+		"word_count": 150,
+		"description": "Basic Chinese vocabulary (beginner)"
+	},
+	{
+		"id": "hsk-2",
+		"name": "HSK 2",
+		"language_pair": "zh-en",
+		"word_count": 150,
+		"description": "Elementary Chinese vocabulary"
+	},
+	{
+		"id": "hsk-3",
+		"name": "HSK 3",
+		"language_pair": "zh-en",
+		"word_count": 299,
+		"description": "Intermediate Chinese vocabulary"
+	},
+	{
+		"id": "hsk-4",
+		"name": "HSK 4",
+		"language_pair": "zh-en",
+		"word_count": 601,
+		"description": "Upper-intermediate Chinese vocabulary"
+	},
+	{
+		"id": "hsk-5",
+		"name": "HSK 5",
+		"language_pair": "zh-en",
+		"word_count": 1298,
+		"description": "Advanced Chinese vocabulary"
+	},
+	{
+		"id": "hsk-6",
+		"name": "HSK 6",
+		"language_pair": "zh-en",
+		"word_count": 2500,
+		"description": "Proficient Chinese vocabulary"
+	}
+]
