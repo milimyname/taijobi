@@ -6,6 +6,9 @@ const config = {
 		adapter: adapter(),
 		output: {
 			bundleStrategy: 'single'
+		},
+		prerender: {
+			handleUnseenRoutes: 'ignore'
 		}
 	},
 	vitePlugin: {
