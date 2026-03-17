@@ -10,6 +10,8 @@ const lexicon = @import("lexicon.zig");
 const lang_mod = @import("lang.zig");
 const cedict = @import("cedict.zig");
 const curriculum = @import("curriculum.zig");
+const decompose = @import("decompose.zig");
+const strokes_mod = @import("strokes.zig");
 
 // --- Fixed buffer allocator (64MB) ---
 const FBA_SIZE = 64 * 1024 * 1024;
@@ -298,6 +300,20 @@ export fn hanzi_get_progress(pack_id_ptr: [*]const u8, pack_id_len: usize) ?[*]c
     return makeLengthPrefixed(json);
 }
 
+// === Phase 3 — Deep Chinese ===
+
+export fn hanzi_decompose(char_ptr: [*]const u8, char_len: usize) ?[*]const u8 {
+    const query = char_ptr[0..char_len];
+    const json = decompose.decomposeToJson(query, &json_buf) orelse return null;
+    return makeLengthPrefixed(json);
+}
+
+export fn hanzi_get_strokes(char_ptr: [*]const u8, char_len: usize) ?[*]const u8 {
+    const query = char_ptr[0..char_len];
+    const json = strokes_mod.strokesAsJson(query, &json_buf) orelse return null;
+    return makeLengthPrefixed(json);
+}
+
 // === WASM-only exports ===
 
 comptime {
@@ -329,4 +345,7 @@ test {
     _ = @import("lexicon.zig");
     _ = @import("cedict.zig");
     _ = @import("curriculum.zig");
+    _ = @import("decompose.zig");
+    _ = @import("strokes.zig");
+    _ = @import("pinyin.zig");
 }

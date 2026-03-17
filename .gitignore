@@ -14,6 +14,12 @@ taijobi-web/static/libtaijobi.wasm
 # CEDICT binary (built artifact — regenerate with scripts/compile-cedict.py)
 libtaijobi/src/cedict.bin
 
+# Decomposition binary (built artifact — regenerate with scripts/build-decomp.sh)
+libtaijobi/src/decomp.bin
+
+# Stroke data binary (built artifact — regenerate with scripts/build-strokes.sh)
+libtaijobi/src/strokes.bin
+
 # OS
 .DS_Store
 Thumbs.db

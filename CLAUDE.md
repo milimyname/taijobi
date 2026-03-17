@@ -5,7 +5,8 @@
 *A local-first vocabulary engine for all languages you encounter — with deep
 Chinese support, curriculum packs, and spaced repetition.*
 
-Last updated: March 2026 — Phase 2 complete, deployed to taijobi.com, Phase 3 next
+Last updated: March 2026 — Phase 3 complete (decomposition, strokes, drill directions,
+answer checking, character browser, selection tooltip)
 
 ---
 
@@ -56,8 +57,9 @@ Inspired by libghostty and libwimg: the library is the product.
 | Web persistence | OPFS (SQLite-on-browser, offline)                  |
 | iOS UI          | SwiftUI + C ABI (libhanzi.a)                       |
 | Sync            | wimg-sync (CF DO + WebSocket + LWW)                |
-| Dictionary      | CC-CEDICT (124k entries, embedded binary)           |
-| Decomposition   | Make Me a Hanzi (embedded)                         |
+| Dictionary      | CC-CEDICT (124k entries, embedded binary ~8.8MB)    |
+| Decomposition   | Make Me a Hanzi dictionary.txt (9.5k chars, ~0.8MB) |
+| Stroke data     | Make Me a Hanzi graphics.txt (delta-encoded binary ~9MB) |
 | Content packs   | Static JSON served by Cloudflare Worker             |
 | Hosting         | Cloudflare Workers (taijobi.com)                   |
 | Tooling         | bun, oxfmt, oxlint, lefthook, conventional commits |
@@ -90,6 +92,9 @@ Inspired by libghostty and libwimg: the library is the product.
 - Section headings: `text-[11px] font-bold uppercase tracking-wider text-primary`
 - Material Symbols Outlined icons (weight 400, no fill by default)
 - German UI strings throughout
+- Character selection tooltip: select any Chinese character → popup with pinyin,
+  definition, and link to `/character/[char]` detail page
+- Character grid: `/characters` route — browsable grid, filter by pack/lexicon, search
 
 ---
 

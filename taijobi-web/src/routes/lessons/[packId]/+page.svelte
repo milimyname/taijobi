@@ -106,7 +106,9 @@
 							<tbody class="divide-y divide-primary/5">
 								{#each vocabulary as word (word.id)}
 									<tr class="bg-white/50">
-										<td class="chinese-char px-3 py-2 font-medium">{word.word}</td>
+										<td class="chinese-char px-3 py-2 font-medium">
+											<a href="/character/{encodeURIComponent(word.word)}" class="hover:text-primary">{word.word}</a>
+										</td>
 										<td class="px-3 py-2 text-primary/80">{word.pinyin ?? ''}</td>
 										<td class="px-3 py-2">{word.translation ?? ''}</td>
 										<td class="px-2 py-2">

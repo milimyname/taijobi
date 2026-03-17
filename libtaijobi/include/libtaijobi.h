@@ -34,6 +34,18 @@ const void *hanzi_lookup(const void *query, size_t len);
 const void *hanzi_get_lexicon(void);
 const void *hanzi_get_drill_stats(void);
 
+/* Phase 2 — Content Packs */
+int32_t     hanzi_install_pack(const void *json, size_t len);
+const void *hanzi_get_packs(void);
+int32_t     hanzi_remove_pack(const void *id, size_t len);
+const void *hanzi_get_lessons(const void *pack_id, size_t len);
+const void *hanzi_get_vocabulary(const void *lesson_id, size_t len);
+const void *hanzi_get_progress(const void *pack_id, size_t len);
+
+/* Phase 3 — Deep Chinese */
+const void *hanzi_decompose(const void *ch, size_t len);
+const void *hanzi_get_strokes(const void *ch, size_t len);
+
 /* WASM-only: OPFS persistence helpers */
 void   *hanzi_db_ptr(void);
 int32_t hanzi_db_size(void);

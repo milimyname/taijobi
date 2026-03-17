@@ -76,6 +76,8 @@ interface WasmExports {
 	hanzi_get_lessons: (packId: number, len: number) => number;
 	hanzi_get_vocabulary: (lessonId: number, len: number) => number;
 	hanzi_get_progress: (packId: number, len: number) => number;
+	hanzi_decompose: (ch: number, len: number) => number;
+	hanzi_get_strokes: (ch: number, len: number) => number;
 	hanzi_db_ptr: () => number;
 	hanzi_db_size: () => number;
 	hanzi_db_load: (data: number, size: number) => number;
@@ -521,6 +523,128 @@ export function getPackProgress(packId: string): PackProgress {
 	} catch {
 		return { total: 0, reviewed: 0, mastered: 0 };
 	}
+}
+
+// --- Phase 3: Deep Chinese ---
+
+export interface DecompComponent {
+	char: string;
+	definition: string;
+	type: 'radical' | 'component';
+}
+
+export interface DecompResult {
+	character: string;
+	radical: string;
+	decomposition: string;
+	pinyin: string;
+	definition: string;
+	etymology_type: string;
+	etymology_hint: string;
+	components: DecompComponent[];
+}
+
+export interface StrokeData {
+	character: string;
+	stroke_count: number;
+	strokes: string[];
+	medians: number[][][];
+}
+
+export function decompose(char: string): DecompResult | null {
+	if (!wasm) return null;
+	wasm.hanzi_reset_alloc();
+	const encoded = new TextEncoder().encode(char);
+	const ptr = writeBytes(encoded);
+	const resultPtr = wasm.hanzi_decompose(ptr, encoded.length);
+	if (resultPtr === 0) return null;
+	const json = readLengthPrefixedString(resultPtr);
+	try {
+		return JSON.parse(json);
+	} catch {
+		return null;
+	}
+}
+
+export function getStrokes(char: string): StrokeData | null {
+	if (!wasm) return null;
+	wasm.hanzi_reset_alloc();
+	const encoded = new TextEncoder().encode(char);
+	const ptr = writeBytes(encoded);
+	const resultPtr = wasm.hanzi_get_strokes(ptr, encoded.length);
+	if (resultPtr === 0) return null;
+	const json = readLengthPrefixedString(resultPtr);
+	try {
+		return JSON.parse(json);
+	} catch {
+		return null;
+	}
+}
+
+export interface AnswerResult {
+	correct: boolean;
+	expected: string;
+	actual: string;
+}
+
+/**
+ * Check if a user's answer matches the expected answer.
+ * Generous matching: case-insensitive, strip German articles, normalize pinyin.
+ */
+export function checkAnswer(answer: string, expected: string, lang: string): AnswerResult {
+	const actual = answer.trim();
+	const exp = expected.trim();
+
+	if (!actual || !exp) {
+		return { correct: false, expected: exp, actual };
+	}
+
+	const normActual = normalizeAnswer(actual, lang);
+	const normExpected = normalizeAnswer(exp, lang);
+
+	return {
+		correct: normActual === normExpected,
+		expected: exp,
+		actual,
+	};
+}
+
+function normalizeAnswer(s: string, lang: string): string {
+	let result = s.toLowerCase().trim();
+
+	if (lang === 'de') {
+		// Strip German articles
+		result = result.replace(/^(der|die|das|ein|eine|einen|einem|einer)\s+/i, '');
+	}
+
+	if (lang === 'zh' || lang === 'pinyin') {
+		result = normalizePinyin(result);
+	}
+
+	return result;
+}
+
+/**
+ * Normalize pinyin: strip tone numbers, convert diacritics to base vowels,
+ * remove spaces, lowercase.
+ */
+function normalizePinyin(s: string): string {
+	const diacriticMap: Record<string, string> = {
+		ā: 'a', á: 'a', ǎ: 'a', à: 'a',
+		ē: 'e', é: 'e', ě: 'e', è: 'e',
+		ī: 'i', í: 'i', ǐ: 'i', ì: 'i',
+		ō: 'o', ó: 'o', ǒ: 'o', ò: 'o',
+		ū: 'u', ú: 'u', ǔ: 'u', ù: 'u',
+		ǖ: 'v', ǘ: 'v', ǚ: 'v', ǜ: 'v', ü: 'v',
+	};
+
+	let result = '';
+	for (const ch of s) {
+		if (ch >= '1' && ch <= '5') continue;
+		if (ch === ' ') continue;
+		result += diacriticMap[ch] ?? ch;
+	}
+	return result.toLowerCase();
 }
 
 export function isReady(): boolean {

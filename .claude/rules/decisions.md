@@ -13,6 +13,28 @@
 | No offline | Offline-first. Sync is optional. |
 | Stalled rewrite (10 commits) | Same architecture as wimg — proven, not experimental |
 
+## Phase 3 Decisions
+
+- **Stroke data: delta-encoded compact binary, not JSON text.** Make Me a Hanzi
+  graphics.txt has SVG paths + median points as JSON text (~29MB raw). Two-stage
+  compression: (1) command bytes + u16 coords instead of text → 14MB, (2) delta-
+  encoding per axis (i8 deltas, 98.3% fit; 0x80 escape + u16 for outliers) → 9MB.
+  69% total reduction. Zig reconstructs SVG path strings on demand. WASM total:
+  ~19MB raw, ~11MB gzipped. Service worker caches once, repeat visits instant.
+- **Answer checking in TypeScript, not Zig.** Only web needs it for now. Easier
+  to iterate. Pinyin normalization (tone numbers ↔ diacritics, strip spaces),
+  German article stripping (der/die/das), case-insensitive. "Earned complexity" —
+  move to Zig only if iOS needs it too.
+- **No grammar tracking UI yet.** grammar_tags column exists but no packs use it.
+  Deferred until packs include grammar data.
+- **No `hanzi_fuzzy_search`.** CEDICT `hanzi_lookup` handles prefix search. Fuzzy
+  pinyin search deferred.
+- **Decomp data is small (~0.8MB).** Dictionary metadata only (radical, IDS,
+  pinyin, definition, etymology). No stroke graphics in decomp.bin.
+- **Stroke SVG coordinate space.** Make Me a Hanzi uses 0-1024 canvas. Stored as
+  u16 with +128 offset to handle occasional small negative values. Reconstructed
+  as `M x y Q cx cy x y Z` SVG paths.
+
 ## Open Questions
 
 - **Naming:** libhanzi for now. If multi-language takes off -> rename. `taijobi.com` available.

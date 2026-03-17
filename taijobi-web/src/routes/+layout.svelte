@@ -5,6 +5,7 @@
 	import { page } from '$app/state';
 	import { updateStore } from '$lib/update.svelte';
 	import UpdateBanner from '../components/UpdateBanner.svelte';
+	import CharTooltip from '../components/CharTooltip.svelte';
 
 	let { children } = $props();
 	let ready = $state(false);
@@ -34,7 +35,11 @@
 					? 'Pakete'
 					: page.url.pathname.startsWith('/lessons')
 						? 'Lektionen'
-						: 'Taijobi',
+						: page.url.pathname === '/characters'
+							? 'Zeichen'
+							: page.url.pathname.startsWith('/character')
+								? 'Zeichen'
+								: 'Taijobi',
 	);
 </script>
 
@@ -129,5 +134,6 @@
 				</a>
 			</div>
 		</nav>
+		<CharTooltip />
 	</div>
 {/if}

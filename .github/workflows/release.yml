@@ -31,8 +31,8 @@ jobs:
           cp sqlite-amalgamation-3520000/sqlite3.c sqlite3.c
           cp sqlite-amalgamation-3520000/sqlite3.h sqlite3.h
 
-      - name: Build CEDICT binary
-        run: ./scripts/build-cedict.sh
+      - name: Build data binaries (CEDICT + decomposition + strokes)
+        run: ./scripts/build-all-data.sh
 
       - name: Zig fmt check
         working-directory: libtaijobi

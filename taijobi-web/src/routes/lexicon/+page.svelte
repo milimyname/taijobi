@@ -252,10 +252,14 @@
 							<div class="flex items-center">
 								<div class="min-w-0 flex-1">
 									<div class="mb-0.5 flex items-center gap-2">
-										<span
-											class="text-lg font-bold"
-											class:chinese-char={entry.language === 'zh'}>{entry.word}</span
-										>
+										{#if entry.language === 'zh'}
+										<a
+											href="/character/{encodeURIComponent(entry.word)}"
+											class="chinese-char text-lg font-bold hover:text-primary"
+										>{entry.word}</a>
+									{:else}
+										<span class="text-lg font-bold">{entry.word}</span>
+									{/if}
 										<span
 											class="rounded bg-primary/5 px-1.5 py-0.5 text-[10px] font-bold text-primary"
 										>

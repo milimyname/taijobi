@@ -99,26 +99,42 @@ get enriched from CEDICT. All words reviewable via FSRS.
 
 ---
 
-## Phase 3 — Deep Chinese Features
+## Phase 3 — Deep Chinese Features ✅ DONE
 
 > Equivalent to wimg Phase 4A (FinTS).
 
-**Goal:** Character decomposition, translation drills, grammar tracking.
+**Goal:** Character decomposition, stroke animation, translation drills.
 
-**libhanzi:**
-- [ ] `decompose.zig` — load Make Me a Hanzi data. Query: character -> radical tree
-  + component meanings. Compile to binary at build time.
-- [ ] `pinyin.zig` — tone number <-> diacritic conversion, fuzzy matching, validation
-- [ ] Grammar tracking: query review_log by grammar_tag, compute per-pattern accuracy
-- [ ] Translation drill mode: compare user input against expected pinyin/deutsch
+**libhanzi:** ✅ DONE
+- [x] `decompose.zig` — Make Me a Hanzi dictionary.txt compiled to decomp.bin (~0.8MB).
+  Binary search by character. Returns radical, IDS decomposition, components, etymology.
+- [x] `strokes.zig` — Make Me a Hanzi graphics.txt compiled to compact strokes.bin (~14MB).
+  SVG paths stored as command bytes + u16 coords (not JSON text — 51% smaller).
+  Reconstructs SVG path strings + median JSON on demand.
+- [x] `pinyin.zig` — normalize pinyin (tone numbers ↔ diacritics, strip spaces, lowercase).
+  `pinyinEqual()` for flexible comparison.
+- [x] `root.zig` — `hanzi_decompose()` and `hanzi_get_strokes()` C ABI exports.
+- [ ] Grammar tracking: deferred — no packs use grammar_tags yet.
 
-**hanzi-web:**
-- [ ] Route: `/character/:char` — large character display, radical decomposition tree,
-  stroke order animation (HanziWriter.js), FSRS status
-- [ ] Drill mode: translation direction picker (ZH->DE, DE->ZH, ZH->Pinyin)
-- [ ] Grammar pattern view: tap grammar tag -> see all sentences + accuracy stats
-- [ ] Tap any character -> navigate to character detail page
-- [ ] Pinyin input: accept both tone numbers and diacritics
+**hanzi-web:** ✅ DONE
+- [x] Route: `/character/[char]` — hero with 96px character, pinyin, definition.
+  Component cards (radical/component labels). Stroke SVG animation from embedded data.
+  Related words from user's lexicon. Speaker button.
+- [x] Drill mode: direction picker (ZH→DE, DE→ZH, ZH→Pinyin)
+- [x] Answer checking in TypeScript: pinyin normalization, German article stripping,
+  case-insensitive. Shows correct/incorrect feedback with color coding.
+- [x] Tap any Chinese character → navigate to character detail page
+  (drill answer view, lexicon list, lesson vocab table)
+- [x] Pinyin input: accepts both tone numbers and diacritics
+- [ ] Grammar pattern view: deferred — no grammar data in packs yet.
+
+**Build/data:**
+- [x] `scripts/compile-decomp.py` + `build-decomp.sh` — download & compile dictionary.txt
+- [x] `scripts/compile-strokes.py` + `build-strokes.sh` — download & compile graphics.txt
+- [x] `build-wasm.sh` + `build-all.sh` updated to include decomp + strokes
+- [x] `.gitignore` updated for decomp.bin + strokes.bin
+- [x] `libtaijobi.h` updated with Phase 3 function declarations
+- [x] `release.yml` updated with decomp + strokes build steps
 
 ---
 

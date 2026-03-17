@@ -5,6 +5,7 @@
 		getDueCountFiltered,
 		getPacks,
 		reviewCard,
+		checkAnswer,
 		type Card,
 		type Pack
 	} from '$lib/wasm';
@@ -12,6 +13,7 @@
 	import { page } from '$app/state';
 
 	type DrillPhase = 'picking' | 'question' | 'answer' | 'complete';
+	type DrillDirection = 'zh-de' | 'de-zh' | 'zh-pinyin';
 
 	let cards: Card[] = $state([]);
 	let index = $state(0);
@@ -20,6 +22,8 @@
 	let reviewed = $state(0);
 	let activeFilter = $state('');
 	let filterLabel = $state('');
+	let direction: DrillDirection = $state('zh-de');
+	let answerCorrect: boolean | null = $state(null);
 
 	// Sources for the picker
 	let packs: Pack[] = $state([]);
@@ -47,7 +51,6 @@
 		const lexCount = getDueCountFiltered('lexicon');
 		if (lexCount > 0) all.push({ id: 'lexicon', label: 'Lexikon', count: lexCount });
 
-		// Seed cards (no pack_id, not lexicon) — check if "Alle" > sum of others
 		sources = all;
 	}
 
@@ -72,13 +75,44 @@
 		phase = cards.length > 0 ? 'question' : 'complete';
 		input = '';
 		reviewed = 0;
+		answerCorrect = null;
 	}
 
 	let card = $derived(cards[index] as Card | undefined);
 	let total = $derived(cards.length);
 
+	// What to show as the question
+	let questionText = $derived.by(() => {
+		if (!card) return '';
+		if (direction === 'de-zh') return card.translation ?? card.word;
+		return card.word;
+	});
+
+	// What's the expected answer
+	let expectedAnswer = $derived.by(() => {
+		if (!card) return '';
+		if (direction === 'zh-de') return card.translation ?? '';
+		if (direction === 'de-zh') return card.word;
+		if (direction === 'zh-pinyin') return card.pinyin ?? '';
+		return card.translation ?? '';
+	});
+
+	// Is question Chinese (for display sizing)?
+	let questionIsChinese = $derived(
+		card?.language === 'zh' && (direction as DrillDirection) !== 'de-zh'
+	);
+
 	function reveal() {
-		if (phase === 'question') phase = 'answer';
+		if (phase !== 'question') return;
+		// Check the answer
+		if (input.trim() && expectedAnswer) {
+			const lang = direction === 'zh-pinyin' ? 'pinyin' : direction === 'zh-de' ? 'de' : 'zh';
+			const result = checkAnswer(input, expectedAnswer, lang);
+			answerCorrect = result.correct;
+		} else {
+			answerCorrect = null;
+		}
+		phase = 'answer';
 	}
 
 	async function rate(rating: number) {
@@ -87,6 +121,7 @@
 		reviewed++;
 		index++;
 		input = '';
+		answerCorrect = null;
 		phase = index >= total ? 'complete' : 'question';
 	}
 
@@ -107,11 +142,46 @@
 			else if (e.key === '4') rate(4);
 		}
 	}
+
+	/** Split Chinese text into individual characters for tappable links */
+	function splitChineseChars(text: string): string[] {
+		return [...text];
+	}
+
+	function isChinese(char: string): boolean {
+		const code = char.codePointAt(0) ?? 0;
+		return (code >= 0x4E00 && code <= 0x9FFF) ||
+			(code >= 0x3400 && code <= 0x4DBF) ||
+			(code >= 0x20000 && code <= 0x2A6DF);
+	}
+
+	const directions: { id: DrillDirection; label: string }[] = [
+		{ id: 'zh-de', label: 'ZH → DE' },
+		{ id: 'de-zh', label: 'DE → ZH' },
+		{ id: 'zh-pinyin', label: 'ZH → Pinyin' },
+	];
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
 
 {#if phase === 'picking'}
+	<!-- Direction picker -->
+	<section class="mt-4">
+		<h3 class="mb-2 text-[11px] font-bold uppercase tracking-wider text-primary">Richtung</h3>
+		<div class="flex gap-2">
+			{#each directions as dir (dir.id)}
+				<button
+					onclick={() => (direction = dir.id)}
+					class="rounded-full px-4 py-1.5 text-sm font-medium transition-colors {direction === dir.id
+						? 'bg-primary text-white'
+						: 'bg-slate-100 text-slate-600 hover:bg-slate-200'}"
+				>
+					{dir.label}
+				</button>
+			{/each}
+		</div>
+	</section>
+
 	<!-- Source picker -->
 	<section class="mt-6">
 		<h2 class="mb-4 text-lg font-bold text-slate-900">Was m&ouml;chtest du &uuml;ben?</h2>
@@ -176,24 +246,31 @@
 	<!-- Card -->
 	<div class="flex flex-col items-center justify-center">
 		<div class="mb-8 text-center">
-			{#if card.language === 'zh'}
+			{#if questionIsChinese}
 				<h1 class="chinese-char mb-2 text-6xl font-bold tracking-tight text-slate-900">
-					{card.word}
+					{questionText}
 				</h1>
-				<div class="flex items-center justify-center gap-3">
-					{#if card.pinyin}
+				{#if direction === 'zh-de' && card.pinyin}
+					<div class="flex items-center justify-center gap-3">
 						<p class="text-lg font-medium text-primary">{card.pinyin}</p>
-					{/if}
+						<button
+							onclick={() => speak(card.word, card.language)}
+							class="flex items-center justify-center rounded-full bg-primary/10 p-2 text-primary transition-colors hover:bg-primary/20"
+						>
+							<span class="material-symbols-outlined text-xl">volume_up</span>
+						</button>
+					</div>
+				{:else}
 					<button
 						onclick={() => speak(card.word, card.language)}
-						class="flex items-center justify-center rounded-full bg-primary/10 p-2 text-primary transition-colors hover:bg-primary/20"
+						class="mt-2 flex items-center justify-center rounded-full bg-primary/10 p-2 text-primary transition-colors hover:bg-primary/20"
 					>
 						<span class="material-symbols-outlined text-xl">volume_up</span>
 					</button>
-				</div>
+				{/if}
 			{:else}
 				<div class="flex items-center justify-center gap-3">
-					<h1 class="text-4xl font-bold tracking-tight text-slate-900">{card.word}</h1>
+					<h1 class="text-4xl font-bold tracking-tight text-slate-900">{questionText}</h1>
 					<button
 						onclick={() => speak(card.word, card.language)}
 						class="flex items-center justify-center rounded-full bg-primary/10 p-2 text-primary transition-colors hover:bg-primary/20"
@@ -211,7 +288,7 @@
 					<input
 						type="text"
 						bind:value={input}
-						placeholder="&Uuml;bersetzung eingeben..."
+						placeholder="{direction === 'zh-pinyin' ? 'Pinyin eingeben...' : direction === 'de-zh' ? 'Chinesisch eingeben...' : 'Übersetzung eingeben...'}"
 						class="h-14 w-full rounded-xl border-2 border-primary bg-primary-light text-center text-lg text-slate-900 placeholder-primary/60 outline-none focus:ring-2 focus:ring-primary"
 					/>
 				</div>
@@ -224,20 +301,45 @@
 			{:else}
 				<!-- Answer revealed -->
 				<div
-					class="flex w-full items-stretch overflow-hidden rounded-xl border-2 border-primary bg-white"
+					class="flex w-full items-stretch overflow-hidden rounded-xl border-2 {answerCorrect === true ? 'border-green-500' : answerCorrect === false ? 'border-red-400' : 'border-primary'} bg-white"
 				>
-					<div class="flex-1 p-4 text-xl font-semibold text-primary">
-						{card.translation ?? '—'}
+					<div class="flex-1 p-4 text-xl font-semibold {answerCorrect === true ? 'text-green-600' : answerCorrect === false ? 'text-red-600' : 'text-primary'}">
+						{expectedAnswer || '—'}
 					</div>
-					<div class="flex items-center bg-primary/5 px-4 text-primary">
-						<span class="material-symbols-outlined text-3xl font-bold">check_circle</span>
+					<div class="flex items-center {answerCorrect === true ? 'bg-green-50' : answerCorrect === false ? 'bg-red-50' : 'bg-primary/5'} px-4">
+						<span class="material-symbols-outlined text-3xl font-bold {answerCorrect === true ? 'text-green-500' : answerCorrect === false ? 'text-red-500' : 'text-primary'}">
+							{answerCorrect === true ? 'check_circle' : answerCorrect === false ? 'cancel' : 'check_circle'}
+						</span>
 					</div>
 				</div>
 
 				{#if input}
-					<p class="text-center text-sm text-slate-400">
+					<p class="text-center text-sm {answerCorrect === true ? 'text-green-600' : answerCorrect === false ? 'text-red-500' : 'text-slate-400'}">
 						Deine Antwort: <span class="font-medium">{input}</span>
+						{#if answerCorrect === true}
+							— Richtig!
+						{:else if answerCorrect === false}
+							— Falsch
+						{/if}
 					</p>
+				{/if}
+
+				<!-- Tappable characters (for Chinese answers) -->
+				{#if card.language === 'zh' && direction !== 'zh-pinyin'}
+					<div class="flex flex-wrap justify-center gap-1">
+						{#each splitChineseChars(card.word) as ch}
+							{#if isChinese(ch)}
+								<a
+									href="/character/{encodeURIComponent(ch)}"
+									class="chinese-char rounded-lg bg-primary/5 px-2 py-1 text-xl text-primary transition-colors hover:bg-primary/10"
+								>
+									{ch}
+								</a>
+							{:else}
+								<span class="px-1 text-xl text-slate-400">{ch}</span>
+							{/if}
+						{/each}
+					</div>
 				{/if}
 
 				<!-- Rating buttons -->
