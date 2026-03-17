@@ -5,7 +5,7 @@
 *A local-first vocabulary engine for all languages you encounter — with deep
 Chinese support, curriculum packs, and spaced repetition.*
 
-Last updated: March 2026 — Phase 1 complete, Phase 2 next
+Last updated: March 2026 — Phase 2 complete, deployed to taijobi.com, Phase 3 next
 
 ---
 
@@ -58,7 +58,8 @@ Inspired by libghostty and libwimg: the library is the product.
 | Sync            | wimg-sync (CF DO + WebSocket + LWW)                |
 | Dictionary      | CC-CEDICT (124k entries, embedded binary)           |
 | Decomposition   | Make Me a Hanzi (embedded)                         |
-| Content packs   | Static JSON on CDN (Cloudflare Pages)              |
+| Content packs   | Static JSON served by Cloudflare Worker             |
+| Hosting         | Cloudflare Workers (taijobi.com)                   |
 | Tooling         | bun, oxfmt, oxlint, lefthook, conventional commits |
 
 ---
@@ -82,7 +83,7 @@ Inspired by libghostty and libwimg: the library is the product.
 **Key patterns:**
 - Warm cream background (`#fefdfb`), not pure white
 - Cards: `bg-white dark:bg-slate-800/40 border border-slate-100 rounded-2xl shadow-sm`
-- Bottom nav: fixed, backdrop-blur, 3 tabs (Start/Üben/Mehr)
+- Bottom nav: fixed, backdrop-blur, 3 tabs (Start/Üben/Pakete)
 - Progress bars: `bg-primary h-2 rounded-full`
 - Chinese characters: `text-4xl font-light` in cards, `text-6xl` in drill
 - Buttons: `bg-primary text-white font-bold rounded-xl shadow-sm`
