@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.4.1 (2026-03-18)
+
+- style: fix oxfmt formatting in wasm.ts
+
 ## v0.4.0 (2026-03-17)
 
 - feat: Phase 3 — Deep Chinese Features
