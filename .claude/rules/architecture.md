@@ -15,7 +15,7 @@ libhanzi (Zig)
 │   ├── lexicon.zig     Word collector, language detection, auto-enrichment
 │   ├── cedict.zig      Binary search over CC-CEDICT, lookup by hanzi/pinyin
 │   ├── decompose.zig   Radical/component tree (Make Me a Hanzi)
-│   ├── anki.zig        .apkg import/export (SQLite-based)
+│   ├── csv.zig         CSV/TSV import/export (Anki, Quizlet, etc.)
 │   ├── lang.zig        Language detection (Unicode ranges + heuristics)
 │   └── types.zig       Card, Lesson, Pack, ReviewLog structs
 │

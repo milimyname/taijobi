@@ -1,6 +1,15 @@
 <script lang="ts">
-	import { getPacks, installPack, removePack, type Pack } from '$lib/wasm';
-	import { onMount } from 'svelte';
+	import {
+		getPacks,
+		installPack,
+		removePack,
+		importCsv,
+		importApkg,
+		exportCsv,
+		type Pack
+	} from '$lib/wasm';
+	import { onMount, onDestroy } from 'svelte';
+	import { toastStore } from '$lib/toast.svelte';
 
 	interface CatalogEntry {
 		id: string;
@@ -10,10 +19,20 @@
 		description: string;
 	}
 
+	interface CsvPreview {
+		filename: string;
+		text: string;
+		rows: string[][];
+		columns: string[];
+		totalRows: number;
+	}
+
 	let installed: Pack[] = $state([]);
 	let catalog: CatalogEntry[] = $state([]);
 	let loading = $state('');
-	let errorMsg = $state('');
+	let csvPreview: CsvPreview | null = $state(null);
+	let importing = $state(false);
+	let dragging = $state(false);
 
 	function refresh() {
 		installed = getPacks();
@@ -33,21 +52,15 @@
 		catalog.filter((c) => !installed.some((p) => p.id === c.id))
 	);
 
-	function isInstalled(id: string): boolean {
-		return installed.some((p) => p.id === id);
-	}
-
 	async function handleInstall(id: string) {
 		loading = id;
-		errorMsg = '';
 		try {
 			const res = await fetch(`/packs/${id}.json`);
 			const json = await res.text();
 			await installPack(json);
 			refresh();
 		} catch (e) {
-			errorMsg = e instanceof Error ? e.message : 'Install failed';
-			setTimeout(() => (errorMsg = ''), 3000);
+			toastStore.show(e instanceof Error ? e.message : 'Install failed');
 		} finally {
 			loading = '';
 		}
@@ -58,17 +71,208 @@
 			await removePack(id);
 			refresh();
 		} catch (e) {
-			errorMsg = e instanceof Error ? e.message : 'Remove failed';
-			setTimeout(() => (errorMsg = ''), 3000);
+			toastStore.show(e instanceof Error ? e.message : 'Remove failed');
+		}
+	}
+
+	function parseCsvPreview(text: string, filename: string): CsvPreview {
+		const lines = text.split('\n').filter((l) => l.trim().length > 0);
+		const delimiter = text.includes('\t') ? '\t' : text.includes(';') ? ';' : ',';
+		const rows = lines.map((l) => l.split(delimiter).map((f) => f.trim().replace(/^"|"$/g, '')));
+		const knownHeaders = [
+			'word', 'hanzi', 'front', 'chinese', 'character', 'vocabulary', 'term',
+			'pinyin', 'reading', 'pronunciation',
+			'meaning', 'english', 'back', 'deutsch', 'definition', 'translation'
+		];
+		const firstRow = rows[0] ?? [];
+		const hasHeader = firstRow.some((f) => knownHeaders.includes(f.toLowerCase()));
+		const columns = hasHeader ? firstRow : firstRow.map((_, i) => `Spalte ${i + 1}`);
+		const dataRows = hasHeader ? rows.slice(1) : rows;
+		return {
+			filename,
+			text,
+			rows: dataRows.slice(0, 5),
+			columns,
+			totalRows: dataRows.length
+		};
+	}
+
+	function handleFile(file: File) {
+		if (!file) return;
+		const name = file.name.replace(/\.\w+$/, '');
+
+		if (file.name.endsWith('.apkg')) {
+			// Binary .apkg — import directly (no text preview)
+			const reader = new FileReader();
+			reader.onload = async () => {
+				importing = true;
+				try {
+					const count = await importApkg(reader.result as ArrayBuffer, name);
+					toastStore.show(`${count} Karten aus .apkg importiert`);
+					refresh();
+				} catch (e) {
+					toastStore.show(e instanceof Error ? e.message : '.apkg import failed');
+				} finally {
+					importing = false;
+				}
+			};
+			reader.readAsArrayBuffer(file);
+			return;
+		}
+
+		// CSV/TSV — show text preview
+		const reader = new FileReader();
+		reader.onload = () => {
+			const text = reader.result as string;
+			csvPreview = parseCsvPreview(text, name);
+		};
+		reader.readAsText(file);
+	}
+
+	function handleDrop(e: DragEvent) {
+		dragging = false;
+		const file = e.dataTransfer?.files[0];
+		if (file) handleFile(file);
+	}
+
+	function handleFileInput(e: Event) {
+		const input = e.target as HTMLInputElement;
+		const file = input.files?.[0];
+		if (file) handleFile(file);
+		input.value = '';
+	}
+
+	async function handleCsvImport() {
+		if (!csvPreview) return;
+		importing = true;
+		try {
+			const count = await importCsv(csvPreview.text, csvPreview.filename);
+			toastStore.show(`${count} Karten importiert`);
+			csvPreview = null;
+			refresh();
+		} catch (e) {
+			toastStore.show(e instanceof Error ? e.message : 'Import failed');
+		} finally {
+			importing = false;
+		}
+	}
+
+	function handleExport() {
+		try {
+			const csv = exportCsv();
+			const blob = new Blob([csv], { type: 'text/tab-separated-values' });
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = 'taijobi-export.tsv';
+			a.click();
+			URL.revokeObjectURL(url);
+		} catch (e) {
+			toastStore.show(e instanceof Error ? e.message : 'Export failed');
 		}
 	}
 </script>
 
-{#if errorMsg}
-	<div class="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700">
-		{errorMsg}
+<svelte:head>
+	<title>Pakete — Taijobi</title>
+</svelte:head>
+
+<!-- Import/Export -->
+<section class="mt-6">
+	<h2 class="mb-4 flex items-center gap-2 text-lg font-bold text-slate-900">
+		<span class="material-symbols-outlined text-primary">swap_vert</span>
+		Import / Export
+	</h2>
+
+	<div class="flex gap-3">
+		<button
+			onclick={handleExport}
+			class="flex items-center gap-2 rounded-xl border border-slate-100 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50"
+		>
+			<span class="material-symbols-outlined text-sm">download</span>
+			CSV exportieren
+		</button>
 	</div>
-{/if}
+
+	<!-- Drop zone -->
+	<div
+		class="mt-4 rounded-2xl border-2 border-dashed p-6 text-center transition-colors {dragging ? 'border-primary bg-primary/5' : 'border-slate-200 bg-white'}"
+		role="region"
+		aria-label="CSV Import"
+		ondragover={(e) => { e.preventDefault(); dragging = true; }}
+		ondragleave={() => { dragging = false; }}
+		ondrop={(e) => { e.preventDefault(); handleDrop(e); }}
+	>
+		<span class="material-symbols-outlined mb-2 text-[32px] text-slate-300">upload_file</span>
+		<p class="text-sm text-slate-500">
+			CSV/TSV oder .apkg hierher ziehen
+		</p>
+		<p class="mt-1 text-xs text-slate-400">oder</p>
+		<label class="mt-2 inline-flex cursor-pointer items-center gap-1 rounded-lg bg-primary/10 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/20">
+			<span class="material-symbols-outlined text-sm">folder_open</span>
+			Datei ausw&auml;hlen
+			<input type="file" accept=".csv,.tsv,.txt,.apkg" class="hidden" onchange={handleFileInput} />
+		</label>
+	</div>
+
+	<!-- CSV Preview -->
+	{#if csvPreview}
+		<div class="mt-4 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+			<div class="mb-3 flex items-center justify-between">
+				<div>
+					<h3 class="font-bold text-slate-900">{csvPreview.filename}</h3>
+					<p class="text-sm text-slate-500">{csvPreview.totalRows} Zeilen erkannt</p>
+				</div>
+				<button
+					onclick={() => { csvPreview = null; }}
+					class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+				>
+					<span class="material-symbols-outlined text-sm">close</span>
+				</button>
+			</div>
+
+			<div class="overflow-x-auto">
+				<table class="w-full text-left text-sm">
+					<thead>
+						<tr class="border-b border-slate-100">
+							{#each csvPreview.columns as col}
+								<th class="px-3 py-2 text-xs font-bold uppercase tracking-wider text-primary">{col}</th>
+							{/each}
+						</tr>
+					</thead>
+					<tbody>
+						{#each csvPreview.rows as row}
+							<tr class="border-b border-slate-50">
+								{#each row as cell}
+									<td class="max-w-[200px] truncate px-3 py-2 text-slate-700">{cell}</td>
+								{/each}
+							</tr>
+						{/each}
+					</tbody>
+				</table>
+			</div>
+
+			{#if csvPreview.totalRows > 5}
+				<p class="mt-2 text-center text-xs text-slate-400">
+					... und {csvPreview.totalRows - 5} weitere Zeilen
+				</p>
+			{/if}
+
+			<button
+				onclick={handleCsvImport}
+				disabled={importing}
+				class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-2.5 font-medium text-white transition-colors hover:bg-primary/90 disabled:opacity-50"
+			>
+				{#if importing}
+					Importiere...
+				{:else}
+					<span class="material-symbols-outlined text-sm">upload</span>
+					{csvPreview.totalRows} Karten importieren
+				{/if}
+			</button>
+		</div>
+	{/if}
+</section>
 
 <!-- Installed Packs -->
 {#if installed.length > 0}

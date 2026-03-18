@@ -35,6 +35,22 @@
   u16 with +128 offset to handle occasional small negative values. Reconstructed
   as `M x y Q cx cy x y Z` SVG paths.
 
+## Phase 3.5 Decisions
+
+- **JSON control char escaping in `writeJsonString`.** Anki `.apkg` note fields
+  can contain raw control characters (e.g. `\x04` EOT, `\x11` DC1) that survive
+  HTML stripping. The JSON spec requires all bytes 0x00-0x1F to be escaped as
+  `\uXXXX`. Missing escapes caused `JSON.parse` to fail silently, making drill
+  show 0 cards after import. Fixed by adding a default arm for `c < 0x20`.
+- **Drill display adapts to non-Chinese content.** Imported Anki decks (e.g.
+  Neuroanatomy) have long English sentences as card words. Drill now checks
+  `hasChinese(text)` instead of just `card.language === 'zh'` for: (1) question
+  text sizing (adaptive: `text-lg`/`text-2xl`/`text-4xl` based on length),
+  (2) tappable character grid (hidden for non-CJK text).
+- **Never silently swallow JSON parse errors.** `getDueCardsFiltered` had a bare
+  `catch { return []; }` that made debugging impossible. All catch blocks now log
+  the error + first 200 chars of the JSON string.
+
 ## Open Questions
 
 - **Naming:** libhanzi for now. If multi-language takes off -> rename. `taijobi.com` available.

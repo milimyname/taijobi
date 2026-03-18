@@ -138,13 +138,30 @@ get enriched from CEDICT. All words reviewable via FSRS.
 
 ---
 
-## Phase 3.5 — Anki Compatibility
+## Phase 3.5 — CSV/TSV Import + Export ✅ DONE
 
-**Goal:** Import .apkg decks, export to .apkg. Bridge with Anki ecosystem.
+**Goal:** Import vocabulary from Anki/Quizlet/Memrise CSV exports, export all cards.
 
-- [ ] `anki.zig` — read .apkg (ZIP of SQLite DBs), map to libhanzi card format
-- [ ] Export: generate valid .apkg with note types, card templates, media refs
-- [ ] Web: drag-and-drop .apkg import, export button in settings, CSV export
+**libhanzi:** ✅ DONE
+- [x] `csv.zig` — CSV/TSV parser with heuristic column detection (header matching +
+  positional fallback), HTML tag stripping, `[sound:]` removal, delimiter auto-detection
+- [x] `importCsv()` — creates pack + lesson + cards in one transaction
+- [x] `exportCsv()` — tab-separated export of all cards with header row
+- [x] `hanzi_import_csv` + `hanzi_export_csv` C ABI exports in root.zig
+- [x] `libtaijobi.h` updated with Phase 3.5 declarations
+
+**taijobi-web:** ✅ DONE
+- [x] `wasm.ts` — `importCsv()` + `exportCsv()` TypeScript wrappers
+- [x] Packs page: drag-and-drop / file picker for .csv/.tsv/.txt files
+- [x] CSV preview: detected columns, row count, 5 sample rows in a table
+- [x] "Importieren" button → success toast with card count → refresh pack list
+- [x] "CSV exportieren" button → downloads `taijobi-export.tsv`
+- [x] Toast system (from wimg): `$lib/toast.svelte.ts` + `Toast.svelte` component
+
+**Deferred:**
+- [ ] .apkg import — needs ZIP + SQLite-in-JS (Phase 5+)
+- [ ] Media import — Phase 5+
+- [ ] Field mapping UI — heuristic detection sufficient for v1
 
 ---
 

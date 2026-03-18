@@ -48,10 +48,10 @@ export fn hanzi_check_answer(card_id: [*]const u8, id_len: usize,
     answer: [*]const u8, ans_len: usize) ?[*]const u8
 ```
 
-## Phase 3.5 — Anki
+## Phase 3.5 — CSV Import/Export
 
 ```zig
-export fn hanzi_import_anki(ptr: [*]const u8, len: usize) i32
-export fn hanzi_export_anki() ?[*]const u8
+export fn hanzi_import_csv(csv_ptr: [*]const u8, csv_len: usize,
+    name_ptr: [*]const u8, name_len: usize) i32
 export fn hanzi_export_csv() ?[*]const u8
 ```

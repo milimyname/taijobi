@@ -5,8 +5,7 @@
 *A local-first vocabulary engine for all languages you encounter — with deep
 Chinese support, curriculum packs, and spaced repetition.*
 
-Last updated: March 2026 — Phase 3 complete (decomposition, strokes, drill directions,
-answer checking, character browser, selection tooltip)
+Last updated: March 2026 — Phase 3.5 complete (CSV/TSV import/export, .apkg import, toast system)
 
 ---
 
