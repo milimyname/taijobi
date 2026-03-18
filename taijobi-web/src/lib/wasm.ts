@@ -78,6 +78,10 @@ interface WasmExports {
 	hanzi_get_progress: (packId: number, len: number) => number;
 	hanzi_decompose: (ch: number, len: number) => number;
 	hanzi_get_strokes: (ch: number, len: number) => number;
+	hanzi_import_csv: (csv: number, csvLen: number, name: number, nameLen: number) => number;
+	hanzi_export_csv: () => number;
+	hanzi_import_apkg: (apkg: number, apkgLen: number, name: number, nameLen: number) => number;
+	hanzi_build_id: () => number;
 	hanzi_db_ptr: () => number;
 	hanzi_db_size: () => number;
 	hanzi_db_load: (data: number, size: number) => number;
@@ -281,13 +285,18 @@ export function getDueCards(limit: number = 50): Card[] {
 	if (!wasm) return [];
 	wasm.hanzi_reset_alloc();
 	const ptr = wasm.hanzi_get_due_cards(limit);
-	if (ptr === 0) return [];
+	if (ptr === 0) {
+		console.warn('[taijobi] getDueCards: ptr=0 (no cards or error)');
+		return [];
+	}
 	const json = readLengthPrefixedString(ptr);
+	console.log(`[taijobi] getDueCards: json length=${json.length}, first 200 chars:`, json.slice(0, 200));
 	wasm.hanzi_free(ptr, 0);
 	try {
 		return JSON.parse(json);
-	} catch {
-		console.error('[taijobi] Failed to parse due cards JSON');
+	} catch (e) {
+		console.error('[taijobi] Failed to parse due cards JSON:', e);
+		console.error('[taijobi] last 200 chars:', json.slice(-200));
 		return [];
 	}
 }
@@ -302,7 +311,9 @@ export function getDueCardsFiltered(filter: string, limit: number = 50): Card[] 
 	const json = readLengthPrefixedString(resultPtr);
 	try {
 		return JSON.parse(json);
-	} catch {
+	} catch (e) {
+		console.error('[taijobi] Failed to parse filtered due cards JSON:', e);
+		console.error('[taijobi] json length:', json.length, 'first 200:', json.slice(0, 200));
 		return [];
 	}
 }
@@ -664,6 +675,72 @@ function normalizePinyin(s: string): string {
 		result += diacriticMap[ch] ?? ch;
 	}
 	return result.toLowerCase();
+}
+
+// --- Phase 3.5: CSV Import/Export ---
+
+export async function importCsv(text: string, name: string): Promise<number> {
+	if (!wasm) throw new Error('WASM not initialized');
+	wasm.hanzi_reset_alloc();
+	const csvEncoded = new TextEncoder().encode(text);
+	const csvPtr = writeBytes(csvEncoded);
+	const nameEncoded = new TextEncoder().encode(name);
+	const namePtr = writeBytes(nameEncoded);
+	const rc = wasm.hanzi_import_csv(csvPtr, csvEncoded.length, namePtr, nameEncoded.length);
+	if (rc < 0) {
+		throw new Error(getLastError('CSV import failed'));
+	}
+	await opfsSave();
+	return rc;
+}
+
+export async function importApkg(data: ArrayBuffer, name: string): Promise<number> {
+	if (!wasm) throw new Error('WASM not initialized');
+	wasm.hanzi_reset_alloc();
+	const bytes = new Uint8Array(data);
+	console.log(`[taijobi] importApkg: ${bytes.length} bytes, name="${name}"`);
+	console.log(`[taijobi] importApkg: first 4 bytes: ${Array.from(bytes.slice(0, 4)).map((b) => b.toString(16).padStart(2, '0')).join(' ')}`);
+	const dataPtr = writeBytes(bytes);
+	const nameEncoded = new TextEncoder().encode(name);
+	const namePtr = writeBytes(nameEncoded);
+	console.log(`[taijobi] importApkg: calling WASM (dataPtr=${dataPtr}, namePtr=${namePtr})`);
+	const rc = wasm.hanzi_import_apkg(dataPtr, bytes.length, namePtr, nameEncoded.length);
+	console.log(`[taijobi] importApkg: rc=${rc}`);
+	if (rc < 0) {
+		throw new Error(getLastError('.apkg import failed'));
+	}
+	await opfsSave();
+	return rc;
+}
+
+export function exportCsv(): string {
+	if (!wasm) throw new Error('WASM not initialized');
+	wasm.hanzi_reset_alloc();
+	const ptr = wasm.hanzi_export_csv();
+	if (ptr === 0) {
+		throw new Error(getLastError('CSV export failed'));
+	}
+	return readLengthPrefixedString(ptr);
+}
+
+// --- DevTools helpers ---
+
+export function getWasmMemoryBytes(): number {
+	if (!wasm) return 0;
+	return wasm.memory.buffer.byteLength;
+}
+
+export function getWasmDbSize(): number {
+	if (!wasm) return 0;
+	return wasm.hanzi_db_size();
+}
+
+export function getBuildId(): string {
+	if (!wasm) return 'unknown';
+	wasm.hanzi_reset_alloc();
+	const ptr = (wasm as unknown as { hanzi_build_id: () => number }).hanzi_build_id();
+	if (ptr === 0) return 'unknown';
+	return readLengthPrefixedString(ptr);
 }
 
 export function isReady(): boolean {

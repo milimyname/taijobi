@@ -98,7 +98,19 @@ pub const JsonWriter = struct {
                     self.writeByte('\\');
                     self.writeByte('t');
                 },
-                else => self.writeByte(c),
+                else => {
+                    if (c < 0x20) {
+                        const hex = "0123456789abcdef";
+                        self.writeByte('\\');
+                        self.writeByte('u');
+                        self.writeByte('0');
+                        self.writeByte('0');
+                        self.writeByte(hex[c >> 4]);
+                        self.writeByte(hex[c & 0x0f]);
+                    } else {
+                        self.writeByte(c);
+                    }
+                },
             }
         }
         self.writeByte('"');
@@ -166,4 +178,11 @@ test "JsonWriter string escaping" {
     var w = JsonWriter.init(&buf);
     w.writeJsonString("hello \"world\"\n");
     try std.testing.expectEqualStrings("\"hello \\\"world\\\"\\n\"", w.written());
+}
+
+test "JsonWriter control char escaping" {
+    var buf: [64]u8 = undefined;
+    var w = JsonWriter.init(&buf);
+    w.writeJsonString("a\x04b\x11c");
+    try std.testing.expectEqualStrings("\"a\\u0004b\\u0011c\"", w.written());
 }

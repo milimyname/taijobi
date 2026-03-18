@@ -38,25 +38,30 @@
 
 	function buildSources() {
 		packs = getPacks();
+		console.log('[drill] packs:', packs.map((p) => `${p.name} (${p.id})`));
 		const all: DrillSource[] = [];
 
 		const totalDue = getDueCountFiltered('');
+		console.log('[drill] total due:', totalDue);
 		if (totalDue > 0) all.push({ id: '', label: 'Alle Karten', count: totalDue });
 
 		for (const pack of packs) {
 			const count = getDueCountFiltered(pack.id);
+			console.log(`[drill] pack "${pack.name}" (${pack.id}): ${count} due`);
 			if (count > 0) all.push({ id: pack.id, label: pack.name, count });
 		}
 
 		const lexCount = getDueCountFiltered('lexicon');
 		if (lexCount > 0) all.push({ id: 'lexicon', label: 'Lexikon', count: lexCount });
 
+		console.log('[drill] sources:', all.length);
 		sources = all;
 	}
 
 	// If navigated with ?pack=xxx, skip picker
 	function init() {
 		const urlFilter = page.url.searchParams.get('pack');
+		console.log('[drill] init, urlFilter:', urlFilter, 'url:', page.url.pathname + page.url.search);
 		if (urlFilter) {
 			startDrill(urlFilter, urlFilter);
 		} else {
@@ -99,7 +104,7 @@
 
 	// Is question Chinese (for display sizing)?
 	let questionIsChinese = $derived(
-		card?.language === 'zh' && (direction as DrillDirection) !== 'de-zh'
+		card?.language === 'zh' && (direction as DrillDirection) !== 'de-zh' && hasChinese(questionText)
 	);
 
 	function reveal() {
@@ -153,6 +158,10 @@
 		return (code >= 0x4E00 && code <= 0x9FFF) ||
 			(code >= 0x3400 && code <= 0x4DBF) ||
 			(code >= 0x20000 && code <= 0x2A6DF);
+	}
+
+	function hasChinese(text: string): boolean {
+		return [...text].some(isChinese);
 	}
 
 	const directions: { id: DrillDirection; label: string }[] = [
@@ -270,7 +279,7 @@
 				{/if}
 			{:else}
 				<div class="flex items-center justify-center gap-3">
-					<h1 class="text-4xl font-bold tracking-tight text-slate-900">{questionText}</h1>
+					<h1 class="{questionText.length > 60 ? 'text-lg' : questionText.length > 30 ? 'text-2xl' : 'text-4xl'} font-bold tracking-tight text-slate-900">{questionText}</h1>
 					<button
 						onclick={() => speak(card.word, card.language)}
 						class="flex items-center justify-center rounded-full bg-primary/10 p-2 text-primary transition-colors hover:bg-primary/20"
@@ -325,7 +334,7 @@
 				{/if}
 
 				<!-- Tappable characters (for Chinese answers) -->
-				{#if card.language === 'zh' && direction !== 'zh-pinyin'}
+				{#if card.language === 'zh' && direction !== 'zh-pinyin' && hasChinese(card.word)}
 					<div class="flex flex-wrap justify-center gap-1">
 						{#each splitChineseChars(card.word) as ch}
 							{#if isChinese(ch)}
