@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.4.4 (2026-03-19)
+
+- feat: CSV/TSV import/export, .apkg import, toast system, DevTools panel (Phase 3.5)
+- feat: add reading mode (Browse → Study → Drill) and gate DevTools behind ?devtools
+- fix: escape JSON control chars and improve drill display for non-Chinese cards
+
 ## v0.4.3 (2026-03-18)
 
 - feat: poll for app updates every 5 minutes via SvelteKit version config
