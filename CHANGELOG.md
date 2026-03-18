@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.4.6 (2026-03-19)
+
+- refactor: rewrite all Python scripts to JavaScript (Bun)
+- fix: recreate apkg test data and restore STORE/DEFLATE tests
+
 ## v0.4.5 (2026-03-19)
 
 - fix: format apkg.zig and TS files to pass CI checks
