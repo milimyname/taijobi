@@ -12,6 +12,8 @@ const cedict = @import("cedict.zig");
 const curriculum = @import("curriculum.zig");
 const decompose = @import("decompose.zig");
 const strokes_mod = @import("strokes.zig");
+const csv_mod = @import("csv.zig");
+const apkg_mod = @import("apkg.zig");
 
 // --- Fixed buffer allocator (64MB) ---
 const FBA_SIZE = 64 * 1024 * 1024;
@@ -22,7 +24,7 @@ var fba = std.heap.FixedBufferAllocator.init(&fba_backing);
 var global_db: ?Db = null;
 var error_buf: [512]u8 = undefined;
 var error_len: usize = 0;
-var json_buf: [64 * 1024]u8 = undefined; // 64KB for JSON responses
+var json_buf: [512 * 1024]u8 = undefined; // 512KB for JSON responses
 
 // --- JS imports ---
 const is_wasm = builtin.cpu.arch == .wasm32;
@@ -60,8 +62,13 @@ fn makeLengthPrefixed(data: []const u8) ?[*]const u8 {
 
 // === C ABI Exports ===
 
+export fn hanzi_build_id() ?[*]const u8 {
+    const id = "build-2026-03-19b";
+    return makeLengthPrefixed(id);
+}
+
 export fn hanzi_init(path: [*:0]const u8) i32 {
-    log("hanzi_init called");
+    log("hanzi_init called (build-2026-03-19b)");
     global_db = Db.init(path) catch |err| {
         const msg = switch (err) {
             error.OpenFailed => "failed to open database",
@@ -300,6 +307,36 @@ export fn hanzi_get_progress(pack_id_ptr: [*]const u8, pack_id_len: usize) ?[*]c
     return makeLengthPrefixed(json);
 }
 
+// === Reading Mode ===
+
+export fn hanzi_mark_read(id_ptr: [*]const u8, id_len: usize) i32 {
+    const db = &(global_db orelse return -1);
+    const card_id = id_ptr[0..id_len];
+    db.markCardRead(card_id, now()) catch |err| {
+        const msg = switch (err) {
+            error.PrepareFailed => "SQL prepare failed",
+            error.StepFailed => "SQL step failed",
+            else => "mark read failed",
+        };
+        setError(msg);
+        return -1;
+    };
+    return 0;
+}
+
+export fn hanzi_get_unread_cards(filter_ptr: [*]const u8, filter_len: usize, limit: u32) ?[*]const u8 {
+    const db = &(global_db orelse return null);
+    const filter = if (filter_len == 0) null else filter_ptr[0..filter_len];
+    const json = db.getUnreadCards(limit, filter, &json_buf) orelse return null;
+    return makeLengthPrefixed(json);
+}
+
+export fn hanzi_get_unread_count(filter_ptr: [*]const u8, filter_len: usize) i32 {
+    const db = &(global_db orelse return -1);
+    const filter = if (filter_len == 0) null else filter_ptr[0..filter_len];
+    return db.getUnreadCount(filter);
+}
+
 // === Phase 3 — Deep Chinese ===
 
 export fn hanzi_decompose(char_ptr: [*]const u8, char_len: usize) ?[*]const u8 {
@@ -312,6 +349,80 @@ export fn hanzi_get_strokes(char_ptr: [*]const u8, char_len: usize) ?[*]const u8
     const query = char_ptr[0..char_len];
     const json = strokes_mod.strokesAsJson(query, &json_buf) orelse return null;
     return makeLengthPrefixed(json);
+}
+
+// === Phase 3.5 — CSV Import/Export ===
+
+export fn hanzi_import_csv(csv_ptr: [*]const u8, csv_len: usize, name_ptr: [*]const u8, name_len: usize) i32 {
+    const db = &(global_db orelse return -1);
+    const csv_data = csv_ptr[0..csv_len];
+    const pack_name = name_ptr[0..name_len];
+    const count = csv_mod.importCsv(db.handle, csv_data, pack_name, now()) catch |err| {
+        const msg = switch (err) {
+            error.EmptyInput => "CSV is empty",
+            error.NoWordsFound => "no words found in CSV",
+            error.PrepareFailed => "SQL prepare failed",
+            error.StepFailed => "SQL step failed",
+        };
+        setError(msg);
+        return -1;
+    };
+    return @intCast(count);
+}
+
+export fn hanzi_export_csv() ?[*]const u8 {
+    const db = &(global_db orelse return null);
+    // Use a larger buffer for CSV export (allocated from FBA)
+    const export_buf = fba.allocator().alloc(u8, 256 * 1024) catch return null;
+    const csv_text = csv_mod.exportCsv(db.handle, export_buf) orelse return null;
+    return makeLengthPrefixed(csv_text);
+}
+
+export fn hanzi_import_apkg(apkg_ptr: [*]const u8, apkg_len: usize, name_ptr: [*]const u8, name_len: usize) i32 {
+    log("hanzi_import_apkg called");
+    const db = &(global_db orelse {
+        log("apkg: no db");
+        return -1;
+    });
+    const apkg_data = apkg_ptr[0..apkg_len];
+    const pack_name = name_ptr[0..name_len];
+
+    // Log input sizes
+    var size_buf: [64]u8 = undefined;
+    const size_msg = std.fmt.bufPrint(&size_buf, "apkg: data={d} name={d}", .{ apkg_len, name_len }) catch "apkg: fmt err";
+    log(size_msg);
+
+    // Allocate scratch buffer for decompressed SQLite (up to 32MB)
+    const scratch = fba.allocator().alloc(u8, 32 * 1024 * 1024) catch {
+        log("apkg: scratch alloc failed");
+        return -1;
+    };
+    const count = apkg_mod.importApkg(db.handle, apkg_data, pack_name, now(), scratch) catch |err| {
+        const msg = switch (err) {
+            error.InvalidZip => "invalid or corrupt .apkg file",
+            error.DatabaseNotFound => "no Anki database found in .apkg",
+            error.DecompressFailed => "failed to decompress .apkg",
+            error.NoNotesFound => "no notes found in Anki database",
+            error.TempDbFailed => "failed to open Anki database",
+            error.PrepareFailed => "SQL prepare failed",
+            error.StepFailed => "SQL step failed",
+        };
+        setError(msg);
+        log(msg);
+        return -1;
+    };
+
+    var count_buf: [48]u8 = undefined;
+    const count_msg = std.fmt.bufPrint(&count_buf, "apkg: imported {d} cards", .{count}) catch "apkg: done";
+    log(count_msg);
+
+    // Log due count right after import for debugging
+    const due = db.getDueCount(now());
+    var due_buf: [48]u8 = undefined;
+    const due_msg = std.fmt.bufPrint(&due_buf, "apkg: due count now = {d}", .{due}) catch "apkg: due ?";
+    log(due_msg);
+
+    return @intCast(count);
 }
 
 // === WASM-only exports ===
@@ -348,4 +459,6 @@ test {
     _ = @import("decompose.zig");
     _ = @import("strokes.zig");
     _ = @import("pinyin.zig");
+    _ = @import("csv.zig");
+    _ = @import("apkg.zig");
 }

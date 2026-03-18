@@ -3,16 +3,20 @@
 		getDueCards,
 		getDueCardsFiltered,
 		getDueCountFiltered,
+		getUnreadCards,
+		getUnreadCount,
+		markRead,
 		getPacks,
 		reviewCard,
 		checkAnswer,
 		type Card,
-		type Pack
+		type Pack,
+		type ReadCard
 	} from '$lib/wasm';
 	import { speak } from '$lib/speak';
 	import { page } from '$app/state';
 
-	type DrillPhase = 'picking' | 'question' | 'answer' | 'complete';
+	type DrillPhase = 'picking' | 'question' | 'answer' | 'complete' | 'reading';
 	type DrillDirection = 'zh-de' | 'de-zh' | 'zh-pinyin';
 
 	let cards: Card[] = $state([]);
@@ -25,6 +29,12 @@
 	let direction: DrillDirection = $state('zh-de');
 	let answerCorrect: boolean | null = $state(null);
 
+	// Reading mode state
+	let readCards: ReadCard[] = $state([]);
+	let readIndex = $state(0);
+	let readingDone = $state(false);
+	let readCount = $state(0);
+
 	// Sources for the picker
 	let packs: Pack[] = $state([]);
 
@@ -34,27 +44,46 @@
 		count: number;
 	}
 
+	interface ReadSource {
+		id: string;
+		label: string;
+		count: number;
+	}
+
 	let sources: DrillSource[] = $state([]);
+	let readSources: ReadSource[] = $state([]);
 
 	function buildSources() {
 		packs = getPacks();
-		console.log('[drill] packs:', packs.map((p) => `${p.name} (${p.id})`));
 		const all: DrillSource[] = [];
+		const reads: ReadSource[] = [];
 
+		// Build unread sources
+		const totalUnread = getUnreadCount('');
+		if (totalUnread > 0) reads.push({ id: '', label: 'Alle Karten', count: totalUnread });
+
+		for (const pack of packs) {
+			const unread = getUnreadCount(pack.id);
+			if (unread > 0) reads.push({ id: pack.id, label: pack.name, count: unread });
+		}
+
+		const lexUnread = getUnreadCount('lexicon');
+		if (lexUnread > 0) reads.push({ id: 'lexicon', label: 'Lexikon', count: lexUnread });
+
+		readSources = reads;
+
+		// Build due sources
 		const totalDue = getDueCountFiltered('');
-		console.log('[drill] total due:', totalDue);
 		if (totalDue > 0) all.push({ id: '', label: 'Alle Karten', count: totalDue });
 
 		for (const pack of packs) {
 			const count = getDueCountFiltered(pack.id);
-			console.log(`[drill] pack "${pack.name}" (${pack.id}): ${count} due`);
 			if (count > 0) all.push({ id: pack.id, label: pack.name, count });
 		}
 
 		const lexCount = getDueCountFiltered('lexicon');
 		if (lexCount > 0) all.push({ id: 'lexicon', label: 'Lexikon', count: lexCount });
 
-		console.log('[drill] sources:', all.length);
 		sources = all;
 	}
 
@@ -81,6 +110,29 @@
 		input = '';
 		reviewed = 0;
 		answerCorrect = null;
+	}
+
+	function startReading(filter: string, label: string) {
+		activeFilter = filter;
+		filterLabel = label;
+		readCards = getUnreadCards(filter, 50);
+		readIndex = 0;
+		readingDone = false;
+		readCount = 0;
+		phase = readCards.length > 0 ? 'reading' : 'picking';
+	}
+
+	async function nextReadCard() {
+		const rc = readCards[readIndex];
+		if (rc) {
+			await markRead(rc.id);
+			readCount++;
+		}
+		readIndex++;
+		if (readIndex >= readCards.length) {
+			readingDone = true;
+			phase = 'complete';
+		}
 	}
 
 	let card = $derived(cards[index] as Card | undefined);
@@ -145,8 +197,13 @@
 			else if (e.key === '2') rate(2);
 			else if (e.key === '3') rate(3);
 			else if (e.key === '4') rate(4);
+		} else if (phase === 'reading' && (e.key === 'Enter' || e.key === 'ArrowRight')) {
+			nextReadCard();
 		}
 	}
+
+	let readCard = $derived(readCards[readIndex] as ReadCard | undefined);
+	let readQuestionIsChinese = $derived(readCard ? hasChinese(readCard.word) : false);
 
 	/** Split Chinese text into individual characters for tappable links */
 	function splitChineseChars(text: string): string[] {
@@ -191,9 +248,32 @@
 		</div>
 	</section>
 
+	<!-- Read new words -->
+	{#if readSources.length > 0}
+		<section class="mt-6">
+			<h3 class="mb-2 text-[11px] font-bold uppercase tracking-wider text-primary">Neue W&ouml;rter durchlesen</h3>
+			<div class="space-y-3">
+				{#each readSources as source (source.id)}
+					<button
+						onclick={() => startReading(source.id, source.label)}
+						class="flex w-full items-center justify-between rounded-2xl border border-primary/20 bg-primary-light p-4 shadow-sm transition-colors hover:bg-primary/10"
+					>
+						<div class="flex items-center gap-3">
+							<span class="material-symbols-outlined text-primary">auto_stories</span>
+							<span class="font-bold text-slate-900">{source.label}</span>
+						</div>
+						<span class="rounded-full bg-primary/10 px-3 py-1 text-sm font-bold text-primary">
+							{source.count} neu
+						</span>
+					</button>
+				{/each}
+			</div>
+		</section>
+	{/if}
+
 	<!-- Source picker -->
 	<section class="mt-6">
-		<h2 class="mb-4 text-lg font-bold text-slate-900">Was m&ouml;chtest du &uuml;ben?</h2>
+		<h3 class="mb-2 text-[11px] font-bold uppercase tracking-wider text-primary">F&auml;llige Karten</h3>
 		<div class="space-y-3">
 			{#each sources as source (source.id)}
 				<button
@@ -212,13 +292,95 @@
 				</button>
 			{/each}
 		</div>
-		{#if sources.length === 0}
+		{#if sources.length === 0 && readSources.length === 0}
 			<div class="rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm">
 				<p class="text-2xl font-bold text-slate-900">Alles erledigt!</p>
 				<p class="mt-2 text-sm text-slate-500">Keine Karten f&auml;llig.</p>
 			</div>
 		{/if}
 	</section>
+{:else if phase === 'reading' && readCard}
+	<!-- Reading mode -->
+	<div class="mb-8 mt-4 text-center">
+		{#if filterLabel}
+			<p class="mb-1 text-xs font-bold uppercase tracking-wider text-primary">{filterLabel}</p>
+		{/if}
+		<p class="text-lg font-bold text-slate-900">{readIndex + 1} / {readCards.length}</p>
+		<div class="mx-auto mt-2 h-1.5 w-48 overflow-hidden rounded-full bg-slate-100">
+			<div class="h-full rounded-full bg-primary transition-all" style="width: {((readIndex + 1) / readCards.length) * 100}%"></div>
+		</div>
+	</div>
+
+	<div class="flex flex-col items-center justify-center">
+		<div class="mb-6 text-center">
+			{#if readQuestionIsChinese}
+				<h1 class="chinese-char mb-2 text-6xl font-bold tracking-tight text-slate-900">
+					{readCard.word}
+				</h1>
+				{#if readCard.pinyin}
+					<div class="flex items-center justify-center gap-3">
+						<p class="text-lg font-medium text-primary">{readCard.pinyin}</p>
+						<button
+							onclick={() => speak(readCard!.word, readCard!.language)}
+							class="flex items-center justify-center rounded-full bg-primary/10 p-2 text-primary transition-colors hover:bg-primary/20"
+						>
+							<span class="material-symbols-outlined text-xl">volume_up</span>
+						</button>
+					</div>
+				{:else}
+					<button
+						onclick={() => speak(readCard!.word, readCard!.language)}
+						class="mt-2 flex items-center justify-center rounded-full bg-primary/10 p-2 text-primary transition-colors hover:bg-primary/20"
+					>
+						<span class="material-symbols-outlined text-xl">volume_up</span>
+					</button>
+				{/if}
+			{:else}
+				<div class="flex items-center justify-center gap-3">
+					<h1 class="{readCard.word.length > 60 ? 'text-lg' : readCard.word.length > 30 ? 'text-2xl' : 'text-4xl'} font-bold tracking-tight text-slate-900">{readCard.word}</h1>
+					<button
+						onclick={() => speak(readCard!.word, readCard!.language)}
+						class="flex items-center justify-center rounded-full bg-primary/10 p-2 text-primary transition-colors hover:bg-primary/20"
+					>
+						<span class="material-symbols-outlined text-xl">volume_up</span>
+					</button>
+				</div>
+			{/if}
+		</div>
+
+		<!-- Translation (always visible in reading mode) -->
+		<div class="mb-8 w-full max-w-md rounded-xl border-2 border-primary/20 bg-primary-light p-4 text-center">
+			<p class="text-xl font-semibold text-slate-900">{readCard.translation || '—'}</p>
+		</div>
+
+		<!-- Tappable characters -->
+		{#if readCard.language === 'zh' && hasChinese(readCard.word)}
+			<div class="mb-6 flex flex-wrap justify-center gap-1">
+				{#each splitChineseChars(readCard.word) as ch}
+					{#if isChinese(ch)}
+						<a
+							href="/character/{encodeURIComponent(ch)}"
+							class="chinese-char rounded-lg bg-primary/5 px-2 py-1 text-xl text-primary transition-colors hover:bg-primary/10"
+						>
+							{ch}
+						</a>
+					{:else}
+						<span class="px-1 text-xl text-slate-400">{ch}</span>
+					{/if}
+				{/each}
+			</div>
+		{/if}
+
+		<button
+			onclick={nextReadCard}
+			class="h-14 w-full max-w-md rounded-xl bg-primary text-lg font-bold text-white transition-all hover:opacity-90 active:scale-[0.98]"
+		>
+			{readIndex >= readCards.length - 1 ? 'Fertig' : 'Weiter'} &rarr;
+		</button>
+		<p class="mt-3 text-center text-[10px] font-medium uppercase tracking-wider text-slate-400">
+			Enter oder &rarr;
+		</p>
+	</div>
 {:else if phase === 'complete'}
 	<div class="flex flex-col items-center pt-20">
 		<div
@@ -226,22 +388,41 @@
 		>
 			<span class="material-symbols-outlined text-[32px]">check_circle</span>
 		</div>
-		<p class="mt-4 text-2xl font-bold text-slate-900">Sitzung abgeschlossen</p>
-		<p class="mt-2 text-sm text-slate-500">{reviewed} Karten gelernt</p>
-		<div class="mt-8 flex gap-3">
-			<button
-				onclick={() => { buildSources(); phase = 'picking'; }}
-				class="rounded-lg bg-primary px-8 py-3 font-semibold text-white shadow-md shadow-primary/20 transition-all hover:bg-primary/90"
-			>
-				Weiter &uuml;ben
-			</button>
-			<a
-				href="/"
-				class="rounded-lg border border-slate-200 px-8 py-3 font-semibold text-slate-600 transition-all hover:bg-slate-50"
-			>
-				Zur&uuml;ck
-			</a>
-		</div>
+		{#if readingDone}
+			<p class="mt-4 text-2xl font-bold text-slate-900">{readCount} neue W&ouml;rter gelesen</p>
+			<p class="mt-2 text-sm text-slate-500">Bereit zum &Uuml;ben!</p>
+			<div class="mt-8 flex gap-3">
+				<button
+					onclick={() => { readingDone = false; startDrill(activeFilter, filterLabel); }}
+					class="rounded-lg bg-primary px-8 py-3 font-semibold text-white shadow-md shadow-primary/20 transition-all hover:bg-primary/90"
+				>
+					Jetzt &uuml;ben
+				</button>
+				<button
+					onclick={() => { readingDone = false; buildSources(); phase = 'picking'; }}
+					class="rounded-lg border border-slate-200 px-8 py-3 font-semibold text-slate-600 transition-all hover:bg-slate-50"
+				>
+					Zur&uuml;ck
+				</button>
+			</div>
+		{:else}
+			<p class="mt-4 text-2xl font-bold text-slate-900">Sitzung abgeschlossen</p>
+			<p class="mt-2 text-sm text-slate-500">{reviewed} Karten gelernt</p>
+			<div class="mt-8 flex gap-3">
+				<button
+					onclick={() => { buildSources(); phase = 'picking'; }}
+					class="rounded-lg bg-primary px-8 py-3 font-semibold text-white shadow-md shadow-primary/20 transition-all hover:bg-primary/90"
+				>
+					Weiter &uuml;ben
+				</button>
+				<a
+					href="/"
+					class="rounded-lg border border-slate-200 px-8 py-3 font-semibold text-slate-600 transition-all hover:bg-slate-50"
+				>
+					Zur&uuml;ck
+				</a>
+			</div>
+		{/if}
 	</div>
 {:else if card}
 	<!-- Progress counter -->

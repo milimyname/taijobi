@@ -6,6 +6,8 @@
 	import { updateStore } from '$lib/update.svelte';
 	import UpdateBanner from '../components/UpdateBanner.svelte';
 	import CharTooltip from '../components/CharTooltip.svelte';
+	import Toast from '../components/Toast.svelte';
+	import DevTools from '../components/DevTools.svelte';
 
 	let { children } = $props();
 	let ready = $state(false);
@@ -135,5 +137,9 @@
 			</div>
 		</nav>
 		<CharTooltip />
+		<Toast />
+		{#if page.url.searchParams.has('devtools')}
+			<DevTools />
+		{/if}
 	</div>
 {/if}

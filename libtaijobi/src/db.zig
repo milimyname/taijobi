@@ -57,8 +57,12 @@ pub const Db = struct {
         const version = self.getMetaInt("schema_version");
         if (version < 1) {
             try self.exec(schema_v1);
-            try self.setMeta("schema_version", "1");
+            try self.setMeta("schema_version", "2");
             try self.seed();
+        }
+        if (version >= 1 and version < 2) {
+            try self.exec("ALTER TABLE cards ADD COLUMN first_seen_at INTEGER");
+            try self.setMeta("schema_version", "2");
         }
     }
 
@@ -404,6 +408,124 @@ pub const Db = struct {
         }
     }
 
+    pub fn markCardRead(self: *Db, card_id: []const u8, now_ms: i64) DbError!void {
+        var stmt: ?*sqlite.sqlite3_stmt = null;
+        const sql = "UPDATE cards SET first_seen_at = ? WHERE id = ? AND first_seen_at IS NULL";
+        if (sqlite.sqlite3_prepare_v2(self.handle, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK) {
+            return error.PrepareFailed;
+        }
+        defer _ = sqlite.sqlite3_finalize(stmt.?);
+        _ = sqlite.sqlite3_bind_int64(stmt.?, 1, now_ms);
+        _ = sqlite.sqlite3_bind_text(stmt.?, 2, card_id.ptr, @intCast(card_id.len), sqlite.SQLITE_STATIC);
+        if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_DONE) return error.StepFailed;
+    }
+
+    pub fn getUnreadCount(self: *Db, filter: ?[]const u8) i32 {
+        var stmt: ?*sqlite.sqlite3_stmt = null;
+
+        const sql_all = "SELECT COUNT(*) FROM cards WHERE first_seen_at IS NULL";
+        const sql_lexicon = "SELECT COUNT(*) FROM cards WHERE first_seen_at IS NULL AND source_type = 'lexicon'";
+        const sql_pack = "SELECT COUNT(*) FROM cards WHERE first_seen_at IS NULL AND pack_id = ?";
+
+        if (filter) |f| {
+            if (std.mem.eql(u8, f, "lexicon")) {
+                if (sqlite.sqlite3_prepare_v2(self.handle, sql_lexicon, @intCast(sql_lexicon.len), &stmt, null) != sqlite.SQLITE_OK) return 0;
+                defer _ = sqlite.sqlite3_finalize(stmt.?);
+                if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_ROW) return 0;
+                return sqlite.sqlite3_column_int(stmt.?, 0);
+            } else {
+                if (sqlite.sqlite3_prepare_v2(self.handle, sql_pack, @intCast(sql_pack.len), &stmt, null) != sqlite.SQLITE_OK) return 0;
+                defer _ = sqlite.sqlite3_finalize(stmt.?);
+                _ = sqlite.sqlite3_bind_text(stmt.?, 1, f.ptr, @intCast(f.len), sqlite.SQLITE_STATIC);
+                if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_ROW) return 0;
+                return sqlite.sqlite3_column_int(stmt.?, 0);
+            }
+        } else {
+            if (sqlite.sqlite3_prepare_v2(self.handle, sql_all, @intCast(sql_all.len), &stmt, null) != sqlite.SQLITE_OK) return 0;
+            defer _ = sqlite.sqlite3_finalize(stmt.?);
+            if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_ROW) return 0;
+            return sqlite.sqlite3_column_int(stmt.?, 0);
+        }
+    }
+
+    pub fn getUnreadCards(self: *Db, limit: u32, filter: ?[]const u8, buf: []u8) ?[]const u8 {
+        var stmt: ?*sqlite.sqlite3_stmt = null;
+
+        const select_cols =
+            \\SELECT c.id, c.word, c.language, c.pinyin, c.translation, c.source_type
+            \\FROM cards c
+            \\WHERE c.first_seen_at IS NULL
+        ;
+        const order_limit = " ORDER BY c.created_at ASC LIMIT ?";
+
+        const sql_all = select_cols ++ order_limit;
+        const sql_lexicon = select_cols ++ " AND c.source_type = 'lexicon'" ++ order_limit;
+        const sql_pack = select_cols ++ " AND c.pack_id = ?" ++ order_limit;
+
+        if (filter) |f| {
+            if (std.mem.eql(u8, f, "lexicon")) {
+                if (sqlite.sqlite3_prepare_v2(self.handle, sql_lexicon, @intCast(sql_lexicon.len), &stmt, null) != sqlite.SQLITE_OK) return null;
+                _ = sqlite.sqlite3_bind_int(stmt.?, 1, @intCast(limit));
+            } else {
+                if (sqlite.sqlite3_prepare_v2(self.handle, sql_pack, @intCast(sql_pack.len), &stmt, null) != sqlite.SQLITE_OK) return null;
+                _ = sqlite.sqlite3_bind_text(stmt.?, 1, f.ptr, @intCast(f.len), sqlite.SQLITE_STATIC);
+                _ = sqlite.sqlite3_bind_int(stmt.?, 2, @intCast(limit));
+            }
+        } else {
+            if (sqlite.sqlite3_prepare_v2(self.handle, sql_all, @intCast(sql_all.len), &stmt, null) != sqlite.SQLITE_OK) return null;
+            _ = sqlite.sqlite3_bind_int(stmt.?, 1, @intCast(limit));
+        }
+        defer _ = sqlite.sqlite3_finalize(stmt.?);
+
+        var w = JsonWriter.init(buf);
+        w.writeByte('[');
+        var count: u32 = 0;
+
+        while (sqlite.sqlite3_step(stmt.?) == sqlite.SQLITE_ROW) {
+            if (count > 0) w.writeByte(',');
+            count += 1;
+
+            const id = colText(stmt.?, 0);
+            const word = colText(stmt.?, 1);
+            const lang = colText(stmt.?, 2);
+            const pinyin_ptr = sqlite.sqlite3_column_text(stmt.?, 3);
+            const trans_ptr = sqlite.sqlite3_column_text(stmt.?, 4);
+            const source = colText(stmt.?, 5);
+
+            w.writeByte('{');
+            w.writeKey("id");
+            w.writeJsonString(id);
+            w.writeByte(',');
+            w.writeKey("word");
+            w.writeJsonString(word);
+            w.writeByte(',');
+            w.writeKey("language");
+            w.writeJsonString(lang);
+            w.writeByte(',');
+            w.writeKey("pinyin");
+            if (pinyin_ptr) |p| {
+                const plen: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 3));
+                w.writeJsonString(p[0..plen]);
+            } else {
+                w.writeNull();
+            }
+            w.writeByte(',');
+            w.writeKey("translation");
+            if (trans_ptr) |t| {
+                const tlen: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 4));
+                w.writeJsonString(t[0..tlen]);
+            } else {
+                w.writeNull();
+            }
+            w.writeByte(',');
+            w.writeKey("source_type");
+            w.writeJsonString(source);
+            w.writeByte('}');
+        }
+        w.writeByte(']');
+        return w.written();
+    }
+
     fn seed(self: *Db) DbError!void {
         // Lóng neu L5 vocabulary — 25 cards
         const cards = [_]SeedCard{
@@ -503,6 +625,7 @@ const schema_v1: [*:0]const u8 =
     \\  pack_id       TEXT,
     \\  lesson_id     TEXT,
     \\  context       TEXT,
+    \\  first_seen_at INTEGER,
     \\  created_at    INTEGER NOT NULL,
     \\  updated_at    INTEGER NOT NULL
     \\);

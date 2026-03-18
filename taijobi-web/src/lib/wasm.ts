@@ -78,6 +78,9 @@ interface WasmExports {
 	hanzi_get_progress: (packId: number, len: number) => number;
 	hanzi_decompose: (ch: number, len: number) => number;
 	hanzi_get_strokes: (ch: number, len: number) => number;
+	hanzi_mark_read: (id: number, len: number) => number;
+	hanzi_get_unread_cards: (filter: number, filterLen: number, limit: number) => number;
+	hanzi_get_unread_count: (filter: number, filterLen: number) => number;
 	hanzi_import_csv: (csv: number, csvLen: number, name: number, nameLen: number) => number;
 	hanzi_export_csv: () => number;
 	hanzi_import_apkg: (apkg: number, apkgLen: number, name: number, nameLen: number) => number;
@@ -324,6 +327,53 @@ export function getDueCountFiltered(filter: string): number {
 	const encoded = new TextEncoder().encode(filter);
 	const ptr = filter ? writeBytes(encoded) : 0;
 	return wasm.hanzi_get_due_count_filtered(ptr, encoded.length);
+}
+
+// --- Reading mode ---
+
+export interface ReadCard {
+	id: string;
+	word: string;
+	language: string;
+	pinyin: string | null;
+	translation: string | null;
+	source_type: string;
+}
+
+export async function markRead(cardId: string): Promise<void> {
+	if (!wasm) return;
+	wasm.hanzi_reset_alloc();
+	const encoded = new TextEncoder().encode(cardId);
+	const ptr = writeBytes(encoded);
+	const rc = wasm.hanzi_mark_read(ptr, encoded.length);
+	if (rc !== 0) {
+		console.error('[taijobi] markRead failed:', getLastError('markRead failed'));
+	}
+	await opfsSave();
+}
+
+export function getUnreadCards(filter: string, limit: number = 50): ReadCard[] {
+	if (!wasm) return [];
+	wasm.hanzi_reset_alloc();
+	const encoded = new TextEncoder().encode(filter);
+	const ptr = filter ? writeBytes(encoded) : 0;
+	const resultPtr = wasm.hanzi_get_unread_cards(ptr, encoded.length, limit);
+	if (resultPtr === 0) return [];
+	const json = readLengthPrefixedString(resultPtr);
+	try {
+		return JSON.parse(json);
+	} catch (e) {
+		console.error('[taijobi] Failed to parse unread cards JSON:', e);
+		return [];
+	}
+}
+
+export function getUnreadCount(filter: string): number {
+	if (!wasm) return 0;
+	wasm.hanzi_reset_alloc();
+	const encoded = new TextEncoder().encode(filter);
+	const ptr = filter ? writeBytes(encoded) : 0;
+	return wasm.hanzi_get_unread_count(ptr, encoded.length);
 }
 
 export async function reviewCard(id: string, rating: number): Promise<number> {

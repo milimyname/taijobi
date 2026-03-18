@@ -46,6 +46,18 @@ const void *hanzi_get_progress(const void *pack_id, size_t len);
 const void *hanzi_decompose(const void *ch, size_t len);
 const void *hanzi_get_strokes(const void *ch, size_t len);
 
+/* Phase 3.5 — CSV Import/Export + Anki .apkg */
+int32_t     hanzi_import_csv(const void *csv, size_t csv_len,
+                              const void *name, size_t name_len);
+const void *hanzi_export_csv(void);
+int32_t     hanzi_import_apkg(const void *apkg, size_t apkg_len,
+                               const void *name, size_t name_len);
+
+/* Reading mode */
+int32_t     hanzi_mark_read(const void *id, size_t len);
+const void *hanzi_get_unread_cards(const void *filter, size_t filter_len, uint32_t limit);
+int32_t     hanzi_get_unread_count(const void *filter, size_t filter_len);
+
 /* WASM-only: OPFS persistence helpers */
 void   *hanzi_db_ptr(void);
 int32_t hanzi_db_size(void);
