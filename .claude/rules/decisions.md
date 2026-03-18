@@ -51,6 +51,17 @@
   `catch { return []; }` that made debugging impossible. All catch blocks now log
   the error + first 200 chars of the JSON string.
 
+## Tooling Decisions
+
+- **All scripts in JavaScript (Bun), not Python.** Data compilation scripts
+  (compile-cedict, compile-decomp, compile-strokes) and utilities (apkg-to-tsv,
+  build-hsk-packs, generate-test-apkg) rewritten from Python to JS. Eliminates
+  Python as a build dependency — the toolchain is now Zig + Bun only. Bun's
+  built-in `bun:sqlite` and `zlib` cover the same use cases as Python's stdlib.
+  Benchmarked ~2.7x faster on generate-test-apkg (28ms vs 75ms). STORE .apkg
+  output is byte-identical; DEFLATE differs slightly due to zlib implementations
+  but all Zig tests pass with both.
+
 ## Open Questions
 
 - **Naming:** libhanzi for now. If multi-language takes off -> rename. `taijobi.com` available.

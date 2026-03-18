@@ -61,6 +61,7 @@ Inspired by libghostty and libwimg: the library is the product.
 | Stroke data     | Make Me a Hanzi graphics.txt (delta-encoded binary ~9MB) |
 | Content packs   | Static JSON served by Cloudflare Worker             |
 | Hosting         | Cloudflare Workers (taijobi.com)                   |
+| Scripts         | Bun (all data compilation + utility scripts)        |
 | Tooling         | bun, oxfmt, oxlint, lefthook, conventional commits |
 
 ---
