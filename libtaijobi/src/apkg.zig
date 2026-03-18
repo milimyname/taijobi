@@ -277,17 +277,26 @@ fn detectFieldMapFromFlds(json: []const u8) FieldMap {
     // Known field names for each role (case-insensitive matching)
     const word_names = [_][]const u8{
         // CJK field names
-"\xe4\xb8\xad\xe6\x96\x87", // 中文
-"\xe6\xb1\x89\xe5\xad\x97", // 汉字
-        "hanzi", "word", "front", "chinese", "character", "term", "vocabulary",
-        "expression", "sentence", "question", "text",
+        "\xe4\xb8\xad\xe6\x96\x87", // 中文
+        "\xe6\xb1\x89\xe5\xad\x97", // 汉字
+        "hanzi",
+        "word",
+        "front",
+        "chinese",
+        "character",
+        "term",
+        "vocabulary",
+        "expression",
+        "sentence",
+        "question",
+        "text",
     };
     const pinyin_names = [_][]const u8{
         "pinyin", "reading", "pronunciation", "romanization",
     };
     const translation_names = [_][]const u8{
-        "english", "meaning", "back", "deutsch", "definition", "translation",
-        "answer", "german", "explanation", "extra",
+        "english", "meaning", "back",        "deutsch", "definition", "translation",
+        "answer",  "german",  "explanation", "extra",
     };
 
     // json starts at "flds" — find the [ to start the array

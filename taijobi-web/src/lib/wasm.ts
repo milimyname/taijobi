@@ -293,7 +293,10 @@ export function getDueCards(limit: number = 50): Card[] {
 		return [];
 	}
 	const json = readLengthPrefixedString(ptr);
-	console.log(`[taijobi] getDueCards: json length=${json.length}, first 200 chars:`, json.slice(0, 200));
+	console.log(
+		`[taijobi] getDueCards: json length=${json.length}, first 200 chars:`,
+		json.slice(0, 200)
+	);
 	wasm.hanzi_free(ptr, 0);
 	try {
 		return JSON.parse(json);
@@ -749,7 +752,11 @@ export async function importApkg(data: ArrayBuffer, name: string): Promise<numbe
 	wasm.hanzi_reset_alloc();
 	const bytes = new Uint8Array(data);
 	console.log(`[taijobi] importApkg: ${bytes.length} bytes, name="${name}"`);
-	console.log(`[taijobi] importApkg: first 4 bytes: ${Array.from(bytes.slice(0, 4)).map((b) => b.toString(16).padStart(2, '0')).join(' ')}`);
+	console.log(
+		`[taijobi] importApkg: first 4 bytes: ${Array.from(bytes.slice(0, 4))
+			.map((b) => b.toString(16).padStart(2, '0'))
+			.join(' ')}`
+	);
 	const dataPtr = writeBytes(bytes);
 	const nameEncoded = new TextEncoder().encode(name);
 	const namePtr = writeBytes(nameEncoded);
