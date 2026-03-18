@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.4.5 (2026-03-19)
+
+- fix: format apkg.zig and TS files to pass CI checks
+
 ## v0.4.4 (2026-03-19)
 
 - feat: CSV/TSV import/export, .apkg import, toast system, DevTools panel (Phase 3.5)
