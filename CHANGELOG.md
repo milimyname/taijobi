@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.4.8 (2026-03-19)
+
+- fix: service worker cache invalidation, loading UX, and stroke Y-flip
+
 ## v0.4.7 (2026-03-19)
 
 - fix: convert scripts from JS to TS, use node:fs for Bun 1.3.11 compat
