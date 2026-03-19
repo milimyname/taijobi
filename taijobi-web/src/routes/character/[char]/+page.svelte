@@ -144,21 +144,23 @@
 					<!-- Border -->
 					<rect x="2" y="2" width="1020" height="1020" fill="none" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="8,8" rx="4" />
 
-					<!-- Strokes -->
-					{#each strokeData.strokes as stroke, i}
-						<path
-							d={stroke}
-							fill={animating
-								? i < animationFrame
-									? '#195c37'
-									: i === animationFrame
-										? '#52b788'
-										: '#e2e8f0'
-								: '#195c37'}
-							stroke="none"
-							class="transition-all duration-300"
-						/>
-					{/each}
+					<!-- Strokes (flipped: Make Me a Hanzi uses Y-up, SVG uses Y-down) -->
+					<g transform="scale(1,-1) translate(0,-1024)">
+						{#each strokeData.strokes as stroke, i}
+							<path
+								d={stroke}
+								fill={animating
+									? i < animationFrame
+										? '#195c37'
+										: i === animationFrame
+											? '#52b788'
+											: '#e2e8f0'
+									: '#195c37'}
+								stroke="none"
+								class="transition-all duration-300"
+							/>
+						{/each}
+					</g>
 				</svg>
 			</div>
 

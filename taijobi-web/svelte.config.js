@@ -11,7 +11,7 @@ const config = {
 			handleUnseenRoutes: 'ignore'
 		},
 		version: {
-			pollInterval: 5 * 60 * 1000
+			pollInterval: 60 * 1000
 		}
 	},
 	vitePlugin: {

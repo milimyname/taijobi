@@ -42,3 +42,34 @@ body {
 	-ms-overflow-style: none;
 	scrollbar-width: none;
 }
+
+@keyframes loading-pulse {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.5;
+	}
+}
+
+@keyframes loading-bar {
+	0% {
+		transform: translateX(-100%);
+	}
+	50% {
+		transform: translateX(0%);
+	}
+	100% {
+		transform: translateX(200%);
+	}
+}
+
+.loading-pulse {
+	animation: loading-pulse 2s ease-in-out infinite;
+}
+
+.loading-bar {
+	width: 40%;
+	animation: loading-bar 1.5s ease-in-out infinite;
+}

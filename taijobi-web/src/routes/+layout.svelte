@@ -58,8 +58,17 @@
 		</div>
 	</div>
 {:else if !ready}
-	<div class="flex min-h-screen items-center justify-center bg-bg-light">
-		<p class="text-lg font-medium text-slate-400">Laden...</p>
+	<div class="flex min-h-screen flex-col items-center justify-center gap-6 bg-bg-light">
+		<div class="flex flex-col items-center gap-3">
+			<div class="loading-pulse flex size-16 items-center justify-center rounded-2xl bg-primary/10">
+				<span class="material-symbols-outlined text-primary" style="font-size: 32px">translate</span>
+			</div>
+			<h1 class="text-xl font-bold text-slate-900">Taijobi</h1>
+			<p class="text-sm text-slate-400">Wird geladen...</p>
+		</div>
+		<div class="h-1 w-48 overflow-hidden rounded-full bg-slate-100">
+			<div class="loading-bar h-full rounded-full bg-primary"></div>
+		</div>
 	</div>
 {:else}
 	<div class="relative mx-auto flex min-h-screen max-w-[768px] flex-col bg-bg-light shadow-sm">

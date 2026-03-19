@@ -50,6 +50,7 @@ class UpdateStore {
 		}
 
 		navigator.serviceWorker.ready.then((registration) => {
+			registration.update(); // check immediately, don't wait for poll
 			if (registration.waiting) {
 				this.#trackWaitingSW(registration.waiting);
 			}
