@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.4.7 (2026-03-19)
+
+- fix: convert scripts from JS to TS, use node:fs for Bun 1.3.11 compat
+
 ## v0.4.6 (2026-03-19)
 
 - refactor: rewrite all Python scripts to JavaScript (Bun)
