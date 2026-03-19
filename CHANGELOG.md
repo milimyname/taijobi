@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.4.10 (2026-03-19)
+
+- style: fix oxfmt formatting in service-worker.ts
+
 ## v0.4.9 (2026-03-19)
 
 - Version bump
