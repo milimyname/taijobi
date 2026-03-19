@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.4.9 (2026-03-19)
+
+- Version bump
+
 ## v0.4.8 (2026-03-19)
 
 - fix: service worker cache invalidation, loading UX, and stroke Y-flip
