@@ -14,8 +14,28 @@ env:
 jobs:
   check:
     runs-on: ubuntu-latest
+    outputs:
+      libtaijobi: ${{ steps.changes.outputs.libtaijobi }}
+      web: ${{ steps.changes.outputs.web }}
+      scripts: ${{ steps.changes.outputs.scripts }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Detect changed paths
+        id: changes
+        run: |
+          PREV_TAG=$(git tag -l --sort=-v:refname | sed -n '2p')
+          if [ -n "$PREV_TAG" ]; then
+            CHANGED=$(git diff --name-only "$PREV_TAG"..HEAD -- . ':(exclude)CHANGELOG.md' ':(exclude)taijobi-web/package.json')
+          else
+            CHANGED=$(git diff --name-only HEAD~1 -- . ':(exclude)CHANGELOG.md' ':(exclude)taijobi-web/package.json')
+          fi
+          echo "libtaijobi=$(echo "$CHANGED" | grep -q '^libtaijobi/' && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "web=$(echo "$CHANGED" | grep -q '^taijobi-web/' && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "scripts=$(echo "$CHANGED" | grep -q '^scripts/' && echo true || echo false)" >> $GITHUB_OUTPUT
 
       - uses: mlugg/setup-zig@v2
         with:
@@ -60,6 +80,7 @@ jobs:
 
   build-and-deploy-web:
     needs: check
+    if: needs.check.outputs.web == 'true' || needs.check.outputs.libtaijobi == 'true' || needs.check.outputs.scripts == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -104,6 +125,7 @@ jobs:
 
   release:
     needs: build-and-deploy-web
+    if: always() && !failure() && !cancelled()
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -112,6 +134,7 @@ jobs:
 
       - name: Download all artifacts
         uses: actions/download-artifact@v8
+        continue-on-error: true
         with:
           path: artifacts
 
