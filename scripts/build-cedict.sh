@@ -19,7 +19,7 @@ curl -sL "https://www.mdbg.net/chinese/export/cedict/cedict_1_0_ts_utf-8_mdbg.tx
 gunzip "$TMP/cedict.txt.gz"
 
 echo "[cedict] Compiling to binary format..."
-bun "$SCRIPT_DIR/compile-cedict.js" "$TMP/cedict.txt" "$OUT"
+bun "$SCRIPT_DIR/compile-cedict.ts" "$TMP/cedict.txt" "$OUT"
 
 rm -rf "$TMP"
 echo "[cedict] Done: $OUT"

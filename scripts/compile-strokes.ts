@@ -7,7 +7,9 @@
  * Usage: bun scripts/compile-strokes.js <graphics.txt> <output.bin>
  */
 
-const CMD_MAP = {
+import { readFileSync, writeFileSync } from "node:fs";
+
+const CMD_MAP: Record<string, [number, number]> = {
   M: [0x01, 2],
   L: [0x02, 2],
   Q: [0x03, 4],
@@ -171,8 +173,8 @@ function writeU32LE(value) {
 /**
  * Parse graphics.txt (NDJSON) into entries.
  */
-async function parseGraphics(path) {
-  const text = await Bun.file(path).text();
+function parseGraphics(path: string) {
+  const text = readFileSync(path, "utf-8");
   const entries = [];
 
   for (const line of text.split("\n")) {
@@ -199,7 +201,7 @@ async function parseGraphics(path) {
 /**
  * Compile entries into binary format and write to output file.
  */
-async function compileBinary(entries, outPath) {
+function compileBinary(entries: any[], outPath: string) {
   // Sort by UTF-8 bytes of character
   entries.sort((a, b) => {
     const aBytes = new TextEncoder().encode(a.character);
@@ -281,23 +283,23 @@ async function compileBinary(entries, outPath) {
   }
 
   const output = concatUint8Arrays(outputParts);
-  await Bun.write(outPath, output);
+  writeFileSync(outPath, output);
 
   const totalSize = output.length;
   console.log(`Compiled ${count} entries -> ${outPath}`);
   console.log(`Total size: ${(totalSize / 1024 / 1024).toFixed(1)} MB`);
 }
 
-async function main() {
+function main() {
   const args = process.argv.slice(2);
   if (args.length < 2) {
-    console.log(`Usage: bun scripts/compile-strokes.js <graphics.txt> <output.bin>`);
+    console.log(`Usage: bun scripts/compile-strokes.ts <graphics.txt> <output.bin>`);
     process.exit(1);
   }
 
-  const entries = await parseGraphics(args[0]);
+  const entries = parseGraphics(args[0]);
   console.log(`Parsed ${entries.length} entries`);
-  await compileBinary(entries, args[1]);
+  compileBinary(entries, args[1]);
 }
 
 main();

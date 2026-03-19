@@ -18,7 +18,7 @@ curl -sL "https://raw.githubusercontent.com/skishore/makemeahanzi/master/diction
     -o "$TMP/dictionary.txt"
 
 echo "[decomp] Compiling to binary format..."
-bun "$SCRIPT_DIR/compile-decomp.js" "$TMP/dictionary.txt" "$OUT"
+bun "$SCRIPT_DIR/compile-decomp.ts" "$TMP/dictionary.txt" "$OUT"
 
 rm -rf "$TMP"
 echo "[decomp] Done: $OUT"

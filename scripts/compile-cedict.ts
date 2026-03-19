@@ -23,6 +23,8 @@
  *   bun scripts/compile-cedict.js <cedict.txt> <output.bin>
  */
 
+import { readFileSync, writeFileSync } from "node:fs";
+
 const encoder = new TextEncoder();
 
 const TONE_MARKS = {
@@ -219,7 +221,7 @@ function compileBinary(entries) {
 	return result;
 }
 
-async function main() {
+function main() {
 	if (process.argv.length < 4) {
 		console.log(`Usage: ${process.argv[1]} <cedict.txt> <output.bin>`);
 		process.exit(1);
@@ -228,14 +230,14 @@ async function main() {
 	const inputPath = process.argv[2];
 	const outputPath = process.argv[3];
 
-	const text = await Bun.file(inputPath).text();
+	const text = readFileSync(inputPath, "utf-8");
 	const entries = parseCedict(text);
 	console.log(`Parsed ${entries.length} entries`);
 
 	const binary = compileBinary(entries);
 	const count = new DataView(binary.buffer).getUint32(4, true);
 
-	await Bun.write(outputPath, binary);
+	writeFileSync(outputPath, binary);
 	console.log(`Compiled ${count} entries -> ${outputPath}`);
 	console.log(`Total size: ${(binary.length / 1024 / 1024).toFixed(1)} MB`);
 }

@@ -31,10 +31,12 @@
  *   bun scripts/compile-decomp.js <dictionary.txt> <output.bin>
  */
 
+import { readFileSync, writeFileSync } from "node:fs";
+
 const encoder = new TextEncoder();
 
-function parseDictionary(path) {
-  const text = Bun.file(path).textSync();
+function parseDictionary(path: string) {
+  const text = readFileSync(path, "utf-8");
   const entries = [];
 
   for (const line of text.split("\n")) {
@@ -170,16 +172,16 @@ function compileBinary(entries, outPath) {
     pos += buf.length;
   }
 
-  Bun.write(outPath, output);
+  writeFileSync(outPath, output);
 
   console.log(`Compiled ${count} entries -> ${outPath}`);
   console.log(`Total size: ${(totalSize / 1024 / 1024).toFixed(1)} MB`);
 }
 
 function main() {
-  const args = Bun.argv.slice(2);
+  const args = process.argv.slice(2);
   if (args.length < 2) {
-    console.log(`Usage: bun scripts/compile-decomp.js <dictionary.txt> <output.bin>`);
+    console.log(`Usage: bun scripts/compile-decomp.ts <dictionary.txt> <output.bin>`);
     process.exit(1);
   }
 

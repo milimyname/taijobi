@@ -18,7 +18,7 @@ curl -sL "https://raw.githubusercontent.com/skishore/makemeahanzi/master/graphic
     -o "$TMP/graphics.txt"
 
 echo "[strokes] Compiling to binary format..."
-bun "$SCRIPT_DIR/compile-strokes.js" "$TMP/graphics.txt" "$OUT"
+bun "$SCRIPT_DIR/compile-strokes.ts" "$TMP/graphics.txt" "$OUT"
 
 rm -rf "$TMP"
 echo "[strokes] Done: $OUT"
