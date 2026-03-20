@@ -387,7 +387,7 @@
 		>
 			{readIndex >= readCards.length - 1 ? 'Fertig' : 'Weiter'} &rarr;
 		</button>
-		<p class="mt-3 text-center text-[10px] font-medium uppercase tracking-wider text-slate-400">
+		<p class="mt-3 hidden text-center text-[10px] font-medium uppercase tracking-wider text-slate-400 sm:block">
 			Enter oder &rarr;
 		</p>
 	</div>
@@ -588,7 +588,7 @@
 					</button>
 				</div>
 				<p
-					class="mt-3 text-center text-[10px] font-medium uppercase tracking-wider text-slate-400"
+					class="mt-3 hidden text-center text-[10px] font-medium uppercase tracking-wider text-slate-400 sm:block"
 				>
 					Tastatur: 1-4
 				</p>
