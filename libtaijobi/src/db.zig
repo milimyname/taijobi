@@ -57,12 +57,18 @@ pub const Db = struct {
         const version = self.getMetaInt("schema_version");
         if (version < 1) {
             try self.exec(schema_v1);
-            try self.setMeta("schema_version", "2");
+            try self.setMeta("schema_version", "3");
             try self.seed();
         }
         if (version >= 1 and version < 2) {
             try self.exec("ALTER TABLE cards ADD COLUMN first_seen_at INTEGER");
             try self.setMeta("schema_version", "2");
+        }
+        const v2 = self.getMetaInt("schema_version");
+        if (v2 >= 2 and v2 < 3) {
+            try self.exec("ALTER TABLE cards ADD COLUMN deleted INTEGER DEFAULT 0");
+            try self.exec("ALTER TABLE packs ADD COLUMN deleted INTEGER DEFAULT 0");
+            try self.setMeta("schema_version", "3");
         }
     }
 
@@ -105,18 +111,19 @@ pub const Db = struct {
             \\SELECT COUNT(*) FROM cards c
             \\LEFT JOIN fsrs_state f ON c.id = f.card_id
             \\WHERE (f.card_id IS NULL OR f.reps = 0 OR f.next_review IS NULL OR CAST(f.next_review AS INTEGER) <= ?)
+            \\  AND COALESCE(c.deleted, 0) = 0
         ;
         const sql_lexicon =
             \\SELECT COUNT(*) FROM cards c
             \\LEFT JOIN fsrs_state f ON c.id = f.card_id
             \\WHERE (f.card_id IS NULL OR f.reps = 0 OR f.next_review IS NULL OR CAST(f.next_review AS INTEGER) <= ?)
-            \\  AND c.source_type = 'lexicon'
+            \\  AND c.source_type = 'lexicon' AND COALESCE(c.deleted, 0) = 0
         ;
         const sql_pack =
             \\SELECT COUNT(*) FROM cards c
             \\LEFT JOIN fsrs_state f ON c.id = f.card_id
             \\WHERE (f.card_id IS NULL OR f.reps = 0 OR f.next_review IS NULL OR CAST(f.next_review AS INTEGER) <= ?)
-            \\  AND c.pack_id = ?
+            \\  AND c.pack_id = ? AND COALESCE(c.deleted, 0) = 0
         ;
 
         if (filter) |f| {
@@ -159,7 +166,7 @@ pub const Db = struct {
             \\LEFT JOIN fsrs_state f ON c.id = f.card_id
         ;
         const where_due =
-            \\ WHERE (f.card_id IS NULL OR f.reps = 0 OR f.next_review IS NULL OR CAST(f.next_review AS INTEGER) <= ?)
+            \\ WHERE (f.card_id IS NULL OR f.reps = 0 OR f.next_review IS NULL OR CAST(f.next_review AS INTEGER) <= ?) AND COALESCE(c.deleted, 0) = 0
         ;
         const order_limit =
             \\ ORDER BY COALESCE(f.reps, 0) ASC, COALESCE(f.next_review, '0') ASC LIMIT ?
@@ -423,9 +430,9 @@ pub const Db = struct {
     pub fn getUnreadCount(self: *Db, filter: ?[]const u8) i32 {
         var stmt: ?*sqlite.sqlite3_stmt = null;
 
-        const sql_all = "SELECT COUNT(*) FROM cards WHERE first_seen_at IS NULL";
-        const sql_lexicon = "SELECT COUNT(*) FROM cards WHERE first_seen_at IS NULL AND source_type = 'lexicon'";
-        const sql_pack = "SELECT COUNT(*) FROM cards WHERE first_seen_at IS NULL AND pack_id = ?";
+        const sql_all = "SELECT COUNT(*) FROM cards WHERE first_seen_at IS NULL AND COALESCE(deleted, 0) = 0";
+        const sql_lexicon = "SELECT COUNT(*) FROM cards WHERE first_seen_at IS NULL AND source_type = 'lexicon' AND COALESCE(deleted, 0) = 0";
+        const sql_pack = "SELECT COUNT(*) FROM cards WHERE first_seen_at IS NULL AND pack_id = ? AND COALESCE(deleted, 0) = 0";
 
         if (filter) |f| {
             if (std.mem.eql(u8, f, "lexicon")) {
@@ -454,7 +461,7 @@ pub const Db = struct {
         const select_cols =
             \\SELECT c.id, c.word, c.language, c.pinyin, c.translation, c.source_type
             \\FROM cards c
-            \\WHERE c.first_seen_at IS NULL
+            \\WHERE c.first_seen_at IS NULL AND COALESCE(c.deleted, 0) = 0
         ;
         const order_limit = " ORDER BY c.created_at ASC LIMIT ?";
 
@@ -524,6 +531,656 @@ pub const Db = struct {
         }
         w.writeByte(']');
         return w.written();
+    }
+
+    // === Sync: getChangesJson ===
+
+    /// Get all rows changed since `since_ts` as JSON matching the sync contract.
+    /// Format: {"rows":[{"table":"cards","id":"...","data":{...},"updated_at":N}, ...]}
+    /// Returns bytes written, or null if buffer too small.
+    pub fn getChangesJson(self: *Db, since_ts: i64, buf: [*]u8, buf_len: usize) DbError!?usize {
+        var pos: usize = 0;
+
+        const hdr = "{\"rows\":[";
+        if (pos + hdr.len > buf_len) return null;
+        @memcpy(buf[pos .. pos + hdr.len], hdr);
+        pos += hdr.len;
+
+        var first = true;
+
+        // --- cards ---
+        {
+            const sql =
+                \\SELECT id, word, language, pinyin, translation, grammar_tags, sentences,
+                \\       decomposition, source_type, pack_id, lesson_id, context,
+                \\       first_seen_at, created_at, updated_at, COALESCE(deleted, 0)
+                \\FROM cards WHERE updated_at >= ?1
+            ;
+            var stmt: ?*sqlite.sqlite3_stmt = null;
+            if (sqlite.sqlite3_prepare_v2(self.handle, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK) return error.PrepareFailed;
+            defer _ = sqlite.sqlite3_finalize(stmt.?);
+            _ = sqlite.sqlite3_bind_int64(stmt.?, 1, since_ts);
+
+            while (sqlite.sqlite3_step(stmt.?) == sqlite.SQLITE_ROW) {
+                if (!first) {
+                    if (pos >= buf_len) return null;
+                    buf[pos] = ',';
+                    pos += 1;
+                }
+
+                const id = colText(stmt.?, 0);
+                const word = colText(stmt.?, 1);
+                const language = colText(stmt.?, 2);
+                const pinyin_ptr = sqlite.sqlite3_column_text(stmt.?, 3);
+                const pinyin_len: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 3));
+                const trans_ptr = sqlite.sqlite3_column_text(stmt.?, 4);
+                const trans_len: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 4));
+                const grammar = colText(stmt.?, 5);
+                const sentences = colText(stmt.?, 6);
+                const decomp_ptr = sqlite.sqlite3_column_text(stmt.?, 7);
+                const decomp_len: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 7));
+                const source = colText(stmt.?, 8);
+                const pack_ptr = sqlite.sqlite3_column_text(stmt.?, 9);
+                const pack_len: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 9));
+                const lesson_ptr = sqlite.sqlite3_column_text(stmt.?, 10);
+                const lesson_len: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 10));
+                const ctx_ptr = sqlite.sqlite3_column_text(stmt.?, 11);
+                const ctx_len: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 11));
+                const first_seen = sqlite.sqlite3_column_int64(stmt.?, 12);
+                const created = sqlite.sqlite3_column_int64(stmt.?, 13);
+                const updated = sqlite.sqlite3_column_int64(stmt.?, 14);
+                const deleted = sqlite.sqlite3_column_int(stmt.?, 15);
+
+                var w = JsonWriter.init(buf[pos..buf_len]);
+                w.writeStr("{\"table\":\"cards\",\"id\":\"");
+                w.writeStr(id);
+                w.writeStr("\",\"data\":{");
+                w.writeKey("word");
+                w.writeJsonString(word);
+                w.writeByte(',');
+                w.writeKey("language");
+                w.writeJsonString(language);
+                w.writeByte(',');
+                w.writeKey("pinyin");
+                if (pinyin_ptr) |p| w.writeJsonString(p[0..pinyin_len]) else w.writeNull();
+                w.writeByte(',');
+                w.writeKey("translation");
+                if (trans_ptr) |t| w.writeJsonString(t[0..trans_len]) else w.writeNull();
+                w.writeByte(',');
+                w.writeKey("grammar_tags");
+                w.writeStr(grammar);
+                w.writeByte(',');
+                w.writeKey("sentences");
+                w.writeStr(sentences);
+                w.writeByte(',');
+                w.writeKey("decomposition");
+                if (decomp_ptr) |d| w.writeJsonString(d[0..decomp_len]) else w.writeNull();
+                w.writeByte(',');
+                w.writeKey("source_type");
+                w.writeJsonString(source);
+                w.writeByte(',');
+                w.writeKey("pack_id");
+                if (pack_ptr) |p| w.writeJsonString(p[0..pack_len]) else w.writeNull();
+                w.writeByte(',');
+                w.writeKey("lesson_id");
+                if (lesson_ptr) |l| w.writeJsonString(l[0..lesson_len]) else w.writeNull();
+                w.writeByte(',');
+                w.writeKey("context");
+                if (ctx_ptr) |ct| w.writeJsonString(ct[0..ctx_len]) else w.writeNull();
+                w.writeByte(',');
+                w.writeKey("first_seen_at");
+                if (sqlite.sqlite3_column_type(stmt.?, 12) != sqlite.SQLITE_NULL) w.writeInt(first_seen) else w.writeNull();
+                w.writeByte(',');
+                w.writeKey("created_at");
+                w.writeInt(created);
+                w.writeByte(',');
+                w.writeKey("deleted");
+                w.writeInt(@as(i64, deleted));
+                w.writeStr("},\"updated_at\":");
+                w.writeInt(updated);
+                w.writeByte('}');
+
+                pos += w.pos;
+                first = false;
+            }
+        }
+
+        // --- fsrs_state ---
+        {
+            const sql =
+                \\SELECT card_id, difficulty, stability, reps, lapses, last_review, next_review, updated_at
+                \\FROM fsrs_state WHERE updated_at >= ?1
+            ;
+            var stmt: ?*sqlite.sqlite3_stmt = null;
+            if (sqlite.sqlite3_prepare_v2(self.handle, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK) return error.PrepareFailed;
+            defer _ = sqlite.sqlite3_finalize(stmt.?);
+            _ = sqlite.sqlite3_bind_int64(stmt.?, 1, since_ts);
+
+            while (sqlite.sqlite3_step(stmt.?) == sqlite.SQLITE_ROW) {
+                if (!first) {
+                    if (pos >= buf_len) return null;
+                    buf[pos] = ',';
+                    pos += 1;
+                }
+
+                const card_id = colText(stmt.?, 0);
+                const difficulty = sqlite.sqlite3_column_double(stmt.?, 1);
+                const stability = sqlite.sqlite3_column_double(stmt.?, 2);
+                const reps = sqlite.sqlite3_column_int(stmt.?, 3);
+                const lapses = sqlite.sqlite3_column_int(stmt.?, 4);
+                const last_rev_ptr = sqlite.sqlite3_column_text(stmt.?, 5);
+                const last_rev_len: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 5));
+                const next_rev_ptr = sqlite.sqlite3_column_text(stmt.?, 6);
+                const next_rev_len: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 6));
+                const updated = sqlite.sqlite3_column_int64(stmt.?, 7);
+
+                var w = JsonWriter.init(buf[pos..buf_len]);
+                w.writeStr("{\"table\":\"fsrs_state\",\"id\":\"");
+                w.writeStr(card_id);
+                w.writeStr("\",\"data\":{");
+                w.writeKey("difficulty");
+                w.writeFloat(difficulty);
+                w.writeByte(',');
+                w.writeKey("stability");
+                w.writeFloat(stability);
+                w.writeByte(',');
+                w.writeKey("reps");
+                w.writeInt(@as(i64, reps));
+                w.writeByte(',');
+                w.writeKey("lapses");
+                w.writeInt(@as(i64, lapses));
+                w.writeByte(',');
+                w.writeKey("last_review");
+                if (last_rev_ptr) |lr| w.writeJsonString(lr[0..last_rev_len]) else w.writeNull();
+                w.writeByte(',');
+                w.writeKey("next_review");
+                if (next_rev_ptr) |nr| w.writeJsonString(nr[0..next_rev_len]) else w.writeNull();
+                w.writeStr("},\"updated_at\":");
+                w.writeInt(updated);
+                w.writeByte('}');
+
+                pos += w.pos;
+                first = false;
+            }
+        }
+
+        // --- review_log ---
+        {
+            const sql =
+                \\SELECT id, card_id, rating, review_date, time_ms, old_stability, new_stability, updated_at
+                \\FROM review_log WHERE updated_at >= ?1
+            ;
+            var stmt: ?*sqlite.sqlite3_stmt = null;
+            if (sqlite.sqlite3_prepare_v2(self.handle, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK) return error.PrepareFailed;
+            defer _ = sqlite.sqlite3_finalize(stmt.?);
+            _ = sqlite.sqlite3_bind_int64(stmt.?, 1, since_ts);
+
+            while (sqlite.sqlite3_step(stmt.?) == sqlite.SQLITE_ROW) {
+                if (!first) {
+                    if (pos >= buf_len) return null;
+                    buf[pos] = ',';
+                    pos += 1;
+                }
+
+                const id = colText(stmt.?, 0);
+                const card_id = colText(stmt.?, 1);
+                const rating = sqlite.sqlite3_column_int(stmt.?, 2);
+                const review_date = colText(stmt.?, 3);
+                const time_ms = sqlite.sqlite3_column_int64(stmt.?, 4);
+                const old_stab = sqlite.sqlite3_column_double(stmt.?, 5);
+                const new_stab = sqlite.sqlite3_column_double(stmt.?, 6);
+                const updated = sqlite.sqlite3_column_int64(stmt.?, 7);
+
+                var w = JsonWriter.init(buf[pos..buf_len]);
+                w.writeStr("{\"table\":\"review_log\",\"id\":\"");
+                w.writeStr(id);
+                w.writeStr("\",\"data\":{");
+                w.writeKey("card_id");
+                w.writeJsonString(card_id);
+                w.writeByte(',');
+                w.writeKey("rating");
+                w.writeInt(@as(i64, rating));
+                w.writeByte(',');
+                w.writeKey("review_date");
+                w.writeJsonString(review_date);
+                w.writeByte(',');
+                w.writeKey("time_ms");
+                if (sqlite.sqlite3_column_type(stmt.?, 4) != sqlite.SQLITE_NULL) w.writeInt(time_ms) else w.writeNull();
+                w.writeByte(',');
+                w.writeKey("old_stability");
+                w.writeFloat(old_stab);
+                w.writeByte(',');
+                w.writeKey("new_stability");
+                w.writeFloat(new_stab);
+                w.writeStr("},\"updated_at\":");
+                w.writeInt(updated);
+                w.writeByte('}');
+
+                pos += w.pos;
+                first = false;
+            }
+        }
+
+        // --- packs ---
+        {
+            const sql =
+                \\SELECT id, name, version, language_pair, word_count, installed_at, updated_at, COALESCE(deleted, 0)
+                \\FROM packs WHERE updated_at >= ?1
+            ;
+            var stmt: ?*sqlite.sqlite3_stmt = null;
+            if (sqlite.sqlite3_prepare_v2(self.handle, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK) return error.PrepareFailed;
+            defer _ = sqlite.sqlite3_finalize(stmt.?);
+            _ = sqlite.sqlite3_bind_int64(stmt.?, 1, since_ts);
+
+            while (sqlite.sqlite3_step(stmt.?) == sqlite.SQLITE_ROW) {
+                if (!first) {
+                    if (pos >= buf_len) return null;
+                    buf[pos] = ',';
+                    pos += 1;
+                }
+
+                const id = colText(stmt.?, 0);
+                const name = colText(stmt.?, 1);
+                const version = sqlite.sqlite3_column_int(stmt.?, 2);
+                const lang_pair = colText(stmt.?, 3);
+                const word_count = sqlite.sqlite3_column_int(stmt.?, 4);
+                const installed = sqlite.sqlite3_column_int64(stmt.?, 5);
+                const updated = sqlite.sqlite3_column_int64(stmt.?, 6);
+                const pack_deleted = sqlite.sqlite3_column_int(stmt.?, 7);
+
+                var w = JsonWriter.init(buf[pos..buf_len]);
+                w.writeStr("{\"table\":\"packs\",\"id\":\"");
+                w.writeStr(id);
+                w.writeStr("\",\"data\":{");
+                w.writeKey("name");
+                w.writeJsonString(name);
+                w.writeByte(',');
+                w.writeKey("version");
+                w.writeInt(@as(i64, version));
+                w.writeByte(',');
+                w.writeKey("language_pair");
+                w.writeJsonString(lang_pair);
+                w.writeByte(',');
+                w.writeKey("word_count");
+                w.writeInt(@as(i64, word_count));
+                w.writeByte(',');
+                w.writeKey("installed_at");
+                w.writeInt(installed);
+                w.writeByte(',');
+                w.writeKey("deleted");
+                w.writeInt(@as(i64, pack_deleted));
+                w.writeStr("},\"updated_at\":");
+                w.writeInt(updated);
+                w.writeByte('}');
+
+                pos += w.pos;
+                first = false;
+            }
+        }
+
+        // --- lessons ---
+        {
+            const sql =
+                \\SELECT id, pack_id, title, sort_order, updated_at
+                \\FROM lessons WHERE updated_at >= ?1
+            ;
+            var stmt: ?*sqlite.sqlite3_stmt = null;
+            if (sqlite.sqlite3_prepare_v2(self.handle, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK) return error.PrepareFailed;
+            defer _ = sqlite.sqlite3_finalize(stmt.?);
+            _ = sqlite.sqlite3_bind_int64(stmt.?, 1, since_ts);
+
+            while (sqlite.sqlite3_step(stmt.?) == sqlite.SQLITE_ROW) {
+                if (!first) {
+                    if (pos >= buf_len) return null;
+                    buf[pos] = ',';
+                    pos += 1;
+                }
+
+                const id = colText(stmt.?, 0);
+                const pack_id = colText(stmt.?, 1);
+                const title_ptr = sqlite.sqlite3_column_text(stmt.?, 2);
+                const title_len: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 2));
+                const sort_order = sqlite.sqlite3_column_int(stmt.?, 3);
+                const updated = sqlite.sqlite3_column_int64(stmt.?, 4);
+
+                var w = JsonWriter.init(buf[pos..buf_len]);
+                w.writeStr("{\"table\":\"lessons\",\"id\":\"");
+                w.writeStr(id);
+                w.writeStr("\",\"data\":{");
+                w.writeKey("pack_id");
+                w.writeJsonString(pack_id);
+                w.writeByte(',');
+                w.writeKey("title");
+                if (title_ptr) |t| w.writeJsonString(t[0..title_len]) else w.writeNull();
+                w.writeByte(',');
+                w.writeKey("sort_order");
+                w.writeInt(@as(i64, sort_order));
+                w.writeStr("},\"updated_at\":");
+                w.writeInt(updated);
+                w.writeByte('}');
+
+                pos += w.pos;
+                first = false;
+            }
+        }
+
+        // Close array and object
+        const footer = "]}";
+        if (pos + footer.len > buf_len) return null;
+        @memcpy(buf[pos .. pos + footer.len], footer);
+        pos += footer.len;
+
+        return pos;
+    }
+
+    // === Sync: applyChanges ===
+
+    /// Apply incoming sync changes (JSON). Returns count of applied rows, or -1 on error.
+    pub fn applyChanges(self: *Db, json: []const u8) DbError!i32 {
+        const rows_key = "\"rows\"";
+        const rows_pos = findInSlice(json, rows_key) orelse return 0;
+        var i = rows_pos + rows_key.len;
+
+        // Skip to '['
+        while (i < json.len and json[i] != '[') : (i += 1) {}
+        if (i >= json.len) return 0;
+        i += 1;
+
+        var applied: i32 = 0;
+
+        while (i < json.len) {
+            // Skip whitespace/commas
+            while (i < json.len and (json[i] == ' ' or json[i] == ',' or json[i] == '\n' or json[i] == '\r' or json[i] == '\t')) : (i += 1) {}
+            if (i >= json.len or json[i] == ']') break;
+            if (json[i] != '{') break;
+
+            // Find matching closing brace (skip quoted strings)
+            const obj_start = i;
+            var depth: i32 = 0;
+            while (i < json.len) : (i += 1) {
+                if (json[i] == '"') {
+                    i += 1;
+                    while (i < json.len) : (i += 1) {
+                        if (json[i] == '\\') {
+                            i += 1;
+                            continue;
+                        }
+                        if (json[i] == '"') break;
+                    }
+                    continue;
+                }
+                if (json[i] == '{') depth += 1;
+                if (json[i] == '}') {
+                    depth -= 1;
+                    if (depth == 0) {
+                        i += 1;
+                        break;
+                    }
+                }
+            }
+            const obj = json[obj_start..i];
+
+            const table = jsonExtractStringFromSlice(obj, "\"table\"") orelse continue;
+            const row_id = jsonExtractStringFromSlice(obj, "\"id\"") orelse continue;
+            const updated_at = jsonExtractI64FromSlice(obj, "\"updated_at\"");
+            if (updated_at == 0) continue;
+
+            const data_str = extractDataObject(obj) orelse continue;
+
+            if (std.mem.eql(u8, table, "cards")) {
+                const local_ts = self.getRowUpdatedAt("cards", row_id);
+                if (updated_at <= local_ts) continue;
+                self.applyCardChange(row_id, data_str, updated_at) catch continue;
+                applied += 1;
+            } else if (std.mem.eql(u8, table, "fsrs_state")) {
+                const local_ts = self.getRowUpdatedAt("fsrs_state", row_id);
+                if (updated_at <= local_ts) continue;
+                self.applyFsrsStateChange(row_id, data_str, updated_at) catch continue;
+                applied += 1;
+            } else if (std.mem.eql(u8, table, "review_log")) {
+                const local_ts = self.getRowUpdatedAt("review_log", row_id);
+                if (updated_at <= local_ts) continue;
+                self.applyReviewLogChange(row_id, data_str, updated_at) catch continue;
+                applied += 1;
+            } else if (std.mem.eql(u8, table, "packs")) {
+                const local_ts = self.getRowUpdatedAt("packs", row_id);
+                if (updated_at <= local_ts) continue;
+                self.applyPackChange(row_id, data_str, updated_at) catch continue;
+                applied += 1;
+            } else if (std.mem.eql(u8, table, "lessons")) {
+                const local_ts = self.getRowUpdatedAt("lessons", row_id);
+                if (updated_at <= local_ts) continue;
+                self.applyLessonChange(row_id, data_str, updated_at) catch continue;
+                applied += 1;
+            }
+        }
+
+        return applied;
+    }
+
+    fn getRowUpdatedAt(self: *Db, table: []const u8, row_id: []const u8) i64 {
+        const sql: [*:0]const u8 = if (std.mem.eql(u8, table, "cards"))
+            "SELECT updated_at FROM cards WHERE id = ?"
+        else if (std.mem.eql(u8, table, "fsrs_state"))
+            "SELECT updated_at FROM fsrs_state WHERE card_id = ?"
+        else if (std.mem.eql(u8, table, "review_log"))
+            "SELECT updated_at FROM review_log WHERE id = ?"
+        else if (std.mem.eql(u8, table, "packs"))
+            "SELECT updated_at FROM packs WHERE id = ?"
+        else if (std.mem.eql(u8, table, "lessons"))
+            "SELECT updated_at FROM lessons WHERE id = ?"
+        else
+            return 0;
+
+        var stmt: ?*sqlite.sqlite3_stmt = null;
+        if (sqlite.sqlite3_prepare_v2(self.handle, sql, -1, &stmt, null) != sqlite.SQLITE_OK) return 0;
+        defer _ = sqlite.sqlite3_finalize(stmt.?);
+        _ = sqlite.sqlite3_bind_text(stmt.?, 1, row_id.ptr, @intCast(row_id.len), sqlite.SQLITE_STATIC);
+        if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_ROW) return 0;
+        return sqlite.sqlite3_column_int64(stmt.?, 0);
+    }
+
+    fn applyCardChange(self: *Db, row_id: []const u8, data: []const u8, updated_at: i64) DbError!void {
+        const word = jsonExtractStringFromSlice(data, "\"word\"") orelse return error.ExecFailed;
+        const language = jsonExtractStringFromSlice(data, "\"language\"") orelse "zh";
+        const pinyin = jsonExtractStringFromSlice(data, "\"pinyin\"");
+        const translation = jsonExtractStringFromSlice(data, "\"translation\"");
+        const source_type = jsonExtractStringFromSlice(data, "\"source_type\"") orelse "lexicon";
+        const pack_id = jsonExtractStringFromSlice(data, "\"pack_id\"");
+        const lesson_id = jsonExtractStringFromSlice(data, "\"lesson_id\"");
+        const context = jsonExtractStringFromSlice(data, "\"context\"");
+        const created_at = jsonExtractI64FromSlice(data, "\"created_at\"");
+        const first_seen_at = jsonExtractI64FromSlice(data, "\"first_seen_at\"");
+        const card_deleted = jsonExtractI64FromSlice(data, "\"deleted\"");
+
+        const sql =
+            \\INSERT OR REPLACE INTO cards
+            \\  (id, word, language, pinyin, translation, source_type, pack_id, lesson_id, context, first_seen_at, deleted, created_at, updated_at)
+            \\VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ;
+        var stmt: ?*sqlite.sqlite3_stmt = null;
+        if (sqlite.sqlite3_prepare_v2(self.handle, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK) return error.PrepareFailed;
+        defer _ = sqlite.sqlite3_finalize(stmt.?);
+        _ = sqlite.sqlite3_bind_text(stmt.?, 1, row_id.ptr, @intCast(row_id.len), sqlite.SQLITE_STATIC);
+        _ = sqlite.sqlite3_bind_text(stmt.?, 2, word.ptr, @intCast(word.len), sqlite.SQLITE_STATIC);
+        _ = sqlite.sqlite3_bind_text(stmt.?, 3, language.ptr, @intCast(language.len), sqlite.SQLITE_STATIC);
+        if (pinyin) |p| {
+            _ = sqlite.sqlite3_bind_text(stmt.?, 4, p.ptr, @intCast(p.len), sqlite.SQLITE_STATIC);
+        } else {
+            _ = sqlite.sqlite3_bind_null(stmt.?, 4);
+        }
+        if (translation) |t| {
+            _ = sqlite.sqlite3_bind_text(stmt.?, 5, t.ptr, @intCast(t.len), sqlite.SQLITE_STATIC);
+        } else {
+            _ = sqlite.sqlite3_bind_null(stmt.?, 5);
+        }
+        _ = sqlite.sqlite3_bind_text(stmt.?, 6, source_type.ptr, @intCast(source_type.len), sqlite.SQLITE_STATIC);
+        if (pack_id) |p| {
+            _ = sqlite.sqlite3_bind_text(stmt.?, 7, p.ptr, @intCast(p.len), sqlite.SQLITE_STATIC);
+        } else {
+            _ = sqlite.sqlite3_bind_null(stmt.?, 7);
+        }
+        if (lesson_id) |l| {
+            _ = sqlite.sqlite3_bind_text(stmt.?, 8, l.ptr, @intCast(l.len), sqlite.SQLITE_STATIC);
+        } else {
+            _ = sqlite.sqlite3_bind_null(stmt.?, 8);
+        }
+        if (context) |c| {
+            _ = sqlite.sqlite3_bind_text(stmt.?, 9, c.ptr, @intCast(c.len), sqlite.SQLITE_STATIC);
+        } else {
+            _ = sqlite.sqlite3_bind_null(stmt.?, 9);
+        }
+        if (first_seen_at != 0) {
+            _ = sqlite.sqlite3_bind_int64(stmt.?, 10, first_seen_at);
+        } else {
+            _ = sqlite.sqlite3_bind_null(stmt.?, 10);
+        }
+        _ = sqlite.sqlite3_bind_int64(stmt.?, 11, card_deleted);
+        _ = sqlite.sqlite3_bind_int64(stmt.?, 12, if (created_at != 0) created_at else updated_at);
+        _ = sqlite.sqlite3_bind_int64(stmt.?, 13, updated_at);
+        if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_DONE) return error.StepFailed;
+    }
+
+    fn applyFsrsStateChange(self: *Db, card_id: []const u8, data: []const u8, updated_at: i64) DbError!void {
+        const difficulty = jsonExtractFloatFromSlice(data, "\"difficulty\"");
+        const stability = jsonExtractFloatFromSlice(data, "\"stability\"");
+        const reps = jsonExtractI64FromSlice(data, "\"reps\"");
+        const lapses = jsonExtractI64FromSlice(data, "\"lapses\"");
+        const last_review = jsonExtractStringFromSlice(data, "\"last_review\"");
+        const next_review = jsonExtractStringFromSlice(data, "\"next_review\"");
+
+        const sql =
+            \\INSERT OR REPLACE INTO fsrs_state
+            \\  (card_id, difficulty, stability, reps, lapses, last_review, next_review, updated_at)
+            \\VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ;
+        var stmt: ?*sqlite.sqlite3_stmt = null;
+        if (sqlite.sqlite3_prepare_v2(self.handle, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK) return error.PrepareFailed;
+        defer _ = sqlite.sqlite3_finalize(stmt.?);
+        _ = sqlite.sqlite3_bind_text(stmt.?, 1, card_id.ptr, @intCast(card_id.len), sqlite.SQLITE_STATIC);
+        _ = sqlite.sqlite3_bind_double(stmt.?, 2, difficulty);
+        _ = sqlite.sqlite3_bind_double(stmt.?, 3, stability);
+        _ = sqlite.sqlite3_bind_int64(stmt.?, 4, reps);
+        _ = sqlite.sqlite3_bind_int64(stmt.?, 5, lapses);
+        if (last_review) |lr| {
+            _ = sqlite.sqlite3_bind_text(stmt.?, 6, lr.ptr, @intCast(lr.len), sqlite.SQLITE_STATIC);
+        } else {
+            _ = sqlite.sqlite3_bind_null(stmt.?, 6);
+        }
+        if (next_review) |nr| {
+            _ = sqlite.sqlite3_bind_text(stmt.?, 7, nr.ptr, @intCast(nr.len), sqlite.SQLITE_STATIC);
+        } else {
+            _ = sqlite.sqlite3_bind_null(stmt.?, 7);
+        }
+        _ = sqlite.sqlite3_bind_int64(stmt.?, 8, updated_at);
+        if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_DONE) return error.StepFailed;
+    }
+
+    fn applyReviewLogChange(self: *Db, row_id: []const u8, data: []const u8, updated_at: i64) DbError!void {
+        const card_id = jsonExtractStringFromSlice(data, "\"card_id\"") orelse return error.ExecFailed;
+        const rating = jsonExtractI64FromSlice(data, "\"rating\"");
+        const review_date = jsonExtractStringFromSlice(data, "\"review_date\"") orelse return error.ExecFailed;
+        const time_ms = jsonExtractI64FromSlice(data, "\"time_ms\"");
+        const old_stab = jsonExtractFloatFromSlice(data, "\"old_stability\"");
+        const new_stab = jsonExtractFloatFromSlice(data, "\"new_stability\"");
+
+        const sql =
+            \\INSERT OR REPLACE INTO review_log
+            \\  (id, card_id, rating, review_date, time_ms, old_stability, new_stability, updated_at)
+            \\VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ;
+        var stmt: ?*sqlite.sqlite3_stmt = null;
+        if (sqlite.sqlite3_prepare_v2(self.handle, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK) return error.PrepareFailed;
+        defer _ = sqlite.sqlite3_finalize(stmt.?);
+        _ = sqlite.sqlite3_bind_text(stmt.?, 1, row_id.ptr, @intCast(row_id.len), sqlite.SQLITE_STATIC);
+        _ = sqlite.sqlite3_bind_text(stmt.?, 2, card_id.ptr, @intCast(card_id.len), sqlite.SQLITE_STATIC);
+        _ = sqlite.sqlite3_bind_int64(stmt.?, 3, rating);
+        _ = sqlite.sqlite3_bind_text(stmt.?, 4, review_date.ptr, @intCast(review_date.len), sqlite.SQLITE_STATIC);
+        if (time_ms != 0) {
+            _ = sqlite.sqlite3_bind_int64(stmt.?, 5, time_ms);
+        } else {
+            _ = sqlite.sqlite3_bind_null(stmt.?, 5);
+        }
+        _ = sqlite.sqlite3_bind_double(stmt.?, 6, old_stab);
+        _ = sqlite.sqlite3_bind_double(stmt.?, 7, new_stab);
+        _ = sqlite.sqlite3_bind_int64(stmt.?, 8, updated_at);
+        if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_DONE) return error.StepFailed;
+    }
+
+    fn applyPackChange(self: *Db, row_id: []const u8, data: []const u8, updated_at: i64) DbError!void {
+        const name = jsonExtractStringFromSlice(data, "\"name\"") orelse return error.ExecFailed;
+        const version = jsonExtractI64FromSlice(data, "\"version\"");
+        const lang_pair = jsonExtractStringFromSlice(data, "\"language_pair\"") orelse "zh-de";
+        const word_count = jsonExtractI64FromSlice(data, "\"word_count\"");
+        const installed_at = jsonExtractI64FromSlice(data, "\"installed_at\"");
+        const pack_deleted = jsonExtractI64FromSlice(data, "\"deleted\"");
+
+        const sql =
+            \\INSERT OR REPLACE INTO packs
+            \\  (id, name, version, language_pair, word_count, installed_at, deleted, updated_at)
+            \\VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ;
+        var stmt: ?*sqlite.sqlite3_stmt = null;
+        if (sqlite.sqlite3_prepare_v2(self.handle, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK) return error.PrepareFailed;
+        defer _ = sqlite.sqlite3_finalize(stmt.?);
+        _ = sqlite.sqlite3_bind_text(stmt.?, 1, row_id.ptr, @intCast(row_id.len), sqlite.SQLITE_STATIC);
+        _ = sqlite.sqlite3_bind_text(stmt.?, 2, name.ptr, @intCast(name.len), sqlite.SQLITE_STATIC);
+        _ = sqlite.sqlite3_bind_int64(stmt.?, 3, version);
+        _ = sqlite.sqlite3_bind_text(stmt.?, 4, lang_pair.ptr, @intCast(lang_pair.len), sqlite.SQLITE_STATIC);
+        _ = sqlite.sqlite3_bind_int64(stmt.?, 5, word_count);
+        _ = sqlite.sqlite3_bind_int64(stmt.?, 6, if (installed_at != 0) installed_at else updated_at);
+        _ = sqlite.sqlite3_bind_int64(stmt.?, 7, pack_deleted);
+        _ = sqlite.sqlite3_bind_int64(stmt.?, 8, updated_at);
+        if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_DONE) return error.StepFailed;
+    }
+
+    fn applyLessonChange(self: *Db, row_id: []const u8, data: []const u8, updated_at: i64) DbError!void {
+        const pack_id = jsonExtractStringFromSlice(data, "\"pack_id\"") orelse return error.ExecFailed;
+        const title = jsonExtractStringFromSlice(data, "\"title\"");
+        const sort_order = jsonExtractI64FromSlice(data, "\"sort_order\"");
+
+        const sql =
+            \\INSERT OR REPLACE INTO lessons
+            \\  (id, pack_id, title, sort_order, updated_at)
+            \\VALUES (?, ?, ?, ?, ?)
+        ;
+        var stmt: ?*sqlite.sqlite3_stmt = null;
+        if (sqlite.sqlite3_prepare_v2(self.handle, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK) return error.PrepareFailed;
+        defer _ = sqlite.sqlite3_finalize(stmt.?);
+        _ = sqlite.sqlite3_bind_text(stmt.?, 1, row_id.ptr, @intCast(row_id.len), sqlite.SQLITE_STATIC);
+        _ = sqlite.sqlite3_bind_text(stmt.?, 2, pack_id.ptr, @intCast(pack_id.len), sqlite.SQLITE_STATIC);
+        if (title) |t| {
+            _ = sqlite.sqlite3_bind_text(stmt.?, 3, t.ptr, @intCast(t.len), sqlite.SQLITE_STATIC);
+        } else {
+            _ = sqlite.sqlite3_bind_null(stmt.?, 3);
+        }
+        _ = sqlite.sqlite3_bind_int64(stmt.?, 4, sort_order);
+        _ = sqlite.sqlite3_bind_int64(stmt.?, 5, updated_at);
+        if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_DONE) return error.StepFailed;
+    }
+
+    /// Hard-delete rows that have been soft-deleted for more than `retention_ms`.
+    pub fn vacuumDeleted(self: *Db, now_ms: i64, retention_ms: i64) DbError!i32 {
+        const cutoff = now_ms - retention_ms;
+        var total: i32 = 0;
+
+        // Delete fsrs_state + review_log for deleted cards
+        inline for (.{
+            "DELETE FROM review_log WHERE card_id IN (SELECT id FROM cards WHERE deleted = 1 AND updated_at < ?)",
+            "DELETE FROM fsrs_state WHERE card_id IN (SELECT id FROM cards WHERE deleted = 1 AND updated_at < ?)",
+            "DELETE FROM cards WHERE deleted = 1 AND updated_at < ?",
+            "DELETE FROM lessons WHERE pack_id IN (SELECT id FROM packs WHERE deleted = 1 AND updated_at < ?)",
+            "DELETE FROM packs WHERE deleted = 1 AND updated_at < ?",
+        }) |sql| {
+            var stmt: ?*sqlite.sqlite3_stmt = null;
+            if (sqlite.sqlite3_prepare_v2(self.handle, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK)
+                return error.PrepareFailed;
+            defer _ = sqlite.sqlite3_finalize(stmt.?);
+            _ = sqlite.sqlite3_bind_int64(stmt.?, 1, cutoff);
+            if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_DONE) return error.StepFailed;
+            total += @intCast(sqlite.sqlite3_changes(self.handle));
+        }
+        return total;
     }
 
     fn seed(self: *Db) DbError!void {
@@ -611,6 +1268,107 @@ fn colText(stmt: ?*sqlite.sqlite3_stmt, col: c_int) []const u8 {
     return ptr[0..len];
 }
 
+// --- JSON parsing helpers for sync ---
+
+fn findInSlice(haystack: []const u8, needle: []const u8) ?usize {
+    if (needle.len == 0) return 0;
+    if (haystack.len < needle.len) return null;
+    const limit = haystack.len - needle.len + 1;
+    for (0..limit) |i| {
+        if (std.mem.eql(u8, haystack[i .. i + needle.len], needle)) return i;
+    }
+    return null;
+}
+
+fn jsonExtractStringFromSlice(json: []const u8, key: []const u8) ?[]const u8 {
+    const key_pos = findInSlice(json, key) orelse return null;
+    var i = key_pos + key.len;
+    while (i < json.len and (json[i] == ' ' or json[i] == ':' or json[i] == '\t')) : (i += 1) {}
+    if (i >= json.len or json[i] != '"') return null;
+    i += 1;
+    const start = i;
+    while (i < json.len) : (i += 1) {
+        if (json[i] == '\\') {
+            i += 1;
+            continue;
+        }
+        if (json[i] == '"') break;
+    }
+    if (i >= json.len) return null;
+    return json[start..i];
+}
+
+fn jsonExtractI64FromSlice(json: []const u8, key: []const u8) i64 {
+    const key_pos = findInSlice(json, key) orelse return 0;
+    var i = key_pos + key.len;
+    while (i < json.len and (json[i] == ' ' or json[i] == ':' or json[i] == '\t')) : (i += 1) {}
+    var negative = false;
+    if (i < json.len and json[i] == '-') {
+        negative = true;
+        i += 1;
+    }
+    var result: i64 = 0;
+    while (i < json.len and json[i] >= '0' and json[i] <= '9') : (i += 1) {
+        result = result * 10 + @as(i64, json[i] - '0');
+    }
+    return if (negative) -result else result;
+}
+
+fn jsonExtractFloatFromSlice(json: []const u8, key: []const u8) f64 {
+    const key_pos = findInSlice(json, key) orelse return 0.0;
+    var i = key_pos + key.len;
+    while (i < json.len and (json[i] == ' ' or json[i] == ':' or json[i] == '\t')) : (i += 1) {}
+    var negative = false;
+    if (i < json.len and json[i] == '-') {
+        negative = true;
+        i += 1;
+    }
+    var int_part: f64 = 0.0;
+    while (i < json.len and json[i] >= '0' and json[i] <= '9') : (i += 1) {
+        int_part = int_part * 10.0 + @as(f64, @floatFromInt(json[i] - '0'));
+    }
+    var frac_part: f64 = 0.0;
+    if (i < json.len and json[i] == '.') {
+        i += 1;
+        var divisor: f64 = 10.0;
+        while (i < json.len and json[i] >= '0' and json[i] <= '9') : (i += 1) {
+            frac_part += @as(f64, @floatFromInt(json[i] - '0')) / divisor;
+            divisor *= 10.0;
+        }
+    }
+    const result = int_part + frac_part;
+    return if (negative) -result else result;
+}
+
+fn extractDataObject(obj: []const u8) ?[]const u8 {
+    const key = "\"data\"";
+    const key_pos = findInSlice(obj, key) orelse return null;
+    var j = key_pos + key.len;
+    while (j < obj.len and (obj[j] == ' ' or obj[j] == ':' or obj[j] == '\t')) : (j += 1) {}
+    if (j >= obj.len or obj[j] != '{') return null;
+    const start = j;
+    var depth: i32 = 0;
+    while (j < obj.len) : (j += 1) {
+        if (obj[j] == '"') {
+            j += 1;
+            while (j < obj.len) : (j += 1) {
+                if (obj[j] == '\\') {
+                    j += 1;
+                    continue;
+                }
+                if (obj[j] == '"') break;
+            }
+            continue;
+        }
+        if (obj[j] == '{') depth += 1;
+        if (obj[j] == '}') {
+            depth -= 1;
+            if (depth == 0) return obj[start .. j + 1];
+        }
+    }
+    return null;
+}
+
 const schema_v1: [*:0]const u8 =
     \\CREATE TABLE IF NOT EXISTS cards (
     \\  id            TEXT PRIMARY KEY,
@@ -626,6 +1384,7 @@ const schema_v1: [*:0]const u8 =
     \\  lesson_id     TEXT,
     \\  context       TEXT,
     \\  first_seen_at INTEGER,
+    \\  deleted       INTEGER DEFAULT 0,
     \\  created_at    INTEGER NOT NULL,
     \\  updated_at    INTEGER NOT NULL
     \\);
@@ -656,6 +1415,7 @@ const schema_v1: [*:0]const u8 =
     \\  language_pair TEXT NOT NULL,
     \\  word_count    INTEGER NOT NULL DEFAULT 0,
     \\  installed_at  INTEGER NOT NULL,
+    \\  deleted       INTEGER DEFAULT 0,
     \\  updated_at    INTEGER NOT NULL
     \\);
     \\CREATE TABLE IF NOT EXISTS lessons (

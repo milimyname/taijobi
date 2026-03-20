@@ -78,6 +78,7 @@ interface WasmExports {
 	hanzi_get_progress: (packId: number, len: number) => number;
 	hanzi_decompose: (ch: number, len: number) => number;
 	hanzi_get_strokes: (ch: number, len: number) => number;
+	hanzi_restore_pack: (id: number, len: number) => number;
 	hanzi_mark_read: (id: number, len: number) => number;
 	hanzi_get_unread_cards: (filter: number, filterLen: number, limit: number) => number;
 	hanzi_get_unread_count: (filter: number, filterLen: number) => number;
@@ -88,6 +89,30 @@ interface WasmExports {
 	hanzi_db_ptr: () => number;
 	hanzi_db_size: () => number;
 	hanzi_db_load: (data: number, size: number) => number;
+	// Phase 4 — Sync
+	hanzi_get_changes: (sinceTs: bigint) => number;
+	hanzi_apply_changes: (data: number, len: number) => number;
+	hanzi_derive_key: (ptr: number, len: number) => number;
+	hanzi_encrypt_field: (pt: number, ptLen: number, key: number, nonce: number) => number;
+	hanzi_decrypt_field: (ct: number, ctLen: number, key: number) => number;
+}
+
+export interface SyncRow {
+	table: string;
+	id: string;
+	data: Record<string, unknown> | string;
+	updated_at: number;
+}
+
+let onMutateCb: (() => void) | null = null;
+let onDataChangedCb: (() => void) | null = null;
+
+export function setOnMutate(cb: (() => void) | null): void {
+	onMutateCb = cb;
+}
+
+export function setOnDataChanged(cb: (() => void) | null): void {
+	onDataChangedCb = cb;
 }
 
 let wasm: WasmExports | null = null;
@@ -353,6 +378,8 @@ export async function markRead(cardId: string): Promise<void> {
 		console.error('[taijobi] markRead failed:', getLastError('markRead failed'));
 	}
 	await opfsSave();
+	onMutateCb?.();
+	onDataChangedCb?.();
 }
 
 export function getUnreadCards(filter: string, limit: number = 50): ReadCard[] {
@@ -388,6 +415,8 @@ export async function reviewCard(id: string, rating: number): Promise<number> {
 		getLastError('reviewCard failed');
 	}
 	await opfsSave();
+	onMutateCb?.();
+	onDataChangedCb?.();
 	return rc;
 }
 
@@ -402,6 +431,8 @@ export async function addWord(word: string): Promise<AddWordResult> {
 	}
 	const json = readLengthPrefixedString(resultPtr);
 	await opfsSave();
+	onMutateCb?.();
+	onDataChangedCb?.();
 	return JSON.parse(json);
 }
 
@@ -415,6 +446,8 @@ export async function removeWord(id: string): Promise<void> {
 		throw new Error(getLastError('removeWord failed'));
 	}
 	await opfsSave();
+	onMutateCb?.();
+	onDataChangedCb?.();
 }
 
 export async function updateWord(id: string, translation: string): Promise<void> {
@@ -429,6 +462,8 @@ export async function updateWord(id: string, translation: string): Promise<void>
 		throw new Error(getLastError('updateWord failed'));
 	}
 	await opfsSave();
+	onMutateCb?.();
+	onDataChangedCb?.();
 }
 
 export function lookupCedict(query: string): CedictResult[] {
@@ -517,6 +552,8 @@ export async function installPack(json: string): Promise<void> {
 		throw new Error(getLastError('installPack failed'));
 	}
 	await opfsSave();
+	onMutateCb?.();
+	onDataChangedCb?.();
 }
 
 export function getPacks(): Pack[] {
@@ -542,6 +579,22 @@ export async function removePack(id: string): Promise<void> {
 		throw new Error(getLastError('removePack failed'));
 	}
 	await opfsSave();
+	onMutateCb?.();
+	onDataChangedCb?.();
+}
+
+export async function restorePack(id: string): Promise<void> {
+	if (!wasm) throw new Error('WASM not initialized');
+	wasm.hanzi_reset_alloc();
+	const encoded = new TextEncoder().encode(id);
+	const ptr = writeBytes(encoded);
+	const rc = wasm.hanzi_restore_pack(ptr, encoded.length);
+	if (rc !== 0) {
+		throw new Error(getLastError('restorePack failed'));
+	}
+	await opfsSave();
+	onMutateCb?.();
+	onDataChangedCb?.();
 }
 
 export function getLessons(packId: string): Lesson[] {
@@ -744,6 +797,8 @@ export async function importCsv(text: string, name: string): Promise<number> {
 		throw new Error(getLastError('CSV import failed'));
 	}
 	await opfsSave();
+	onMutateCb?.();
+	onDataChangedCb?.();
 	return rc;
 }
 
@@ -767,6 +822,8 @@ export async function importApkg(data: ArrayBuffer, name: string): Promise<numbe
 		throw new Error(getLastError('.apkg import failed'));
 	}
 	await opfsSave();
+	onMutateCb?.();
+	onDataChangedCb?.();
 	return rc;
 }
 
@@ -807,6 +864,89 @@ export function isReady(): boolean {
 export function close(): void {
 	if (!wasm) return;
 	wasm.hanzi_close();
+}
+
+// --- Phase 4: Sync helpers ---
+
+export function getChanges(sinceTs: number): SyncRow[] {
+	if (!wasm) return [];
+	wasm.hanzi_reset_alloc();
+	const ptr = wasm.hanzi_get_changes(BigInt(sinceTs));
+	if (ptr === 0) return [];
+	const json = readLengthPrefixedString(ptr);
+	try {
+		const result = JSON.parse(json) as { rows: SyncRow[] };
+		return result.rows ?? [];
+	} catch (e) {
+		console.error('[taijobi] Failed to parse changes JSON:', e);
+		return [];
+	}
+}
+
+export function applyChanges(rows: SyncRow[]): number {
+	if (!wasm) return 0;
+	wasm.hanzi_reset_alloc();
+	const json = JSON.stringify({ rows });
+	const encoded = new TextEncoder().encode(json);
+	const ptr = writeBytes(encoded);
+	return wasm.hanzi_apply_changes(ptr, encoded.length);
+}
+
+export function deriveEncryptionKey(syncKey: string): Uint8Array {
+	if (!wasm) throw new Error('WASM not initialized');
+	wasm.hanzi_reset_alloc();
+	const encoded = new TextEncoder().encode(syncKey);
+	const ptr = writeBytes(encoded);
+	const resultPtr = wasm.hanzi_derive_key(ptr, encoded.length);
+	if (resultPtr === 0) throw new Error('Failed to derive key');
+	const mem = new Uint8Array(wasm.memory.buffer);
+	const len =
+		mem[resultPtr] |
+		(mem[resultPtr + 1] << 8) |
+		(mem[resultPtr + 2] << 16) |
+		(mem[resultPtr + 3] << 24);
+	return new Uint8Array(mem.slice(resultPtr + 4, resultPtr + 4 + len));
+}
+
+export function encryptField(plaintext: string, key: Uint8Array): string {
+	if (!wasm) throw new Error('WASM not initialized');
+	wasm.hanzi_reset_alloc();
+	const ptEncoded = new TextEncoder().encode(plaintext);
+	const ptPtr = writeBytes(ptEncoded);
+	const keyPtr = writeBytes(key);
+	// Generate 24-byte nonce from crypto.getRandomValues
+	const nonce = new Uint8Array(24);
+	crypto.getRandomValues(nonce);
+	const noncePtr = writeBytes(nonce);
+	const resultPtr = wasm.hanzi_encrypt_field(ptPtr, ptEncoded.length, keyPtr, noncePtr);
+	if (resultPtr === 0) throw new Error('Encryption failed');
+	return readLengthPrefixedString(resultPtr);
+}
+
+export function decryptField(ciphertext: string, key: Uint8Array): string {
+	if (!wasm) throw new Error('WASM not initialized');
+	wasm.hanzi_reset_alloc();
+	const ctEncoded = new TextEncoder().encode(ciphertext);
+	const ctPtr = writeBytes(ctEncoded);
+	const keyPtr = writeBytes(key);
+	const resultPtr = wasm.hanzi_decrypt_field(ctPtr, ctEncoded.length, keyPtr);
+	if (resultPtr === 0) throw new Error('Decryption failed');
+	return readLengthPrefixedString(resultPtr);
+}
+
+export function decryptRows(rows: SyncRow[], key: Uint8Array): SyncRow[] {
+	return rows.map((row) => {
+		if (typeof row.data === 'string') {
+			try {
+				const decrypted = decryptField(row.data, key);
+				return { ...row, data: JSON.parse(decrypted) as Record<string, unknown> };
+			} catch {
+				console.warn('[taijobi] Failed to decrypt row:', row.table, row.id);
+				return row;
+			}
+		}
+		return row;
+	});
 }
 
 export { opfsSave };

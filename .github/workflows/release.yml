@@ -18,6 +18,7 @@ jobs:
       libtaijobi: ${{ steps.changes.outputs.libtaijobi }}
       web: ${{ steps.changes.outputs.web }}
       scripts: ${{ steps.changes.outputs.scripts }}
+      sync: ${{ steps.changes.outputs.sync }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -36,6 +37,7 @@ jobs:
           echo "libtaijobi=$(echo "$CHANGED" | grep -q '^libtaijobi/' && echo true || echo false)" >> $GITHUB_OUTPUT
           echo "web=$(echo "$CHANGED" | grep -q '^taijobi-web/' && echo true || echo false)" >> $GITHUB_OUTPUT
           echo "scripts=$(echo "$CHANGED" | grep -q '^scripts/' && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "sync=$(echo "$CHANGED" | grep -q '^taijobi-sync/' && echo true || echo false)" >> $GITHUB_OUTPUT
 
       - uses: mlugg/setup-zig@v2
         with:
@@ -123,8 +125,28 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
+  deploy-sync:
+    needs: check
+    if: needs.check.outputs.sync == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install sync worker dependencies
+        working-directory: taijobi-sync
+        run: bun install --frozen-lockfile
+
+      - name: Deploy sync worker
+        working-directory: taijobi-sync
+        run: bunx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
   release:
-    needs: build-and-deploy-web
+    needs: [build-and-deploy-web, deploy-sync]
     if: always() && !failure() && !cancelled()
     runs-on: ubuntu-latest
     steps:

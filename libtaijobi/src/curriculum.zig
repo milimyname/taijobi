@@ -150,11 +150,8 @@ pub fn installPack(db: *sqlite.sqlite3, json: []const u8, now_ms: i64) Curriculu
     execSql(db, "BEGIN TRANSACTION") catch return error.StepFailed;
     errdefer _ = execSql(db, "ROLLBACK") catch {};
 
-    // Delete existing pack data if upgrading
-    removePack(db, pack_id) catch |err| switch (err) {
-        error.PackNotFound => {}, // OK, fresh install
-        else => return err,
-    };
+    // Hard-delete existing pack data if upgrading (not soft-delete — we're replacing)
+    hardDeletePack(db, pack_id) catch {};
 
     // Insert pack
     {
@@ -258,46 +255,28 @@ pub fn installPack(db: *sqlite.sqlite3, json: []const u8, now_ms: i64) Curriculu
     execSql(db, "COMMIT") catch return error.StepFailed;
 }
 
-/// Remove a pack and its cards (but keep review_log for history).
-pub fn removePack(db: *sqlite.sqlite3, pack_id: []const u8) CurriculumError!void {
-    // Delete fsrs_state for pack cards
+/// Soft-delete a pack and its cards (sets deleted=1, updated_at=now).
+pub fn removePack(db: *sqlite.sqlite3, pack_id: []const u8, now_ms: i64) CurriculumError!void {
+    // Soft-delete cards belonging to this pack
     {
         var stmt: ?*sqlite.sqlite3_stmt = null;
-        const sql = "DELETE FROM fsrs_state WHERE card_id IN (SELECT id FROM cards WHERE pack_id = ?)";
+        const sql = "UPDATE cards SET deleted = 1, updated_at = ? WHERE pack_id = ? AND COALESCE(deleted, 0) = 0";
         if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK)
             return error.PrepareFailed;
         defer _ = sqlite.sqlite3_finalize(stmt.?);
-        bindText(stmt.?, 1, pack_id);
+        _ = sqlite.sqlite3_bind_int64(stmt.?, 1, now_ms);
+        bindText(stmt.?, 2, pack_id);
         if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_DONE) return error.StepFailed;
     }
-    // Delete cards
+    // Soft-delete pack
     {
         var stmt: ?*sqlite.sqlite3_stmt = null;
-        const sql = "DELETE FROM cards WHERE pack_id = ?";
+        const sql = "UPDATE packs SET deleted = 1, updated_at = ? WHERE id = ? AND COALESCE(deleted, 0) = 0";
         if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK)
             return error.PrepareFailed;
         defer _ = sqlite.sqlite3_finalize(stmt.?);
-        bindText(stmt.?, 1, pack_id);
-        if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_DONE) return error.StepFailed;
-    }
-    // Delete lessons
-    {
-        var stmt: ?*sqlite.sqlite3_stmt = null;
-        const sql = "DELETE FROM lessons WHERE pack_id = ?";
-        if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK)
-            return error.PrepareFailed;
-        defer _ = sqlite.sqlite3_finalize(stmt.?);
-        bindText(stmt.?, 1, pack_id);
-        if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_DONE) return error.StepFailed;
-    }
-    // Delete pack
-    {
-        var stmt: ?*sqlite.sqlite3_stmt = null;
-        const sql = "DELETE FROM packs WHERE id = ?";
-        if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK)
-            return error.PrepareFailed;
-        defer _ = sqlite.sqlite3_finalize(stmt.?);
-        bindText(stmt.?, 1, pack_id);
+        _ = sqlite.sqlite3_bind_int64(stmt.?, 1, now_ms);
+        bindText(stmt.?, 2, pack_id);
         if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_DONE) return error.StepFailed;
         if (sqlite.sqlite3_changes(db) == 0) return error.PackNotFound;
     }
@@ -306,7 +285,7 @@ pub fn removePack(db: *sqlite.sqlite3, pack_id: []const u8) CurriculumError!void
 /// Get all installed packs as JSON array.
 pub fn getPacks(db: *sqlite.sqlite3, buf: []u8) ?[]const u8 {
     var stmt: ?*sqlite.sqlite3_stmt = null;
-    const sql = "SELECT id, name, version, language_pair, word_count, installed_at FROM packs ORDER BY installed_at DESC";
+    const sql = "SELECT id, name, version, language_pair, word_count, installed_at FROM packs WHERE COALESCE(deleted, 0) = 0 ORDER BY installed_at DESC";
     if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK)
         return null;
     defer _ = sqlite.sqlite3_finalize(stmt.?);
@@ -348,7 +327,7 @@ pub fn getLessons(db: *sqlite.sqlite3, pack_id: []const u8, buf: []u8) ?[]const 
         \\       COUNT(c.id) as total,
         \\       SUM(CASE WHEN f.reps > 0 AND f.stability > 5.0 THEN 1 ELSE 0 END) as mastered
         \\FROM lessons l
-        \\LEFT JOIN cards c ON c.lesson_id = l.id
+        \\LEFT JOIN cards c ON c.lesson_id = l.id AND COALESCE(c.deleted, 0) = 0
         \\LEFT JOIN fsrs_state f ON f.card_id = c.id
         \\WHERE l.pack_id = ?
         \\GROUP BY l.id
@@ -404,7 +383,7 @@ pub fn getVocabulary(db: *sqlite.sqlite3, lesson_id: []const u8, buf: []u8) ?[]c
         \\       COALESCE(f.reps, 0), COALESCE(f.stability, 0.0)
         \\FROM cards c
         \\LEFT JOIN fsrs_state f ON f.card_id = c.id
-        \\WHERE c.lesson_id = ?
+        \\WHERE c.lesson_id = ? AND COALESCE(c.deleted, 0) = 0
         \\ORDER BY c.created_at
     ;
     if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK)
@@ -463,7 +442,7 @@ pub fn getProgress(db: *sqlite.sqlite3, pack_id: []const u8, buf: []u8) ?[]const
         \\       SUM(CASE WHEN f.reps > 0 AND f.stability > 5.0 THEN 1 ELSE 0 END)
         \\FROM cards c
         \\LEFT JOIN fsrs_state f ON f.card_id = c.id
-        \\WHERE c.pack_id = ?
+        \\WHERE c.pack_id = ? AND COALESCE(c.deleted, 0) = 0
     ;
     if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK)
         return null;
@@ -507,6 +486,50 @@ fn makeCardId(pack_id: []const u8, word: []const u8, buf: *[64]u8) []const u8 {
     }
     pos += 8;
     return buf[0..pos];
+}
+
+/// Restore a soft-deleted pack and its cards (undo deletion).
+pub fn restorePack(db: *sqlite.sqlite3, pack_id: []const u8, now_ms: i64) CurriculumError!void {
+    // Restore cards
+    {
+        var stmt: ?*sqlite.sqlite3_stmt = null;
+        const sql = "UPDATE cards SET deleted = 0, updated_at = ? WHERE pack_id = ? AND deleted = 1";
+        if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK)
+            return error.PrepareFailed;
+        defer _ = sqlite.sqlite3_finalize(stmt.?);
+        _ = sqlite.sqlite3_bind_int64(stmt.?, 1, now_ms);
+        bindText(stmt.?, 2, pack_id);
+        if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_DONE) return error.StepFailed;
+    }
+    // Restore pack
+    {
+        var stmt: ?*sqlite.sqlite3_stmt = null;
+        const sql = "UPDATE packs SET deleted = 0, updated_at = ? WHERE id = ? AND deleted = 1";
+        if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK)
+            return error.PrepareFailed;
+        defer _ = sqlite.sqlite3_finalize(stmt.?);
+        _ = sqlite.sqlite3_bind_int64(stmt.?, 1, now_ms);
+        bindText(stmt.?, 2, pack_id);
+        if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_DONE) return error.StepFailed;
+        if (sqlite.sqlite3_changes(db) == 0) return error.PackNotFound;
+    }
+}
+
+/// Hard-delete a pack and all associated data (for reinstall/upgrade, not user-facing delete).
+fn hardDeletePack(db: *sqlite.sqlite3, pack_id: []const u8) CurriculumError!void {
+    inline for (.{
+        "DELETE FROM fsrs_state WHERE card_id IN (SELECT id FROM cards WHERE pack_id = ?)",
+        "DELETE FROM cards WHERE pack_id = ?",
+        "DELETE FROM lessons WHERE pack_id = ?",
+        "DELETE FROM packs WHERE id = ?",
+    }) |sql| {
+        var stmt: ?*sqlite.sqlite3_stmt = null;
+        if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK)
+            return error.PrepareFailed;
+        defer _ = sqlite.sqlite3_finalize(stmt.?);
+        bindText(stmt.?, 1, pack_id);
+        if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_DONE) return error.StepFailed;
+    }
 }
 
 fn bindText(stmt: *sqlite.sqlite3_stmt, col: c_int, text: []const u8) void {
@@ -563,7 +586,7 @@ test "install and query pack" {
     try std.testing.expect(std.mem.indexOf(u8, progress_json, "\"total\":2") != null);
 
     // Remove pack
-    try removePack(db.handle, "test-pack");
+    try removePack(db.handle, "test-pack", 2000);
     const packs_after = getPacks(db.handle, &buf) orelse return error.TestUnexpectedResult;
     try std.testing.expectEqualStrings("[]", packs_after);
 }

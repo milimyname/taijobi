@@ -34,7 +34,9 @@ self.addEventListener('message', (event) => {
 
 self.addEventListener('fetch', (event) => {
 	const url = new URL(event.request.url);
-	if (event.request.method !== 'GET' || url.origin !== self.location.origin) return;
+	if (event.request.method !== 'GET') return;
+	// Skip cross-origin and sync API requests (WebSocket upgrades, API calls)
+	if (url.origin !== self.location.origin) return;
 
 	// Cache-first for precached assets (WASM, JS, CSS, icons)
 	if (ASSETS.includes(url.pathname)) {
@@ -71,8 +73,9 @@ self.addEventListener('fetch', (event) => {
 	event.respondWith(
 		fetch(event.request)
 			.then((response) => {
-				if (response.ok) {
-					caches.open(CACHE).then((cache) => cache.put(event.request, response.clone()));
+				if (response.ok && response.type === 'basic') {
+					const clone = response.clone();
+					caches.open(CACHE).then((cache) => cache.put(event.request, clone));
 				}
 				return response;
 			})

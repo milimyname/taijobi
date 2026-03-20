@@ -196,7 +196,7 @@ export fn hanzi_add_word(word_ptr: [*]const u8, word_len: usize) ?[*]const u8 {
 export fn hanzi_remove_word(id_ptr: [*]const u8, id_len: usize) i32 {
     const db = &(global_db orelse return -1);
     const card_id = id_ptr[0..id_len];
-    lexicon.removeWord(db.handle, card_id) catch |err| {
+    lexicon.removeWord(db.handle, card_id, now()) catch |err| {
         const msg = switch (err) {
             error.PrepareFailed => "SQL prepare failed",
             error.StepFailed => "SQL step failed",
@@ -273,7 +273,7 @@ export fn hanzi_get_packs() ?[*]const u8 {
 export fn hanzi_remove_pack(id_ptr: [*]const u8, id_len: usize) i32 {
     const db = &(global_db orelse return -1);
     const pack_id = id_ptr[0..id_len];
-    curriculum.removePack(db.handle, pack_id) catch |err| {
+    curriculum.removePack(db.handle, pack_id, now()) catch |err| {
         const msg = switch (err) {
             error.PrepareFailed => "SQL prepare failed",
             error.StepFailed => "SQL step failed",
@@ -305,6 +305,22 @@ export fn hanzi_get_progress(pack_id_ptr: [*]const u8, pack_id_len: usize) ?[*]c
     const pack_id = pack_id_ptr[0..pack_id_len];
     const json = curriculum.getProgress(db.handle, pack_id, &json_buf) orelse return null;
     return makeLengthPrefixed(json);
+}
+
+export fn hanzi_restore_pack(id_ptr: [*]const u8, id_len: usize) i32 {
+    const db = &(global_db orelse return -1);
+    const pack_id = id_ptr[0..id_len];
+    curriculum.restorePack(db.handle, pack_id, now()) catch |err| {
+        const msg = switch (err) {
+            error.PrepareFailed => "SQL prepare failed",
+            error.StepFailed => "SQL step failed",
+            error.PackNotFound => "pack not found",
+            error.InvalidJson => "invalid JSON",
+        };
+        setError(msg);
+        return -1;
+    };
+    return 0;
 }
 
 // === Reading Mode ===
@@ -425,6 +441,130 @@ export fn hanzi_import_apkg(apkg_ptr: [*]const u8, apkg_len: usize, name_ptr: [*
     return @intCast(count);
 }
 
+// === Phase 4 — Sync ===
+
+const crypto = @import("crypto.zig");
+
+export fn hanzi_get_changes(since_ts: i64) ?[*]const u8 {
+    var db = global_db orelse {
+        setError("hanzi_get_changes: database not initialized");
+        return null;
+    };
+
+    const buf_size: usize = 8 * 1024 * 1024; // 8 MB
+    const buf = fba.allocator().alloc(u8, buf_size + 4) catch {
+        setError("hanzi_get_changes: failed to allocate buffer");
+        return null;
+    };
+
+    const json_len = db.getChangesJson(since_ts, buf.ptr + 4, buf_size) catch {
+        setError("hanzi_get_changes: query failed");
+        fba.allocator().free(buf);
+        return null;
+    } orelse {
+        setError("hanzi_get_changes: buffer too small");
+        fba.allocator().free(buf);
+        return null;
+    };
+
+    std.mem.writeInt(u32, buf[0..4], @intCast(json_len), .little);
+    return buf.ptr;
+}
+
+export fn hanzi_apply_changes(data: [*]const u8, len: u32) i32 {
+    var db = global_db orelse {
+        setError("hanzi_apply_changes: database not initialized");
+        return -1;
+    };
+
+    const result = db.applyChanges(data[0..len]) catch {
+        setError("hanzi_apply_changes: failed");
+        return -1;
+    };
+
+    return result;
+}
+
+export fn hanzi_derive_key(sync_key_ptr: [*]const u8, sync_key_len: u32) ?[*]const u8 {
+    const sync_key = sync_key_ptr[0..sync_key_len];
+    const key = crypto.deriveKey(sync_key);
+    return makeLengthPrefixed(&key);
+}
+
+export fn hanzi_encrypt_field(
+    pt_ptr: [*]const u8,
+    pt_len: u32,
+    key_ptr: [*]const u8,
+    nonce_ptr: [*]const u8,
+) ?[*]const u8 {
+    const plaintext = pt_ptr[0..pt_len];
+    const key: [32]u8 = key_ptr[0..32].*;
+    const nonce: [24]u8 = nonce_ptr[0..24].*;
+
+    const enc_size = 24 + pt_len + 16;
+    const enc_buf = fba.allocator().alloc(u8, enc_size) catch {
+        setError("hanzi_encrypt_field: alloc failed");
+        return null;
+    };
+
+    const enc_len = crypto.encryptField(plaintext, key, nonce, enc_buf) catch {
+        setError("hanzi_encrypt_field: encryption failed");
+        return null;
+    };
+
+    // Base64 encode
+    const b64_len = std.base64.standard.Encoder.calcSize(enc_len);
+    const b64_buf = fba.allocator().alloc(u8, b64_len) catch {
+        setError("hanzi_encrypt_field: b64 alloc failed");
+        return null;
+    };
+    const encoded = std.base64.standard.Encoder.encode(b64_buf, enc_buf[0..enc_len]);
+
+    return makeLengthPrefixed(encoded);
+}
+
+export fn hanzi_decrypt_field(
+    ct_ptr: [*]const u8,
+    ct_len: u32,
+    key_ptr: [*]const u8,
+) ?[*]const u8 {
+    const b64_input = ct_ptr[0..ct_len];
+    const key: [32]u8 = key_ptr[0..32].*;
+
+    const decoded_size = std.base64.standard.Decoder.calcSizeForSlice(b64_input) catch {
+        setError("hanzi_decrypt_field: invalid base64");
+        return null;
+    };
+    const decoded_buf = fba.allocator().alloc(u8, decoded_size) catch {
+        setError("hanzi_decrypt_field: alloc failed");
+        return null;
+    };
+    std.base64.standard.Decoder.decode(decoded_buf, b64_input) catch {
+        setError("hanzi_decrypt_field: base64 decode failed");
+        return null;
+    };
+
+    const pt_len_max = if (decoded_size > 40) decoded_size - 40 else 0;
+    const pt_buf = fba.allocator().alloc(u8, pt_len_max) catch {
+        setError("hanzi_decrypt_field: pt alloc failed");
+        return null;
+    };
+
+    const pt_len2 = crypto.decryptField(decoded_buf[0..decoded_size], key, pt_buf) catch {
+        setError("hanzi_decrypt_field: decryption failed");
+        return null;
+    };
+
+    return makeLengthPrefixed(pt_buf[0..pt_len2]);
+}
+
+export fn hanzi_vacuum_deleted() i32 {
+    var db = global_db orelse return -1;
+    const retention_ms: i64 = 30 * 24 * 60 * 60 * 1000; // 30 days
+    const removed = db.vacuumDeleted(now(), retention_ms) catch return -1;
+    return removed;
+}
+
 // === WASM-only exports ===
 
 comptime {
@@ -461,4 +601,5 @@ test {
     _ = @import("pinyin.zig");
     _ = @import("csv.zig");
     _ = @import("apkg.zig");
+    _ = @import("crypto.zig");
 }

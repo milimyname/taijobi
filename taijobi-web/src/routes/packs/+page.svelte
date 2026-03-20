@@ -1,15 +1,16 @@
 <script lang="ts">
 	import {
-		getPacks,
 		installPack,
 		removePack,
+		restorePack,
 		importCsv,
 		importApkg,
 		exportCsv,
-		type Pack
+		type Pack,
 	} from '$lib/wasm';
 	import { onMount, onDestroy } from 'svelte';
 	import { toastStore } from '$lib/toast.svelte';
+	import { data } from '$lib/data.svelte';
 
 	interface CatalogEntry {
 		id: string;
@@ -27,19 +28,14 @@
 		totalRows: number;
 	}
 
-	let installed: Pack[] = $state([]);
+	let installed: Pack[] = $derived(data.packs());
 	let catalog: CatalogEntry[] = $state([]);
 	let loading = $state('');
 	let csvPreview: CsvPreview | null = $state(null);
 	let importing = $state(false);
 	let dragging = $state(false);
 
-	function refresh() {
-		installed = getPacks();
-	}
-
 	onMount(async () => {
-		refresh();
 		try {
 			const res = await fetch('/packs/catalog.json');
 			catalog = await res.json();
@@ -58,7 +54,7 @@
 			const res = await fetch(`/packs/${id}.json`);
 			const json = await res.text();
 			await installPack(json);
-			refresh();
+	
 		} catch (e) {
 			toastStore.show(e instanceof Error ? e.message : 'Install failed');
 		} finally {
@@ -67,11 +63,14 @@
 	}
 
 	async function handleRemove(id: string) {
+		const pack = installed.find((p) => p.id === id);
 		try {
 			await removePack(id);
-			refresh();
+			toastStore.show(`${pack?.name ?? 'Pack'} gelöscht`, async () => {
+				await restorePack(id);
+			});
 		} catch (e) {
-			toastStore.show(e instanceof Error ? e.message : 'Remove failed');
+			toastStore.show(e instanceof Error ? e.message : 'Löschen fehlgeschlagen');
 		}
 	}
 
@@ -109,7 +108,7 @@
 				try {
 					const count = await importApkg(reader.result as ArrayBuffer, name);
 					toastStore.show(`${count} Karten aus .apkg importiert`);
-					refresh();
+			
 				} catch (e) {
 					toastStore.show(e instanceof Error ? e.message : '.apkg import failed');
 				} finally {
@@ -149,7 +148,7 @@
 			const count = await importCsv(csvPreview.text, csvPreview.filename);
 			toastStore.show(`${count} Karten importiert`);
 			csvPreview = null;
-			refresh();
+	
 		} catch (e) {
 			toastStore.show(e instanceof Error ? e.message : 'Import failed');
 		} finally {

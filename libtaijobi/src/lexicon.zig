@@ -87,42 +87,18 @@ pub fn addWord(
     return lang_code;
 }
 
-/// Remove a lexicon word and its associated FSRS state + review logs.
-pub fn removeWord(db: *sqlite.sqlite3, card_id: []const u8) LexiconError!void {
-    // Delete review_log entries first (FK constraint)
-    {
-        var stmt: ?*sqlite.sqlite3_stmt = null;
-        const sql = "DELETE FROM review_log WHERE card_id = ?";
-        if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK) {
-            return error.PrepareFailed;
-        }
-        defer _ = sqlite.sqlite3_finalize(stmt.?);
-        _ = sqlite.sqlite3_bind_text(stmt.?, 1, card_id.ptr, @intCast(card_id.len), sqlite.SQLITE_STATIC);
-        if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_DONE) return error.StepFailed;
+/// Soft-delete a lexicon word (sets deleted=1, updated_at=now).
+pub fn removeWord(db: *sqlite.sqlite3, card_id: []const u8, now_ms: i64) LexiconError!void {
+    var stmt: ?*sqlite.sqlite3_stmt = null;
+    const sql = "UPDATE cards SET deleted = 1, updated_at = ? WHERE id = ? AND source_type = 'lexicon' AND COALESCE(deleted, 0) = 0";
+    if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK) {
+        return error.PrepareFailed;
     }
-    // Delete fsrs_state
-    {
-        var stmt: ?*sqlite.sqlite3_stmt = null;
-        const sql = "DELETE FROM fsrs_state WHERE card_id = ?";
-        if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK) {
-            return error.PrepareFailed;
-        }
-        defer _ = sqlite.sqlite3_finalize(stmt.?);
-        _ = sqlite.sqlite3_bind_text(stmt.?, 1, card_id.ptr, @intCast(card_id.len), sqlite.SQLITE_STATIC);
-        if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_DONE) return error.StepFailed;
-    }
-    // Delete card
-    {
-        var stmt: ?*sqlite.sqlite3_stmt = null;
-        const sql = "DELETE FROM cards WHERE id = ? AND source_type = 'lexicon'";
-        if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK) {
-            return error.PrepareFailed;
-        }
-        defer _ = sqlite.sqlite3_finalize(stmt.?);
-        _ = sqlite.sqlite3_bind_text(stmt.?, 1, card_id.ptr, @intCast(card_id.len), sqlite.SQLITE_STATIC);
-        if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_DONE) return error.StepFailed;
-        if (sqlite.sqlite3_changes(db) == 0) return error.NotFound;
-    }
+    defer _ = sqlite.sqlite3_finalize(stmt.?);
+    _ = sqlite.sqlite3_bind_int64(stmt.?, 1, now_ms);
+    _ = sqlite.sqlite3_bind_text(stmt.?, 2, card_id.ptr, @intCast(card_id.len), sqlite.SQLITE_STATIC);
+    if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_DONE) return error.StepFailed;
+    if (sqlite.sqlite3_changes(db) == 0) return error.NotFound;
 }
 
 /// Update a lexicon word's translation field.
@@ -148,7 +124,7 @@ pub fn getLexicon(db: *sqlite.sqlite3, buf: []u8) ?[]const u8 {
         \\       COALESCE(f.reps, 0), COALESCE(f.stability, 0.0)
         \\FROM cards c
         \\LEFT JOIN fsrs_state f ON c.id = f.card_id
-        \\WHERE c.source_type = 'lexicon'
+        \\WHERE c.source_type = 'lexicon' AND COALESCE(c.deleted, 0) = 0
         \\ORDER BY c.created_at DESC
     ;
     if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK) {
@@ -245,7 +221,7 @@ pub fn getDrillStats(db: *sqlite.sqlite3, now_ms: i64, buf: []u8) ?[]const u8 {
     // Total cards + lexicon count
     {
         var stmt: ?*sqlite.sqlite3_stmt = null;
-        const sql = "SELECT COUNT(*), SUM(CASE WHEN source_type='lexicon' THEN 1 ELSE 0 END) FROM cards";
+        const sql = "SELECT COUNT(*), SUM(CASE WHEN source_type='lexicon' THEN 1 ELSE 0 END) FROM cards WHERE COALESCE(deleted, 0) = 0";
         if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) == sqlite.SQLITE_OK) {
             defer _ = sqlite.sqlite3_finalize(stmt.?);
             if (sqlite.sqlite3_step(stmt.?) == sqlite.SQLITE_ROW) {

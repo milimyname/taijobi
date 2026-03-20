@@ -1,7 +1,9 @@
 <script lang="ts">
 	import './layout.css';
-	import { init, isReady } from '$lib/wasm';
-	import { onMount } from 'svelte';
+	import { init, isReady, setOnDataChanged } from '$lib/wasm';
+	import { onMount, onDestroy } from 'svelte';
+	import { connectSync, disconnectSync, isSyncEnabled } from '$lib/sync';
+	import { data } from '$lib/data.svelte';
 	import { page } from '$app/state';
 	import { updateStore } from '$lib/update.svelte';
 	import UpdateBanner from '../components/UpdateBanner.svelte';
@@ -18,10 +20,16 @@
 			await init();
 			ready = true;
 			updateStore.init();
+			setOnDataChanged(() => queueMicrotask(() => data.bump()));
+			if (isSyncEnabled()) connectSync();
 		} catch (e) {
 			error = e instanceof Error ? e.message : 'Failed to initialize';
 			console.error('[taijobi] init error:', e);
 		}
+	});
+
+	onDestroy(() => {
+		disconnectSync();
 	});
 
 	function isActive(path: string): boolean {
@@ -41,7 +49,9 @@
 							? 'Zeichen'
 							: page.url.pathname.startsWith('/character')
 								? 'Zeichen'
-								: 'Taijobi',
+								: page.url.pathname === '/settings'
+									? 'Einstellungen'
+									: 'Taijobi',
 	);
 </script>
 
@@ -99,11 +109,12 @@
 					<h2 class="text-lg font-bold leading-tight text-slate-900">{pageTitle}</h2>
 				</div>
 			</div>
-			<button
+			<a
+				href="/settings"
 				class="rounded-full p-2 text-slate-600 transition-colors hover:bg-slate-100"
 			>
-				<span class="material-symbols-outlined">notifications</span>
-			</button>
+				<span class="material-symbols-outlined">settings</span>
+			</a>
 		</header>
 
 		<!-- Main Content -->

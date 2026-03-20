@@ -55,3 +55,15 @@ export fn hanzi_import_csv(csv_ptr: [*]const u8, csv_len: usize,
     name_ptr: [*]const u8, name_len: usize) i32
 export fn hanzi_export_csv() ?[*]const u8
 ```
+
+## Phase 4 — Sync
+
+```zig
+export fn hanzi_get_changes(since_ts: i64) ?[*]const u8
+export fn hanzi_apply_changes(data: [*]const u8, len: u32) i32
+export fn hanzi_derive_key(sync_key_ptr: [*]const u8, sync_key_len: u32) ?[*]const u8
+export fn hanzi_encrypt_field(pt_ptr: [*]const u8, pt_len: u32,
+    key_ptr: [*]const u8, nonce_ptr: [*]const u8) ?[*]const u8
+export fn hanzi_decrypt_field(ct_ptr: [*]const u8, ct_len: u32,
+    key_ptr: [*]const u8) ?[*]const u8
+```

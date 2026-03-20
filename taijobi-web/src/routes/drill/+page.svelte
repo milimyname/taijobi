@@ -14,7 +14,9 @@
 		type ReadCard
 	} from '$lib/wasm';
 	import { speak } from '$lib/speak';
+	import { data } from '$lib/data.svelte';
 	import { page } from '$app/state';
+	import { untrack } from 'svelte';
 
 	type DrillPhase = 'picking' | 'question' | 'answer' | 'complete' | 'reading';
 	type DrillDirection = 'zh-de' | 'de-zh' | 'zh-pinyin';
@@ -100,6 +102,14 @@
 	}
 
 	init();
+
+	// Re-build sources when sync pulls new data (only if on picker)
+	$effect(() => {
+		data.packs(); // reactive dependency — re-runs when data changes
+		untrack(() => {
+			if (phase === 'picking') buildSources();
+		});
+	});
 
 	function startDrill(filter: string, label: string) {
 		activeFilter = filter;

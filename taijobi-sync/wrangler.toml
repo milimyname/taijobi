@@ -1,0 +1,15 @@
+name = "taijobi-sync"
+main = "src/index.ts"
+compatibility_date = "2025-03-12"
+routes = [
+  { pattern = "sync.taijobi.com", custom_domain = true }
+]
+
+[durable_objects]
+bindings = [
+  { name = "SYNC_ROOM", class_name = "SyncRoom" }
+]
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["SyncRoom"]

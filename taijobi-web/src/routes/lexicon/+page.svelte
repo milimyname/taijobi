@@ -1,15 +1,8 @@
 <script lang="ts">
-	import {
-		addWord,
-		removeWord,
-		updateWord,
-		getLexicon,
-		type LexiconEntry,
-		type AddWordResult,
-	} from '$lib/wasm';
+	import { addWord, removeWord, updateWord, type LexiconEntry, type AddWordResult } from '$lib/wasm';
+	import { data } from '$lib/data.svelte';
 
 	let input = $state('');
-	let entries: LexiconEntry[] = $state([]);
 	let feedback: AddWordResult | null = $state(null);
 	let errorMsg = $state('');
 	let adding = $state(false);
@@ -17,11 +10,7 @@
 	let editingId = $state<string | null>(null);
 	let editTranslation = $state('');
 
-	function refresh() {
-		entries = getLexicon();
-	}
-
-	refresh();
+	let entries: LexiconEntry[] = $derived(data.lexicon());
 
 	let filtered = $derived(
 		filter === 'all' ? entries : entries.filter((e) => e.language === filter),
@@ -37,7 +26,7 @@
 			const result = await addWord(word);
 			feedback = result;
 			input = '';
-			refresh();
+	
 			setTimeout(() => (feedback = null), 3000);
 		} catch (e) {
 			errorMsg = e instanceof Error ? e.message : 'Failed to add word';
@@ -54,7 +43,7 @@
 	async function handleRemove(id: string) {
 		try {
 			await removeWord(id);
-			refresh();
+	
 		} catch (e) {
 			errorMsg = e instanceof Error ? e.message : 'Failed to remove';
 			setTimeout(() => (errorMsg = ''), 3000);
@@ -77,7 +66,7 @@
 			await updateWord(editingId, editTranslation);
 			editingId = null;
 			editTranslation = '';
-			refresh();
+	
 		} catch (e) {
 			errorMsg = e instanceof Error ? e.message : 'Failed to update';
 			setTimeout(() => (errorMsg = ''), 3000);

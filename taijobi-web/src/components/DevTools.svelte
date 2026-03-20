@@ -5,18 +5,30 @@
 		getBuildId,
 		getPacks,
 		getDrillStats,
+		getLexicon,
 		close,
-		type Pack
+		type Pack,
 	} from '$lib/wasm';
+	import { syncWS } from '$lib/sync-ws.svelte';
+	import { getSyncKey, clearSyncKey, getLastSyncTimestamp } from '$lib/sync';
+
+	const TABS = ['info', 'sync', 'data'] as const;
+	const TAB_LABELS: Record<(typeof TABS)[number], string> = {
+		info: 'Info',
+		sync: 'Sync',
+		data: 'Data',
+	};
 
 	let open = $state(false);
+	let activeTab = $state<(typeof TABS)[number]>('info');
+
+	// Info tab
 	let memoryBytes = $state(0);
 	let dbSizeBytes = $state(0);
 	let buildId = $state('');
 	let packs: Pack[] = $state([]);
 	let cardCount = $state(0);
 	let lexiconCount = $state(0);
-	let confirmReset = $state(false);
 
 	function refresh() {
 		memoryBytes = getWasmMemoryBytes();
@@ -39,6 +51,106 @@
 		return `${(bytes / 1048576).toFixed(1)} MB`;
 	}
 
+	function relativeTime(ts: number): string {
+		if (ts === 0) return 'nie';
+		const diff = Math.floor((Date.now() - ts) / 1000);
+		if (diff < 1) return 'jetzt';
+		if (diff < 60) return `${diff}s`;
+		if (diff < 3600) return `${Math.floor(diff / 60)}m`;
+		return `${Math.floor(diff / 3600)}h`;
+	}
+
+	// OPFS browser
+	interface OpfsFile {
+		name: string;
+		size: number;
+	}
+	let opfsFiles = $state<OpfsFile[]>([]);
+	let opfsLoading = $state(false);
+
+	async function refreshOpfs() {
+		opfsLoading = true;
+		try {
+			const root = await navigator.storage.getDirectory();
+			const files: OpfsFile[] = [];
+			for await (const [name, handle] of (root as any).entries()) {
+				if (handle.kind === 'file') {
+					const file = await (handle as FileSystemFileHandle).getFile();
+					files.push({ name, size: file.size });
+				} else {
+					files.push({ name: name + '/', size: -1 });
+				}
+			}
+			files.sort((a, b) => a.name.localeCompare(b.name));
+			opfsFiles = files;
+		} catch {
+			opfsFiles = [];
+		} finally {
+			opfsLoading = false;
+		}
+	}
+
+	async function downloadOpfsFile(name: string) {
+		try {
+			const root = await navigator.storage.getDirectory();
+			const fh = await root.getFileHandle(name);
+			const file = await fh.getFile();
+			const url = URL.createObjectURL(file);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = name;
+			a.click();
+			URL.revokeObjectURL(url);
+		} catch (e) {
+			console.error('[DevTools] OPFS download failed:', e);
+		}
+	}
+
+	async function deleteOpfsFile(name: string) {
+		try {
+			const root = await navigator.storage.getDirectory();
+			await root.removeEntry(name);
+			await refreshOpfs();
+		} catch (e) {
+			console.error('[DevTools] OPFS delete failed:', e);
+		}
+	}
+
+	// localStorage inspector
+	interface LsEntry {
+		key: string;
+		value: string;
+		size: number;
+	}
+	let lsEntries = $state<LsEntry[]>([]);
+
+	function refreshLs() {
+		const entries: LsEntry[] = [];
+		for (let i = 0; i < localStorage.length; i++) {
+			const key = localStorage.key(i);
+			if (!key) continue;
+			const value = localStorage.getItem(key) ?? '';
+			entries.push({ key, value, size: new Blob([value]).size });
+		}
+		entries.sort((a, b) => a.key.localeCompare(b.key));
+		lsEntries = entries;
+	}
+
+	function deleteLsKey(key: string) {
+		localStorage.removeItem(key);
+		refreshLs();
+	}
+
+	$effect(() => {
+		if (open && activeTab === 'data') {
+			refreshOpfs();
+			refreshLs();
+		}
+	});
+
+	// Danger zone
+	let confirmAction = $state<string | null>(null);
+
 	async function clearOpfs() {
 		try {
 			close();
@@ -50,6 +162,11 @@
 		window.location.reload();
 	}
 
+	function clearLocalStorage() {
+		localStorage.clear();
+		window.location.reload();
+	}
+
 	async function fullReset() {
 		try {
 			close();
@@ -58,12 +175,13 @@
 		} catch {
 			/* ignore */
 		}
+		clearSyncKey();
 		localStorage.clear();
 		window.location.reload();
 	}
 </script>
 
-<!-- Toggle button (bottom-left, above nav) -->
+<!-- Toggle button -->
 <button
 	onclick={toggle}
 	class="fixed bottom-20 left-3 z-50 flex size-8 items-center justify-center rounded-full bg-slate-800 text-xs font-bold text-white opacity-30 transition-opacity hover:opacity-100"
@@ -74,7 +192,7 @@
 
 {#if open}
 	<div
-		class="fixed bottom-28 left-3 z-50 w-72 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg"
+		class="fixed bottom-28 left-3 right-3 z-50 flex max-h-[60vh] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg sm:left-auto sm:right-3 sm:w-80"
 	>
 		<!-- Header -->
 		<div class="flex items-center justify-between border-b border-slate-100 px-4 py-2.5">
@@ -89,123 +207,286 @@
 			</button>
 		</div>
 
-		<div class="max-h-80 space-y-3 overflow-y-auto p-3">
-			<!-- Build -->
-			<div class="rounded-lg bg-slate-50 px-3 py-2">
-				<div class="text-[9px] font-bold uppercase tracking-wider text-slate-400">Build</div>
-				<div class="mt-0.5 font-mono text-xs text-slate-700">{buildId}</div>
-			</div>
+		<!-- Tabs -->
+		<div class="flex border-b border-slate-100">
+			{#each TABS as tab}
+				<button
+					onclick={() => {
+						activeTab = tab;
+						if (tab === 'info') refresh();
+					}}
+					class="flex-1 cursor-pointer py-2 text-[11px] font-semibold transition-colors {activeTab === tab ? 'border-b-2 border-primary bg-primary/10 text-slate-900' : 'text-slate-400 hover:text-slate-700'}"
+				>
+					{TAB_LABELS[tab]}
+				</button>
+			{/each}
+		</div>
 
-			<!-- Memory -->
-			<div class="grid grid-cols-2 gap-2">
-				<div class="rounded-lg bg-slate-50 px-3 py-2 text-center">
-					<div class="text-sm font-bold text-slate-900">{formatBytes(memoryBytes)}</div>
-					<div class="text-[9px] text-slate-400">WASM Memory</div>
-				</div>
-				<div class="rounded-lg bg-slate-50 px-3 py-2 text-center">
-					<div class="text-sm font-bold text-slate-900">{formatBytes(dbSizeBytes)}</div>
-					<div class="text-[9px] text-slate-400">SQLite DB</div>
-				</div>
-			</div>
-
-			<!-- Data -->
-			<div class="grid grid-cols-2 gap-2">
-				<div class="rounded-lg bg-slate-50 px-3 py-2 text-center">
-					<div class="text-sm font-bold text-slate-900">{cardCount}</div>
-					<div class="text-[9px] text-slate-400">Karten</div>
-				</div>
-				<div class="rounded-lg bg-slate-50 px-3 py-2 text-center">
-					<div class="text-sm font-bold text-slate-900">{lexiconCount}</div>
-					<div class="text-[9px] text-slate-400">Lexikon</div>
-				</div>
-			</div>
-
-			<!-- Packs -->
-			{#if packs.length > 0}
-				<div>
-					<div class="mb-1 text-[9px] font-bold uppercase tracking-wider text-slate-400">
-						Packs ({packs.length})
-					</div>
-					{#each packs as pack}
-						<div class="flex items-center justify-between py-0.5 text-xs">
-							<span class="truncate text-slate-700">{pack.name}</span>
-							<span class="shrink-0 text-slate-400">{pack.word_count}</span>
+		<!-- Content -->
+		<div class="min-h-0 flex-1 overflow-y-auto">
+			{#if activeTab === 'info'}
+				<div class="space-y-3 p-3">
+					<!-- Build -->
+					<div class="rounded-lg bg-slate-50 px-3 py-2">
+						<div class="text-[9px] font-bold uppercase tracking-wider text-slate-400">
+							Build
 						</div>
-					{/each}
+						<div class="mt-0.5 font-mono text-xs text-slate-700">{buildId}</div>
+					</div>
+
+					<!-- Memory -->
+					<div class="grid grid-cols-2 gap-2">
+						<div class="rounded-lg bg-slate-50 px-3 py-2 text-center">
+							<div class="text-sm font-bold text-slate-900">{formatBytes(memoryBytes)}</div>
+							<div class="text-[9px] text-slate-400">WASM Memory</div>
+						</div>
+						<div class="rounded-lg bg-slate-50 px-3 py-2 text-center">
+							<div class="text-sm font-bold text-slate-900">{formatBytes(dbSizeBytes)}</div>
+							<div class="text-[9px] text-slate-400">SQLite DB</div>
+						</div>
+					</div>
+
+					<!-- Data counts -->
+					<div class="grid grid-cols-2 gap-2">
+						<div class="rounded-lg bg-slate-50 px-3 py-2 text-center">
+							<div class="text-sm font-bold text-slate-900">{cardCount}</div>
+							<div class="text-[9px] text-slate-400">Karten</div>
+						</div>
+						<div class="rounded-lg bg-slate-50 px-3 py-2 text-center">
+							<div class="text-sm font-bold text-slate-900">{lexiconCount}</div>
+							<div class="text-[9px] text-slate-400">Lexikon</div>
+						</div>
+					</div>
+
+					<!-- Packs -->
+					{#if packs.length > 0}
+						<div>
+							<div class="mb-1 text-[9px] font-bold uppercase tracking-wider text-slate-400">
+								Packs ({packs.length})
+							</div>
+							{#each packs as pack}
+								<div class="flex items-center justify-between py-0.5 text-xs">
+									<span class="truncate text-slate-700">{pack.name}</span>
+									<span class="shrink-0 text-slate-400">{pack.word_count}</span>
+								</div>
+							{/each}
+						</div>
+					{/if}
+
+					<button
+						onclick={refresh}
+						class="w-full cursor-pointer rounded-lg bg-primary/10 px-3 py-1.5 text-center text-[10px] font-bold text-primary hover:bg-primary/20"
+					>
+						Refresh
+					</button>
+				</div>
+			{:else if activeTab === 'sync'}
+				<div class="space-y-3 p-3">
+					<!-- WS Status -->
+					<div class="flex items-center gap-2">
+						{#if !getSyncKey()}
+							<span class="size-2 rounded-full bg-gray-400"></span>
+							<span class="text-[11px] font-semibold text-gray-500">Kein Sync-Schlüssel</span>
+						{:else if syncWS.connected}
+							<span class="size-2 rounded-full bg-green-500"></span>
+							<span class="text-[11px] font-semibold text-green-700">Verbunden</span>
+						{:else}
+							<span class="size-2 rounded-full bg-red-400"></span>
+							<span class="text-[11px] font-semibold text-red-600">Getrennt</span>
+						{/if}
+					</div>
+
+					<!-- Sync key info -->
+					{#if getSyncKey()}
+						<div class="rounded-lg bg-slate-50 px-3 py-2">
+							<div class="text-[9px] font-bold uppercase tracking-wider text-slate-400">
+								Sync-Schlüssel
+							</div>
+							<div class="mt-0.5 font-mono text-[10px] text-slate-600">
+								{getSyncKey()?.slice(0, 8)}…
+							</div>
+						</div>
+					{/if}
+
+					<!-- Last sync -->
+					<div class="rounded-lg bg-slate-50 px-3 py-2">
+						<div class="text-[9px] font-bold uppercase tracking-wider text-slate-400">
+							Letzte Sync
+						</div>
+						<div class="mt-0.5 text-xs text-slate-700">
+							{relativeTime(getLastSyncTimestamp())}
+						</div>
+					</div>
+				</div>
+			{:else if activeTab === 'data'}
+				<div class="space-y-4 p-3">
+					<!-- OPFS Files -->
+					<div>
+						<div class="mb-2 flex items-center justify-between">
+							<span class="text-[11px] font-semibold text-slate-900">OPFS</span>
+							<button
+								onclick={refreshOpfs}
+								class="cursor-pointer rounded px-1.5 py-0.5 text-[10px] font-medium text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+							>
+								refresh
+							</button>
+						</div>
+						{#if opfsLoading}
+							<div class="py-3 text-center text-xs text-slate-400">Laden…</div>
+						{:else if opfsFiles.length === 0}
+							<div class="py-3 text-center text-xs text-slate-400">Keine Dateien</div>
+						{:else}
+							<div
+								class="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200"
+							>
+								{#each opfsFiles as file}
+									<div
+										class="flex items-center justify-between gap-1.5 bg-white px-2.5 py-1.5"
+									>
+										<div class="flex min-w-0 items-center gap-2">
+											<span class="truncate font-mono text-[11px] font-medium text-slate-700"
+												>{file.name}</span
+											>
+											{#if file.size >= 0}
+												<span class="shrink-0 text-[9px] text-slate-400">
+													{formatBytes(file.size)}
+												</span>
+											{/if}
+										</div>
+										{#if file.size >= 0}
+											<div class="flex shrink-0 items-center gap-1">
+												<button
+													onclick={() => downloadOpfsFile(file.name)}
+													class="cursor-pointer px-1 text-[9px] text-slate-400 hover:text-slate-700"
+												>
+													dl
+												</button>
+												<button
+													onclick={() => deleteOpfsFile(file.name)}
+													class="cursor-pointer px-1 text-[9px] text-red-400 hover:text-red-600"
+												>
+													del
+												</button>
+											</div>
+										{/if}
+									</div>
+								{/each}
+							</div>
+						{/if}
+					</div>
+
+					<!-- localStorage -->
+					<div>
+						<div class="mb-2 flex items-center justify-between">
+							<span class="text-[11px] font-semibold text-slate-900">localStorage</span>
+							<span class="text-[9px] text-slate-400">{lsEntries.length} keys</span>
+						</div>
+						{#if lsEntries.length > 0}
+							<div
+								class="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200"
+							>
+								{#each lsEntries as entry}
+									<div class="bg-white px-2.5 py-1.5">
+										<div class="flex items-start justify-between gap-1.5">
+											<div class="min-w-0 flex-1">
+												<div
+													class="truncate font-mono text-[10px] font-bold text-slate-700"
+												>
+													{entry.key}
+												</div>
+												<div
+													class="mt-0.5 truncate font-mono text-[9px] text-slate-400"
+												>
+													{entry.value.length > 60
+														? entry.value.slice(0, 60) + '…'
+														: entry.value}
+												</div>
+											</div>
+											<div class="mt-0.5 flex shrink-0 items-center gap-1">
+												<span class="text-[8px] text-slate-400">{entry.size}B</span>
+												<button
+													onclick={() => deleteLsKey(entry.key)}
+													class="cursor-pointer px-1 text-[9px] text-red-400 hover:text-red-600"
+												>
+													del
+												</button>
+											</div>
+										</div>
+									</div>
+								{/each}
+							</div>
+						{:else}
+							<div class="py-3 text-center text-xs text-slate-400">Leer</div>
+						{/if}
+					</div>
+
+					<!-- Danger Zone -->
+					<div class="border-t border-red-100 pt-3">
+						<span class="text-[10px] font-bold uppercase tracking-wide text-red-500"
+							>Danger Zone</span
+						>
+						<div class="mt-2 space-y-1.5">
+							{#if confirmAction}
+								<div class="rounded-xl bg-red-50 p-3">
+									<p class="mb-2 text-[11px] font-medium text-red-700">
+										{confirmAction === 'opfs'
+											? 'OPFS löschen? (taijobi.db)'
+											: confirmAction === 'ls'
+												? 'localStorage leeren?'
+												: 'Alles zurücksetzen? (OPFS + localStorage + Sync)'}
+									</p>
+									<div class="flex gap-2">
+										<button
+											onclick={() => {
+												if (confirmAction === 'opfs') clearOpfs();
+												else if (confirmAction === 'ls') clearLocalStorage();
+												else fullReset();
+											}}
+											class="cursor-pointer rounded-lg bg-red-500 px-3 py-1 text-[10px] font-bold text-white transition-colors hover:bg-red-600"
+										>
+											Bestätigen
+										</button>
+										<button
+											onclick={() => {
+												confirmAction = null;
+											}}
+											class="cursor-pointer rounded-lg px-3 py-1 text-[10px] font-medium text-slate-500 transition-colors hover:text-slate-700"
+										>
+											Abbrechen
+										</button>
+									</div>
+								</div>
+							{:else}
+								<button
+									onclick={() => {
+										confirmAction = 'opfs';
+									}}
+									class="w-full cursor-pointer rounded-lg px-2.5 py-1.5 text-left text-[11px] font-medium text-red-600 transition-colors hover:bg-red-50"
+								>
+									Clear OPFS <span class="text-slate-400">(taijobi.db)</span>
+								</button>
+								<button
+									onclick={() => {
+										confirmAction = 'ls';
+									}}
+									class="w-full cursor-pointer rounded-lg px-2.5 py-1.5 text-left text-[11px] font-medium text-red-600 transition-colors hover:bg-red-50"
+								>
+									Clear localStorage
+									<span class="text-slate-400">(Settings, Sync-Key)</span>
+								</button>
+								<button
+									onclick={() => {
+										confirmAction = 'full';
+									}}
+									class="w-full cursor-pointer rounded-lg px-2.5 py-1.5 text-left text-[11px] font-medium text-red-600 transition-colors hover:bg-red-50"
+								>
+									Full Reset <span class="text-slate-400">(alles)</span>
+								</button>
+							{/if}
+						</div>
+					</div>
 				</div>
 			{/if}
-
-			<!-- OPFS -->
-			<div>
-				<button
-					onclick={async () => {
-						try {
-							const root = await navigator.storage.getDirectory();
-							const entries: string[] = [];
-							for await (const [name] of (root as any).entries()) entries.push(name);
-							alert('OPFS: ' + (entries.length ? entries.join(', ') : 'empty'));
-						} catch {
-							alert('OPFS not available');
-						}
-					}}
-					class="w-full cursor-pointer rounded-lg bg-slate-50 px-3 py-1.5 text-left text-[10px] font-medium text-slate-600 hover:bg-slate-100"
-				>
-					Browse OPFS
-				</button>
-			</div>
-
-			<!-- Actions -->
-			<button
-				onclick={refresh}
-				class="w-full cursor-pointer rounded-lg bg-primary/10 px-3 py-1.5 text-center text-[10px] font-bold text-primary hover:bg-primary/20"
-			>
-				Refresh
-			</button>
-
-			<!-- Danger Zone -->
-			<div class="border-t border-red-100 pt-2">
-				<div class="mb-1 text-[9px] font-bold uppercase tracking-wider text-red-400">
-					Danger Zone
-				</div>
-				{#if confirmReset}
-					<div class="rounded-lg bg-red-50 p-2.5">
-						<p class="mb-2 text-[10px] font-medium text-red-700">
-							Alles l&ouml;schen? (OPFS + localStorage)
-						</p>
-						<div class="flex gap-2">
-							<button
-								onclick={fullReset}
-								class="cursor-pointer rounded-lg bg-red-500 px-3 py-1 text-[10px] font-bold text-white hover:bg-red-600"
-							>
-								Ja, l&ouml;schen
-							</button>
-							<button
-								onclick={() => {
-									confirmReset = false;
-								}}
-								class="cursor-pointer text-[10px] text-slate-500 hover:text-slate-700"
-							>
-								Abbrechen
-							</button>
-						</div>
-					</div>
-				{:else}
-					<button
-						onclick={() => clearOpfs()}
-						class="w-full cursor-pointer rounded-lg px-3 py-1.5 text-left text-[10px] font-medium text-red-600 hover:bg-red-50"
-					>
-						Clear OPFS (taijobi.db)
-					</button>
-					<button
-						onclick={() => {
-							confirmReset = true;
-						}}
-						class="w-full cursor-pointer rounded-lg px-3 py-1.5 text-left text-[10px] font-medium text-red-600 hover:bg-red-50"
-					>
-						Full Reset
-					</button>
-				{/if}
-			</div>
 		</div>
 	</div>
 {/if}

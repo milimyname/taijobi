@@ -37,65 +37,68 @@ oxfmt/oxlint configs, CI workflow skeleton.
 
 ---
 
-## Phase 1 — Personal Lexicon + Multi-Language
+## Phase 1 — Personal Lexicon + Multi-Language ✅ DONE
 
 > Equivalent to wimg Phase 2.
 
 **Goal:** Quick-add words from reading. Auto-detect language. Chinese words
 get enriched from CEDICT. All words reviewable via FSRS.
 
-**libhanzi:**
-- [ ] `lexicon.zig` — `addWord()`: detect language, store, create FSRS card
-- [ ] `lang.zig` — language detection: CJK Unicode ranges -> "zh", a/o/u/ss -> "de",
+**libhanzi:** ✅ DONE
+- [x] `lexicon.zig` — `addWord()`: detect language, store, create FSRS card.
+  Also `removeWord()`, `updateWord()`, `getLexicon()`, `getDrillStats()`.
+- [x] `lang.zig` — language detection: CJK Unicode ranges -> "zh", a/o/u/ss -> "de",
   fallback -> "en". Simple heuristics, good enough for 95%.
-- [ ] `cedict.zig` — parse CC-CEDICT text format into binary lookup table.
+- [x] `cedict.zig` — parse CC-CEDICT text format into binary lookup table.
   Binary search by simplified hanzi. Return pinyin + english definition.
-- [ ] Schema v2: add `language`, `source_type`, `context` columns to cards table
-- [ ] `hanzi_add_word()` C ABI — returns enriched card JSON
-- [ ] `hanzi_import_lexicon()` — bulk import JSON array of words
-- [ ] `hanzi_get_lexicon()` — list personal words
-- [ ] `hanzi_lookup()` — CEDICT dictionary search
+- [x] Schema v2: `language`, `source_type`, `context` columns on cards table
+- [x] `hanzi_add_word()` C ABI — returns enriched card JSON
+- [x] `hanzi_remove_word()` + `hanzi_update_word()` C ABI
+- [x] `hanzi_get_lexicon()` — list personal words with FSRS stats
+- [x] `hanzi_lookup()` — CEDICT dictionary search
+- [x] `hanzi_get_drill_stats()` — reviewed today, accuracy, totals
 
-**hanzi-web:**
-- [ ] Route: `/lexicon` — personal word list with quick-add input at top
-- [ ] Quick-add flow: type word -> Enter -> auto-detect + enrich -> added to list
-- [ ] Dashboard update: show lexicon count, mix lexicon + pack cards in due count
-- [ ] Drill mode: support both Chinese cards (show hanzi -> type deutsch) and
+**taijobi-web:** ✅ DONE
+- [x] Route: `/lexicon` — personal word list with quick-add input at top
+- [x] Quick-add flow: type word -> Enter -> auto-detect + enrich -> added to list
+- [x] Language filter chips (All, 中文, Deutsch, English)
+- [x] Inline edit/delete per word, status indicators (new/review/mastered)
+- [x] Dashboard update: show lexicon count, mix lexicon + pack cards in due count
+- [x] Drill mode: support both Chinese cards (show hanzi -> type deutsch) and
   non-Chinese cards (show word -> type/recall definition)
-- [ ] Basic stats: cards reviewed today, accuracy percentage
+- [x] Basic stats: cards reviewed today, accuracy percentage
 
-**Data:**
-- [ ] Download CC-CEDICT from mdbg.net, write conversion script
-  (`scripts/compile-cedict.py`) to binary format for Zig
-- [ ] Optionally also compile HanDeDict (DE-ZH, 84k entries) for German translations
+**Data:** ✅ DONE
+- [x] CC-CEDICT compiled to binary format via `scripts/compile-cedict.js`
+- [ ] HanDeDict (DE-ZH, 84k entries) — deferred, not yet needed
 
 ---
 
-## Phase 2 — Content Packs
+## Phase 2 — Content Packs ✅ DONE
 
 > Equivalent to wimg Phase 3/3.5.
 
 **Goal:** Download curriculum packs. Browse lessons. Track progress per lesson.
 
-**libhanzi:**
-- [ ] `curriculum.zig` — pack install (parse JSON, insert cards + lessons + grammar
+**libhanzi:** ✅ DONE
+- [x] `curriculum.zig` — pack install (parse JSON, insert cards + lessons + grammar
   points in one SQLite transaction), remove (delete cards but keep review_log),
-  progress calculation (mastered/total per lesson)
-- [ ] Schema v3: add `packs`, `lessons`, `grammar_points` tables. Add `pack_id`,
-  `lesson_id` to cards.
+  progress calculation (mastered/total per lesson). Supports pack upgrading.
+- [x] Schema v3: `packs`, `lessons`, `grammar_points` tables. `pack_id`,
+  `lesson_id` on cards.
 
-**Content:**
-- [ ] Create Long neu L1-L7 pack JSON manually (from your translation exercises)
-- [ ] Create HSK 1 pack from `drkameleon/complete-hsk-vocabulary` (MIT, cleaned JSON)
-- [ ] Pack schema spec document (so community can contribute)
-- [ ] Host catalog.json + pack files on hanzi.mili-my.name (CF Pages)
+**Content:** ✅ DONE
+- [x] Create Long neu L5 pack JSON (from your translation exercises)
+- [x] Create HSK 1-6 packs from `drkameleon/complete-hsk-vocabulary` (MIT)
+- [x] `catalog.json` + pack files hosted in `static/packs/`
 
-**hanzi-web:**
-- [ ] Route: `/packs` — catalog browser. Show installed + available packs.
-- [ ] Route: `/lessons/:packId` — lesson list with progress bars
-- [ ] Route: `/lessons/:packId/:lessonId` — vocabulary list (hanzi, pinyin, deutsch)
-- [ ] Dashboard update: lesson progress section, filter drill by pack/lesson
-- [ ] Drill mode: option to drill specific lesson or all due cards
+**taijobi-web:** ✅ DONE
+- [x] Route: `/packs` — catalog browser. Show installed + available packs.
+  Install/remove buttons. CSV/TSV import + .apkg import.
+- [x] Route: `/lessons/[packId]` — lesson list with progress bars, expandable
+  vocabulary tables (word, pinyin, translation, reps/stability)
+- [x] Dashboard update: "Deine Lehrbücher" section with pack progress cards
+- [x] Drill mode: drills all due cards (pack + lexicon combined)
 
 ---
 
@@ -165,17 +168,30 @@ get enriched from CEDICT. All words reviewable via FSRS.
 
 ---
 
-## Phase 4 — Sync + Multi-Device
+## Phase 4 — Sync + Multi-Device ✅ DONE
 
 > Reuse wimg-sync infrastructure.
 
 **Goal:** Study on phone during commute, review on laptop at home.
 
-- [ ] Reuse wimg-sync (CF DO + WebSocket + LWW merge)
-- [ ] Same sync key pattern — no accounts, no signup
-- [ ] Same E2E encryption (HKDF-SHA256 + XChaCha20-Poly1305)
-- [ ] Review_log syncs too — full history on all devices
-- [ ] Real-time WebSocket + echo suppression (2s window)
+**libhanzi:** ✅ DONE
+- [x] `crypto.zig` — HKDF-SHA256 + XChaCha20-Poly1305 (salt: `taijobi-e2e-v1`)
+- [x] `db.zig` — `getChangesJson()` + `applyChanges()` with LWW merge
+- [x] `root.zig` — 5 sync C ABI exports (get_changes, apply_changes, derive_key, encrypt/decrypt_field)
+- [x] Tables synced: cards, fsrs_state, review_log, packs, lessons (NOT meta)
+
+**taijobi-web:** ✅ DONE
+- [x] `config.ts` — SYNC_API_URL (auto dev/prod), LS_SYNC_KEY, LS_SYNC_LAST_TS
+- [x] `wasm.ts` — sync exports + wrappers + onMutate callback on all mutations
+- [x] `sync.ts` — push/pull with E2E encryption, auto-push on mutation
+- [x] `sync-ws.svelte.ts` — WebSocket real-time sync, echo suppression, auto-reconnect
+- [x] `+layout.svelte` — connectSync/disconnectSync lifecycle
+- [x] `/settings` — sync key generation, paste, copy, manual sync, disconnect
+
+**taijobi-sync (CF Worker):** ✅ DONE
+- [x] `index.ts` — Hono router, CORS, WS upgrade, push/pull routes
+- [x] `sync-room.ts` — Durable Object, R2 LWW merge, WS broadcast, ping/pong
+- [x] SHA-256 hashed R2 paths, no raw sync key in storage
 
 ---
 
@@ -193,7 +209,13 @@ get enriched from CEDICT. All words reviewable via FSRS.
 
 **6.1 — iOS:** SwiftUI shell linking libhanzi.a, all core screens, push notifications
 **6.2 — MCP Server:** Claude integration (add_word, due_count, lookup, study plan)
-**6.3 — Community Packs:** GitHub repo, CI validation, auto-publish to CDN
+**6.3 — Community Packs (Marketplace):** Monorepo — packs live in `packs/` alongside
+  the app. Contributors submit packs via PR. CI validates pack JSON against schema,
+  auto-generates `catalog.json` from pack directories, copies into `static/packs/`,
+  and deploys with the app to Cloudflare. No separate CDN or repo needed.
+  Structure: `packs/official/` (taijobi-curated), `packs/community/` (PR contributions),
+  `packs/schema.json` (validation schema). The app already fetches catalog.json and
+  installs packs — just automate the curation pipeline.
 **6.4 — More Languages:** Japanese (JMdict), Korean (KDICT), Wiktextract for any language
 **6.5 — Battle Mode (iOS):** Offline multiplayer vocab battles via MultipeerConnectivity
   - Speed Battle: same card, first to answer scores. Timer per round (10s).

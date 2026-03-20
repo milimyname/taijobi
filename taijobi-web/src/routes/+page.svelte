@@ -1,9 +1,10 @@
 <script lang="ts">
-	import { getDueCount, getDueCards, getDrillStats, type Card, type DrillStats } from '$lib/wasm';
+	import { type Card, type DrillStats } from '$lib/wasm';
+	import { data } from '$lib/data.svelte';
 
-	let dueCount = $derived(getDueCount());
-	let previewCards: Card[] = $derived(getDueCards(5));
-	let stats: DrillStats = $derived(getDrillStats());
+	let dueCount = $derived(data.dueCount());
+	let previewCards: Card[] = $derived(data.dueCards(5));
+	let stats: DrillStats = $derived(data.drillStats());
 
 	function accuracy(s: DrillStats): string {
 		if (s.reviewed_today === 0) return '—';

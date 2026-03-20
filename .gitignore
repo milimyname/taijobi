@@ -36,5 +36,8 @@ Thumbs.db
 # Skills lock (auto-generated)
 skills-lock.json
 
+# Sync worker node_modules
+taijobi-sync/node_modules
+
 # Docs output
 docs/taijobi-full.md

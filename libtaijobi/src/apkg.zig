@@ -138,9 +138,20 @@ fn stripHtml(input: []const u8, buf: []u8) []const u8 {
                 continue;
             }
         }
-        // Skip C1 control characters (0x80-0x9F) — invalid standalone UTF-8,
-        // often corrupted Windows-1252 bytes in Anki data
-        if (input[i] >= 0x80 and input[i] <= 0x9F) {
+        // Pass through multi-byte UTF-8 sequences intact
+        if (input[i] >= 0xC0) {
+            // Lead byte: determine sequence length
+            const seq_len: usize = if (input[i] >= 0xF0) 4 else if (input[i] >= 0xE0) 3 else 2;
+            const end_idx = @min(i + seq_len, input.len);
+            while (i < end_idx) : (i += 1) {
+                if (pos < buf.len) {
+                    buf[pos] = input[i];
+                    pos += 1;
+                }
+            }
+            continue;
+        } else if (input[i] >= 0x80) {
+            // Stray continuation byte (not preceded by lead byte) — skip
             i += 1;
             continue;
         }
