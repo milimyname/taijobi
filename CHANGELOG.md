@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.5.0 (2026-03-20)
+
+- docs: update decisions log and CLAUDE.md for Phase 4
+- feat: add multi-device sync with E2E encryption (Phase 4)
+
 ## v0.4.10 (2026-03-19)
 
 - style: fix oxfmt formatting in service-worker.ts
