@@ -62,6 +62,22 @@
   output is byte-identical; DEFLATE differs slightly due to zlib implementations
   but all Zig tests pass with both.
 
+## Community Packs / Marketplace Decisions
+
+- **Monorepo, not separate repo.** Pack JSON files are tiny (even HSK 6 with 2500
+  words is ~200KB). Hundreds of community packs would still be a few MB. No reason
+  to split — keeps CI simple, no cross-repo coordination, contributors see full
+  context. CODEOWNERS + branch protection handle access control.
+- **No separate CDN.** Packs deploy from `static/packs/` alongside the app to
+  Cloudflare. The app already fetches `catalog.json` from the same origin.
+- **CI auto-generates catalog.** Validate pack JSONs against schema, auto-generate
+  `catalog.json` from pack directories, copy into `static/packs/`, deploy with the
+  app. Contributors PR a pack, CI handles the rest.
+- **v1 → v2 → v3 progression.** v1 (done): static catalog, manually curated. v2:
+  PR-based community contributions with CI validation. v3 (earned complexity):
+  in-app browse/search/rate, user uploads, categories — only when community
+  activity justifies it.
+
 ## Open Questions
 
 - **Naming:** libhanzi for now. If multi-language takes off -> rename. `taijobi.com` available.
