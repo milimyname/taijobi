@@ -78,6 +78,27 @@
   in-app browse/search/rate, user uploads, categories — only when community
   activity justifies it.
 
+## Phase 5.0 Decisions
+
+- **Dark mode: class-based with FOUC prevention.** TailwindCSS v4 `@custom-variant dark`
+  with `.dark` class on `<html>`. Inline script in `app.html` reads localStorage before
+  paint to prevent flash. Three modes: Light/Dark/System. System mode listens to
+  `prefers-color-scheme` media query.
+- **Language detection per card, not per pack.** CSV/apkg imports previously hardcoded
+  `language='zh'` and `language_pair='zh-de'`. Now `lang.detect()` runs on each word
+  during import. Pack `language_pair` derived from dominant language after all cards are
+  inserted. Supports zh/ar/de/en detection.
+- **Arabic: RTL + large text, no transliteration.** Arabic script with diacritics (tashkīl)
+  already encodes pronunciation — pinyin equivalent not needed. Display uses `dir="rtl"`
+  and `text-5xl` in drill for readability of diacritical marks.
+- **Vocabulary table LIMIT 200.** 15k-card packs overflow the 512KB JSON buffer in
+  `getVocabulary()`. Rather than increasing buffer or adding pagination complexity,
+  limit to first 200 rows with a "Erste 200 von N Wörtern" note. Drill still processes
+  all cards — this only affects the browse view.
+- **Drill batch continuation.** Completion screen now shows remaining due/unread count
+  and a "Weiter →" button to immediately load the next batch, avoiding the round-trip
+  through the picker.
+
 ## Open Questions
 
 - **Naming:** libhanzi for now. If multi-language takes off -> rename. `taijobi.com` available.

@@ -5,7 +5,7 @@
 *A local-first vocabulary engine for all languages you encounter — with deep
 Chinese support, curriculum packs, and spaced repetition.*
 
-Last updated: March 2026 — Phases 0-4 complete, Phase 5.0 in progress (dark mode done)
+Last updated: March 2026 — Phases 0-4 complete, Phase 5.0 dark mode done, multi-language import + Arabic RTL
 
 ---
 
@@ -88,6 +88,7 @@ Inspired by libghostty and libwimg: the library is the product.
 - Bottom nav: fixed, backdrop-blur, 3 tabs (Start/Üben/Pakete)
 - Progress bars: `bg-primary h-2 rounded-full`
 - Chinese characters: `text-4xl font-light` in cards, `text-6xl` in drill
+- Arabic text: `dir="rtl"`, `text-5xl` in drill, `text-xl` in lexicon/lessons
 - Buttons: `bg-primary text-white font-bold rounded-xl shadow-sm`
 - Section headings: `text-[11px] font-bold uppercase tracking-wider text-primary`
 - Material Symbols Outlined icons (weight 400, no fill by default)

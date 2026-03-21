@@ -213,6 +213,25 @@ get enriched from CEDICT. All words reviewable via FSRS.
 - [x] CharTooltip — dark arrow border, dark tooltip background
 - [x] Rating buttons — dark variants for red/amber/green/primary backgrounds
 
+### Phase 5.0 — Multi-Language Import + Arabic RTL ✅ DONE
+
+**Goal:** Fix import pipeline for non-Chinese content, add Arabic support.
+
+**libhanzi:** ✅ DONE
+- [x] `lang.zig` — add Arabic Unicode range detection (U+0600–06FF, supplements, presentation forms)
+- [x] `csv.zig` + `apkg.zig` — detect language per card via `lang.detect()` instead of hardcoding `'zh'`
+- [x] `csv.zig` + `apkg.zig` — derive pack `language_pair` from dominant language after import (zh-de/ar-en/de-en/en-en)
+- [x] `curriculum.zig` — add `LIMIT 200` to vocabulary query to prevent 512KB JSON buffer overflow on large packs
+
+**taijobi-web:** ✅ DONE
+- [x] Drill — Arabic question/reading display: `dir="rtl"`, `text-5xl`, `leading-relaxed`
+- [x] Lessons vocab table — adapt headers (Wort/Übersetzung vs Hanzi/Pinyin/Deutsch) based on pack language
+- [x] Lessons vocab table — RTL + `text-lg` for Arabic word cells, correct TTS language
+- [x] Lexicon — RTL + `text-xl` for Arabic word entries
+- [x] `speak.ts` — add ar, ja, ko, fr, es, ru to TTS language map
+- [x] Drill completion — show remaining due/unread count, "Weiter →" / "Weiter lesen →" buttons
+- [x] Vocabulary table — truncate long translations, show "Erste 200 von N Wörtern" note
+
 **Remaining 5.0:** Onboarding flow, keyboard shortcuts, haptic feedback
 **5.1 — Stats:** Reviews over time chart, accuracy trends, streak tracking
 **5.2 — Search:** Cmd+K palette, SQL LIKE search, fuzzy pinyin search
