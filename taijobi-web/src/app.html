@@ -13,6 +13,14 @@
 			href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
 			rel="stylesheet"
 		/>
+		<script>
+			(function () {
+				var t = localStorage.getItem('taijobi_theme');
+				if (t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches)) {
+					document.documentElement.classList.add('dark');
+				}
+			})();
+		</script>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover" class="font-display antialiased">

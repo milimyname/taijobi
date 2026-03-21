@@ -37,9 +37,9 @@
 
 <!-- Pack progress -->
 <section class="mt-4">
-	<div class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+	<div class="rounded-2xl border border-slate-100 dark:border-white/5 bg-white p-4 shadow-sm">
 		<div class="mb-3 flex items-center justify-between">
-			<h2 class="text-lg font-bold text-slate-900">{packId}</h2>
+			<h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">{packId}</h2>
 			<span class="text-sm font-bold text-primary">{progressPercent(progress.mastered, progress.total)}%</span>
 		</div>
 		<div class="h-2.5 w-full overflow-hidden rounded-full bg-primary/20">
@@ -48,7 +48,7 @@
 				style="width: {progressPercent(progress.mastered, progress.total)}%"
 			></div>
 		</div>
-		<p class="mt-2 text-xs text-slate-500">
+		<p class="mt-2 text-xs text-slate-500 dark:text-slate-400">
 			{progress.mastered} / {progress.total} gemeistert
 		</p>
 	</div>
@@ -57,7 +57,7 @@
 <!-- Lessons -->
 <section class="mt-6 space-y-3">
 	{#each lessons as lesson (lesson.id)}
-		<div class="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
+		<div class="overflow-hidden rounded-2xl border border-slate-100 dark:border-white/5 bg-white shadow-sm">
 			<!-- Lesson header -->
 			<button
 				onclick={() => toggleLesson(lesson.id)}
@@ -68,8 +68,8 @@
 						L{lesson.sort_order}
 					</span>
 					<div>
-						<p class="font-bold text-slate-900">{lesson.title ?? `Lektion ${lesson.sort_order}`}</p>
-						<p class="text-xs text-slate-500">
+						<p class="font-bold text-slate-900 dark:text-slate-100">{lesson.title ?? `Lektion ${lesson.sort_order}`}</p>
+						<p class="text-xs text-slate-500 dark:text-slate-400">
 							{lesson.mastered}/{lesson.total} gemeistert &bull; {progressPercent(lesson.mastered, lesson.total)}%
 						</p>
 					</div>
@@ -83,7 +83,7 @@
 
 			<!-- Expanded vocabulary -->
 			{#if expandedLesson === lesson.id}
-				<div class="border-t border-slate-100 p-4">
+				<div class="border-t border-slate-100 dark:border-white/5 p-4">
 					<!-- Progress bar -->
 					<div class="mb-4 h-1.5 w-full overflow-hidden rounded-full bg-primary/20">
 						<div
@@ -105,7 +105,7 @@
 							</thead>
 							<tbody class="divide-y divide-primary/5">
 								{#each vocabulary as word (word.id)}
-									<tr class="bg-white/50">
+									<tr class="bg-white/50 dark:bg-white/5">
 										<td class="chinese-char px-3 py-2 font-medium">
 											<a href="/character/{encodeURIComponent(word.word)}" class="hover:text-primary">{word.word}</a>
 										</td>
@@ -140,8 +140,8 @@
 </section>
 
 {#if lessons.length === 0}
-	<div class="mt-8 rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm">
-		<p class="text-sm text-slate-500">Keine Lektionen gefunden.</p>
+	<div class="mt-8 rounded-2xl border border-slate-100 dark:border-white/5 bg-white p-8 text-center shadow-sm">
+		<p class="text-sm text-slate-500 dark:text-slate-400">Keine Lektionen gefunden.</p>
 		<a href="/packs" class="mt-2 text-sm font-medium text-primary">Zur&uuml;ck zu Paketen</a>
 	</div>
 {/if}

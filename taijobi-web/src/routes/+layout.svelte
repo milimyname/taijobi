@@ -6,6 +6,7 @@
 	import { data } from '$lib/data.svelte';
 	import { page } from '$app/state';
 	import { updateStore } from '$lib/update.svelte';
+	import { themeStore } from '$lib/theme.svelte';
 	import UpdateBanner from '../components/UpdateBanner.svelte';
 	import CharTooltip from '../components/CharTooltip.svelte';
 	import Toast from '../components/Toast.svelte';
@@ -17,6 +18,7 @@
 
 	onMount(async () => {
 		try {
+			themeStore.init();
 			await init();
 			ready = true;
 			updateStore.init();
@@ -56,32 +58,32 @@
 </script>
 
 <svelte:head>
-	<meta name="theme-color" content="#195c37" />
+	<meta name="theme-color" content={themeStore.isDark ? '#131f18' : '#195c37'} />
 	<link rel="manifest" href="/manifest.webmanifest" />
 </svelte:head>
 
 {#if error}
-	<div class="flex min-h-screen items-center justify-center bg-bg-light text-slate-900">
+	<div class="flex min-h-screen items-center justify-center bg-bg-light text-slate-900 dark:bg-bg-dark dark:text-slate-100">
 		<div class="px-6 text-center">
 			<p class="text-lg font-semibold text-red-600">Laden fehlgeschlagen</p>
-			<p class="mt-2 text-sm text-slate-500">{error}</p>
+			<p class="mt-2 text-sm text-slate-500 dark:text-slate-400">{error}</p>
 		</div>
 	</div>
 {:else if !ready}
-	<div class="flex min-h-screen flex-col items-center justify-center gap-6 bg-bg-light">
+	<div class="flex min-h-screen flex-col items-center justify-center gap-6 bg-bg-light dark:bg-bg-dark">
 		<div class="flex flex-col items-center gap-3">
 			<div class="loading-pulse flex size-16 items-center justify-center rounded-2xl bg-primary/10">
 				<span class="material-symbols-outlined text-primary" style="font-size: 32px">translate</span>
 			</div>
-			<h1 class="text-xl font-bold text-slate-900">Taijobi</h1>
-			<p class="text-sm text-slate-400">Wird geladen...</p>
+			<h1 class="text-xl font-bold text-slate-900 dark:text-slate-100">Taijobi</h1>
+			<p class="text-sm text-slate-400 dark:text-slate-500">Wird geladen...</p>
 		</div>
-		<div class="h-1 w-48 overflow-hidden rounded-full bg-slate-100">
+		<div class="h-1 w-48 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
 			<div class="loading-bar h-full rounded-full bg-primary"></div>
 		</div>
 	</div>
 {:else}
-	<div class="relative mx-auto flex min-h-screen max-w-[768px] flex-col bg-bg-light shadow-sm">
+	<div class="relative mx-auto flex min-h-screen max-w-[768px] flex-col bg-bg-light shadow-sm dark:bg-bg-dark">
 		<!-- Update Banner -->
 		{#if updateStore.showBanner}
 			<button
@@ -96,7 +98,7 @@
 
 		<!-- Header -->
 		<header
-			class="sticky top-0 z-10 flex items-center justify-between border-b border-primary/10 bg-bg-light/80 px-4 py-4 backdrop-blur-md"
+			class="sticky top-0 z-10 flex items-center justify-between border-b border-primary/10 bg-bg-light/80 px-4 py-4 backdrop-blur-md dark:bg-bg-dark/80"
 		>
 			<div class="flex items-center gap-3">
 				<div
@@ -105,13 +107,13 @@
 					<span class="material-symbols-outlined text-primary">person</span>
 				</div>
 				<div>
-					<p class="text-xs font-medium uppercase tracking-wider text-slate-500">Dashboard</p>
-					<h2 class="text-lg font-bold leading-tight text-slate-900">{pageTitle}</h2>
+					<p class="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">Dashboard</p>
+					<h2 class="text-lg font-bold leading-tight text-slate-900 dark:text-slate-100">{pageTitle}</h2>
 				</div>
 			</div>
 			<a
 				href="/settings"
-				class="rounded-full p-2 text-slate-600 transition-colors hover:bg-slate-100"
+				class="rounded-full p-2 text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/10"
 			>
 				<span class="material-symbols-outlined">settings</span>
 			</a>
@@ -124,7 +126,7 @@
 
 		<!-- Bottom Navigation — 3 tabs -->
 		<nav
-			class="fixed bottom-0 left-0 right-0 z-20 mx-auto max-w-[768px] border-t border-primary/10 bg-bg-light/80 px-6 pb-6 pt-2 backdrop-blur-md"
+			class="fixed bottom-0 left-0 right-0 z-20 mx-auto max-w-[768px] border-t border-primary/10 bg-bg-light/80 px-6 pb-6 pt-2 backdrop-blur-md dark:bg-bg-dark/80"
 		>
 			<div class="flex items-center justify-between">
 				<a

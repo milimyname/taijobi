@@ -192,30 +192,30 @@
 
 {#if open}
 	<div
-		class="fixed bottom-28 left-3 right-3 z-50 flex max-h-[60vh] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg sm:left-auto sm:right-3 sm:w-80"
+		class="fixed bottom-28 left-3 right-3 z-50 flex max-h-[60vh] flex-col overflow-hidden rounded-2xl border border-slate-200 dark:border-white/10 bg-white shadow-lg dark:bg-slate-900 sm:left-auto sm:right-3 sm:w-80"
 	>
 		<!-- Header -->
-		<div class="flex items-center justify-between border-b border-slate-100 px-4 py-2.5">
-			<span class="text-xs font-bold tracking-wide text-slate-900">DevTools</span>
+		<div class="flex items-center justify-between border-b border-slate-100 dark:border-white/5 px-4 py-2.5">
+			<span class="text-xs font-bold tracking-wide text-slate-900 dark:text-slate-100">DevTools</span>
 			<button
 				onclick={() => {
 					open = false;
 				}}
-				class="cursor-pointer text-xs text-slate-400 hover:text-slate-700"
+				class="cursor-pointer text-xs text-slate-400 hover:text-slate-700 dark:text-slate-200"
 			>
 				close
 			</button>
 		</div>
 
 		<!-- Tabs -->
-		<div class="flex border-b border-slate-100">
+		<div class="flex border-b border-slate-100 dark:border-white/5">
 			{#each TABS as tab}
 				<button
 					onclick={() => {
 						activeTab = tab;
 						if (tab === 'info') refresh();
 					}}
-					class="flex-1 cursor-pointer py-2 text-[11px] font-semibold transition-colors {activeTab === tab ? 'border-b-2 border-primary bg-primary/10 text-slate-900' : 'text-slate-400 hover:text-slate-700'}"
+					class="flex-1 cursor-pointer py-2 text-[11px] font-semibold transition-colors {activeTab === tab ? 'border-b-2 border-primary bg-primary/10 text-slate-900 dark:text-slate-100' : 'text-slate-400 hover:text-slate-700 dark:text-slate-200'}"
 				>
 					{TAB_LABELS[tab]}
 				</button>
@@ -231,17 +231,17 @@
 						<div class="text-[9px] font-bold uppercase tracking-wider text-slate-400">
 							Build
 						</div>
-						<div class="mt-0.5 font-mono text-xs text-slate-700">{buildId}</div>
+						<div class="mt-0.5 font-mono text-xs text-slate-700 dark:text-slate-200">{buildId}</div>
 					</div>
 
 					<!-- Memory -->
 					<div class="grid grid-cols-2 gap-2">
 						<div class="rounded-lg bg-slate-50 px-3 py-2 text-center">
-							<div class="text-sm font-bold text-slate-900">{formatBytes(memoryBytes)}</div>
+							<div class="text-sm font-bold text-slate-900 dark:text-slate-100">{formatBytes(memoryBytes)}</div>
 							<div class="text-[9px] text-slate-400">WASM Memory</div>
 						</div>
 						<div class="rounded-lg bg-slate-50 px-3 py-2 text-center">
-							<div class="text-sm font-bold text-slate-900">{formatBytes(dbSizeBytes)}</div>
+							<div class="text-sm font-bold text-slate-900 dark:text-slate-100">{formatBytes(dbSizeBytes)}</div>
 							<div class="text-[9px] text-slate-400">SQLite DB</div>
 						</div>
 					</div>
@@ -249,11 +249,11 @@
 					<!-- Data counts -->
 					<div class="grid grid-cols-2 gap-2">
 						<div class="rounded-lg bg-slate-50 px-3 py-2 text-center">
-							<div class="text-sm font-bold text-slate-900">{cardCount}</div>
+							<div class="text-sm font-bold text-slate-900 dark:text-slate-100">{cardCount}</div>
 							<div class="text-[9px] text-slate-400">Karten</div>
 						</div>
 						<div class="rounded-lg bg-slate-50 px-3 py-2 text-center">
-							<div class="text-sm font-bold text-slate-900">{lexiconCount}</div>
+							<div class="text-sm font-bold text-slate-900 dark:text-slate-100">{lexiconCount}</div>
 							<div class="text-[9px] text-slate-400">Lexikon</div>
 						</div>
 					</div>
@@ -266,7 +266,7 @@
 							</div>
 							{#each packs as pack}
 								<div class="flex items-center justify-between py-0.5 text-xs">
-									<span class="truncate text-slate-700">{pack.name}</span>
+									<span class="truncate text-slate-700 dark:text-slate-200">{pack.name}</span>
 									<span class="shrink-0 text-slate-400">{pack.word_count}</span>
 								</div>
 							{/each}
@@ -313,7 +313,7 @@
 						<div class="text-[9px] font-bold uppercase tracking-wider text-slate-400">
 							Letzte Sync
 						</div>
-						<div class="mt-0.5 text-xs text-slate-700">
+						<div class="mt-0.5 text-xs text-slate-700 dark:text-slate-200">
 							{relativeTime(getLastSyncTimestamp())}
 						</div>
 					</div>
@@ -323,10 +323,10 @@
 					<!-- OPFS Files -->
 					<div>
 						<div class="mb-2 flex items-center justify-between">
-							<span class="text-[11px] font-semibold text-slate-900">OPFS</span>
+							<span class="text-[11px] font-semibold text-slate-900 dark:text-slate-100">OPFS</span>
 							<button
 								onclick={refreshOpfs}
-								class="cursor-pointer rounded px-1.5 py-0.5 text-[10px] font-medium text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+								class="cursor-pointer rounded px-1.5 py-0.5 text-[10px] font-medium text-slate-400 transition-colors hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-700 dark:text-slate-200"
 							>
 								refresh
 							</button>
@@ -337,14 +337,14 @@
 							<div class="py-3 text-center text-xs text-slate-400">Keine Dateien</div>
 						{:else}
 							<div
-								class="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200"
+								class="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 dark:border-white/10"
 							>
 								{#each opfsFiles as file}
 									<div
-										class="flex items-center justify-between gap-1.5 bg-white px-2.5 py-1.5"
+										class="flex items-center justify-between gap-1.5 bg-white px-2.5 py-1.5 dark:bg-white/5"
 									>
 										<div class="flex min-w-0 items-center gap-2">
-											<span class="truncate font-mono text-[11px] font-medium text-slate-700"
+											<span class="truncate font-mono text-[11px] font-medium text-slate-700 dark:text-slate-200"
 												>{file.name}</span
 											>
 											{#if file.size >= 0}
@@ -357,7 +357,7 @@
 											<div class="flex shrink-0 items-center gap-1">
 												<button
 													onclick={() => downloadOpfsFile(file.name)}
-													class="cursor-pointer px-1 text-[9px] text-slate-400 hover:text-slate-700"
+													class="cursor-pointer px-1 text-[9px] text-slate-400 hover:text-slate-700 dark:text-slate-200"
 												>
 													dl
 												</button>
@@ -378,19 +378,19 @@
 					<!-- localStorage -->
 					<div>
 						<div class="mb-2 flex items-center justify-between">
-							<span class="text-[11px] font-semibold text-slate-900">localStorage</span>
+							<span class="text-[11px] font-semibold text-slate-900 dark:text-slate-100">localStorage</span>
 							<span class="text-[9px] text-slate-400">{lsEntries.length} keys</span>
 						</div>
 						{#if lsEntries.length > 0}
 							<div
-								class="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200"
+								class="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 dark:border-white/10"
 							>
 								{#each lsEntries as entry}
-									<div class="bg-white px-2.5 py-1.5">
+									<div class="bg-white px-2.5 py-1.5 dark:bg-white/5">
 										<div class="flex items-start justify-between gap-1.5">
 											<div class="min-w-0 flex-1">
 												<div
-													class="truncate font-mono text-[10px] font-bold text-slate-700"
+													class="truncate font-mono text-[10px] font-bold text-slate-700 dark:text-slate-200"
 												>
 													{entry.key}
 												</div>
@@ -450,7 +450,7 @@
 											onclick={() => {
 												confirmAction = null;
 											}}
-											class="cursor-pointer rounded-lg px-3 py-1 text-[10px] font-medium text-slate-500 transition-colors hover:text-slate-700"
+											class="cursor-pointer rounded-lg px-3 py-1 text-[10px] font-medium text-slate-500 dark:text-slate-400 transition-colors hover:text-slate-700 dark:text-slate-200"
 										>
 											Abbrechen
 										</button>

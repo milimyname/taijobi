@@ -79,22 +79,22 @@
 		<a
 			href="/character/{encodeURIComponent(selectedChar)}"
 			onclick={hide}
-			class="flex items-center gap-2.5 rounded-xl border border-slate-200 bg-white px-3 py-2 shadow-lg transition-colors hover:bg-primary/5"
+			class="flex items-center gap-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 px-3 py-2 shadow-lg transition-colors hover:bg-primary/5"
 		>
 			<span class="chinese-char text-2xl text-primary">{selectedChar}</span>
 			<div class="text-left">
 				{#if decompData}
 					<p class="text-xs font-medium text-primary">{decompData.pinyin}</p>
-					<p class="max-w-[160px] truncate text-[11px] text-slate-500">{decompData.definition}</p>
+					<p class="max-w-[160px] truncate text-[11px] text-slate-500 dark:text-slate-400">{decompData.definition}</p>
 				{:else}
-					<p class="text-xs text-slate-400">Details anzeigen</p>
+					<p class="text-xs text-slate-400 dark:text-slate-500">Details anzeigen</p>
 				{/if}
 			</div>
-			<span class="material-symbols-outlined text-[16px] text-slate-300">chevron_right</span>
+			<span class="material-symbols-outlined text-[16px] text-slate-300 dark:text-slate-500">chevron_right</span>
 		</a>
 		<!-- Arrow -->
 		<div
-			class="absolute left-1/2 top-full -translate-x-1/2 border-[6px] border-transparent border-t-white"
+			class="absolute left-1/2 top-full -translate-x-1/2 border-[6px] border-transparent border-t-white dark:border-t-slate-800"
 		></div>
 	</div>
 {/if}

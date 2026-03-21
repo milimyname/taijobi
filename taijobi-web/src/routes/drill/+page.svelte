@@ -250,7 +250,7 @@
 					onclick={() => (direction = dir.id)}
 					class="rounded-full px-4 py-1.5 text-sm font-medium transition-colors {direction === dir.id
 						? 'bg-primary text-white'
-						: 'bg-slate-100 text-slate-600 hover:bg-slate-200'}"
+						: 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/15'}"
 				>
 					{dir.label}
 				</button>
@@ -270,7 +270,7 @@
 					>
 						<div class="flex items-center gap-3">
 							<span class="material-symbols-outlined text-primary">auto_stories</span>
-							<span class="font-bold text-slate-900">{source.label}</span>
+							<span class="font-bold text-slate-900 dark:text-slate-100">{source.label}</span>
 						</div>
 						<span class="rounded-full bg-primary/10 px-3 py-1 text-sm font-bold text-primary">
 							{source.count} neu
@@ -288,13 +288,13 @@
 			{#each sources as source (source.id)}
 				<button
 					onclick={() => startDrill(source.id, source.label)}
-					class="flex w-full items-center justify-between rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition-colors hover:bg-primary/5"
+					class="flex w-full items-center justify-between rounded-2xl border border-slate-100 dark:border-white/5 bg-white p-4 shadow-sm transition-colors hover:bg-primary/5 dark:border-white/5 dark:bg-white/5"
 				>
 					<div class="flex items-center gap-3">
 						<span class="material-symbols-outlined text-primary">
 							{source.id === '' ? 'layers' : source.id === 'lexicon' ? 'book' : 'inventory_2'}
 						</span>
-						<span class="font-bold text-slate-900">{source.label}</span>
+						<span class="font-bold text-slate-900 dark:text-slate-100">{source.label}</span>
 					</div>
 					<span class="rounded-full bg-primary/10 px-3 py-1 text-sm font-bold text-primary">
 						{source.count}
@@ -303,9 +303,9 @@
 			{/each}
 		</div>
 		{#if sources.length === 0 && readSources.length === 0}
-			<div class="rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm">
-				<p class="text-2xl font-bold text-slate-900">Alles erledigt!</p>
-				<p class="mt-2 text-sm text-slate-500">Keine Karten f&auml;llig.</p>
+			<div class="rounded-2xl border border-slate-100 dark:border-white/5 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-white/5">
+				<p class="text-2xl font-bold text-slate-900 dark:text-slate-100">Alles erledigt!</p>
+				<p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Keine Karten f&auml;llig.</p>
 			</div>
 		{/if}
 	</section>
@@ -315,8 +315,8 @@
 		{#if filterLabel}
 			<p class="mb-1 text-xs font-bold uppercase tracking-wider text-primary">{filterLabel}</p>
 		{/if}
-		<p class="text-lg font-bold text-slate-900">{readIndex + 1} / {readCards.length}</p>
-		<div class="mx-auto mt-2 h-1.5 w-48 overflow-hidden rounded-full bg-slate-100">
+		<p class="text-lg font-bold text-slate-900 dark:text-slate-100">{readIndex + 1} / {readCards.length}</p>
+		<div class="mx-auto mt-2 h-1.5 w-48 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
 			<div class="h-full rounded-full bg-primary transition-all" style="width: {((readIndex + 1) / readCards.length) * 100}%"></div>
 		</div>
 	</div>
@@ -324,7 +324,7 @@
 	<div class="flex flex-col items-center justify-center">
 		<div class="mb-6 text-center">
 			{#if readQuestionIsChinese}
-				<h1 class="chinese-char mb-2 text-6xl font-bold tracking-tight text-slate-900">
+				<h1 class="chinese-char mb-2 text-6xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
 					{readCard.word}
 				</h1>
 				{#if readCard.pinyin}
@@ -347,7 +347,7 @@
 				{/if}
 			{:else}
 				<div class="flex items-center justify-center gap-3">
-					<h1 class="{readCard.word.length > 60 ? 'text-lg' : readCard.word.length > 30 ? 'text-2xl' : 'text-4xl'} font-bold tracking-tight text-slate-900">{readCard.word}</h1>
+					<h1 class="{readCard.word.length > 60 ? 'text-lg' : readCard.word.length > 30 ? 'text-2xl' : 'text-4xl'} font-bold tracking-tight text-slate-900 dark:text-slate-100">{readCard.word}</h1>
 					<button
 						onclick={() => speak(readCard!.word, readCard!.language)}
 						class="flex items-center justify-center rounded-full bg-primary/10 p-2 text-primary transition-colors hover:bg-primary/20"
@@ -360,7 +360,7 @@
 
 		<!-- Translation (always visible in reading mode) -->
 		<div class="mb-8 w-full max-w-md rounded-xl border-2 border-primary/20 bg-primary-light p-4 text-center">
-			<p class="text-xl font-semibold text-slate-900">{readCard.translation || '—'}</p>
+			<p class="text-xl font-semibold text-slate-900 dark:text-slate-100">{readCard.translation || '—'}</p>
 		</div>
 
 		<!-- Tappable characters -->
@@ -399,8 +399,8 @@
 			<span class="material-symbols-outlined text-[32px]">check_circle</span>
 		</div>
 		{#if readingDone}
-			<p class="mt-4 text-2xl font-bold text-slate-900">{readCount} neue W&ouml;rter gelesen</p>
-			<p class="mt-2 text-sm text-slate-500">Bereit zum &Uuml;ben!</p>
+			<p class="mt-4 text-2xl font-bold text-slate-900 dark:text-slate-100">{readCount} neue W&ouml;rter gelesen</p>
+			<p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Bereit zum &Uuml;ben!</p>
 			<div class="mt-8 flex gap-3">
 				<button
 					onclick={() => { readingDone = false; startDrill(activeFilter, filterLabel); }}
@@ -410,14 +410,14 @@
 				</button>
 				<button
 					onclick={() => { readingDone = false; buildSources(); phase = 'picking'; }}
-					class="rounded-lg border border-slate-200 px-8 py-3 font-semibold text-slate-600 transition-all hover:bg-slate-50"
+					class="rounded-lg border border-slate-200 dark:border-white/10 px-8 py-3 font-semibold text-slate-600 transition-all hover:bg-slate-50 dark:hover:bg-white/5"
 				>
 					Zur&uuml;ck
 				</button>
 			</div>
 		{:else}
-			<p class="mt-4 text-2xl font-bold text-slate-900">Sitzung abgeschlossen</p>
-			<p class="mt-2 text-sm text-slate-500">{reviewed} Karten gelernt</p>
+			<p class="mt-4 text-2xl font-bold text-slate-900 dark:text-slate-100">Sitzung abgeschlossen</p>
+			<p class="mt-2 text-sm text-slate-500 dark:text-slate-400">{reviewed} Karten gelernt</p>
 			<div class="mt-8 flex gap-3">
 				<button
 					onclick={() => { buildSources(); phase = 'picking'; }}
@@ -427,7 +427,7 @@
 				</button>
 				<a
 					href="/"
-					class="rounded-lg border border-slate-200 px-8 py-3 font-semibold text-slate-600 transition-all hover:bg-slate-50"
+					class="rounded-lg border border-slate-200 dark:border-white/10 px-8 py-3 font-semibold text-slate-600 transition-all hover:bg-slate-50 dark:hover:bg-white/5"
 				>
 					Zur&uuml;ck
 				</a>
@@ -440,14 +440,14 @@
 		{#if filterLabel}
 			<p class="mb-1 text-xs font-bold uppercase tracking-wider text-primary">{filterLabel}</p>
 		{/if}
-		<p class="text-lg font-bold text-slate-900">{index + 1} / {total}</p>
+		<p class="text-lg font-bold text-slate-900 dark:text-slate-100">{index + 1} / {total}</p>
 	</div>
 
 	<!-- Card -->
 	<div class="flex flex-col items-center justify-center">
 		<div class="mb-8 text-center">
 			{#if questionIsChinese}
-				<h1 class="chinese-char mb-2 text-6xl font-bold tracking-tight text-slate-900">
+				<h1 class="chinese-char mb-2 text-6xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
 					{questionText}
 				</h1>
 				{#if direction === 'zh-de' && card.pinyin}
@@ -470,7 +470,7 @@
 				{/if}
 			{:else}
 				<div class="flex items-center justify-center gap-3">
-					<h1 class="{questionText.length > 60 ? 'text-lg' : questionText.length > 30 ? 'text-2xl' : 'text-4xl'} font-bold tracking-tight text-slate-900">{questionText}</h1>
+					<h1 class="{questionText.length > 60 ? 'text-lg' : questionText.length > 30 ? 'text-2xl' : 'text-4xl'} font-bold tracking-tight text-slate-900 dark:text-slate-100">{questionText}</h1>
 					<button
 						onclick={() => speak(card.word, card.language)}
 						class="flex items-center justify-center rounded-full bg-primary/10 p-2 text-primary transition-colors hover:bg-primary/20"
@@ -489,7 +489,7 @@
 						type="text"
 						bind:value={input}
 						placeholder="{direction === 'zh-pinyin' ? 'Pinyin eingeben...' : direction === 'de-zh' ? 'Chinesisch eingeben...' : 'Übersetzung eingeben...'}"
-						class="h-14 w-full rounded-xl border-2 border-primary bg-primary-light text-center text-lg text-slate-900 placeholder-primary/60 outline-none focus:ring-2 focus:ring-primary"
+						class="h-14 w-full rounded-xl border-2 border-primary bg-primary-light text-center text-lg text-slate-900 dark:text-slate-100 placeholder-primary/60 outline-none focus:ring-2 focus:ring-primary"
 					/>
 				</div>
 				<button
@@ -501,7 +501,7 @@
 			{:else}
 				<!-- Answer revealed -->
 				<div
-					class="flex w-full items-stretch overflow-hidden rounded-xl border-2 {answerCorrect === true ? 'border-green-500' : answerCorrect === false ? 'border-red-400' : 'border-primary'} bg-white"
+					class="flex w-full items-stretch overflow-hidden rounded-xl border-2 {answerCorrect === true ? 'border-green-500' : answerCorrect === false ? 'border-red-400' : 'border-primary'} bg-white dark:bg-white/5"
 				>
 					<div class="flex-1 p-4 text-xl font-semibold {answerCorrect === true ? 'text-green-600' : answerCorrect === false ? 'text-red-600' : 'text-primary'}">
 						{expectedAnswer || '—'}
@@ -546,7 +546,7 @@
 				<div class="mt-6 grid w-full grid-cols-4 gap-3">
 					<button
 						onclick={() => rate(1)}
-						class="flex flex-col items-center justify-center rounded-xl border border-red-200 bg-red-50 py-4 transition-all hover:brightness-95"
+						class="flex flex-col items-center justify-center rounded-xl border border-red-200 bg-red-50 py-4 transition-all hover:brightness-95 dark:border-red-800 dark:bg-red-950"
 					>
 						<span class="text-sm font-bold uppercase tracking-tighter text-red-700"
 							>Nochmal</span
@@ -557,7 +557,7 @@
 					</button>
 					<button
 						onclick={() => rate(2)}
-						class="flex flex-col items-center justify-center rounded-xl border border-amber-200 bg-amber-50 py-4 transition-all hover:brightness-95"
+						class="flex flex-col items-center justify-center rounded-xl border border-amber-200 bg-amber-50 py-4 transition-all hover:brightness-95 dark:border-amber-800 dark:bg-amber-950"
 					>
 						<span class="text-sm font-bold uppercase tracking-tighter text-amber-700"
 							>Schwer</span
@@ -568,7 +568,7 @@
 					</button>
 					<button
 						onclick={() => rate(3)}
-						class="flex flex-col items-center justify-center rounded-xl border border-green-200 bg-green-50 py-4 transition-all hover:brightness-95"
+						class="flex flex-col items-center justify-center rounded-xl border border-green-200 bg-green-50 py-4 transition-all hover:brightness-95 dark:border-green-800 dark:bg-green-950"
 					>
 						<span class="text-sm font-bold uppercase tracking-tighter text-green-700">Gut</span>
 						<span class="mt-1 text-xs text-green-500"
@@ -577,7 +577,7 @@
 					</button>
 					<button
 						onclick={() => rate(4)}
-						class="flex flex-col items-center justify-center rounded-xl border-2 border-primary bg-white py-4 transition-all hover:bg-primary/5"
+						class="flex flex-col items-center justify-center rounded-xl border-2 border-primary bg-white py-4 transition-all hover:bg-primary/5 dark:bg-white/5"
 					>
 						<span class="text-sm font-bold uppercase tracking-tighter text-primary"
 							>Einfach</span

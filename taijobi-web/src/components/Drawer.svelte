@@ -388,6 +388,10 @@
 		background: white;
 		border-radius: 20px 20px 0 0;
 		box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.08);
+	}
+
+	:global(.dark) .sheet-root {
+		background: #1e293b;
 		display: flex;
 		flex-direction: column;
 		will-change: height, transform;

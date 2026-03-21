@@ -5,7 +5,7 @@
 *A local-first vocabulary engine for all languages you encounter — with deep
 Chinese support, curriculum packs, and spaced repetition.*
 
-Last updated: March 2026 — Phases 0-3.5 complete (core, lexicon, packs, deep Chinese, CSV/apkg import)
+Last updated: March 2026 — Phases 0-4 complete, Phase 5.0 in progress (dark mode done)
 
 ---
 

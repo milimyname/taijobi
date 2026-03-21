@@ -197,7 +197,23 @@ get enriched from CEDICT. All words reviewable via FSRS.
 
 ## Phase 5 — Polish
 
-**5.0 — UX:** Onboarding flow, dark mode, keyboard shortcuts, haptic feedback
+### Phase 5.0 — Dark Mode ✅ DONE
+
+**Goal:** Full dark mode with Light/Dark/System toggle.
+
+**taijobi-web:** ✅ DONE
+- [x] `layout.css` — `@custom-variant dark` for class-based dark mode (TailwindCSS v4)
+- [x] `app.html` — inline FOUC prevention script (reads localStorage before paint)
+- [x] `theme.svelte.ts` — reactive store: Light/Dark/System, OS media query listener
+- [x] `config.ts` — `LS_THEME` localStorage key
+- [x] `+layout.svelte` — themeStore.init(), reactive `<meta name="theme-color">`
+- [x] `/settings` — "Erscheinungsbild" section with 3-button toggle (Hell/Dunkel/System)
+- [x] All 15 `.svelte` files updated with `dark:` Tailwind variants
+- [x] Drawer — `:global(.dark)` CSS override for sheet background
+- [x] CharTooltip — dark arrow border, dark tooltip background
+- [x] Rating buttons — dark variants for red/amber/green/primary backgrounds
+
+**Remaining 5.0:** Onboarding flow, keyboard shortcuts, haptic feedback
 **5.1 — Stats:** Reviews over time chart, accuracy trends, streak tracking
 **5.2 — Search:** Cmd+K palette, SQL LIKE search, fuzzy pinyin search
 **5.3 — DevTools:** Feature flags, DevTools panel (WASM/Memory/SQL tabs)

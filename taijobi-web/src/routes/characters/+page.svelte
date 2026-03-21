@@ -103,7 +103,7 @@
 		onclick={() => (filter = 'all')}
 		class="flex h-9 shrink-0 items-center rounded-full px-5 text-sm font-semibold transition-colors {filter === 'all'
 			? 'bg-primary text-white'
-			: 'bg-slate-100 text-slate-600'}"
+			: 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300'}"
 	>
 		Alle ({allChars.length})
 	</button>
@@ -111,7 +111,7 @@
 		onclick={() => (filter = 'lexicon')}
 		class="flex h-9 shrink-0 items-center rounded-full px-5 text-sm font-medium transition-colors {filter === 'lexicon'
 			? 'bg-primary text-white'
-			: 'bg-slate-100 text-slate-600'}"
+			: 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300'}"
 	>
 		Lexikon
 	</button>
@@ -120,7 +120,7 @@
 			onclick={() => (filter = pack.id)}
 			class="flex h-9 shrink-0 items-center rounded-full px-5 text-sm font-medium transition-colors {filter === pack.id
 				? 'bg-primary text-white'
-				: 'bg-slate-100 text-slate-600'}"
+				: 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300'}"
 		>
 			{pack.name}
 		</button>
@@ -133,18 +133,18 @@
 		{filtered.length} Zeichen
 	</h3>
 	{#if filtered.length === 0}
-		<div class="rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm">
-			<span class="material-symbols-outlined mb-2 text-[32px] text-slate-300">translate</span>
-			<p class="text-sm text-slate-500">Keine Zeichen gefunden.</p>
+		<div class="rounded-2xl border border-slate-100 dark:border-white/5 bg-white dark:bg-white/5 p-8 text-center shadow-sm">
+			<span class="material-symbols-outlined mb-2 text-[32px] text-slate-300 dark:text-slate-500 dark:text-slate-400">translate</span>
+			<p class="text-sm text-slate-500 dark:text-slate-400">Keine Zeichen gefunden.</p>
 		</div>
 	{:else}
 		<div class="grid grid-cols-5 gap-2 sm:grid-cols-7">
 			{#each filtered as info (info.char)}
 				<a
 					href="/character/{encodeURIComponent(info.char)}"
-					class="flex flex-col items-center rounded-xl border border-slate-100 bg-white p-3 shadow-sm transition-colors hover:border-primary/20 hover:bg-primary/5"
+					class="flex flex-col items-center rounded-xl border border-slate-100 dark:border-white/5 bg-white dark:bg-white/5 p-3 shadow-sm transition-colors hover:border-primary/20 hover:bg-primary/5"
 				>
-					<span class="chinese-char text-3xl text-slate-900">{info.char}</span>
+					<span class="chinese-char text-3xl text-slate-900 dark:text-slate-100">{info.char}</span>
 				</a>
 			{/each}
 		</div>

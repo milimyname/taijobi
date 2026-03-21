@@ -151,7 +151,7 @@
 	{/if}
 
 	{#if errorMsg}
-		<div class="mt-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700">
+		<div class="mt-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300">
 			{errorMsg}
 		</div>
 	{/if}
@@ -163,7 +163,7 @@
 		onclick={() => (filter = 'all')}
 		class="flex h-9 shrink-0 items-center justify-center rounded-full px-5 text-sm font-semibold transition-colors {filter === 'all'
 			? 'bg-primary text-white'
-			: 'bg-slate-100 text-slate-600'}"
+			: 'bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-300'}"
 	>
 		Alle
 	</button>
@@ -171,7 +171,7 @@
 		onclick={() => (filter = 'zh')}
 		class="flex h-9 shrink-0 items-center justify-center rounded-full px-5 text-sm font-medium transition-colors {filter === 'zh'
 			? 'bg-primary text-white'
-			: 'bg-slate-100 text-slate-600'}"
+			: 'bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-300'}"
 	>
 		中文
 	</button>
@@ -179,7 +179,7 @@
 		onclick={() => (filter = 'de')}
 		class="flex h-9 shrink-0 items-center justify-center rounded-full px-5 text-sm font-medium transition-colors {filter === 'de'
 			? 'bg-primary text-white'
-			: 'bg-slate-100 text-slate-600'}"
+			: 'bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-300'}"
 	>
 		Deutsch
 	</button>
@@ -187,7 +187,7 @@
 		onclick={() => (filter = 'en')}
 		class="flex h-9 shrink-0 items-center justify-center rounded-full px-5 text-sm font-medium transition-colors {filter === 'en'
 			? 'bg-primary text-white'
-			: 'bg-slate-100 text-slate-600'}"
+			: 'bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-300'}"
 	>
 		English
 	</button>
@@ -196,9 +196,9 @@
 <!-- Word List -->
 <section class="mt-6 space-y-6">
 	{#if filtered.length === 0}
-		<div class="rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm">
-			<span class="material-symbols-outlined mb-2 text-[32px] text-slate-300">book_2</span>
-			<p class="text-sm text-slate-500">
+		<div class="rounded-2xl border border-slate-100 dark:border-white/5 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-white/5">
+			<span class="material-symbols-outlined mb-2 text-[32px] text-slate-300 dark:text-slate-500 dark:text-slate-400">book_2</span>
+			<p class="text-sm text-slate-500 dark:text-slate-400">
 				Noch keine W&ouml;rter. F&uuml;ge W&ouml;rter hinzu, die dir beim Lesen begegnen.
 			</p>
 		</div>
@@ -211,7 +211,7 @@
 			<div class="space-y-3">
 				{#each filtered as entry (entry.id)}
 					<div
-						class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm dark:border-white/5 dark:bg-slate-800/40"
+						class="rounded-2xl border border-slate-100 dark:border-white/5 bg-white p-4 shadow-sm dark:border-white/5 dark:bg-slate-800/40"
 					>
 						{#if editingId === entry.id}
 							<!-- Edit mode -->
@@ -221,7 +221,7 @@
 									bind:value={editTranslation}
 									onkeydown={handleEditKeydown}
 									placeholder="&Uuml;bersetzung..."
-									class="min-w-0 flex-1 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-slate-900 placeholder-primary/40 outline-none focus:border-primary/40"
+									class="min-w-0 flex-1 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder-primary/40 outline-none focus:border-primary/40 dark:text-slate-100"
 								/>
 								<button
 									onclick={saveEdit}
@@ -231,7 +231,7 @@
 								</button>
 								<button
 									onclick={cancelEdit}
-									class="rounded-lg bg-slate-100 p-2 text-slate-500 transition-colors hover:bg-slate-200"
+									class="rounded-lg bg-slate-100 p-2 text-slate-500 dark:text-slate-400 transition-colors hover:bg-slate-200 dark:hover:bg-white/15 dark:bg-white/10 dark:text-slate-400 dark:hover:bg-white/15"
 								>
 									<span class="material-symbols-outlined text-[18px]">close</span>
 								</button>
@@ -255,7 +255,7 @@
 											{langTag(entry.language)}
 										</span>
 									</div>
-									<p class="text-[13px] text-slate-500">
+									<p class="text-[13px] text-slate-500 dark:text-slate-400">
 										{#if entry.pinyin}
 											{entry.pinyin}
 											{#if entry.translation} &bull; {/if}
@@ -272,14 +272,14 @@
 								<div class="flex items-center gap-1">
 									<button
 										onclick={() => startEdit(entry)}
-										class="rounded-lg p-1.5 text-slate-300 transition-colors hover:bg-slate-100 hover:text-primary"
+										class="rounded-lg p-1.5 text-slate-300 transition-colors hover:bg-slate-100 dark:hover:bg-white/10 hover:text-primary dark:text-slate-500 dark:text-slate-400 dark:hover:bg-white/10"
 										title="Bearbeiten"
 									>
 										<span class="material-symbols-outlined text-[18px]">edit</span>
 									</button>
 									<button
 										onclick={() => handleRemove(entry.id)}
-										class="rounded-lg p-1.5 text-slate-300 transition-colors hover:bg-red-50 hover:text-red-600"
+										class="rounded-lg p-1.5 text-slate-300 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-slate-500 dark:text-slate-400 dark:hover:bg-red-950"
 										title="Entfernen"
 									>
 										<span class="material-symbols-outlined text-[18px]">delete</span>

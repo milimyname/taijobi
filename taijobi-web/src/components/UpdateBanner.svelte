@@ -67,8 +67,8 @@
 					<span class="material-symbols-outlined text-primary">sync</span>
 				</div>
 				<div>
-					<p class="text-base font-bold text-slate-900">Neue Version verf&uuml;gbar</p>
-					<p class="text-sm text-slate-500">v{updateStore.targetVersion}</p>
+					<p class="text-base font-bold text-slate-900 dark:text-slate-100">Neue Version verf&uuml;gbar</p>
+					<p class="text-sm text-slate-500 dark:text-slate-400">v{updateStore.targetVersion}</p>
 				</div>
 			</div>
 
@@ -83,9 +83,9 @@
 						{@const items = parseItems(release.body)}
 						{#if items.length > 0}
 							{#if i > 0}
-								<hr class="my-3 border-slate-200/50" />
+								<hr class="my-3 border-slate-200 dark:border-white/10/50" />
 							{/if}
-							<p class="mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">
+							<p class="mb-2 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
 								{release.tag}
 							</p>
 							<div class="space-y-1.5">
@@ -103,7 +103,7 @@
 												class="mt-2 size-1.5 shrink-0 rounded-full bg-slate-400/30"
 											></span>
 										{/if}
-										<p class="text-sm leading-relaxed text-slate-900">
+										<p class="text-sm leading-relaxed text-slate-900 dark:text-slate-100">
 											{item.text}
 										</p>
 									</div>
@@ -167,7 +167,7 @@
 							updateStore.sheetOpen = false;
 							updateStore.dismiss();
 						}}
-						class="rounded-xl px-5 py-3 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-100"
+						class="rounded-xl px-5 py-3 text-sm font-medium text-slate-500 dark:text-slate-400 transition-colors hover:bg-slate-100 dark:hover:bg-white/10"
 					>
 						Sp&auml;ter
 					</button>

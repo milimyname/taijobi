@@ -54,25 +54,25 @@
 	<!-- Header -->
 	<header class="space-y-2">
 		<div class="flex items-center justify-between">
-			<h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Was ist neu?</h1>
-			<a href="/" class="text-sm font-bold text-slate-500 transition-colors hover:text-slate-900">
+			<h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">Was ist neu?</h1>
+			<a href="/" class="text-sm font-bold text-slate-500 dark:text-slate-400 transition-colors hover:text-slate-900 dark:text-slate-100 dark:hover:text-slate-100">
 				Zur App &rarr;
 			</a>
 		</div>
-		<p class="text-lg text-slate-500">Die neuesten Updates f&uuml;r Taijobi</p>
+		<p class="text-lg text-slate-500 dark:text-slate-400">Die neuesten Updates f&uuml;r Taijobi</p>
 	</header>
 
 	{#if changelogStore.loading && changelogStore.releases.length === 0}
 		<div class="flex flex-col gap-4">
 			{#each { length: 3 } as _}
-				<div class="animate-pulse rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+				<div class="animate-pulse rounded-2xl border border-slate-100 dark:border-white/5 bg-white dark:bg-white/5 p-6 shadow-sm">
 					<div class="mb-4 flex items-center justify-between">
-						<div class="h-6 w-16 rounded-full bg-slate-200"></div>
-						<div class="h-4 w-20 rounded bg-slate-100"></div>
+						<div class="h-6 w-16 rounded-full bg-slate-200 dark:bg-white/15"></div>
+						<div class="h-4 w-20 rounded bg-slate-100 dark:bg-white/10"></div>
 					</div>
 					<div class="space-y-3">
-						<div class="h-4 w-full rounded bg-slate-100"></div>
-						<div class="h-4 w-4/5 rounded bg-slate-100"></div>
+						<div class="h-4 w-full rounded bg-slate-100 dark:bg-white/10"></div>
+						<div class="h-4 w-4/5 rounded bg-slate-100 dark:bg-white/10"></div>
 					</div>
 				</div>
 			{/each}
@@ -84,14 +84,14 @@
 				{@const items = parseItems(release.body)}
 
 				<article
-					class="flex flex-col gap-4 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm {i > 4 ? 'opacity-70' : ''}"
+					class="flex flex-col gap-4 rounded-2xl border border-slate-100 dark:border-white/5 bg-white dark:bg-white/5 p-6 shadow-sm {i > 4 ? 'opacity-70' : ''}"
 				>
 					<div class="flex items-center justify-between">
 						<div class="flex items-center gap-2">
 							<span
 								class="rounded-full px-3 py-1 text-xs font-bold {isCurrent
 									? 'bg-primary/10 text-primary'
-									: 'bg-slate-100 text-slate-500'}"
+									: 'bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400'}"
 							>
 								{release.tag}
 							</span>
@@ -99,7 +99,7 @@
 								<span class="size-2 animate-pulse rounded-full bg-primary"></span>
 							{/if}
 						</div>
-						<time class="text-sm text-slate-500">{formatDate(release.date)}</time>
+						<time class="text-sm text-slate-500 dark:text-slate-400">{formatDate(release.date)}</time>
 					</div>
 
 					{#if items.length > 0}
@@ -117,13 +117,13 @@
 										<span class="size-1.5 rounded-full bg-slate-400/30"></span>
 									</span>
 								{/if}
-								<p class="text-sm font-medium leading-relaxed text-slate-900">
+								<p class="text-sm font-medium leading-relaxed text-slate-900 dark:text-slate-100">
 									{item.text}
 								</p>
 							{/each}
 						</div>
 					{:else}
-						<p class="text-sm italic text-slate-500">Wartungsrelease.</p>
+						<p class="text-sm italic text-slate-500 dark:text-slate-400">Wartungsrelease.</p>
 					{/if}
 				</article>
 			{/each}
@@ -140,14 +140,14 @@
 				href={RELEASES_URL}
 				target="_blank"
 				rel="noopener noreferrer"
-				class="text-xs text-slate-500 hover:underline"
+				class="text-xs text-slate-500 dark:text-slate-400 hover:underline"
 			>
 				Alle Releases auf GitHub ansehen
 			</a>
 		</footer>
 	{:else if changelogStore.error}
-		<div class="rounded-2xl border border-slate-100 bg-white p-6 text-center shadow-sm">
-			<p class="mb-3 text-sm text-slate-500">Changelog konnte nicht geladen werden.</p>
+		<div class="rounded-2xl border border-slate-100 dark:border-white/5 bg-white dark:bg-white/5 p-6 text-center shadow-sm">
+			<p class="mb-3 text-sm text-slate-500 dark:text-slate-400">Changelog konnte nicht geladen werden.</p>
 			<a
 				href={RELEASES_URL}
 				target="_blank"
