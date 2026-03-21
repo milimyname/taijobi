@@ -140,6 +140,12 @@
 						</table>
 					</div>
 
+					{#if vocabulary.length >= 200}
+						<p class="mt-2 text-center text-xs text-slate-400 dark:text-slate-500">
+							Erste 200 von {lesson.total} Wörtern
+						</p>
+					{/if}
+
 					<!-- Drill button -->
 					<a
 						href="/drill"

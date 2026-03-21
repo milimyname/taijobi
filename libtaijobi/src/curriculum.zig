@@ -385,6 +385,7 @@ pub fn getVocabulary(db: *sqlite.sqlite3, lesson_id: []const u8, buf: []u8) ?[]c
         \\LEFT JOIN fsrs_state f ON f.card_id = c.id
         \\WHERE c.lesson_id = ? AND COALESCE(c.deleted, 0) = 0
         \\ORDER BY c.created_at
+        \\LIMIT 200
     ;
     if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK)
         return null;
