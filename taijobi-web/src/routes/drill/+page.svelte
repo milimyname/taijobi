@@ -30,6 +30,8 @@
 	let filterLabel = $state('');
 	let direction: DrillDirection = $state('zh-de');
 	let answerCorrect: boolean | null = $state(null);
+	let remainingDue = $state(0);
+	let remainingUnread = $state(0);
 
 	// Reading mode state
 	let readCards: ReadCard[] = $state([]);
@@ -141,6 +143,7 @@
 		readIndex++;
 		if (readIndex >= readCards.length) {
 			readingDone = true;
+			remainingUnread = getUnreadCount(activeFilter);
 			phase = 'complete';
 		}
 	}
@@ -189,7 +192,12 @@
 		index++;
 		input = '';
 		answerCorrect = null;
-		phase = index >= total ? 'complete' : 'question';
+		if (index >= total) {
+			remainingDue = getDueCountFiltered(activeFilter);
+			phase = 'complete';
+		} else {
+			phase = 'question';
+		}
 	}
 
 	function formatInterval(days: number): string {
@@ -400,17 +408,31 @@
 		</div>
 		{#if readingDone}
 			<p class="mt-4 text-2xl font-bold text-slate-900 dark:text-slate-100">{readCount} neue W&ouml;rter gelesen</p>
-			<p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Bereit zum &Uuml;ben!</p>
+			{#if remainingUnread > 0}
+				<p class="mt-1 text-sm font-medium text-primary">
+					Noch {remainingUnread} neue W&ouml;rter
+				</p>
+			{:else}
+				<p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Bereit zum &Uuml;ben!</p>
+			{/if}
 			<div class="mt-8 flex gap-3">
+				{#if remainingUnread > 0}
+					<button
+						onclick={() => { readingDone = false; startReading(activeFilter, filterLabel); }}
+						class="rounded-lg bg-primary px-8 py-3 font-semibold text-white shadow-md shadow-primary/20 transition-all hover:bg-primary/90"
+					>
+						Weiter lesen &rarr;
+					</button>
+				{/if}
 				<button
 					onclick={() => { readingDone = false; startDrill(activeFilter, filterLabel); }}
-					class="rounded-lg bg-primary px-8 py-3 font-semibold text-white shadow-md shadow-primary/20 transition-all hover:bg-primary/90"
+					class="rounded-lg {remainingUnread > 0 ? 'border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5' : 'bg-primary text-white shadow-md shadow-primary/20 hover:bg-primary/90'} px-8 py-3 font-semibold transition-all"
 				>
 					Jetzt &uuml;ben
 				</button>
 				<button
 					onclick={() => { readingDone = false; buildSources(); phase = 'picking'; }}
-					class="rounded-lg border border-slate-200 dark:border-white/10 px-8 py-3 font-semibold text-slate-600 transition-all hover:bg-slate-50 dark:hover:bg-white/5"
+					class="rounded-lg border border-slate-200 dark:border-white/10 px-8 py-3 font-semibold text-slate-600 dark:text-slate-300 transition-all hover:bg-slate-50 dark:hover:bg-white/5"
 				>
 					Zur&uuml;ck
 				</button>
@@ -418,16 +440,29 @@
 		{:else}
 			<p class="mt-4 text-2xl font-bold text-slate-900 dark:text-slate-100">Sitzung abgeschlossen</p>
 			<p class="mt-2 text-sm text-slate-500 dark:text-slate-400">{reviewed} Karten gelernt</p>
+			{#if remainingDue > 0}
+				<p class="mt-1 text-sm font-medium text-primary">
+					Noch {remainingDue} Karten f&auml;llig
+				</p>
+			{/if}
 			<div class="mt-8 flex gap-3">
+				{#if remainingDue > 0}
+					<button
+						onclick={() => startDrill(activeFilter, filterLabel)}
+						class="rounded-lg bg-primary px-8 py-3 font-semibold text-white shadow-md shadow-primary/20 transition-all hover:bg-primary/90"
+					>
+						Weiter &rarr;
+					</button>
+				{/if}
 				<button
 					onclick={() => { buildSources(); phase = 'picking'; }}
-					class="rounded-lg bg-primary px-8 py-3 font-semibold text-white shadow-md shadow-primary/20 transition-all hover:bg-primary/90"
+					class="rounded-lg {remainingDue > 0 ? 'border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5' : 'bg-primary text-white shadow-md shadow-primary/20 hover:bg-primary/90'} px-8 py-3 font-semibold transition-all"
 				>
-					Weiter &uuml;ben
+					{remainingDue > 0 ? 'Zur Auswahl' : 'Weiter &uuml;ben'}
 				</button>
 				<a
 					href="/"
-					class="rounded-lg border border-slate-200 dark:border-white/10 px-8 py-3 font-semibold text-slate-600 transition-all hover:bg-slate-50 dark:hover:bg-white/5"
+					class="rounded-lg border border-slate-200 dark:border-white/10 px-8 py-3 font-semibold text-slate-600 dark:text-slate-300 transition-all hover:bg-slate-50 dark:hover:bg-white/5"
 				>
 					Zur&uuml;ck
 				</a>

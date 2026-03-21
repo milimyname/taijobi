@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getLessons, getPackProgress, getVocabulary, type Lesson, type VocabEntry } from '$lib/wasm';
+	import { getLessons, getPackProgress, getVocabulary, getPacks, type Lesson, type VocabEntry } from '$lib/wasm';
 	import { speak } from '$lib/speak';
 	import { page } from '$app/state';
 
@@ -8,11 +8,16 @@
 	let progress = $state({ total: 0, reviewed: 0, mastered: 0 });
 	let expandedLesson = $state<string | null>(null);
 	let vocabulary: VocabEntry[] = $state([]);
+	let packName = $state('');
+	let isChinese = $state(false);
 
 	function refresh() {
 		if (!packId) return;
 		lessons = getLessons(packId);
 		progress = getPackProgress(packId);
+		const pack = getPacks().find((p) => p.id === packId);
+		packName = pack?.name ?? packId;
+		isChinese = pack?.language_pair?.startsWith('zh') ?? false;
 	}
 
 	$effect(() => {
@@ -39,7 +44,7 @@
 <section class="mt-4">
 	<div class="rounded-2xl border border-slate-100 dark:border-white/5 bg-white p-4 shadow-sm">
 		<div class="mb-3 flex items-center justify-between">
-			<h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">{packId}</h2>
+			<h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">{packName}</h2>
 			<span class="text-sm font-bold text-primary">{progressPercent(progress.mastered, progress.total)}%</span>
 		</div>
 		<div class="h-2.5 w-full overflow-hidden rounded-full bg-primary/20">
@@ -97,23 +102,31 @@
 						<table class="w-full text-left text-sm">
 							<thead class="bg-primary/5 text-[10px] font-bold uppercase tracking-wider text-primary">
 								<tr>
-									<th class="px-3 py-2">Hanzi</th>
-									<th class="px-3 py-2">Pinyin</th>
-									<th class="px-3 py-2">Deutsch</th>
+									<th class="px-3 py-2">{isChinese ? 'Hanzi' : 'Wort'}</th>
+									{#if isChinese}
+										<th class="px-3 py-2">Pinyin</th>
+									{/if}
+									<th class="px-3 py-2">{isChinese ? 'Deutsch' : '&Uuml;bersetzung'}</th>
 									<th class="w-10 px-2 py-2"></th>
 								</tr>
 							</thead>
 							<tbody class="divide-y divide-primary/5">
 								{#each vocabulary as word (word.id)}
 									<tr class="bg-white/50 dark:bg-white/5">
-										<td class="chinese-char px-3 py-2 font-medium">
-											<a href="/character/{encodeURIComponent(word.word)}" class="hover:text-primary">{word.word}</a>
+										<td class="px-3 py-2 font-medium" class:chinese-char={isChinese}>
+											{#if isChinese}
+												<a href="/character/{encodeURIComponent(word.word)}" class="hover:text-primary">{word.word}</a>
+											{:else}
+												{word.word}
+											{/if}
 										</td>
-										<td class="px-3 py-2 text-primary/80">{word.pinyin ?? ''}</td>
+										{#if isChinese}
+											<td class="px-3 py-2 text-primary/80">{word.pinyin ?? ''}</td>
+										{/if}
 										<td class="px-3 py-2">{word.translation ?? ''}</td>
 										<td class="px-2 py-2">
 											<button
-												onclick={() => speak(word.word, 'zh')}
+												onclick={() => speak(word.word, isChinese ? 'zh' : 'de')}
 												class="text-primary/40 hover:text-primary"
 											>
 												<span class="material-symbols-outlined text-[18px]">volume_up</span>
