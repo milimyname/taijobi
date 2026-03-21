@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.5.1 (2026-03-21)
+
+- docs: update CLAUDE.md, phases, and decisions for Phase 5.0
+- feat: add RTL support and larger text for Arabic content
+- feat: add Arabic language detection and TTS support
+- fix: limit vocabulary query to 200 rows to prevent buffer overflow
+- fix: render Übersetzung as Unicode, truncate long translations
+- refactor: use pack language_pair metadata instead of content sampling
+- fix: detect language per card in CSV/apkg import instead of hardcoding zh
+- fix: detect language from actual content, not hardcoded metadata
+- fix: adapt vocab table for non-Chinese packs and show remaining counts
+- feat: add dark mode with Light/Dark/System toggle (Phase 5.0)
+- style: hide keyboard hints on mobile in drill view
+
 ## v0.5.0 (2026-03-20)
 
 - docs: update decisions log and CLAUDE.md for Phase 4
