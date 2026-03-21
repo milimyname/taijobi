@@ -10,6 +10,15 @@
 	let vocabulary: VocabEntry[] = $state([]);
 	let packName = $state('');
 	let isChinese = $state(false);
+	let hasPinyin = $state(false);
+
+	function hasCJK(text: string): boolean {
+		for (const ch of text) {
+			const code = ch.codePointAt(0) ?? 0;
+			if ((code >= 0x4e00 && code <= 0x9fff) || (code >= 0x3400 && code <= 0x4dbf)) return true;
+		}
+		return false;
+	}
 
 	function refresh() {
 		if (!packId) return;
@@ -17,7 +26,11 @@
 		progress = getPackProgress(packId);
 		const pack = getPacks().find((p) => p.id === packId);
 		packName = pack?.name ?? packId;
-		isChinese = pack?.language_pair?.startsWith('zh') ?? false;
+		// Sample first lesson to detect if content is actually Chinese
+		const sample = lessons.length > 0 ? getVocabulary(lessons[0].id) : [];
+		const sampleChinese = sample.slice(0, 10).some((w) => hasCJK(w.word));
+		isChinese = sampleChinese;
+		hasPinyin = sample.slice(0, 10).some((w) => w.pinyin && w.pinyin.length > 0);
 	}
 
 	$effect(() => {
@@ -103,7 +116,7 @@
 							<thead class="bg-primary/5 text-[10px] font-bold uppercase tracking-wider text-primary">
 								<tr>
 									<th class="px-3 py-2">{isChinese ? 'Hanzi' : 'Wort'}</th>
-									{#if isChinese}
+									{#if hasPinyin}
 										<th class="px-3 py-2">Pinyin</th>
 									{/if}
 									<th class="px-3 py-2">{isChinese ? 'Deutsch' : '&Uuml;bersetzung'}</th>
@@ -120,7 +133,7 @@
 												{word.word}
 											{/if}
 										</td>
-										{#if isChinese}
+										{#if hasPinyin}
 											<td class="px-3 py-2 text-primary/80">{word.pinyin ?? ''}</td>
 										{/if}
 										<td class="px-3 py-2">{word.translation ?? ''}</td>
