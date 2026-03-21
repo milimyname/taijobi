@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.5.2 (2026-03-21)
+
+- style: fix oxfmt formatting in config.ts and theme.svelte.ts
+
 ## v0.5.1 (2026-03-21)
 
 - docs: update CLAUDE.md, phases, and decisions for Phase 5.0
