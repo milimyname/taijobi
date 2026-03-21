@@ -246,6 +246,8 @@
 											href="/character/{encodeURIComponent(entry.word)}"
 											class="chinese-char text-lg font-bold hover:text-primary"
 										>{entry.word}</a>
+									{:else if entry.language === 'ar'}
+										<span dir="rtl" class="text-xl font-bold">{entry.word}</span>
 									{:else}
 										<span class="text-lg font-bold">{entry.word}</span>
 									{/if}

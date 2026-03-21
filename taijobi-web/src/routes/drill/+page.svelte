@@ -172,6 +172,10 @@
 		card?.language === 'zh' && (direction as DrillDirection) !== 'de-zh' && hasChinese(questionText)
 	);
 
+	let questionIsArabic = $derived(
+		card?.language === 'ar' && hasArabic(questionText)
+	);
+
 	function reveal() {
 		if (phase !== 'question') return;
 		// Check the answer
@@ -222,6 +226,7 @@
 
 	let readCard = $derived(readCards[readIndex] as ReadCard | undefined);
 	let readQuestionIsChinese = $derived(readCard ? hasChinese(readCard.word) : false);
+	let readQuestionIsArabic = $derived(readCard ? hasArabic(readCard.word) : false);
 
 	/** Split Chinese text into individual characters for tappable links */
 	function splitChineseChars(text: string): string[] {
@@ -237,6 +242,18 @@
 
 	function hasChinese(text: string): boolean {
 		return [...text].some(isChinese);
+	}
+
+	function isArabic(char: string): boolean {
+		const code = char.codePointAt(0) ?? 0;
+		return (code >= 0x0600 && code <= 0x06FF) ||
+			(code >= 0x0750 && code <= 0x077F) ||
+			(code >= 0x08A0 && code <= 0x08FF) ||
+			(code >= 0xFB50 && code <= 0xFDFF);
+	}
+
+	function hasArabic(text: string): boolean {
+		return [...text].some(isArabic);
 	}
 
 	const directions: { id: DrillDirection; label: string }[] = [
@@ -353,6 +370,16 @@
 						<span class="material-symbols-outlined text-xl">volume_up</span>
 					</button>
 				{/if}
+			{:else if readQuestionIsArabic}
+				<h1 dir="rtl" class="mb-2 text-5xl font-bold leading-relaxed tracking-tight text-slate-900 dark:text-slate-100">
+					{readCard.word}
+				</h1>
+				<button
+					onclick={() => speak(readCard!.word, readCard!.language)}
+					class="mt-2 flex items-center justify-center rounded-full bg-primary/10 p-2 text-primary transition-colors hover:bg-primary/20"
+				>
+					<span class="material-symbols-outlined text-xl">volume_up</span>
+				</button>
 			{:else}
 				<div class="flex items-center justify-center gap-3">
 					<h1 class="{readCard.word.length > 60 ? 'text-lg' : readCard.word.length > 30 ? 'text-2xl' : 'text-4xl'} font-bold tracking-tight text-slate-900 dark:text-slate-100">{readCard.word}</h1>
@@ -503,6 +530,16 @@
 						<span class="material-symbols-outlined text-xl">volume_up</span>
 					</button>
 				{/if}
+			{:else if questionIsArabic}
+				<h1 dir="rtl" class="mb-2 text-5xl font-bold leading-relaxed tracking-tight text-slate-900 dark:text-slate-100">
+					{questionText}
+				</h1>
+				<button
+					onclick={() => speak(card.word, card.language)}
+					class="mt-2 flex items-center justify-center rounded-full bg-primary/10 p-2 text-primary transition-colors hover:bg-primary/20"
+				>
+					<span class="material-symbols-outlined text-xl">volume_up</span>
+				</button>
 			{:else}
 				<div class="flex items-center justify-center gap-3">
 					<h1 class="{questionText.length > 60 ? 'text-lg' : questionText.length > 30 ? 'text-2xl' : 'text-4xl'} font-bold tracking-tight text-slate-900 dark:text-slate-100">{questionText}</h1>

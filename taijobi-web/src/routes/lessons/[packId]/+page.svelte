@@ -10,6 +10,7 @@
 	let vocabulary: VocabEntry[] = $state([]);
 	let packName = $state('');
 	let isChinese = $state(false);
+	let isArabic = $state(false);
 	let hasPinyin = $state(false);
 
 	function refresh() {
@@ -19,6 +20,7 @@
 		const pack = getPacks().find((p) => p.id === packId);
 		packName = pack?.name ?? packId;
 		isChinese = pack?.language_pair?.startsWith('zh') ?? false;
+		isArabic = pack?.language_pair?.startsWith('ar') ?? false;
 		hasPinyin = isChinese;
 	}
 
@@ -115,7 +117,7 @@
 							<tbody class="divide-y divide-primary/5">
 								{#each vocabulary as word (word.id)}
 									<tr class="bg-white/50 dark:bg-white/5">
-										<td class="px-3 py-2 font-medium" class:chinese-char={isChinese}>
+										<td class="px-3 py-2 font-medium" class:chinese-char={isChinese} class:text-lg={isArabic} dir={isArabic ? 'rtl' : undefined}>
 											{#if isChinese}
 												<a href="/character/{encodeURIComponent(word.word)}" class="hover:text-primary">{word.word}</a>
 											{:else}
@@ -128,7 +130,7 @@
 										<td class="max-w-[200px] truncate px-3 py-2">{word.translation ?? ''}</td>
 										<td class="px-2 py-2">
 											<button
-												onclick={() => speak(word.word, isChinese ? 'zh' : 'de')}
+												onclick={() => speak(word.word, isChinese ? 'zh' : isArabic ? 'ar' : 'en')}
 												class="text-primary/40 hover:text-primary"
 											>
 												<span class="material-symbols-outlined text-[18px]">volume_up</span>
