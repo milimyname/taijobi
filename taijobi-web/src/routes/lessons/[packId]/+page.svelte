@@ -108,7 +108,7 @@
 									{#if hasPinyin}
 										<th class="px-3 py-2">Pinyin</th>
 									{/if}
-									<th class="px-3 py-2">{isChinese ? 'Deutsch' : '&Uuml;bersetzung'}</th>
+									<th class="px-3 py-2">{isChinese ? 'Deutsch' : 'Übersetzung'}</th>
 									<th class="w-10 px-2 py-2"></th>
 								</tr>
 							</thead>
@@ -125,7 +125,7 @@
 										{#if hasPinyin}
 											<td class="px-3 py-2 text-primary/80">{word.pinyin ?? ''}</td>
 										{/if}
-										<td class="px-3 py-2">{word.translation ?? ''}</td>
+										<td class="max-w-[200px] truncate px-3 py-2">{word.translation ?? ''}</td>
 										<td class="px-2 py-2">
 											<button
 												onclick={() => speak(word.word, isChinese ? 'zh' : 'de')}
