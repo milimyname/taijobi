@@ -6,7 +6,13 @@
 const LANG_MAP: Record<string, string> = {
 	zh: 'zh-CN',
 	de: 'de-DE',
-	en: 'en-US'
+	en: 'en-US',
+	ar: 'ar-SA',
+	ja: 'ja-JP',
+	ko: 'ko-KR',
+	fr: 'fr-FR',
+	es: 'es-ES',
+	ru: 'ru-RU'
 };
 
 export function speak(text: string, language: string = 'zh'): void {

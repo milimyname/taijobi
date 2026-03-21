@@ -5,12 +5,14 @@ const std = @import("std");
 
 pub const Language = enum {
     zh, // Chinese (CJK Unified Ideographs)
+    ar, // Arabic
     de, // German
     en, // English (fallback)
 
     pub fn code(self: Language) []const u8 {
         return switch (self) {
             .zh => "zh",
+            .ar => "ar",
             .de => "de",
             .en => "en",
         };
@@ -22,6 +24,7 @@ pub fn detect(text: []const u8) Language {
     if (text.len == 0) return .en;
 
     var has_cjk = false;
+    var has_arabic = false;
     var has_german_marker = false;
     var i: usize = 0;
 
@@ -41,6 +44,10 @@ pub fn detect(text: []const u8) Language {
             has_cjk = true;
         }
 
+        if (isArabic(cp)) {
+            has_arabic = true;
+        }
+
         if (isGermanMarker(cp)) {
             has_german_marker = true;
         }
@@ -50,6 +57,9 @@ pub fn detect(text: []const u8) Language {
 
     // CJK wins — even a single CJK char means Chinese
     if (has_cjk) return .zh;
+
+    // Arabic script
+    if (has_arabic) return .ar;
 
     // German markers: umlauts, eszett
     if (has_german_marker) return .de;
@@ -72,6 +82,20 @@ fn isCJK(cp: u21) bool {
     // Bopomofo, Kangxi Radicals
     if (cp >= 0x2F00 and cp <= 0x2FDF) return true;
     if (cp >= 0x3100 and cp <= 0x312F) return true;
+    return false;
+}
+
+fn isArabic(cp: u21) bool {
+    // Arabic
+    if (cp >= 0x0600 and cp <= 0x06FF) return true;
+    // Arabic Supplement
+    if (cp >= 0x0750 and cp <= 0x077F) return true;
+    // Arabic Extended-A
+    if (cp >= 0x08A0 and cp <= 0x08FF) return true;
+    // Arabic Presentation Forms-A
+    if (cp >= 0xFB50 and cp <= 0xFDFF) return true;
+    // Arabic Presentation Forms-B
+    if (cp >= 0xFE70 and cp <= 0xFEFF) return true;
     return false;
 }
 
@@ -106,6 +130,11 @@ test "detect Chinese" {
     try std.testing.expectEqual(Language.zh, detect("\u{4F60}\u{597D}"));
     try std.testing.expectEqual(Language.zh, detect("\u{5B66}\u{4E60}"));
     try std.testing.expectEqual(Language.zh, detect("\u{8FC7}"));
+}
+
+test "detect Arabic" {
+    try std.testing.expectEqual(Language.ar, detect("\u{0645}\u{0650}\u{0646}\u{0652}"));
+    try std.testing.expectEqual(Language.ar, detect("\u{0627}\u{0644}\u{0644}\u{0651}\u{0647}\u{0650}"));
 }
 
 test "detect German" {

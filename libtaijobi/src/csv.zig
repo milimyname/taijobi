@@ -286,6 +286,7 @@ pub fn importCsv(db: *sqlite.sqlite3, csv_data: []const u8, pack_name: []const u
     // Parse and insert cards
     var word_count: u32 = 0;
     var zh_count: u32 = 0;
+    var ar_count: u32 = 0;
     var de_count: u32 = 0;
     var html_buf: [1024]u8 = undefined;
     var pos = data_start;
@@ -332,6 +333,7 @@ pub fn importCsv(db: *sqlite.sqlite3, csv_data: []const u8, pack_name: []const u
         const detected = lang.detect(word);
         const lang_code = detected.code();
         if (detected == .zh) zh_count += 1;
+        if (detected == .ar) ar_count += 1;
         if (detected == .de) de_count += 1;
 
         // Insert card
@@ -364,7 +366,7 @@ pub fn importCsv(db: *sqlite.sqlite3, csv_data: []const u8, pack_name: []const u
     }
 
     // Determine dominant language for the pack
-    const dominant_lang: []const u8 = if (zh_count > de_count and zh_count > word_count / 3) "zh-de" else if (de_count > zh_count and de_count > word_count / 3) "de-en" else "en-en";
+    const dominant_lang: []const u8 = if (zh_count >= ar_count and zh_count >= de_count and zh_count > word_count / 3) "zh-de" else if (ar_count >= zh_count and ar_count >= de_count and ar_count > word_count / 3) "ar-en" else if (de_count >= zh_count and de_count >= ar_count and de_count > word_count / 3) "de-en" else "en-en";
 
     // Update word count and language pair
     {
