@@ -12,25 +12,14 @@
 	let isChinese = $state(false);
 	let hasPinyin = $state(false);
 
-	function hasCJK(text: string): boolean {
-		for (const ch of text) {
-			const code = ch.codePointAt(0) ?? 0;
-			if ((code >= 0x4e00 && code <= 0x9fff) || (code >= 0x3400 && code <= 0x4dbf)) return true;
-		}
-		return false;
-	}
-
 	function refresh() {
 		if (!packId) return;
 		lessons = getLessons(packId);
 		progress = getPackProgress(packId);
 		const pack = getPacks().find((p) => p.id === packId);
 		packName = pack?.name ?? packId;
-		// Sample first lesson to detect if content is actually Chinese
-		const sample = lessons.length > 0 ? getVocabulary(lessons[0].id) : [];
-		const sampleChinese = sample.slice(0, 10).some((w) => hasCJK(w.word));
-		isChinese = sampleChinese;
-		hasPinyin = sample.slice(0, 10).some((w) => w.pinyin && w.pinyin.length > 0);
+		isChinese = pack?.language_pair?.startsWith('zh') ?? false;
+		hasPinyin = isChinese;
 	}
 
 	$effect(() => {
