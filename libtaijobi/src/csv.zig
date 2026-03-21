@@ -8,6 +8,7 @@ const std = @import("std");
 const builtin = @import("builtin");
 const sqlite = @import("sqlite_c.zig");
 const types = @import("types.zig");
+const lang = @import("lang.zig");
 
 const JsonWriter = types.JsonWriter;
 
@@ -257,7 +258,7 @@ pub fn importCsv(db: *sqlite.sqlite3, csv_data: []const u8, pack_name: []const u
     // Insert pack
     {
         var stmt: ?*sqlite.sqlite3_stmt = null;
-        const sql = "INSERT INTO packs(id, name, version, language_pair, word_count, installed_at, updated_at) VALUES(?,?,1,'zh-de',0,?,?)";
+        const sql = "INSERT INTO packs(id, name, version, language_pair, word_count, installed_at, updated_at) VALUES(?,?,1,'unknown',0,?,?)";
         if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK)
             return error.PrepareFailed;
         defer _ = sqlite.sqlite3_finalize(stmt.?);
@@ -284,6 +285,8 @@ pub fn importCsv(db: *sqlite.sqlite3, csv_data: []const u8, pack_name: []const u
 
     // Parse and insert cards
     var word_count: u32 = 0;
+    var zh_count: u32 = 0;
+    var de_count: u32 = 0;
     var html_buf: [1024]u8 = undefined;
     var pos = data_start;
 
@@ -325,24 +328,31 @@ pub fn importCsv(db: *sqlite.sqlite3, csv_data: []const u8, pack_name: []const u
         var card_id_buf: [64]u8 = undefined;
         const card_id = makeCardId(pack_id, word, &card_id_buf);
 
+        // Detect language from word content
+        const detected = lang.detect(word);
+        const lang_code = detected.code();
+        if (detected == .zh) zh_count += 1;
+        if (detected == .de) de_count += 1;
+
         // Insert card
         {
             var stmt: ?*sqlite.sqlite3_stmt = null;
             const sql =
                 \\INSERT OR IGNORE INTO cards(id, word, language, pinyin, translation, source_type, pack_id, lesson_id, created_at, updated_at)
-                \\VALUES(?, ?, 'zh', ?, ?, 'pack', ?, ?, ?, ?)
+                \\VALUES(?, ?, ?, ?, ?, 'pack', ?, ?, ?, ?)
             ;
             if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK)
                 return error.PrepareFailed;
             defer _ = sqlite.sqlite3_finalize(stmt.?);
             bindText(stmt.?, 1, card_id);
             bindText(stmt.?, 2, word);
-            if (pinyin) |p| bindText(stmt.?, 3, p) else _ = sqlite.sqlite3_bind_null(stmt.?, 3);
-            if (translation) |t| bindText(stmt.?, 4, t) else _ = sqlite.sqlite3_bind_null(stmt.?, 4);
-            bindText(stmt.?, 5, pack_id);
-            bindText(stmt.?, 6, lesson_id);
-            _ = sqlite.sqlite3_bind_int64(stmt.?, 7, now_ms);
+            bindText(stmt.?, 3, lang_code);
+            if (pinyin) |p| bindText(stmt.?, 4, p) else _ = sqlite.sqlite3_bind_null(stmt.?, 4);
+            if (translation) |t| bindText(stmt.?, 5, t) else _ = sqlite.sqlite3_bind_null(stmt.?, 5);
+            bindText(stmt.?, 6, pack_id);
+            bindText(stmt.?, 7, lesson_id);
             _ = sqlite.sqlite3_bind_int64(stmt.?, 8, now_ms);
+            _ = sqlite.sqlite3_bind_int64(stmt.?, 9, now_ms);
             if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_DONE) return error.StepFailed;
         }
         word_count += 1;
@@ -353,15 +363,19 @@ pub fn importCsv(db: *sqlite.sqlite3, csv_data: []const u8, pack_name: []const u
         return error.NoWordsFound;
     }
 
-    // Update word count
+    // Determine dominant language for the pack
+    const dominant_lang: []const u8 = if (zh_count > de_count and zh_count > word_count / 3) "zh-de" else if (de_count > zh_count and de_count > word_count / 3) "de-en" else "en-en";
+
+    // Update word count and language pair
     {
         var stmt: ?*sqlite.sqlite3_stmt = null;
-        const sql = "UPDATE packs SET word_count = ? WHERE id = ?";
+        const sql = "UPDATE packs SET word_count = ?, language_pair = ? WHERE id = ?";
         if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK)
             return error.PrepareFailed;
         defer _ = sqlite.sqlite3_finalize(stmt.?);
         _ = sqlite.sqlite3_bind_int64(stmt.?, 1, @intCast(word_count));
-        bindText(stmt.?, 2, pack_id);
+        bindText(stmt.?, 2, dominant_lang);
+        bindText(stmt.?, 3, pack_id);
         if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_DONE) return error.StepFailed;
     }
 
