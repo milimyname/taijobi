@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.5.5 (2026-03-22)
+
+- fix: graceful fallback for missing WASM exports + SW clone bug
+
 ## v0.5.4 (2026-03-22)
 
 - style: fix oxfmt formatting in chinese-data.ts
