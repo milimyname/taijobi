@@ -5,20 +5,14 @@
  * and loaded into WASM memory at runtime instead of being embedded.
  */
 
-import {
-	persistAlloc,
-	loadCedict,
-	loadDecomp,
-	loadStrokes,
-	isChineseDataLoaded,
-} from './wasm';
+import { persistAlloc, loadCedict, loadDecomp, loadStrokes, isChineseDataLoaded } from './wasm';
 
 type DataKey = 'cedict' | 'decomp' | 'strokes';
 
 const FILES: { key: DataKey; path: string }[] = [
 	{ key: 'cedict', path: '/data/cedict.bin' },
 	{ key: 'decomp', path: '/data/decomp.bin' },
-	{ key: 'strokes', path: '/data/strokes.bin' },
+	{ key: 'strokes', path: '/data/strokes.bin' }
 ];
 
 const OPFS_DIR = 'chinese-data';
@@ -54,7 +48,7 @@ export async function loadCachedData(): Promise<void> {
 
 /** Download all Chinese data files from origin, write to OPFS + WASM. */
 export async function downloadAndLoad(
-	onProgress?: (loaded: number, total: number) => void,
+	onProgress?: (loaded: number, total: number) => void
 ): Promise<void> {
 	const root = await navigator.storage.getDirectory();
 	const dir = await root.getDirectoryHandle(OPFS_DIR, { create: true });
