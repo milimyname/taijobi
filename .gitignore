@@ -20,6 +20,9 @@ libtaijobi/src/decomp.bin
 # Stroke data binary (built artifact — regenerate with scripts/build-strokes.sh)
 libtaijobi/src/strokes.bin
 
+# Chinese data static assets (copied by build-wasm.sh)
+taijobi-web/static/data/
+
 # OS
 .DS_Store
 Thumbs.db

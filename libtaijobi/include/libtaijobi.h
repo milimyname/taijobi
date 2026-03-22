@@ -53,10 +53,20 @@ const void *hanzi_export_csv(void);
 int32_t     hanzi_import_apkg(const void *apkg, size_t apkg_len,
                                const void *name, size_t name_len);
 
+/* Phase 5.1 — Stats */
+const void *hanzi_get_stats(uint32_t days);
+
 /* Reading mode */
 int32_t     hanzi_mark_read(const void *id, size_t len);
 const void *hanzi_get_unread_cards(const void *filter, size_t filter_len, uint32_t limit);
 int32_t     hanzi_get_unread_count(const void *filter, size_t filter_len);
+
+/* Chinese data — on-demand loading */
+void   *hanzi_persist_alloc(size_t len);
+int32_t hanzi_load_cedict(const void *ptr, size_t len);
+int32_t hanzi_load_decomp(const void *ptr, size_t len);
+int32_t hanzi_load_strokes(const void *ptr, size_t len);
+int32_t hanzi_chinese_data_loaded(void);
 
 /* WASM-only: OPFS persistence helpers */
 void   *hanzi_db_ptr(void);

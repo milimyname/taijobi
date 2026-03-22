@@ -16,10 +16,13 @@ import {
 	getLessons,
 	getVocabulary,
 	getPackProgress,
+	getStats,
+	isChineseDataLoaded,
 	type Card,
 	type ReadCard,
 	type LexiconEntry,
 	type DrillStats,
+	type StatsData,
 	type Pack,
 	type Lesson,
 	type VocabEntry,
@@ -92,6 +95,16 @@ class DataStore {
 	packProgress(packId: string): PackProgress {
 		this.#v;
 		return getPackProgress(packId);
+	}
+
+	stats(days: number = 30): StatsData {
+		this.#v;
+		return getStats(days);
+	}
+
+	chineseDataLoaded(): boolean {
+		this.#v;
+		return isChineseDataLoaded();
 	}
 }
 // oxlint-enable no-unused-expressions, no-unused-private-class-members

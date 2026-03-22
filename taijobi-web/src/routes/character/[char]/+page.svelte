@@ -5,12 +5,16 @@
 		getStrokes,
 		lookupCedict,
 		getLexicon,
+		isChineseDataLoaded,
 		type DecompResult,
 		type StrokeData,
 		type DecompComponent,
 		type LexiconEntry,
 	} from '$lib/wasm';
 	import { speak } from '$lib/speak';
+	import { downloadAndLoad } from '$lib/chinese-data';
+	import { data } from '$lib/data.svelte';
+	import { toastStore } from '$lib/toast.svelte';
 
 	let char = $derived(decodeURIComponent(page.params.char ?? ''));
 	let decompData: DecompResult | null = $state(null);
@@ -18,6 +22,22 @@
 	let relatedWords: LexiconEntry[] = $state([]);
 	let animating = $state(false);
 	let animationFrame = $state(-1);
+	let downloading = $state(false);
+	let hasChineseData = $derived(data.chineseDataLoaded());
+
+	async function downloadData(): Promise<void> {
+		if (downloading) return;
+		downloading = true;
+		try {
+			await downloadAndLoad();
+			data.bump();
+			toastStore.show('Chinesische Daten geladen');
+		} catch (e) {
+			toastStore.show(`Download fehlgeschlagen: ${e instanceof Error ? e.message : 'Fehler'}`);
+		} finally {
+			downloading = false;
+		}
+	}
 
 	$effect(() => {
 		if (!char) return;
@@ -85,6 +105,34 @@
 		</div>
 	</div>
 </section>
+
+<!-- Download prompt when Chinese data not loaded -->
+{#if !decompData && !strokeData && !hasChineseData}
+	<section class="mt-6">
+		<div class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-6 text-center dark:border-white/10 dark:bg-white/5">
+			<span class="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600">download</span>
+			<p class="mt-2 text-sm font-medium text-slate-600 dark:text-slate-300">
+				Chinesische Daten nicht geladen
+			</p>
+			<p class="mt-1 text-xs text-slate-400 dark:text-slate-500">
+				Für Zerlegung, Strichfolge und Wörterbuch (~8 MB).
+			</p>
+			<button
+				onclick={downloadData}
+				disabled={downloading}
+				class="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-primary/90 disabled:opacity-50"
+			>
+				{#if downloading}
+					<span class="material-symbols-outlined animate-spin text-[18px]">sync</span>
+					Herunterladen…
+				{:else}
+					<span class="material-symbols-outlined text-[18px]">download</span>
+					Herunterladen
+				{/if}
+			</button>
+		</div>
+	</section>
+{/if}
 
 <!-- Components Section -->
 {#if decompData && decompData.components.length > 0}

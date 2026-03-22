@@ -13,7 +13,17 @@ const builtin = @import("builtin");
 const types = @import("types.zig");
 const JsonWriter = types.JsonWriter;
 
-const data = @embedFile("cedict.bin");
+const is_wasm = builtin.cpu.arch == .wasm32;
+
+var data: []const u8 = if (is_wasm) &.{} else @embedFile("cedict.bin");
+
+pub fn load(ptr: [*]const u8, len: usize) void {
+    data = ptr[0..len];
+}
+
+pub fn isLoaded() bool {
+    return data.len > 0;
+}
 
 pub const CedictEntry = struct {
     simplified: []const u8,

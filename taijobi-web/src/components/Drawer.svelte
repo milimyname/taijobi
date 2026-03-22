@@ -388,10 +388,6 @@
 		background: white;
 		border-radius: 20px 20px 0 0;
 		box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.08);
-	}
-
-	:global(.dark) .sheet-root {
-		background: #1e293b;
 		display: flex;
 		flex-direction: column;
 		will-change: height, transform;
@@ -399,6 +395,10 @@
 		transform-origin: center bottom;
 		transform: scale(var(--indent-scale, 1)) translateY(var(--indent-y, 0px));
 		transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+	}
+
+	:global(.dark) .sheet-root {
+		background: #1e293b;
 	}
 
 	.sheet-root.indented {

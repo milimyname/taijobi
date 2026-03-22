@@ -20,6 +20,11 @@ const FBA_SIZE = 64 * 1024 * 1024;
 var fba_backing: [FBA_SIZE]u8 = undefined;
 var fba = std.heap.FixedBufferAllocator.init(&fba_backing);
 
+// --- Persistent allocator (20MB) — never reset, used only for .bin data ---
+const PERSIST_SIZE = 20 * 1024 * 1024;
+var persist_backing: [PERSIST_SIZE]u8 = undefined;
+var persist_fba = std.heap.FixedBufferAllocator.init(&persist_backing);
+
 // --- Global state ---
 var global_db: ?Db = null;
 var error_buf: [512]u8 = undefined;
@@ -243,6 +248,14 @@ export fn hanzi_get_lexicon() ?[*]const u8 {
 export fn hanzi_get_drill_stats() ?[*]const u8 {
     const db = &(global_db orelse return null);
     const json = lexicon.getDrillStats(db.handle, now(), &json_buf) orelse return null;
+    return makeLengthPrefixed(json);
+}
+
+// === Phase 5.1 — Stats ===
+
+export fn hanzi_get_stats(days: u32) ?[*]const u8 {
+    const db = &(global_db orelse return null);
+    const json = lexicon.getStats(db.handle, now(), days, &json_buf) orelse return null;
     return makeLengthPrefixed(json);
 }
 
@@ -563,6 +576,36 @@ export fn hanzi_vacuum_deleted() i32 {
     const retention_ms: i64 = 30 * 24 * 60 * 60 * 1000; // 30 days
     const removed = db.vacuumDeleted(now(), retention_ms) catch return -1;
     return removed;
+}
+
+// === Chinese data loading (on-demand for WASM) ===
+
+export fn hanzi_persist_alloc(len: usize) ?[*]u8 {
+    const mem = persist_fba.allocator().alloc(u8, len) catch return null;
+    return mem.ptr;
+}
+
+export fn hanzi_load_cedict(ptr: [*]const u8, len: usize) i32 {
+    cedict.load(ptr, len);
+    log("cedict data loaded");
+    return 0;
+}
+
+export fn hanzi_load_decomp(ptr: [*]const u8, len: usize) i32 {
+    decompose.load(ptr, len);
+    log("decomp data loaded");
+    return 0;
+}
+
+export fn hanzi_load_strokes(ptr: [*]const u8, len: usize) i32 {
+    strokes_mod.load(ptr, len);
+    log("strokes data loaded");
+    return 0;
+}
+
+export fn hanzi_chinese_data_loaded() i32 {
+    if (cedict.isLoaded() and decompose.isLoaded() and strokes_mod.isLoaded()) return 1;
+    return 0;
 }
 
 // === WASM-only exports ===

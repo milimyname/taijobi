@@ -37,6 +37,13 @@ export interface DrillStats {
 	lexicon_count: number;
 }
 
+export interface StatsData {
+	days: Array<{ d: number; c: number; r: number }>;
+	ratings: [number, number, number, number];
+	streak: number;
+	longest_streak: number;
+}
+
 export interface AddWordResult {
 	word: string;
 	language: string;
@@ -85,10 +92,17 @@ interface WasmExports {
 	hanzi_import_csv: (csv: number, csvLen: number, name: number, nameLen: number) => number;
 	hanzi_export_csv: () => number;
 	hanzi_import_apkg: (apkg: number, apkgLen: number, name: number, nameLen: number) => number;
+	hanzi_get_stats: (days: number) => number;
 	hanzi_build_id: () => number;
 	hanzi_db_ptr: () => number;
 	hanzi_db_size: () => number;
 	hanzi_db_load: (data: number, size: number) => number;
+	// Chinese data — on-demand loading
+	hanzi_persist_alloc: (len: number) => number;
+	hanzi_load_cedict: (ptr: number, len: number) => number;
+	hanzi_load_decomp: (ptr: number, len: number) => number;
+	hanzi_load_strokes: (ptr: number, len: number) => number;
+	hanzi_chinese_data_loaded: () => number;
 	// Phase 4 — Sync
 	hanzi_get_changes: (sinceTs: bigint) => number;
 	hanzi_apply_changes: (data: number, len: number) => number;
@@ -302,6 +316,43 @@ export async function init(): Promise<void> {
 	if (rc !== 0) {
 		throw new Error(getLastError('Failed to initialize taijobi database'));
 	}
+
+	// Load cached Chinese data from OPFS (no network)
+	const { loadCachedData } = await import('./chinese-data');
+	await loadCachedData();
+}
+
+// --- Chinese data helpers ---
+
+export function persistAlloc(len: number): number {
+	if (!wasm) return 0;
+	return wasm.hanzi_persist_alloc(len);
+}
+
+export function loadCedict(ptr: number, data: Uint8Array): void {
+	if (!wasm) return;
+	const mem = new Uint8Array(wasm.memory.buffer);
+	mem.set(data, ptr);
+	wasm.hanzi_load_cedict(ptr, data.length);
+}
+
+export function loadDecomp(ptr: number, data: Uint8Array): void {
+	if (!wasm) return;
+	const mem = new Uint8Array(wasm.memory.buffer);
+	mem.set(data, ptr);
+	wasm.hanzi_load_decomp(ptr, data.length);
+}
+
+export function loadStrokes(ptr: number, data: Uint8Array): void {
+	if (!wasm) return;
+	const mem = new Uint8Array(wasm.memory.buffer);
+	mem.set(data, ptr);
+	wasm.hanzi_load_strokes(ptr, data.length);
+}
+
+export function isChineseDataLoaded(): boolean {
+	if (!wasm) return false;
+	return wasm.hanzi_chinese_data_loaded() === 1;
 }
 
 export function getDueCount(): number {
@@ -506,6 +557,21 @@ export function getDrillStats(): DrillStats {
 	} catch {
 		console.error('[taijobi] Failed to parse drill stats JSON');
 		return { reviewed_today: 0, correct_today: 0, total_cards: 0, lexicon_count: 0 };
+	}
+}
+
+export function getStats(days: number = 30): StatsData {
+	const empty: StatsData = { days: [], ratings: [0, 0, 0, 0], streak: 0, longest_streak: 0 };
+	if (!wasm) return empty;
+	wasm.hanzi_reset_alloc();
+	const ptr = wasm.hanzi_get_stats(days);
+	if (ptr === 0) return empty;
+	const json = readLengthPrefixedString(ptr);
+	try {
+		return JSON.parse(json);
+	} catch {
+		console.error('[taijobi] Failed to parse stats JSON');
+		return empty;
 	}
 }
 

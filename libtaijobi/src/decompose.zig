@@ -11,10 +11,21 @@
 // Entries sorted by character (UTF-8 byte order) for binary search.
 
 const std = @import("std");
+const builtin = @import("builtin");
 const types = @import("types.zig");
 const JsonWriter = types.JsonWriter;
 
-const data = @embedFile("decomp.bin");
+const is_wasm = builtin.cpu.arch == .wasm32;
+
+var data: []const u8 = if (is_wasm) &.{} else @embedFile("decomp.bin");
+
+pub fn load(ptr: [*]const u8, len: usize) void {
+    data = ptr[0..len];
+}
+
+pub fn isLoaded() bool {
+    return data.len > 0;
+}
 
 pub const DecompEntry = struct {
     character: []const u8,

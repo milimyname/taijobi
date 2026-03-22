@@ -11,6 +11,7 @@
 	} from '$lib/wasm';
 	import { syncWS } from '$lib/sync-ws.svelte';
 	import { getSyncKey, clearSyncKey, getLastSyncTimestamp } from '$lib/sync';
+	import { isLoaded as isChineseDataLoaded, clearCache as clearChineseCache } from '$lib/chinese-data';
 
 	const TABS = ['info', 'sync', 'data'] as const;
 	const TAB_LABELS: Record<(typeof TABS)[number], string> = {
@@ -433,14 +434,18 @@
 											? 'OPFS löschen? (taijobi.db)'
 											: confirmAction === 'ls'
 												? 'localStorage leeren?'
-												: 'Alles zurücksetzen? (OPFS + localStorage + Sync)'}
+												: confirmAction === 'chinese'
+													? 'Chinese data cache löschen?'
+													: 'Alles zurücksetzen? (OPFS + localStorage + Sync)'}
 									</p>
 									<div class="flex gap-2">
 										<button
 											onclick={() => {
 												if (confirmAction === 'opfs') clearOpfs();
 												else if (confirmAction === 'ls') clearLocalStorage();
-												else fullReset();
+												else if (confirmAction === 'chinese') {
+													clearChineseCache().then(() => window.location.reload());
+												} else fullReset();
 											}}
 											class="cursor-pointer rounded-lg bg-red-500 px-3 py-1 text-[10px] font-bold text-white transition-colors hover:bg-red-600"
 										>
@@ -481,6 +486,14 @@
 									class="w-full cursor-pointer rounded-lg px-2.5 py-1.5 text-left text-[11px] font-medium text-red-600 transition-colors hover:bg-red-50"
 								>
 									Full Reset <span class="text-slate-400">(alles)</span>
+								</button>
+								<button
+									onclick={() => {
+										confirmAction = 'chinese';
+									}}
+									class="w-full cursor-pointer rounded-lg px-2.5 py-1.5 text-left text-[11px] font-medium text-red-600 transition-colors hover:bg-red-50"
+								>
+									Clear Chinese Data <span class="text-slate-400">(OPFS cache)</span>
 								</button>
 							{/if}
 						</div>

@@ -15,12 +15,25 @@ self.addEventListener('install', (event) => {
 	event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll([...ASSETS, '/'])));
 });
 
-// Activate: delete old caches, claim clients
+// Activate: delete old caches + purge .bin entries from current cache, claim clients
 self.addEventListener('activate', (event) => {
 	event.waitUntil(
 		caches
 			.keys()
 			.then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+			.then(() => caches.open(CACHE))
+			.then((cache) =>
+				cache.keys().then((requests) =>
+					Promise.all(
+						requests
+							.filter((r) => {
+								const u = new URL(r.url);
+								return u.pathname.startsWith('/data/') && u.pathname.endsWith('.bin');
+							})
+							.map((r) => cache.delete(r))
+					)
+				)
+			)
 			.then(() => self.clients.claim())
 	);
 });
@@ -37,6 +50,11 @@ self.addEventListener('fetch', (event) => {
 	if (event.request.method !== 'GET') return;
 	// Skip cross-origin and sync API requests (WebSocket upgrades, API calls)
 	if (url.origin !== self.location.origin) return;
+
+	// Skip caching for Chinese data files — OPFS is the cache layer
+	if (url.pathname.startsWith('/data/') && url.pathname.endsWith('.bin')) {
+		return;
+	}
 
 	// Cache-first for precached assets (WASM, JS, CSS, icons)
 	if (ASSETS.includes(url.pathname)) {

@@ -239,6 +239,153 @@ pub fn getDrillStats(db: *sqlite.sqlite3, now_ms: i64, buf: []u8) ?[]const u8 {
     return w.written();
 }
 
+/// Get stats for the dashboard: daily reviews/accuracy, rating distribution, streak.
+/// `days` controls how many days of history to include (e.g. 30).
+pub fn getStats(db: *sqlite.sqlite3, now_ms: i64, days: u32, buf: []u8) ?[]const u8 {
+    const ms_per_day: i64 = 86400000;
+    const today_day: i64 = @divTrunc(now_ms, ms_per_day);
+    const since_ms = now_ms - @as(i64, @intCast(days)) * ms_per_day;
+
+    var w = JsonWriter.init(buf);
+    w.writeByte('{');
+
+    // 1. Daily reviews + accuracy
+    w.writeKey("days");
+    w.writeByte('[');
+    {
+        var stmt: ?*sqlite.sqlite3_stmt = null;
+        const sql =
+            \\SELECT CAST(CAST(review_date AS INTEGER) / 86400000 AS INTEGER) AS day,
+            \\       COUNT(*), SUM(CASE WHEN rating >= 3 THEN 1 ELSE 0 END)
+            \\FROM review_log
+            \\WHERE CAST(review_date AS INTEGER) > ?
+            \\GROUP BY day ORDER BY day
+        ;
+        if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) == sqlite.SQLITE_OK) {
+            defer _ = sqlite.sqlite3_finalize(stmt.?);
+            _ = sqlite.sqlite3_bind_int64(stmt.?, 1, since_ms);
+            var count: u32 = 0;
+            while (sqlite.sqlite3_step(stmt.?) == sqlite.SQLITE_ROW) {
+                if (count > 0) w.writeByte(',');
+                count += 1;
+                const day = sqlite.sqlite3_column_int64(stmt.?, 0);
+                const total = sqlite.sqlite3_column_int(stmt.?, 1);
+                const correct = sqlite.sqlite3_column_int(stmt.?, 2);
+                w.writeByte('{');
+                w.writeKey("d");
+                w.writeInt(day);
+                w.writeByte(',');
+                w.writeKey("c");
+                w.writeInt(total);
+                w.writeByte(',');
+                w.writeKey("r");
+                w.writeInt(correct);
+                w.writeByte('}');
+            }
+        }
+    }
+    w.writeByte(']');
+
+    // 2. Rating distribution (all time) — index 0=rating1, 1=rating2, 2=rating3, 3=rating4
+    w.writeByte(',');
+    w.writeKey("ratings");
+    w.writeByte('[');
+    {
+        var counts = [4]i64{ 0, 0, 0, 0 };
+        var stmt: ?*sqlite.sqlite3_stmt = null;
+        const sql = "SELECT rating, COUNT(*) FROM review_log GROUP BY rating";
+        if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) == sqlite.SQLITE_OK) {
+            defer _ = sqlite.sqlite3_finalize(stmt.?);
+            while (sqlite.sqlite3_step(stmt.?) == sqlite.SQLITE_ROW) {
+                const rating = sqlite.sqlite3_column_int(stmt.?, 0);
+                const cnt = sqlite.sqlite3_column_int64(stmt.?, 1);
+                if (rating >= 1 and rating <= 4) {
+                    counts[@intCast(rating - 1)] = cnt;
+                }
+            }
+        }
+        for (0..4) |i| {
+            if (i > 0) w.writeByte(',');
+            w.writeInt(counts[i]);
+        }
+    }
+    w.writeByte(']');
+
+    // 3. Streak calculation — distinct review days, descending
+    w.writeByte(',');
+    {
+        var current_streak: i64 = 0;
+        var longest_streak: i64 = 0;
+        var stmt: ?*sqlite.sqlite3_stmt = null;
+        const sql =
+            \\SELECT DISTINCT CAST(CAST(review_date AS INTEGER) / 86400000 AS INTEGER) AS day
+            \\FROM review_log ORDER BY day DESC
+        ;
+        if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) == sqlite.SQLITE_OK) {
+            defer _ = sqlite.sqlite3_finalize(stmt.?);
+            var expected_day = today_day;
+            var streak: i64 = 0;
+            var first = true;
+
+            while (sqlite.sqlite3_step(stmt.?) == sqlite.SQLITE_ROW) {
+                const day = sqlite.sqlite3_column_int64(stmt.?, 0);
+                if (first) {
+                    // Allow today or yesterday as streak start
+                    if (day == today_day or day == today_day - 1) {
+                        streak = 1;
+                        expected_day = day - 1;
+                    } else {
+                        break; // No recent activity
+                    }
+                    first = false;
+                } else {
+                    if (day == expected_day) {
+                        streak += 1;
+                        expected_day = day - 1;
+                    } else {
+                        break;
+                    }
+                }
+            }
+            current_streak = streak;
+
+            // For longest streak, iterate all days ascending
+            _ = sqlite.sqlite3_finalize(stmt.?);
+            stmt = null;
+            const sql2 =
+                \\SELECT DISTINCT CAST(CAST(review_date AS INTEGER) / 86400000 AS INTEGER) AS day
+                \\FROM review_log ORDER BY day ASC
+            ;
+            if (sqlite.sqlite3_prepare_v2(db, sql2, @intCast(sql2.len), &stmt, null) == sqlite.SQLITE_OK) {
+                var prev_day: i64 = -999;
+                var run: i64 = 0;
+                while (sqlite.sqlite3_step(stmt.?) == sqlite.SQLITE_ROW) {
+                    const day = sqlite.sqlite3_column_int64(stmt.?, 0);
+                    if (day == prev_day + 1) {
+                        run += 1;
+                    } else {
+                        run = 1;
+                    }
+                    if (run > longest_streak) longest_streak = run;
+                    prev_day = day;
+                }
+                _ = sqlite.sqlite3_finalize(stmt.?);
+                stmt = null;
+            }
+        }
+        if (longest_streak < current_streak) longest_streak = current_streak;
+
+        w.writeKey("streak");
+        w.writeInt(current_streak);
+        w.writeByte(',');
+        w.writeKey("longest_streak");
+        w.writeInt(longest_streak);
+    }
+
+    w.writeByte('}');
+    return w.written();
+}
+
 fn formatLexId(hash: u32, buf: *[20]u8) []const u8 {
     const prefix = "lex_";
     @memcpy(buf[0..4], prefix);
