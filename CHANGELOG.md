@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.5.4 (2026-03-22)
+
+- style: fix oxfmt formatting in chinese-data.ts
+
 ## v0.5.3 (2026-03-22)
 
 - feat: make Chinese data optional — on-demand download for WASM
