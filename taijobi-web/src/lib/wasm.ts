@@ -325,33 +325,33 @@ export async function init(): Promise<void> {
 // --- Chinese data helpers ---
 
 export function persistAlloc(len: number): number {
-	if (!wasm) return 0;
+	if (!wasm || typeof wasm.hanzi_persist_alloc !== 'function') return 0;
 	return wasm.hanzi_persist_alloc(len);
 }
 
 export function loadCedict(ptr: number, data: Uint8Array): void {
-	if (!wasm) return;
+	if (!wasm || typeof wasm.hanzi_load_cedict !== 'function') return;
 	const mem = new Uint8Array(wasm.memory.buffer);
 	mem.set(data, ptr);
 	wasm.hanzi_load_cedict(ptr, data.length);
 }
 
 export function loadDecomp(ptr: number, data: Uint8Array): void {
-	if (!wasm) return;
+	if (!wasm || typeof wasm.hanzi_load_decomp !== 'function') return;
 	const mem = new Uint8Array(wasm.memory.buffer);
 	mem.set(data, ptr);
 	wasm.hanzi_load_decomp(ptr, data.length);
 }
 
 export function loadStrokes(ptr: number, data: Uint8Array): void {
-	if (!wasm) return;
+	if (!wasm || typeof wasm.hanzi_load_strokes !== 'function') return;
 	const mem = new Uint8Array(wasm.memory.buffer);
 	mem.set(data, ptr);
 	wasm.hanzi_load_strokes(ptr, data.length);
 }
 
 export function isChineseDataLoaded(): boolean {
-	if (!wasm) return false;
+	if (!wasm || typeof wasm.hanzi_chinese_data_loaded !== 'function') return false;
 	return wasm.hanzi_chinese_data_loaded() === 1;
 }
 
@@ -562,7 +562,7 @@ export function getDrillStats(): DrillStats {
 
 export function getStats(days: number = 30): StatsData {
 	const empty: StatsData = { days: [], ratings: [0, 0, 0, 0], streak: 0, longest_streak: 0 };
-	if (!wasm) return empty;
+	if (!wasm || typeof wasm.hanzi_get_stats !== 'function') return empty;
 	wasm.hanzi_reset_alloc();
 	const ptr = wasm.hanzi_get_stats(days);
 	if (ptr === 0) return empty;

@@ -63,7 +63,8 @@ self.addEventListener('fetch', (event) => {
 				(cached) =>
 					cached ??
 					fetch(event.request).then((response) => {
-						caches.open(CACHE).then((cache) => cache.put(event.request, response.clone()));
+						const clone = response.clone();
+						caches.open(CACHE).then((cache) => cache.put(event.request, clone));
 						return response;
 					})
 			) as Promise<Response>
@@ -76,7 +77,8 @@ self.addEventListener('fetch', (event) => {
 		event.respondWith(
 			fetch(event.request)
 				.then((response) => {
-					caches.open(CACHE).then((cache) => cache.put(event.request, response.clone()));
+					const clone = response.clone();
+					caches.open(CACHE).then((cache) => cache.put(event.request, clone));
 					return response;
 				})
 				.catch(async () => {
