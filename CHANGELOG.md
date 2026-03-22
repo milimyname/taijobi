@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.5.3 (2026-03-22)
+
+- feat: make Chinese data optional — on-demand download for WASM
+
 ## v0.5.2 (2026-03-21)
 
 - style: fix oxfmt formatting in config.ts and theme.svelte.ts
