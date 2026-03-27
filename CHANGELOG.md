@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.5.6 (2026-03-28)
+
+- fix: OPFS write fallback for Chinese data on Safari
+
 ## v0.5.5 (2026-03-22)
 
 - fix: graceful fallback for missing WASM exports + SW clone bug
