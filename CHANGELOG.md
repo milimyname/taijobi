@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.5.7 (2026-03-28)
+
+- style: fix oxfmt formatting in chinese-data.ts
+- docs: update CLAUDE.md and phases with Phase 5.0 progress
+- feat: dedicated /stats page with heatmap, simplify dashboard
+- feat: dictionary page with suggestions and add/remove toggle
+- feat: drill session persistence, peek-back, and remove card
+
 ## v0.5.6 (2026-03-28)
 
 - fix: OPFS write fallback for Chinese data on Safari
