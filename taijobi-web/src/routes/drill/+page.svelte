@@ -8,6 +8,7 @@
 		markRead,
 		getPacks,
 		reviewCard,
+		removeWord,
 		checkAnswer,
 		type Card,
 		type Pack,
@@ -17,6 +18,7 @@
 	import { data } from '$lib/data.svelte';
 	import { page } from '$app/state';
 	import { untrack } from 'svelte';
+	import { SS_DRILL_SESSION } from '$lib/config';
 
 	type DrillPhase = 'picking' | 'question' | 'answer' | 'complete' | 'reading';
 	type DrillDirection = 'zh-de' | 'de-zh' | 'zh-pinyin';
@@ -33,11 +35,84 @@
 	let remainingDue = $state(0);
 	let remainingUnread = $state(0);
 
+	// "Peek back" at previously reviewed card (read-only)
+	let peekCard: Card | null = $state(null);
+	let isPeeking = $state(false);
+
 	// Reading mode state
 	let readCards: ReadCard[] = $state([]);
 	let readIndex = $state(0);
 	let readingDone = $state(false);
 	let readCount = $state(0);
+
+	// --- Session persistence (survives page reload) ---
+
+	interface DrillSession {
+		cards: Card[];
+		index: number;
+		phase: DrillPhase;
+		reviewed: number;
+		activeFilter: string;
+		filterLabel: string;
+		direction: DrillDirection;
+		// Reading mode
+		readCards?: ReadCard[];
+		readIndex?: number;
+		readCount?: number;
+		readingDone?: boolean;
+	}
+
+	function saveSession() {
+		if (phase === 'picking' || phase === 'complete') {
+			sessionStorage.removeItem(SS_DRILL_SESSION);
+			return;
+		}
+		const session: DrillSession = {
+			cards, index, phase, reviewed, activeFilter, filterLabel, direction,
+		};
+		if (phase === 'reading') {
+			session.readCards = readCards;
+			session.readIndex = readIndex;
+			session.readCount = readCount;
+			session.readingDone = readingDone;
+		}
+		try {
+			sessionStorage.setItem(SS_DRILL_SESSION, JSON.stringify(session));
+		} catch { /* quota exceeded — non-critical */ }
+	}
+
+	function restoreSession(): boolean {
+		try {
+			const raw = sessionStorage.getItem(SS_DRILL_SESSION);
+			if (!raw) return false;
+			const s: DrillSession = JSON.parse(raw);
+			if (!s.cards?.length && !s.readCards?.length) return false;
+
+			cards = s.cards ?? [];
+			index = s.index;
+			phase = s.phase;
+			reviewed = s.reviewed;
+			activeFilter = s.activeFilter;
+			filterLabel = s.filterLabel;
+			direction = s.direction;
+
+			if (s.readCards) {
+				readCards = s.readCards;
+				readIndex = s.readIndex ?? 0;
+				readCount = s.readCount ?? 0;
+				readingDone = s.readingDone ?? false;
+			}
+
+			return true;
+		} catch {
+			sessionStorage.removeItem(SS_DRILL_SESSION);
+			return false;
+		}
+	}
+
+	function clearSession() {
+		sessionStorage.removeItem(SS_DRILL_SESSION);
+	}
 
 	// Sources for the picker
 	let packs: Pack[] = $state([]);
@@ -97,6 +172,8 @@
 		console.log('[drill] init, urlFilter:', urlFilter, 'url:', page.url.pathname + page.url.search);
 		if (urlFilter) {
 			startDrill(urlFilter, urlFilter);
+		} else if (restoreSession()) {
+			console.log('[drill] restored session, phase:', phase, 'index:', index);
 		} else {
 			buildSources();
 			phase = 'picking';
@@ -122,6 +199,9 @@
 		input = '';
 		reviewed = 0;
 		answerCorrect = null;
+		peekCard = null;
+		isPeeking = false;
+		saveSession();
 	}
 
 	function startReading(filter: string, label: string) {
@@ -132,6 +212,7 @@
 		readingDone = false;
 		readCount = 0;
 		phase = readCards.length > 0 ? 'reading' : 'picking';
+		saveSession();
 	}
 
 	async function nextReadCard() {
@@ -146,9 +227,10 @@
 			remainingUnread = getUnreadCount(activeFilter);
 			phase = 'complete';
 		}
+		saveSession();
 	}
 
-	let card = $derived(cards[index] as Card | undefined);
+	let card = $derived(isPeeking ? peekCard : (cards[index] as Card | undefined));
 	let total = $derived(cards.length);
 
 	// What to show as the question
@@ -191,6 +273,7 @@
 
 	async function rate(rating: number) {
 		if (!card) return;
+		peekCard = card;
 		await reviewCard(card.id, rating);
 		reviewed++;
 		index++;
@@ -201,6 +284,43 @@
 			phase = 'complete';
 		} else {
 			phase = 'question';
+		}
+		saveSession();
+	}
+
+	function goBack() {
+		if (!peekCard || phase === 'picking' || phase === 'complete') return;
+		isPeeking = true;
+		phase = 'answer';
+	}
+
+	function dismissPeek() {
+		isPeeking = false;
+		if (index >= total) {
+			phase = 'complete';
+		} else {
+			phase = 'question';
+		}
+	}
+
+	async function handleRemoveCard() {
+		if (!card) return;
+		const cardId = card.id;
+		try {
+			await removeWord(cardId);
+			// Skip to next card without rating
+			index++;
+			input = '';
+			answerCorrect = null;
+			if (index >= total) {
+				remainingDue = getDueCountFiltered(activeFilter);
+				phase = 'complete';
+			} else {
+				phase = 'question';
+			}
+			saveSession();
+		} catch (e) {
+			console.error('[drill] remove failed:', e);
 		}
 	}
 
@@ -214,11 +334,20 @@
 	function handleKeydown(e: KeyboardEvent) {
 		if (phase === 'question' && e.key === 'Enter') {
 			reveal();
+		} else if (phase === 'question' && e.key === 'ArrowLeft') {
+			goBack();
 		} else if (phase === 'answer') {
-			if (e.key === '1') rate(1);
-			else if (e.key === '2') rate(2);
-			else if (e.key === '3') rate(3);
-			else if (e.key === '4') rate(4);
+			if (isPeeking) {
+				// Any key dismisses peek
+				if (e.key === 'Enter' || e.key === 'ArrowRight' || e.key === 'Escape' || e.key === ' ') {
+					dismissPeek();
+				}
+			} else {
+				if (e.key === '1') rate(1);
+				else if (e.key === '2') rate(2);
+				else if (e.key === '3') rate(3);
+				else if (e.key === '4') rate(4);
+			}
 		} else if (phase === 'reading' && (e.key === 'Enter' || e.key === 'ArrowRight')) {
 			nextReadCard();
 		}
@@ -458,7 +587,7 @@
 					Jetzt &uuml;ben
 				</button>
 				<button
-					onclick={() => { readingDone = false; buildSources(); phase = 'picking'; }}
+					onclick={() => { readingDone = false; clearSession(); buildSources(); phase = 'picking'; }}
 					class="rounded-lg border border-slate-200 dark:border-white/10 px-8 py-3 font-semibold text-slate-600 dark:text-slate-300 transition-all hover:bg-slate-50 dark:hover:bg-white/5"
 				>
 					Zur&uuml;ck
@@ -482,7 +611,7 @@
 					</button>
 				{/if}
 				<button
-					onclick={() => { buildSources(); phase = 'picking'; }}
+					onclick={() => { clearSession(); buildSources(); phase = 'picking'; }}
 					class="rounded-lg {remainingDue > 0 ? 'border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5' : 'bg-primary text-white shadow-md shadow-primary/20 hover:bg-primary/90'} px-8 py-3 font-semibold transition-all"
 				>
 					{remainingDue > 0 ? 'Zur Auswahl' : 'Weiter &uuml;ben'}
@@ -499,10 +628,23 @@
 {:else if card}
 	<!-- Progress counter -->
 	<div class="mb-8 mt-4 text-center">
-		{#if filterLabel}
+		{#if isPeeking}
+			<p class="mb-1 text-xs font-bold uppercase tracking-wider text-slate-400">Vorherige Karte</p>
+		{:else if filterLabel}
 			<p class="mb-1 text-xs font-bold uppercase tracking-wider text-primary">{filterLabel}</p>
 		{/if}
-		<p class="text-lg font-bold text-slate-900 dark:text-slate-100">{index + 1} / {total}</p>
+		<div class="flex items-center justify-center gap-3">
+			{#if peekCard && !isPeeking && phase === 'question'}
+				<button
+					onclick={goBack}
+					class="flex items-center justify-center rounded-full p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-white/10 dark:hover:text-slate-300"
+					title="Vorherige Karte (←)"
+				>
+					<span class="material-symbols-outlined text-xl">arrow_back</span>
+				</button>
+			{/if}
+			<p class="text-lg font-bold text-slate-900 dark:text-slate-100">{isPeeking ? '' : `${index + 1} / ${total}`}</p>
+		</div>
 	</div>
 
 	<!-- Card -->
@@ -614,56 +756,83 @@
 					</div>
 				{/if}
 
-				<!-- Rating buttons -->
-				<div class="mt-6 grid w-full grid-cols-4 gap-3">
+				{#if isPeeking}
+					<!-- Peek mode: read-only, dismiss to continue -->
 					<button
-						onclick={() => rate(1)}
-						class="flex flex-col items-center justify-center rounded-xl border border-red-200 bg-red-50 py-4 transition-all hover:brightness-95 dark:border-red-800 dark:bg-red-950"
+						onclick={dismissPeek}
+						class="mt-6 h-14 w-full rounded-xl bg-primary text-lg font-bold text-white transition-all hover:opacity-90 active:scale-[0.98]"
 					>
-						<span class="text-sm font-bold uppercase tracking-tighter text-red-700"
-							>Nochmal</span
-						>
-						<span class="mt-1 text-xs text-red-500"
-							>{formatInterval(card.intervals.again)}</span
-						>
+						Weiter &rarr;
 					</button>
-					<button
-						onclick={() => rate(2)}
-						class="flex flex-col items-center justify-center rounded-xl border border-amber-200 bg-amber-50 py-4 transition-all hover:brightness-95 dark:border-amber-800 dark:bg-amber-950"
+					<p
+						class="mt-3 hidden text-center text-[10px] font-medium uppercase tracking-wider text-slate-400 sm:block"
 					>
-						<span class="text-sm font-bold uppercase tracking-tighter text-amber-700"
-							>Schwer</span
+						Enter oder &rarr;
+					</p>
+				{:else}
+					<!-- Rating buttons -->
+					<div class="mt-6 grid w-full grid-cols-4 gap-3">
+						<button
+							onclick={() => rate(1)}
+							class="flex flex-col items-center justify-center rounded-xl border border-red-200 bg-red-50 py-4 transition-all hover:brightness-95 dark:border-red-800 dark:bg-red-950"
 						>
-						<span class="mt-1 text-xs text-amber-500"
-							>{formatInterval(card.intervals.hard)}</span
+							<span class="text-sm font-bold uppercase tracking-tighter text-red-700"
+								>Nochmal</span
+							>
+							<span class="mt-1 text-xs text-red-500"
+								>{formatInterval(card.intervals.again)}</span
+							>
+						</button>
+						<button
+							onclick={() => rate(2)}
+							class="flex flex-col items-center justify-center rounded-xl border border-amber-200 bg-amber-50 py-4 transition-all hover:brightness-95 dark:border-amber-800 dark:bg-amber-950"
 						>
-					</button>
-					<button
-						onclick={() => rate(3)}
-						class="flex flex-col items-center justify-center rounded-xl border border-green-200 bg-green-50 py-4 transition-all hover:brightness-95 dark:border-green-800 dark:bg-green-950"
-					>
-						<span class="text-sm font-bold uppercase tracking-tighter text-green-700">Gut</span>
-						<span class="mt-1 text-xs text-green-500"
-							>{formatInterval(card.intervals.good)}</span
+							<span class="text-sm font-bold uppercase tracking-tighter text-amber-700"
+								>Schwer</span
+							>
+							<span class="mt-1 text-xs text-amber-500"
+								>{formatInterval(card.intervals.hard)}</span
+							>
+						</button>
+						<button
+							onclick={() => rate(3)}
+							class="flex flex-col items-center justify-center rounded-xl border border-green-200 bg-green-50 py-4 transition-all hover:brightness-95 dark:border-green-800 dark:bg-green-950"
 						>
-					</button>
-					<button
-						onclick={() => rate(4)}
-						class="flex flex-col items-center justify-center rounded-xl border-2 border-primary bg-white py-4 transition-all hover:bg-primary/5 dark:bg-white/5"
-					>
-						<span class="text-sm font-bold uppercase tracking-tighter text-primary"
-							>Einfach</span
+							<span class="text-sm font-bold uppercase tracking-tighter text-green-700">Gut</span>
+							<span class="mt-1 text-xs text-green-500"
+								>{formatInterval(card.intervals.good)}</span
+							>
+						</button>
+						<button
+							onclick={() => rate(4)}
+							class="flex flex-col items-center justify-center rounded-xl border-2 border-primary bg-white py-4 transition-all hover:bg-primary/5 dark:bg-white/5"
 						>
-						<span class="mt-1 text-xs text-primary/70"
-							>{formatInterval(card.intervals.easy)}</span
+							<span class="text-sm font-bold uppercase tracking-tighter text-primary"
+								>Einfach</span
+							>
+							<span class="mt-1 text-xs text-primary/70"
+								>{formatInterval(card.intervals.easy)}</span
+							>
+						</button>
+					</div>
+					<div class="mt-3 flex items-center justify-center gap-4">
+						<p
+							class="hidden text-[10px] font-medium uppercase tracking-wider text-slate-400 sm:block"
 						>
-					</button>
-				</div>
-				<p
-					class="mt-3 hidden text-center text-[10px] font-medium uppercase tracking-wider text-slate-400 sm:block"
-				>
-					Tastatur: 1-4
-				</p>
+							Tastatur: 1-4
+						</p>
+						{#if card.source_type === 'lexicon'}
+							<button
+								onclick={handleRemoveCard}
+								class="flex items-center gap-1 text-[10px] font-medium uppercase tracking-wider text-slate-400 transition-colors hover:text-red-500"
+								title="Aus Lexikon entfernen"
+							>
+								<span class="material-symbols-outlined text-[14px]">delete</span>
+								Entfernen
+							</button>
+						{/if}
+					</div>
+				{/if}
 			{/if}
 		</div>
 	</div>

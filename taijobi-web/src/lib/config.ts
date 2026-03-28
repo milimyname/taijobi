@@ -28,3 +28,6 @@ export const LS_SYNC_LAST_TS = 'taijobi_sync_last_ts';
 export const LS_LAST_VERSION = 'taijobi-last-version';
 export const LS_CHANGELOG = 'taijobi_changelog';
 export const LS_THEME = 'taijobi_theme';
+
+// --- SessionStorage keys ---
+export const SS_DRILL_SESSION = 'taijobi_drill_session';
