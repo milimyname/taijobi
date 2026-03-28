@@ -232,6 +232,18 @@ get enriched from CEDICT. All words reviewable via FSRS.
 - [x] Drill completion — show remaining due/unread count, "Weiter →" / "Weiter lesen →" buttons
 - [x] Vocabulary table — truncate long translations, show "Erste 200 von N Wörtern" note
 
+### Phase 5.0 — Dictionary Page ✅ DONE
+
+**Goal:** Standalone CC-CEDICT dictionary browser with add-to-lexicon.
+
+**taijobi-web:** ✅ DONE
+- [x] Route: `/dictionary` — search bar with debounced CC-CEDICT lookup (hanzi/pinyin/english)
+- [x] Results: tappable characters → `/character/[char]`, pinyin, english definition
+- [x] TTS speaker button per entry, "Add to Lexicon" button with check mark feedback
+- [x] Empty state, no-results state, full dark mode support
+- [x] Bottom nav: 4th tab "Wörterbuch" with `dictionary` Material icon
+- [x] Layout: pageTitle "Wörterbuch" for `/dictionary` route
+
 **Remaining 5.0:** Onboarding flow, keyboard shortcuts, haptic feedback
 **5.1 — Stats:** Reviews over time chart, accuracy trends, streak tracking
 **5.2 — Search:** Cmd+K palette, SQL LIKE search, fuzzy pinyin search
