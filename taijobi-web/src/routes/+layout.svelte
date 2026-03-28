@@ -51,9 +51,13 @@
 							? 'Zeichen'
 							: page.url.pathname.startsWith('/character')
 								? 'Zeichen'
-								: page.url.pathname === '/settings'
-									? 'Einstellungen'
-									: 'Taijobi',
+								: page.url.pathname === '/dictionary'
+									? 'Wörterbuch'
+									: page.url.pathname === '/stats'
+										? 'Statistik'
+										: page.url.pathname === '/settings'
+											? 'Einstellungen'
+											: 'Taijobi',
 	);
 </script>
 
@@ -124,9 +128,9 @@
 			{@render children()}
 		</main>
 
-		<!-- Bottom Navigation — 3 tabs -->
+		<!-- Bottom Navigation — 5 tabs -->
 		<nav
-			class="fixed bottom-0 left-0 right-0 z-20 mx-auto max-w-[768px] border-t border-primary/10 bg-bg-light/80 px-6 pb-6 pt-2 backdrop-blur-md dark:bg-bg-dark/80"
+			class="fixed bottom-0 left-0 right-0 z-20 mx-auto max-w-[768px] border-t border-primary/10 bg-bg-light/80 px-4 pb-6 pt-2 backdrop-blur-md dark:bg-bg-dark/80"
 		>
 			<div class="flex items-center justify-between">
 				<a
@@ -146,6 +150,24 @@
 						>style</span
 					>
 					<span class="text-[10px] font-bold uppercase tracking-wider">&Uuml;ben</span>
+				</a>
+				<a
+					href="/stats"
+					class="flex flex-col items-center gap-1 {isActive('/stats') ? 'text-primary' : 'text-slate-400 hover:text-primary'} transition-colors"
+				>
+					<span class="material-symbols-outlined {isActive('/stats') ? 'active-icon' : ''}"
+						>bar_chart</span
+					>
+					<span class="text-[10px] font-bold uppercase tracking-wider">Stats</span>
+				</a>
+				<a
+					href="/dictionary"
+					class="flex flex-col items-center gap-1 {isActive('/dictionary') ? 'text-primary' : 'text-slate-400 hover:text-primary'} transition-colors"
+				>
+					<span class="material-symbols-outlined {isActive('/dictionary') ? 'active-icon' : ''}"
+						>dictionary</span
+					>
+					<span class="text-[10px] font-bold uppercase tracking-wider">W&ouml;rterbuch</span>
 				</a>
 				<a
 					href="/packs"
