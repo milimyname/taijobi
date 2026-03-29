@@ -15,7 +15,7 @@ import {
 	loadDedict,
 	isChineseDataLoaded,
 	isEndictLoaded,
-	isDedictLoaded,
+	isDedictLoaded
 } from './wasm';
 
 type DataKey = 'cedict' | 'decomp' | 'strokes' | 'endict' | 'dedict';
@@ -28,13 +28,13 @@ interface DataFile {
 const CHINESE_FILES: DataFile[] = [
 	{ key: 'cedict', path: '/data/cedict.bin' },
 	{ key: 'decomp', path: '/data/decomp.bin' },
-	{ key: 'strokes', path: '/data/strokes.bin' },
+	{ key: 'strokes', path: '/data/strokes.bin' }
 ];
 
 const ALL_FILES: DataFile[] = [
 	...CHINESE_FILES,
 	{ key: 'endict', path: '/data/endict.bin' },
-	{ key: 'dedict', path: '/data/dedict.bin' },
+	{ key: 'dedict', path: '/data/dedict.bin' }
 ];
 
 const OPFS_DIR = 'dictionary-data';

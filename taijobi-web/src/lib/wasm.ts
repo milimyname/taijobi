@@ -70,7 +70,12 @@ interface WasmExports {
 	hanzi_get_due_count: () => number;
 	hanzi_get_due_cards_filtered: (filter: number, filterLen: number, limit: number) => number;
 	hanzi_get_due_count_filtered: (filter: number, filterLen: number) => number;
-	hanzi_get_upcoming_cards: (filter: number, filterLen: number, limit: number, aheadHours: number) => number;
+	hanzi_get_upcoming_cards: (
+		filter: number,
+		filterLen: number,
+		limit: number,
+		aheadHours: number
+	) => number;
 	hanzi_review_card: (id: number, idLen: number, rating: number) => number;
 	hanzi_add_word: (word: number, len: number) => number;
 	hanzi_remove_word: (id: number, len: number) => number;
@@ -429,7 +434,11 @@ export function getDueCountFiltered(filter: string): number {
 	return wasm.hanzi_get_due_count_filtered(ptr, encoded.length);
 }
 
-export function getUpcomingCards(filter: string, limit: number = 50, aheadHours: number = 24): Card[] {
+export function getUpcomingCards(
+	filter: string,
+	limit: number = 50,
+	aheadHours: number = 24
+): Card[] {
 	if (!wasm || typeof wasm.hanzi_get_upcoming_cards !== 'function') return [];
 	wasm.hanzi_reset_alloc();
 	const encoded = new TextEncoder().encode(filter);
