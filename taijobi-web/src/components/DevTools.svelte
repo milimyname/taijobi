@@ -11,7 +11,7 @@
 	} from '$lib/wasm';
 	import { syncWS } from '$lib/sync-ws.svelte';
 	import { getSyncKey, clearSyncKey, getLastSyncTimestamp } from '$lib/sync';
-	import { isLoaded as isChineseDataLoaded, clearCache as clearChineseCache } from '$lib/chinese-data';
+	import { isLoaded as isChineseDataLoaded, clearCache as clearChineseCache } from '$lib/dictionary-data';
 
 	const TABS = ['info', 'sync', 'data'] as const;
 	const TAB_LABELS: Record<(typeof TABS)[number], string> = {
@@ -156,7 +156,10 @@
 		try {
 			close();
 			const root = await navigator.storage.getDirectory();
-			await root.removeEntry('taijobi.db');
+			await root.removeEntry('taijobi.db').catch(() => {});
+			await root.removeEntry('dictionary-data', { recursive: true }).catch(() => {});
+			// Also clean up legacy directory name
+			await root.removeEntry('chinese-data', { recursive: true }).catch(() => {});
 		} catch {
 			/* ignore */
 		}
@@ -172,7 +175,10 @@
 		try {
 			close();
 			const root = await navigator.storage.getDirectory();
-			await root.removeEntry('taijobi.db');
+			await root.removeEntry('taijobi.db').catch(() => {});
+			await root.removeEntry('dictionary-data', { recursive: true }).catch(() => {});
+			// Also clean up legacy directory name
+			await root.removeEntry('chinese-data', { recursive: true }).catch(() => {});
 		} catch {
 			/* ignore */
 		}
@@ -468,7 +474,7 @@
 									}}
 									class="w-full cursor-pointer rounded-lg px-2.5 py-1.5 text-left text-[11px] font-medium text-red-600 transition-colors hover:bg-red-50"
 								>
-									Clear OPFS <span class="text-slate-400">(taijobi.db)</span>
+									Clear OPFS <span class="text-slate-400">(DB + alle Daten)</span>
 								</button>
 								<button
 									onclick={() => {

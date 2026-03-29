@@ -1,21 +1,43 @@
 /**
- * Chinese data on-demand download, OPFS cache, and WASM loading.
+ * Dictionary data on-demand download, OPFS cache, and WASM loading.
  *
- * Three .bin files (cedict, decomp, strokes) are served as static assets
- * and loaded into WASM memory at runtime instead of being embedded.
+ * Five .bin files served as static assets and loaded into WASM at runtime:
+ *   Chinese: cedict, decomp, strokes
+ *   EN/DE:   endict, dedict (Wiktextract)
  */
 
-import { persistAlloc, loadCedict, loadDecomp, loadStrokes, isChineseDataLoaded } from './wasm';
+import {
+	persistAlloc,
+	loadCedict,
+	loadDecomp,
+	loadStrokes,
+	loadEndict,
+	loadDedict,
+	isChineseDataLoaded,
+	isEndictLoaded,
+	isDedictLoaded,
+} from './wasm';
 
-type DataKey = 'cedict' | 'decomp' | 'strokes';
+type DataKey = 'cedict' | 'decomp' | 'strokes' | 'endict' | 'dedict';
 
-const FILES: { key: DataKey; path: string }[] = [
+interface DataFile {
+	key: DataKey;
+	path: string;
+}
+
+const CHINESE_FILES: DataFile[] = [
 	{ key: 'cedict', path: '/data/cedict.bin' },
 	{ key: 'decomp', path: '/data/decomp.bin' },
-	{ key: 'strokes', path: '/data/strokes.bin' }
+	{ key: 'strokes', path: '/data/strokes.bin' },
 ];
 
-const OPFS_DIR = 'chinese-data';
+const ALL_FILES: DataFile[] = [
+	...CHINESE_FILES,
+	{ key: 'endict', path: '/data/endict.bin' },
+	{ key: 'dedict', path: '/data/dedict.bin' },
+];
+
+const OPFS_DIR = 'dictionary-data';
 
 /** Load data from OPFS cache into WASM (no network). Called at startup. */
 export async function loadCachedData(): Promise<void> {
@@ -29,14 +51,14 @@ export async function loadCachedData(): Promise<void> {
 			return;
 		}
 
-		for (const file of FILES) {
+		for (const file of ALL_FILES) {
 			try {
 				const fh = await dir.getFileHandle(`${file.key}.bin`);
 				const f = await fh.getFile();
 				if (f.size === 0) continue;
 				const buf = new Uint8Array(await f.arrayBuffer());
 				writeToWasm(file.key, buf);
-				console.log(`[taijobi] Chinese data: loaded ${file.key} from OPFS (${buf.length} bytes)`);
+				console.log(`[taijobi] data: loaded ${file.key} from OPFS (${buf.length} bytes)`);
 			} catch {
 				// File doesn't exist in cache
 			}
@@ -46,8 +68,24 @@ export async function loadCachedData(): Promise<void> {
 	}
 }
 
-/** Download all Chinese data files from origin, write to OPFS + WASM. */
+/** Download Chinese data files (cedict, decomp, strokes). */
 export async function downloadAndLoad(
+	onProgress?: (loaded: number, total: number) => void
+): Promise<void> {
+	return downloadSpecificFiles(CHINESE_FILES, onProgress);
+}
+
+/** Download specific dictionary files by key. */
+export async function downloadByKeys(
+	keys: DataKey[],
+	onProgress?: (loaded: number, total: number) => void
+): Promise<void> {
+	const files = ALL_FILES.filter((f) => keys.includes(f.key));
+	return downloadSpecificFiles(files, onProgress);
+}
+
+async function downloadSpecificFiles(
+	files: DataFile[],
 	onProgress?: (loaded: number, total: number) => void
 ): Promise<void> {
 	const root = await navigator.storage.getDirectory();
@@ -57,7 +95,7 @@ export async function downloadAndLoad(
 	let loadedBytes = 0;
 
 	// First pass: HEAD requests to get total size
-	for (const file of FILES) {
+	for (const file of files) {
 		try {
 			const resp = await fetch(file.path, { method: 'HEAD' });
 			const cl = resp.headers.get('content-length');
@@ -70,7 +108,7 @@ export async function downloadAndLoad(
 
 	onProgress?.(0, totalBytes);
 
-	for (const file of FILES) {
+	for (const file of files) {
 		const resp = await fetch(file.path);
 		if (!resp.ok) throw new Error(`Failed to download ${file.path}: ${resp.status}`);
 
@@ -156,6 +194,12 @@ function writeToWasm(key: DataKey, buf: Uint8Array): void {
 			break;
 		case 'strokes':
 			loadStrokes(ptr, buf);
+			break;
+		case 'endict':
+			loadEndict(ptr, buf);
+			break;
+		case 'dedict':
+			loadDedict(ptr, buf);
 			break;
 	}
 }

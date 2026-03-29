@@ -12,7 +12,7 @@
 		type LexiconEntry,
 	} from '$lib/wasm';
 	import { speak } from '$lib/speak';
-	import { downloadAndLoad } from '$lib/chinese-data';
+	import { downloadAndLoad } from '$lib/dictionary-data';
 	import { data } from '$lib/data.svelte';
 	import { toastStore } from '$lib/toast.svelte';
 
