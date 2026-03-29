@@ -13,9 +13,7 @@ import {
 	loadStrokes,
 	loadEndict,
 	loadDedict,
-	isChineseDataLoaded,
-	isEndictLoaded,
-	isDedictLoaded
+	isChineseDataLoaded
 } from './wasm';
 
 type DataKey = 'cedict' | 'decomp' | 'strokes' | 'endict' | 'dedict';

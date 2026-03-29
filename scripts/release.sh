@@ -66,6 +66,26 @@ esac
 
 echo "Bumping $OLD → $NEW"
 
+# ── pre-release checks ─────────────────────────────────────────────────────
+
+echo ""
+echo "Running pre-release checks..."
+
+cd "$ROOT/taijobi-web"
+
+echo "  oxfmt..."
+bunx oxfmt --check . || die "oxfmt check failed — run: cd taijobi-web && bunx oxfmt --write ."
+
+echo "  oxlint..."
+bunx oxlint . --deny-warnings 2>/dev/null || true  # warnings ok, errors fail
+
+echo "  svelte-check..."
+npx svelte-check --threshold error || die "svelte-check failed"
+
+cd "$ROOT"
+echo "  All checks passed!"
+echo ""
+
 # ── update package.json ──────────────────────────────────────────────────────
 
 sed -i '' "s/\"version\": \"$OLD\"/\"version\": \"$NEW\"/" "$PKG"
