@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.5.14 (2026-03-29)
+
+- fix: upload R2 objects with --remote flag
+- fix: correct JSONL filenames in build-all-data.sh
+
 ## v0.5.13 (2026-03-29)
 
 - style: fix oxfmt formatting in wrangler.jsonc
