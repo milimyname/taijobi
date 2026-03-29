@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.5.12 (2026-03-29)
+
+- fix: stream JSONL parsing to avoid OOM on large Wiktextract files
+
 ## v0.5.11 (2026-03-29)
 
 - Version bump
