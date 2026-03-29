@@ -7,6 +7,7 @@ const sqlite = @import("sqlite_c.zig");
 const types = @import("types.zig");
 const lang = @import("lang.zig");
 const cedict = @import("cedict.zig");
+const wiktdict = @import("wiktdict.zig");
 
 const JsonWriter = types.JsonWriter;
 
@@ -32,13 +33,21 @@ pub fn addWord(
     const detected = lang.detect(word);
     const lang_code = detected.code();
 
-    // Auto-enrich from CEDICT if Chinese
+    // Auto-enrich from dictionaries
     var pinyin: ?[]const u8 = null;
     var translation: ?[]const u8 = null;
     if (detected == .zh) {
         if (cedict.lookup(word)) |entry| {
             pinyin = entry.pinyin;
             translation = entry.english;
+        }
+    } else if (detected == .en) {
+        if (wiktdict.lookupEn(word)) |entry| {
+            translation = entry.definition;
+        }
+    } else if (detected == .de) {
+        if (wiktdict.lookupDe(word)) |entry| {
+            translation = entry.definition;
         }
     }
 

@@ -54,7 +54,7 @@ pub fn build(b: *std.Build) void {
     wasm_exe.entry = .disabled;
     wasm_exe.rdynamic = true;
     wasm_exe.stack_size = 1 * 1024 * 1024;
-    wasm_exe.max_memory = 256 * 1024 * 1024;
+    wasm_exe.max_memory = 512 * 1024 * 1024;
 
     // Install to zig-out/lib/ — use scripts/build-wasm.sh to copy to taijobi-web
     b.installArtifact(wasm_exe);

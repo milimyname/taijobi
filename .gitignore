@@ -23,6 +23,9 @@ libtaijobi/src/strokes.bin
 # Chinese data static assets (copied by build-wasm.sh)
 taijobi-web/static/data/
 
+# Wiktextract raw downloads (large — regenerate with scripts/build-endict.sh)
+data/
+
 # OS
 .DS_Store
 Thumbs.db
