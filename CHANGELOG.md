@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.5.13 (2026-03-29)
+
+- style: fix oxfmt formatting in wrangler.jsonc
+- fix: remove duplicate R2 binding from wrangler config
+- feat: serve dictionary .bin files from R2 instead of static assets
+
 ## v0.5.12 (2026-03-29)
 
 - fix: stream JSONL parsing to avoid OOM on large Wiktextract files
