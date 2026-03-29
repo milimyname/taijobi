@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.5.9 (2026-03-29)
+
+- style: fix oxfmt formatting in dictionary-data.ts and wasm.ts
+
 ## v0.5.8 (2026-03-29)
 
 - fix: drill close button + dictionary add/remove state sync
