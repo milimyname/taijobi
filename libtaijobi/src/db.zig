@@ -286,6 +286,146 @@ pub const Db = struct {
         return w.written();
     }
 
+    /// Get cards scheduled in the next `ahead_ms` milliseconds (not yet due).
+    /// Returns same JSON format as getDueCardsFiltered for use with review.
+    pub fn getUpcomingCards(self: *Db, limit: u32, now_ms: i64, ahead_ms: i64, filter: ?[]const u8, buf: []u8) ?[]const u8 {
+        var stmt: ?*sqlite.sqlite3_stmt = null;
+        const future_ms = now_ms + ahead_ms;
+
+        const select_cols =
+            \\SELECT c.id, c.word, c.language, c.pinyin, c.translation, c.source_type,
+            \\       COALESCE(f.difficulty, 5.0), COALESCE(f.stability, 0.0),
+            \\       COALESCE(f.reps, 0), COALESCE(f.lapses, 0),
+            \\       f.next_review
+            \\FROM cards c
+            \\LEFT JOIN fsrs_state f ON c.id = f.card_id
+        ;
+        const where_upcoming =
+            \\ WHERE f.reps > 0 AND f.next_review IS NOT NULL
+            \\   AND CAST(f.next_review AS INTEGER) > ?
+            \\   AND CAST(f.next_review AS INTEGER) <= ?
+            \\   AND COALESCE(c.deleted, 0) = 0
+        ;
+        const order_limit =
+            \\ ORDER BY CAST(f.next_review AS INTEGER) ASC LIMIT ?
+        ;
+
+        const sql_all = select_cols ++ where_upcoming ++ order_limit;
+        const sql_lexicon = select_cols ++ where_upcoming ++ " AND c.source_type = 'lexicon'" ++ order_limit;
+        const sql_pack = select_cols ++ where_upcoming ++ " AND c.pack_id = ?" ++ order_limit;
+
+        if (filter) |f| {
+            if (std.mem.eql(u8, f, "lexicon")) {
+                if (sqlite.sqlite3_prepare_v2(self.handle, sql_lexicon, @intCast(sql_lexicon.len), &stmt, null) != sqlite.SQLITE_OK) return null;
+                _ = sqlite.sqlite3_bind_int64(stmt.?, 1, now_ms);
+                _ = sqlite.sqlite3_bind_int64(stmt.?, 2, future_ms);
+                _ = sqlite.sqlite3_bind_int(stmt.?, 3, @intCast(limit));
+            } else {
+                if (sqlite.sqlite3_prepare_v2(self.handle, sql_pack, @intCast(sql_pack.len), &stmt, null) != sqlite.SQLITE_OK) return null;
+                _ = sqlite.sqlite3_bind_int64(stmt.?, 1, now_ms);
+                _ = sqlite.sqlite3_bind_int64(stmt.?, 2, future_ms);
+                _ = sqlite.sqlite3_bind_text(stmt.?, 3, f.ptr, @intCast(f.len), sqlite.SQLITE_STATIC);
+                _ = sqlite.sqlite3_bind_int(stmt.?, 4, @intCast(limit));
+            }
+        } else {
+            if (sqlite.sqlite3_prepare_v2(self.handle, sql_all, @intCast(sql_all.len), &stmt, null) != sqlite.SQLITE_OK) return null;
+            _ = sqlite.sqlite3_bind_int64(stmt.?, 1, now_ms);
+            _ = sqlite.sqlite3_bind_int64(stmt.?, 2, future_ms);
+            _ = sqlite.sqlite3_bind_int(stmt.?, 3, @intCast(limit));
+        }
+        defer _ = sqlite.sqlite3_finalize(stmt.?);
+
+        // Reuse the same JSON serialization as getDueCardsFiltered
+        var w = JsonWriter.init(buf);
+        w.writeByte('[');
+        var count: u32 = 0;
+
+        while (sqlite.sqlite3_step(stmt.?) == sqlite.SQLITE_ROW) {
+            if (count > 0) w.writeByte(',');
+            count += 1;
+
+            const id = colText(stmt.?, 0);
+            const word = colText(stmt.?, 1);
+            const lang = colText(stmt.?, 2);
+            const pinyin_ptr = sqlite.sqlite3_column_text(stmt.?, 3);
+            const trans_ptr = sqlite.sqlite3_column_text(stmt.?, 4);
+            const source = colText(stmt.?, 5);
+            const difficulty = sqlite.sqlite3_column_double(stmt.?, 6);
+            const stability = sqlite.sqlite3_column_double(stmt.?, 7);
+            const reps = sqlite.sqlite3_column_int(stmt.?, 8);
+            const lapses = sqlite.sqlite3_column_int(stmt.?, 9);
+
+            const state = types.FSRSState{
+                .difficulty = difficulty,
+                .stability = stability,
+                .reps = @intCast(reps),
+                .lapses = @intCast(lapses),
+            };
+            const elapsed: f64 = blk: {
+                const nr_ptr = sqlite.sqlite3_column_text(stmt.?, 10);
+                if (nr_ptr) |nr| {
+                    const nr_len: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 10));
+                    const nr_ms = std.fmt.parseInt(i64, nr[0..nr_len], 10) catch 0;
+                    break :blk @as(f64, @floatFromInt(now_ms - nr_ms)) / 86400000.0;
+                }
+                break :blk 0.0;
+            };
+            const sched = fsrs.schedule(state, elapsed);
+
+            w.writeByte('{');
+            w.writeKey("id");
+            w.writeJsonString(id);
+            w.writeByte(',');
+            w.writeKey("word");
+            w.writeJsonString(word);
+            w.writeByte(',');
+            w.writeKey("language");
+            w.writeJsonString(lang);
+            w.writeByte(',');
+            w.writeKey("pinyin");
+            if (pinyin_ptr) |p| {
+                const plen: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 3));
+                w.writeJsonString(p[0..plen]);
+            } else {
+                w.writeNull();
+            }
+            w.writeByte(',');
+            w.writeKey("translation");
+            if (trans_ptr) |t| {
+                const tlen: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 4));
+                w.writeJsonString(t[0..tlen]);
+            } else {
+                w.writeNull();
+            }
+            w.writeByte(',');
+            w.writeKey("source_type");
+            w.writeJsonString(source);
+            w.writeByte(',');
+            w.writeKey("reps");
+            w.writeInt(reps);
+            w.writeByte(',');
+
+            w.writeKey("intervals");
+            w.writeByte('{');
+            w.writeKey("again");
+            w.writeFloat(sched.again.interval_days);
+            w.writeByte(',');
+            w.writeKey("hard");
+            w.writeFloat(sched.hard.interval_days);
+            w.writeByte(',');
+            w.writeKey("good");
+            w.writeFloat(sched.good.interval_days);
+            w.writeByte(',');
+            w.writeKey("easy");
+            w.writeFloat(sched.easy.interval_days);
+            w.writeByte('}');
+
+            w.writeByte('}');
+        }
+        w.writeByte(']');
+        return w.written();
+    }
+
     pub fn reviewCard(self: *Db, card_id: []const u8, rating_int: u8, now_ms: i64) DbError!void {
         const rating = Rating.fromInt(rating_int) orelse return error.InvalidRating;
 

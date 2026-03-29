@@ -14,6 +14,7 @@ const decompose = @import("decompose.zig");
 const strokes_mod = @import("strokes.zig");
 const csv_mod = @import("csv.zig");
 const apkg_mod = @import("apkg.zig");
+const wiktdict = @import("wiktdict.zig");
 
 // --- Fixed buffer allocator (64MB) ---
 const FBA_SIZE = 64 * 1024 * 1024;
@@ -21,7 +22,7 @@ var fba_backing: [FBA_SIZE]u8 = undefined;
 var fba = std.heap.FixedBufferAllocator.init(&fba_backing);
 
 // --- Persistent allocator (20MB) — never reset, used only for .bin data ---
-const PERSIST_SIZE = 20 * 1024 * 1024;
+const PERSIST_SIZE = 64 * 1024 * 1024;
 var persist_backing: [PERSIST_SIZE]u8 = undefined;
 var persist_fba = std.heap.FixedBufferAllocator.init(&persist_backing);
 
@@ -153,6 +154,14 @@ export fn hanzi_get_due_count_filtered(filter_ptr: [*]const u8, filter_len: usiz
     const db = &(global_db orelse return -1);
     const filter = if (filter_len == 0) null else filter_ptr[0..filter_len];
     return db.getDueCountFiltered(now(), filter);
+}
+
+export fn hanzi_get_upcoming_cards(filter_ptr: [*]const u8, filter_len: usize, limit: u32, ahead_hours: u32) ?[*]const u8 {
+    const db = &(global_db orelse return null);
+    const filter = if (filter_len == 0) null else filter_ptr[0..filter_len];
+    const ahead_ms: i64 = @as(i64, ahead_hours) * 3600000;
+    const json = db.getUpcomingCards(limit, now(), ahead_ms, filter, &json_buf) orelse return null;
+    return makeLengthPrefixed(json);
 }
 
 // === Phase 1 — Lexicon + Dictionary ===
@@ -606,6 +615,42 @@ export fn hanzi_load_strokes(ptr: [*]const u8, len: usize) i32 {
 export fn hanzi_chinese_data_loaded() i32 {
     if (cedict.isLoaded() and decompose.isLoaded() and strokes_mod.isLoaded()) return 1;
     return 0;
+}
+
+// === Wiktionary EN/DE dictionaries ===
+
+export fn hanzi_load_endict(ptr: [*]const u8, len: usize) i32 {
+    wiktdict.loadEn(ptr, len);
+    log("endict data loaded");
+    return 0;
+}
+
+export fn hanzi_load_dedict(ptr: [*]const u8, len: usize) i32 {
+    wiktdict.loadDe(ptr, len);
+    log("dedict data loaded");
+    return 0;
+}
+
+export fn hanzi_endict_loaded() i32 {
+    return if (wiktdict.isEnLoaded()) @as(i32, 1) else 0;
+}
+
+export fn hanzi_dedict_loaded() i32 {
+    return if (wiktdict.isDeLoaded()) @as(i32, 1) else 0;
+}
+
+export fn hanzi_lookup_word(query_ptr: [*]const u8, query_len: usize) ?[*]const u8 {
+    const query = query_ptr[0..query_len];
+    // Auto-detect language and search appropriate dictionary
+    const detected = lang_mod.detect(query);
+    const json = switch (detected) {
+        .de => wiktdict.searchDe(query, 20, &json_buf) orelse
+            wiktdict.searchEn(query, 20, &json_buf),
+        else => wiktdict.searchEn(query, 20, &json_buf) orelse
+            wiktdict.searchDe(query, 20, &json_buf),
+    };
+    const result = json orelse return null;
+    return makeLengthPrefixed(result);
 }
 
 // === WASM-only exports ===

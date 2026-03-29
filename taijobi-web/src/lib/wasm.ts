@@ -70,6 +70,7 @@ interface WasmExports {
 	hanzi_get_due_count: () => number;
 	hanzi_get_due_cards_filtered: (filter: number, filterLen: number, limit: number) => number;
 	hanzi_get_due_count_filtered: (filter: number, filterLen: number) => number;
+	hanzi_get_upcoming_cards: (filter: number, filterLen: number, limit: number, aheadHours: number) => number;
 	hanzi_review_card: (id: number, idLen: number, rating: number) => number;
 	hanzi_add_word: (word: number, len: number) => number;
 	hanzi_remove_word: (id: number, len: number) => number;
@@ -103,6 +104,12 @@ interface WasmExports {
 	hanzi_load_decomp: (ptr: number, len: number) => number;
 	hanzi_load_strokes: (ptr: number, len: number) => number;
 	hanzi_chinese_data_loaded: () => number;
+	// Wiktionary EN/DE dictionaries
+	hanzi_load_endict: (ptr: number, len: number) => number;
+	hanzi_load_dedict: (ptr: number, len: number) => number;
+	hanzi_endict_loaded: () => number;
+	hanzi_dedict_loaded: () => number;
+	hanzi_lookup_word: (query: number, len: number) => number;
 	// Phase 4 — Sync
 	hanzi_get_changes: (sinceTs: bigint) => number;
 	hanzi_apply_changes: (data: number, len: number) => number;
@@ -318,7 +325,7 @@ export async function init(): Promise<void> {
 	}
 
 	// Load cached Chinese data from OPFS (no network)
-	const { loadCachedData } = await import('./chinese-data');
+	const { loadCachedData } = await import('./dictionary-data');
 	await loadCachedData();
 }
 
@@ -353,6 +360,20 @@ export function loadStrokes(ptr: number, data: Uint8Array): void {
 export function isChineseDataLoaded(): boolean {
 	if (!wasm || typeof wasm.hanzi_chinese_data_loaded !== 'function') return false;
 	return wasm.hanzi_chinese_data_loaded() === 1;
+}
+
+export function loadEndict(ptr: number, data: Uint8Array): void {
+	if (!wasm || typeof wasm.hanzi_load_endict !== 'function') return;
+	const mem = new Uint8Array(wasm.memory.buffer);
+	mem.set(data, ptr);
+	wasm.hanzi_load_endict(ptr, data.length);
+}
+
+export function loadDedict(ptr: number, data: Uint8Array): void {
+	if (!wasm || typeof wasm.hanzi_load_dedict !== 'function') return;
+	const mem = new Uint8Array(wasm.memory.buffer);
+	mem.set(data, ptr);
+	wasm.hanzi_load_dedict(ptr, data.length);
 }
 
 export function getDueCount(): number {
@@ -406,6 +427,22 @@ export function getDueCountFiltered(filter: string): number {
 	const encoded = new TextEncoder().encode(filter);
 	const ptr = filter ? writeBytes(encoded) : 0;
 	return wasm.hanzi_get_due_count_filtered(ptr, encoded.length);
+}
+
+export function getUpcomingCards(filter: string, limit: number = 50, aheadHours: number = 24): Card[] {
+	if (!wasm || typeof wasm.hanzi_get_upcoming_cards !== 'function') return [];
+	wasm.hanzi_reset_alloc();
+	const encoded = new TextEncoder().encode(filter);
+	const ptr = filter ? writeBytes(encoded) : 0;
+	const resultPtr = wasm.hanzi_get_upcoming_cards(ptr, encoded.length, limit, aheadHours);
+	if (resultPtr === 0) return [];
+	const json = readLengthPrefixedString(resultPtr);
+	try {
+		return JSON.parse(json);
+	} catch (e) {
+		console.error('[taijobi] Failed to parse upcoming cards JSON:', e);
+		return [];
+	}
 }
 
 // --- Reading mode ---
@@ -515,6 +552,37 @@ export async function updateWord(id: string, translation: string): Promise<void>
 	await opfsSave();
 	onMutateCb?.();
 	onDataChangedCb?.();
+}
+
+export interface DictResult {
+	word: string;
+	pos: string;
+	definition: string;
+}
+
+export function lookupWord(query: string): DictResult[] {
+	if (!wasm || typeof wasm.hanzi_lookup_word !== 'function') return [];
+	wasm.hanzi_reset_alloc();
+	const encoded = new TextEncoder().encode(query);
+	const ptr = writeBytes(encoded);
+	const resultPtr = wasm.hanzi_lookup_word(ptr, encoded.length);
+	if (resultPtr === 0) return [];
+	const json = readLengthPrefixedString(resultPtr);
+	try {
+		return JSON.parse(json);
+	} catch {
+		return [];
+	}
+}
+
+export function isEndictLoaded(): boolean {
+	if (!wasm || typeof wasm.hanzi_endict_loaded !== 'function') return false;
+	return wasm.hanzi_endict_loaded() === 1;
+}
+
+export function isDedictLoaded(): boolean {
+	if (!wasm || typeof wasm.hanzi_dedict_loaded !== 'function') return false;
+	return wasm.hanzi_dedict_loaded() === 1;
 }
 
 export function lookupCedict(query: string): CedictResult[] {

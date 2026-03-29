@@ -3,6 +3,7 @@
 		getDueCards,
 		getDueCardsFiltered,
 		getDueCountFiltered,
+		getUpcomingCards,
 		getUnreadCards,
 		getUnreadCount,
 		markRead,
@@ -34,6 +35,7 @@
 	let answerCorrect: boolean | null = $state(null);
 	let remainingDue = $state(0);
 	let remainingUnread = $state(0);
+	let upcomingCount = $state(0);
 
 	// "Peek back" at previously reviewed card (read-only)
 	let peekCard: Card | null = $state(null);
@@ -204,6 +206,18 @@
 		saveSession();
 	}
 
+	function startUpcoming() {
+		cards = getUpcomingCards(activeFilter, 50, 24);
+		index = 0;
+		phase = cards.length > 0 ? 'question' : 'complete';
+		input = '';
+		reviewed = 0;
+		answerCorrect = null;
+		peekCard = null;
+		isPeeking = false;
+		saveSession();
+	}
+
 	function startReading(filter: string, label: string) {
 		activeFilter = filter;
 		filterLabel = label;
@@ -258,8 +272,22 @@
 		card?.language === 'ar' && hasArabic(questionText)
 	);
 
+	// Self-assessment mode: for non-CJK cards with long definitions, skip typing
+	let selfAssessMode = $derived(
+		card != null &&
+		card.language !== 'zh' &&
+		!hasChinese(card.word) &&
+		(card.translation?.length ?? 0) > 50
+	);
+
 	function reveal() {
 		if (phase !== 'question') return;
+		// In self-assess mode, skip answer checking
+		if (selfAssessMode) {
+			answerCorrect = null;
+			phase = 'answer';
+			return;
+		}
 		// Check the answer
 		if (input.trim() && expectedAnswer) {
 			const lang = direction === 'zh-pinyin' ? 'pinyin' : direction === 'zh-de' ? 'de' : 'zh';
@@ -281,6 +309,7 @@
 		answerCorrect = null;
 		if (index >= total) {
 			remainingDue = getDueCountFiltered(activeFilter);
+			upcomingCount = getUpcomingCards(activeFilter, 1, 24).length;
 			phase = 'complete';
 		} else {
 			phase = 'question';
@@ -314,6 +343,7 @@
 			answerCorrect = null;
 			if (index >= total) {
 				remainingDue = getDueCountFiltered(activeFilter);
+			upcomingCount = getUpcomingCards(activeFilter, 1, 24).length;
 				phase = 'complete';
 			} else {
 				phase = 'question';
@@ -332,7 +362,7 @@
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
-		if (phase === 'question' && e.key === 'Enter') {
+		if (phase === 'question' && (e.key === 'Enter' || (selfAssessMode && e.key === ' '))) {
 			reveal();
 		} else if (phase === 'question' && e.key === 'ArrowLeft') {
 			goBack();
@@ -600,8 +630,12 @@
 				<p class="mt-1 text-sm font-medium text-primary">
 					Noch {remainingDue} Karten f&auml;llig
 				</p>
+			{:else if upcomingCount > 0}
+				<p class="mt-1 text-sm font-medium text-slate-500 dark:text-slate-400">
+					Karten f&uuml;r morgen verf&uuml;gbar
+				</p>
 			{/if}
-			<div class="mt-8 flex gap-3">
+			<div class="mt-8 flex flex-wrap justify-center gap-3">
 				{#if remainingDue > 0}
 					<button
 						onclick={() => startDrill(activeFilter, filterLabel)}
@@ -609,12 +643,22 @@
 					>
 						Weiter &rarr;
 					</button>
+				{:else if upcomingCount > 0}
+					<button
+						onclick={startUpcoming}
+						class="rounded-lg bg-primary px-8 py-3 font-semibold text-white shadow-md shadow-primary/20 transition-all hover:bg-primary/90"
+					>
+						<span class="inline-flex items-center gap-2">
+							<span class="material-symbols-outlined text-lg">fast_forward</span>
+							Vorziehen
+						</span>
+					</button>
 				{/if}
 				<button
 					onclick={() => { clearSession(); buildSources(); phase = 'picking'; }}
-					class="rounded-lg {remainingDue > 0 ? 'border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5' : 'bg-primary text-white shadow-md shadow-primary/20 hover:bg-primary/90'} px-8 py-3 font-semibold transition-all"
+					class="rounded-lg {remainingDue > 0 || upcomingCount > 0 ? 'border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5' : 'bg-primary text-white shadow-md shadow-primary/20 hover:bg-primary/90'} px-8 py-3 font-semibold transition-all"
 				>
-					{remainingDue > 0 ? 'Zur Auswahl' : 'Weiter &uuml;ben'}
+					{remainingDue > 0 || upcomingCount > 0 ? 'Zur Auswahl' : 'Weiter üben'}
 				</button>
 				<a
 					href="/"
@@ -698,44 +742,70 @@
 		<!-- Input area -->
 		<div class="w-full max-w-md space-y-4">
 			{#if phase === 'question'}
-				<div class="relative">
-					<input
-						type="text"
-						bind:value={input}
-						placeholder="{direction === 'zh-pinyin' ? 'Pinyin eingeben...' : direction === 'de-zh' ? 'Chinesisch eingeben...' : 'Übersetzung eingeben...'}"
-						class="h-14 w-full rounded-xl border-2 border-primary bg-primary-light text-center text-lg text-slate-900 dark:text-slate-100 placeholder-primary/60 outline-none focus:ring-2 focus:ring-primary"
-					/>
-				</div>
-				<button
-					onclick={reveal}
-					class="h-14 w-full rounded-xl bg-primary text-lg font-bold text-white transition-all hover:opacity-90 active:scale-[0.98]"
-				>
-					Pr&uuml;fen
-				</button>
+				{#if selfAssessMode}
+					<!-- Self-assessment: tap to reveal, no typing -->
+					<button
+						onclick={reveal}
+						class="h-14 w-full rounded-xl bg-primary text-lg font-bold text-white transition-all hover:opacity-90 active:scale-[0.98]"
+					>
+						Aufdecken
+					</button>
+					<p class="text-center text-[10px] font-medium uppercase tracking-wider text-slate-400">
+						Enter oder Leertaste
+					</p>
+				{:else}
+					<div class="relative">
+						<input
+							type="text"
+							bind:value={input}
+							placeholder="{direction === 'zh-pinyin' ? 'Pinyin eingeben...' : direction === 'de-zh' ? 'Chinesisch eingeben...' : 'Übersetzung eingeben...'}"
+							class="h-14 w-full rounded-xl border-2 border-primary bg-primary-light text-center text-lg text-slate-900 dark:text-slate-100 placeholder-primary/60 outline-none focus:ring-2 focus:ring-primary"
+						/>
+					</div>
+					<button
+						onclick={reveal}
+						class="h-14 w-full rounded-xl bg-primary text-lg font-bold text-white transition-all hover:opacity-90 active:scale-[0.98]"
+					>
+						Pr&uuml;fen
+					</button>
+				{/if}
 			{:else}
 				<!-- Answer revealed -->
-				<div
-					class="flex w-full items-stretch overflow-hidden rounded-xl border-2 {answerCorrect === true ? 'border-green-500' : answerCorrect === false ? 'border-red-400' : 'border-primary'} bg-white dark:bg-white/5"
-				>
-					<div class="flex-1 p-4 text-xl font-semibold {answerCorrect === true ? 'text-green-600' : answerCorrect === false ? 'text-red-600' : 'text-primary'}">
-						{expectedAnswer || '—'}
+				{#if selfAssessMode}
+					<!-- Self-assessment: show definition in readable format -->
+					<div class="w-full rounded-xl border-2 border-primary bg-white p-5 dark:bg-white/5">
+						<p class="text-[11px] font-bold uppercase tracking-wider text-primary mb-2">Definition</p>
+						<p class="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+							{expectedAnswer || '\u2014'}
+						</p>
 					</div>
-					<div class="flex items-center {answerCorrect === true ? 'bg-green-50' : answerCorrect === false ? 'bg-red-50' : 'bg-primary/5'} px-4">
-						<span class="material-symbols-outlined text-3xl font-bold {answerCorrect === true ? 'text-green-500' : answerCorrect === false ? 'text-red-500' : 'text-primary'}">
-							{answerCorrect === true ? 'check_circle' : answerCorrect === false ? 'cancel' : 'check_circle'}
-						</span>
-					</div>
-				</div>
-
-				{#if input}
-					<p class="text-center text-sm {answerCorrect === true ? 'text-green-600' : answerCorrect === false ? 'text-red-500' : 'text-slate-400'}">
-						Deine Antwort: <span class="font-medium">{input}</span>
-						{#if answerCorrect === true}
-							— Richtig!
-						{:else if answerCorrect === false}
-							— Falsch
-						{/if}
+					<p class="text-center text-xs text-slate-400 dark:text-slate-500">
+						Wusstest du es? Bewerte dich selbst.
 					</p>
+				{:else}
+					<div
+						class="flex w-full items-stretch overflow-hidden rounded-xl border-2 {answerCorrect === true ? 'border-green-500' : answerCorrect === false ? 'border-red-400' : 'border-primary'} bg-white dark:bg-white/5"
+					>
+						<div class="flex-1 p-4 text-xl font-semibold {answerCorrect === true ? 'text-green-600' : answerCorrect === false ? 'text-red-600' : 'text-primary'}">
+							{expectedAnswer || '\u2014'}
+						</div>
+						<div class="flex items-center {answerCorrect === true ? 'bg-green-50' : answerCorrect === false ? 'bg-red-50' : 'bg-primary/5'} px-4">
+							<span class="material-symbols-outlined text-3xl font-bold {answerCorrect === true ? 'text-green-500' : answerCorrect === false ? 'text-red-500' : 'text-primary'}">
+								{answerCorrect === true ? 'check_circle' : answerCorrect === false ? 'cancel' : 'check_circle'}
+							</span>
+						</div>
+					</div>
+
+					{#if input}
+						<p class="text-center text-sm {answerCorrect === true ? 'text-green-600' : answerCorrect === false ? 'text-red-500' : 'text-slate-400'}">
+							Deine Antwort: <span class="font-medium">{input}</span>
+							{#if answerCorrect === true}
+								&mdash; Richtig!
+							{:else if answerCorrect === false}
+								&mdash; Falsch
+							{/if}
+						</p>
+					{/if}
 				{/if}
 
 				<!-- Tappable characters (for Chinese answers) -->

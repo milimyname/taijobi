@@ -8,6 +8,7 @@ import {
 	getDueCards,
 	getDueCardsFiltered,
 	getDueCountFiltered,
+	getUpcomingCards,
 	getUnreadCards,
 	getUnreadCount,
 	getLexicon,
@@ -18,6 +19,8 @@ import {
 	getPackProgress,
 	getStats,
 	isChineseDataLoaded,
+	isEndictLoaded,
+	isDedictLoaded,
 	type Card,
 	type ReadCard,
 	type LexiconEntry,
@@ -55,6 +58,11 @@ class DataStore {
 	dueCountFiltered(filter: string): number {
 		this.#v;
 		return getDueCountFiltered(filter);
+	}
+
+	upcomingCards(filter: string, limit = 50, aheadHours = 24): Card[] {
+		this.#v;
+		return getUpcomingCards(filter, limit, aheadHours);
 	}
 
 	unreadCards(filter: string, limit = 50): ReadCard[] {
@@ -105,6 +113,16 @@ class DataStore {
 	chineseDataLoaded(): boolean {
 		this.#v;
 		return isChineseDataLoaded();
+	}
+
+	endictLoaded(): boolean {
+		this.#v;
+		return isEndictLoaded();
+	}
+
+	dedictLoaded(): boolean {
+		this.#v;
+		return isDedictLoaded();
 	}
 }
 // oxlint-enable no-unused-expressions, no-unused-private-class-members
