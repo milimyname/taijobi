@@ -84,6 +84,8 @@ Inspired by libghostty and libwimg: the library is the product.
 
 **Fonts:** Inter (UI), PingFang SC fallback (Chinese chars)
 
+**Routing:** Landing page at `/`, app at `/home` (SvelteKit route group `(app)`)
+
 **Key patterns:**
 - Warm cream background (`#fefdfb`), not pure white
 - Cards: `bg-white dark:bg-slate-800/40 border border-slate-100 rounded-2xl shadow-sm`

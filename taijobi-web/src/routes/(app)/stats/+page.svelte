@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { type DrillStats, type StatsData } from '$lib/wasm';
 	import { data } from '$lib/data.svelte';
-	import Heatmap from '../../components/Heatmap.svelte';
+	import Heatmap from '../../../components/Heatmap.svelte';
 
 	let stats: DrillStats = $derived(data.drillStats());
 

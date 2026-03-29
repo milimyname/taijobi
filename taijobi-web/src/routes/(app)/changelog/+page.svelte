@@ -55,7 +55,7 @@
 	<header class="space-y-2">
 		<div class="flex items-center justify-between">
 			<h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">Was ist neu?</h1>
-			<a href="/" class="text-sm font-bold text-slate-500 dark:text-slate-400 transition-colors hover:text-slate-900 dark:text-slate-100 dark:hover:text-slate-100">
+			<a href="/home" class="text-sm font-bold text-slate-500 dark:text-slate-400 transition-colors hover:text-slate-900 dark:text-slate-100 dark:hover:text-slate-100">
 				Zur App &rarr;
 			</a>
 		</div>
@@ -131,7 +131,7 @@
 
 		<footer class="mt-4 flex flex-col items-center gap-4">
 			<a
-				href="/"
+				href="/home"
 				class="w-full rounded-2xl bg-primary py-4 text-center font-extrabold text-white shadow-sm transition-colors hover:bg-primary/90"
 			>
 				Verstanden!

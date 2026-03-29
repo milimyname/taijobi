@@ -661,7 +661,7 @@
 					{remainingDue > 0 || upcomingCount > 0 ? 'Zur Auswahl' : 'Weiter üben'}
 				</button>
 				<a
-					href="/"
+					href="/home"
 					class="rounded-lg border border-slate-200 dark:border-white/10 px-8 py-3 font-semibold text-slate-600 dark:text-slate-300 transition-all hover:bg-slate-50 dark:hover:bg-white/5"
 				>
 					Zur&uuml;ck
