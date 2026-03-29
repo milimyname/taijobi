@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.5.11 (2026-03-29)
+
+- Version bump
+
 ## v0.5.10 (2026-03-29)
 
 - fix: update oxfmt stylesheet path after route restructure
