@@ -56,17 +56,6 @@ jobs:
       - name: Build data binaries (CEDICT + decomposition + strokes)
         run: ./scripts/build-all-data.sh
 
-      - name: Cache Wiktextract JSONL
-        uses: actions/cache@v4
-        with:
-          path: data/
-          key: wiktextract-v1
-
-      - name: Build EN/DE dictionaries
-        run: |
-          ./scripts/build-endict.sh
-          ./scripts/build-dedict.sh
-
       - name: Zig fmt check
         working-directory: libtaijobi
         run: zig fmt --check src/
