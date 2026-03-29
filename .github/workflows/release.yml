@@ -115,6 +115,20 @@ jobs:
           ./scripts/build-endict.sh
           ./scripts/build-dedict.sh
 
+      - name: Upload dictionary data to R2
+        run: |
+          for f in taijobi-web/static/data/*.bin; do
+            key="data/$(basename $f)"
+            echo "Uploading $key..."
+            bunx wrangler r2 object put "taijobi-data/$key" --file "$f"
+          done
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Remove .bin from static (served from R2)
+        run: rm -f taijobi-web/static/data/*.bin
+
       - name: Upload WASM artifact
         uses: actions/upload-artifact@v7
         with:

@@ -8,6 +8,12 @@
 		"binding": "ASSETS",
 		"directory": ".svelte-kit/cloudflare"
 	},
+	"r2_buckets": [
+		{
+			"binding": "DATA_BUCKET",
+			"bucket_name": "taijobi-data"
+		}
+	],
 	"workers_dev": true,
 	"preview_urls": true
 	// To connect taijobi.com:
