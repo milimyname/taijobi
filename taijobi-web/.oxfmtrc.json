@@ -5,6 +5,6 @@
 	"trailingComma": "none",
 	"printWidth": 100,
 	"sortTailwindcss": {
-		"stylesheet": "./src/routes/layout.css"
+		"stylesheet": "./src/routes/(app)/layout.css"
 	}
 }
