@@ -97,6 +97,7 @@
 			} else {
 				toastStore.show(msg);
 			}
+			data.bump();
 		} finally {
 			busyWord = null;
 		}

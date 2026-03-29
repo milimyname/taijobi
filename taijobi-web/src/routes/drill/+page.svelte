@@ -670,8 +670,18 @@
 		{/if}
 	</div>
 {:else if card}
+	<!-- Close button -->
+	<div class="mt-2 flex justify-end">
+		<button
+			onclick={() => { clearSession(); buildSources(); phase = 'picking'; }}
+			class="flex items-center gap-1 rounded-full p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-white/10 dark:hover:text-slate-300"
+			title="Sitzung beenden"
+		>
+			<span class="material-symbols-outlined text-xl">close</span>
+		</button>
+	</div>
 	<!-- Progress counter -->
-	<div class="mb-8 mt-4 text-center">
+	<div class="mb-8 text-center">
 		{#if isPeeking}
 			<p class="mb-1 text-xs font-bold uppercase tracking-wider text-slate-400">Vorherige Karte</p>
 		{:else if filterLabel}
