@@ -5,7 +5,7 @@
 *A local-first vocabulary engine for all languages you encounter — with deep
 Chinese support, curriculum packs, and spaced repetition.*
 
-Last updated: March 2026 — Phases 0-4 complete, Phase 5.0 dark mode + dictionary + drill UX done
+Last updated: March 2026 — Phases 0-4 complete, Phase 5.0 + 5.1 done, EN/DE dictionaries added
 
 ---
 
@@ -53,10 +53,12 @@ Inspired by libghostty and libwimg: the library is the product.
 | Shared core     | Zig 0.15+ + SQLite (amalgamation)                  |
 | SRS algorithm   | FSRS-5 (pure Zig)                                  |
 | Web UI          | Svelte 5 + TailwindCSS v4                          |
-| Web persistence | OPFS (SQLite-on-browser, offline)                  |
+| Web persistence | OPFS (SQLite + dictionary data, offline)            |
 | iOS UI          | SwiftUI + C ABI (libhanzi.a)                       |
 | Sync            | wimg-sync (CF DO + WebSocket + LWW)                |
-| Dictionary      | CC-CEDICT (124k entries, embedded binary ~8.8MB)    |
+| Dictionary (ZH) | CC-CEDICT (124k entries, binary ~8.4MB)              |
+| Dictionary (EN) | Wiktextract English (166k entries, binary ~19MB)     |
+| Dictionary (DE) | Wiktextract German (binary ~4.6MB)                   |
 | Decomposition   | Make Me a Hanzi dictionary.txt (9.5k chars, ~0.8MB) |
 | Stroke data     | Make Me a Hanzi graphics.txt (delta-encoded binary ~9MB) |
 | Content packs   | Static JSON served by Cloudflare Worker             |
@@ -85,10 +87,13 @@ Inspired by libghostty and libwimg: the library is the product.
 **Key patterns:**
 - Warm cream background (`#fefdfb`), not pure white
 - Cards: `bg-white dark:bg-slate-800/40 border border-slate-100 rounded-2xl shadow-sm`
-- Bottom nav: fixed, backdrop-blur, 4 tabs (Start/Üben/Wörterbuch/Pakete)
-- Dashboard: per-source drill cards (each pack + lexicon), "Alles gemischt" button
-- Drill: session persisted to sessionStorage (survives reload), peek-back at previous card (ArrowLeft), remove lexicon card mid-drill
-- Dictionary: default word suggestions + user's recent Chinese words, add/remove toggle per result
+- Bottom nav: fixed, backdrop-blur, 5 tabs (Start/Üben/Stats/Wörterbuch/Pakete)
+- Dashboard: per-source drill cards (each pack + lexicon), "Alles gemischt" button, minimal today stats + link to /stats
+- Drill: session persisted to sessionStorage (survives reload), peek-back at previous card (ArrowLeft), remove lexicon card mid-drill, "Vorziehen" pull-forward for upcoming cards (next 24h)
+- Dictionary: unified search across ZH/EN/DE, default suggestions, add/remove toggle per result
+- EN/DE dictionaries: installable from Settings, OPFS cached, auto-enrich lexicon words
+- Drill self-assessment: non-CJK cards with long definitions use reveal-and-rate instead of type-and-check
+- Stats (`/stats`): streak + today summary cards, bar chart with period toggle, accuracy trend, rating distribution, 365-day GitHub-style activity heatmap, totals row
 - Progress bars: `bg-primary h-2 rounded-full`
 - Chinese characters: `text-4xl font-light` in cards, `text-6xl` in drill
 - Arabic text: `dir="rtl"`, `text-5xl` in drill, `text-xl` in lexicon/lessons
