@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.5.8 (2026-03-29)
+
+- fix: drill close button + dictionary add/remove state sync
+- docs: update CLAUDE.md with EN/DE dictionaries and new features
+- feat: unified dictionary search (ZH + EN + DE) with toasts
+- feat: installable EN/DE dictionaries from Settings
+- feat: EN/DE dictionary lookup via Wiktextract
+- feat: upcoming cards (Vorziehen) + drill self-assessment mode
+
 ## v0.5.7 (2026-03-28)
 
 - style: fix oxfmt formatting in chinese-data.ts
