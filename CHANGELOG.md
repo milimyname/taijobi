@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.5.10 (2026-03-29)
+
+- fix: update oxfmt stylesheet path after route restructure
+- docs: update decisions.md with Phase 5.x decisions
+- feat: landing page at /, app routes under (app)/home
+- fix: remove unused imports + add pre-release checks to release.sh
+
 ## v0.5.9 (2026-03-29)
 
 - style: fix oxfmt formatting in dictionary-data.ts and wasm.ts
