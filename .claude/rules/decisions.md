@@ -99,6 +99,31 @@
   and a "Weiter →" button to immediately load the next batch, avoiding the round-trip
   through the picker.
 
+## Phase 5.x Decisions
+
+- **EN/DE dictionaries via Wiktextract.** Monolingual definitions (not translation pairs).
+  Compiled from kaikki.org JSONL per-POS files (noun/verb/adj/adv only — full dump is 6GB).
+  Same binary format as CEDICT: magic + count + offset index + sorted entries with binary search.
+  Case-insensitive lookup for Latin text. EN: 166k entries (~19MB), DE: ~4.6MB.
+- **Dictionaries are installable, not embedded.** Users install from Settings → Wörterbücher.
+  Downloaded to OPFS, loaded into WASM persistent allocator on startup. Chinese data + EN + DE
+  total ~42MB → bumped persistent allocator to 64MB, WASM max memory to 512MB.
+- **Self-assessment mode for long definitions.** Non-CJK cards with translation >50 chars
+  skip text input. Show "Aufdecken" → reveal definition → rate 1-4. You can't type
+  "The phenomenon of making an unplanned, fortunate discovery..." from memory.
+- **Vorziehen (pull-forward).** After finishing due cards, offer cards scheduled within 24h.
+  Reviews count toward FSRS. `getUpcomingCards()` query: `next_review > now AND <= now + ahead`.
+- **Drill session in sessionStorage, not SQLite.** Ephemeral UI state (card queue, index,
+  phase) survives page reload but dies on tab close. iOS won't need it (SwiftUI holds state).
+  SQLite would push it through sync — your phone would see your laptop's half-finished drill.
+- **Landing page at `/`, app at `/home`.** SvelteKit `(app)` route group. Root layout minimal
+  (no WASM init), app layout handles WASM + header + bottom nav. Same pattern as wimg.
+- **Renamed `chinese-data.ts` → `dictionary-data.ts`.** OPFS directory `chinese-data` →
+  `dictionary-data`. Now holds 5 .bin files (cedict, decomp, strokes, endict, dedict).
+  DevTools cleanup removes both old and new directory names for existing users.
+- **Pre-release checks in release.sh.** oxfmt + oxlint + svelte-check run before version
+  bump. Abort on formatting or type errors.
+
 ## Open Questions
 
 - **Naming:** libhanzi for now. If multi-language takes off -> rename. `taijobi.com` available.
