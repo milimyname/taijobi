@@ -16,7 +16,8 @@
  *     word bytes, pos bytes, definition bytes
  */
 
-import { readFileSync, writeFileSync } from "fs";
+import { createReadStream, writeFileSync } from "fs";
+import { createInterface } from "readline";
 
 const encoder = new TextEncoder();
 
@@ -53,13 +54,24 @@ interface WiktEntry {
 	}>;
 }
 
-function parseJsonl(text: string): Array<[string, string, string]> {
+async function parseJsonlStream(inputPath: string): Promise<Array<[string, string, string]>> {
 	const entries: Array<[string, string, string]> = [];
 	const seen = new Set<string>();
 	let skipped = 0;
+	let total = 0;
 
-	for (const line of text.split("\n")) {
+	const rl = createInterface({
+		input: createReadStream(inputPath, { encoding: "utf-8" }),
+		crlfDelay: Infinity
+	});
+
+	for await (const line of rl) {
 		if (!line.trim()) continue;
+		total++;
+
+		if (total % 100000 === 0) {
+			process.stdout.write(`  ${total} lines processed, ${entries.length} kept...\r`);
+		}
 
 		let entry: WiktEntry;
 		try {
@@ -120,7 +132,7 @@ function parseJsonl(text: string): Array<[string, string, string]> {
 		entries.push([word, pos, definition]);
 	}
 
-	console.log(`Skipped ${skipped} entries (no gloss / form-of / parse error)`);
+	console.log(`\n  ${total} lines total, skipped ${skipped}, kept ${entries.length}`);
 	return entries;
 }
 
@@ -195,7 +207,7 @@ function compileBinary(entries: Array<[string, string, string]>, magic: string):
 	return result;
 }
 
-function main() {
+async function main() {
 	if (process.argv.length < 5) {
 		console.log("Usage: bun scripts/compile-wiktdict.ts <input.jsonl> <output.bin> <magic>");
 		console.log("  magic: WKEN for English, WKDE for German");
@@ -212,8 +224,7 @@ function main() {
 	}
 
 	console.log(`Reading ${inputPath}...`);
-	const text = readFileSync(inputPath, "utf-8");
-	const entries = parseJsonl(text);
+	const entries = await parseJsonlStream(inputPath);
 	console.log(`Parsed ${entries.length} unique entries`);
 
 	const binary = compileBinary(entries, magic);
