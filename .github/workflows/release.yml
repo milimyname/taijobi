@@ -120,7 +120,7 @@ jobs:
           for f in taijobi-web/static/data/*.bin; do
             key="data/$(basename $f)"
             echo "Uploading $key..."
-            bunx wrangler r2 object put "taijobi-data/$key" --file "$f"
+            bunx wrangler r2 object put "taijobi-data/$key" --file "$f" --remote
           done
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
