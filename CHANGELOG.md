@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.5.15 (2026-04-07)
+
+- feat: inline icons, onboarding, shortcuts, haptics, About page
+
 ## v0.5.14 (2026-03-29)
 
 - fix: upload R2 objects with --remote flag
