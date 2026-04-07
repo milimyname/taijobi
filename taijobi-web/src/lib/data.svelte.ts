@@ -40,6 +40,10 @@ class DataStore {
 		this.#v++;
 	}
 
+	version(): number {
+		return this.#v;
+	}
+
 	dueCount(): number {
 		this.#v;
 		return getDueCount();

@@ -25,6 +25,9 @@
 	import CharTooltip from '../../components/CharTooltip.svelte';
 	import Toast from '../../components/Toast.svelte';
 	import DevTools from '../../components/DevTools.svelte';
+	import CommandPalette from '../../components/CommandPalette.svelte';
+	import { paletteStore } from '$lib/commandPalette.svelte';
+	import Search from '$lib/icons/Search.svelte';
 
 	let { children } = $props();
 	let ready = $state(false);
@@ -85,6 +88,12 @@
 	let lastKeyAt = 0;
 
 	function onKeydown(e: KeyboardEvent) {
+		// Cmd+K / Ctrl+K opens the command palette from anywhere
+		if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+			e.preventDefault();
+			paletteStore.toggle();
+			return;
+		}
 		// Ignore when typing in inputs/textareas/contenteditable
 		const t = e.target as HTMLElement | null;
 		if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
@@ -212,12 +221,22 @@
 					<h2 class="text-lg font-bold leading-tight text-slate-900 dark:text-slate-100">{pageTitle}</h2>
 				</div>
 			</div>
-			<a
-				href="/settings"
-				class="rounded-full p-2 text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/10"
-			>
-				<Settings />
-			</a>
+			<div class="flex items-center gap-1">
+				<button
+					type="button"
+					onclick={() => paletteStore.show()}
+					aria-label="Befehlspalette öffnen (Cmd+K)"
+					class="rounded-full p-2 text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/10"
+				>
+					<Search />
+				</button>
+				<a
+					href="/settings"
+					class="rounded-full p-2 text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/10"
+				>
+					<Settings />
+				</a>
+			</div>
 		</header>
 
 		<!-- Main Content -->
@@ -269,6 +288,7 @@
 		</nav>
 		<CharTooltip />
 		<Toast />
+		<CommandPalette />
 		{#if page.url.searchParams.has('devtools')}
 			<DevTools />
 		{/if}
@@ -288,7 +308,7 @@
 				<p class="text-[11px] font-bold uppercase tracking-wider text-primary">Tastenkürzel</p>
 				<h3 class="mt-1 text-lg font-bold text-slate-900 dark:text-slate-100">Navigation</h3>
 				<div class="mt-4 space-y-2 text-sm">
-					{#each [['g h', 'Start'], ['g d', 'Üben'], ['g s', 'Statistik'], ['g w', 'Wörterbuch'], ['g p', 'Pakete'], ['g l', 'Lexikon'], ['g c', 'Zeichen'], ['g e', 'Einstellungen']] as [keys, label]}
+					{#each [['⌘ K', 'Befehlspalette'], ['g h', 'Start'], ['g d', 'Üben'], ['g s', 'Statistik'], ['g w', 'Wörterbuch'], ['g p', 'Pakete'], ['g l', 'Lexikon'], ['g c', 'Zeichen'], ['g e', 'Einstellungen']] as [keys, label]}
 						<div class="flex items-center justify-between">
 							<span class="text-slate-600 dark:text-slate-300">{label}</span>
 							<kbd class="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 font-mono text-xs text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">{keys}</kbd>

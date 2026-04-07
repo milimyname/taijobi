@@ -15,10 +15,22 @@
 	}
 
 	const TYPE_BADGES: Record<string, { label: string; cls: string }> = {
-		feat: { label: 'Feature', cls: 'bg-emerald-100 text-emerald-700' },
-		fix: { label: 'Fix', cls: 'bg-rose-100 text-rose-600' },
-		refactor: { label: 'Refactor', cls: 'bg-sky-100 text-sky-700' },
-		perf: { label: 'Perf', cls: 'bg-amber-100 text-amber-700' }
+		feat: {
+			label: 'Feature',
+			cls: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300'
+		},
+		fix: {
+			label: 'Fix',
+			cls: 'bg-rose-100 text-rose-600 dark:bg-rose-500/20 dark:text-rose-300'
+		},
+		refactor: {
+			label: 'Refactor',
+			cls: 'bg-sky-100 text-sky-700 dark:bg-sky-500/20 dark:text-sky-300'
+		},
+		perf: {
+			label: 'Perf',
+			cls: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300'
+		}
 	};
 
 	function parseItems(body: string): ChangeItem[] {
@@ -57,7 +69,7 @@
 <Drawer open={updateStore.sheetOpen} onclose={() => (updateStore.sheetOpen = false)}>
 	{#snippet children({ handle, content, footer })}
 		<div {@attach handle} class="flex justify-center pb-2 pt-3">
-			<div class="h-1 w-10 rounded-full bg-slate-200"></div>
+			<div class="h-1 w-10 rounded-full bg-slate-200 dark:bg-white/20"></div>
 		</div>
 
 		<div {@attach content} class="flex flex-col px-6">
@@ -76,16 +88,16 @@
 			<div class="min-h-0 flex-1 overflow-y-auto">
 				{#if changelogStore.loading && missedReleases.length === 0}
 					<div class="animate-pulse space-y-2">
-						<div class="h-3.5 w-full rounded bg-slate-100"></div>
-						<div class="h-3.5 w-3/4 rounded bg-slate-100"></div>
+						<div class="h-3.5 w-full rounded bg-slate-100 dark:bg-white/10"></div>
+						<div class="h-3.5 w-3/4 rounded bg-slate-100 dark:bg-white/10"></div>
 					</div>
 				{:else if missedReleases.length > 0}
-					<div class="rounded-2xl bg-bg-light p-4">
+					<div class="rounded-2xl bg-slate-50 p-4 dark:bg-white/5">
 						{#each missedReleases as release, i}
 							{@const items = parseItems(release.body)}
 							{#if items.length > 0}
 								{#if i > 0}
-									<hr class="my-3 border-slate-200 dark:border-white/10/50" />
+									<hr class="my-3 border-slate-200 dark:border-white/10" />
 								{/if}
 								<p class="mb-2 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
 									{release.tag}
@@ -118,7 +130,7 @@
 
 				{#if updateStore.hasBreaking}
 					<div
-						class="mt-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700"
+						class="mt-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300"
 					>
 						Diese Version enth&auml;lt Datenbank-&Auml;nderungen. Lokale Daten m&uuml;ssen
 						zur&uuml;ckgesetzt werden.

@@ -257,7 +257,11 @@ get enriched from CEDICT. All words reviewable via FSRS.
 - [x] Migrated from Material Symbols Outlined Google Fonts icon font to inline SVG components in `src/lib/icons/` (50 components). Removes cross-origin font dependency, fixes icons not rendering offline.
 
 **5.1 — Stats:** Reviews over time chart, accuracy trends, streak tracking
-**5.2 — Search:** Cmd+K palette, SQL LIKE search, fuzzy pinyin search
+### Phase 5.2 — Cmd+K Command Palette + Search ✅ DONE
+
+**libtaijobi:** `db.zig` `searchCards()` (SQL LIKE on word/translation/pinyin, exact-then-prefix ordering); `hanzi_search_cards` C ABI export.
+
+**taijobi-web:** `searchCards()` wrapper, lazy in-memory pinyin index with diacritic normalization (`searchIndex.svelte.ts`), palette store, action registry (Navigation/Drill/Daten/Theme/Sync/Onboarding/Danger Zone), `CommandPalette.svelte` Drawer UI with debounced search, sections (Recent/Actions/Karten/Pinyin/Wörterbuch/Zeichen), keyboard nav, recent history in localStorage. Cmd+K / Ctrl+K global shortcut and header search button wired in `(app)/+layout.svelte`.
 **5.3 — DevTools:** Feature flags, DevTools panel (WASM/Memory/SQL tabs)
 **5.4 — Kindle:** Parse `My Clippings.txt`, auto-detect + bulk import to lexicon
 

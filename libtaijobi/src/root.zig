@@ -248,6 +248,15 @@ export fn hanzi_lookup(query_ptr: [*]const u8, query_len: usize) ?[*]const u8 {
     return makeLengthPrefixed(json);
 }
 
+// === Phase 5.2 — Search ===
+
+export fn hanzi_search_cards(query_ptr: [*]const u8, query_len: usize, limit: u32) ?[*]const u8 {
+    const db = &(global_db orelse return null);
+    const query = query_ptr[0..query_len];
+    const json = db.searchCards(query, limit, &json_buf) orelse return null;
+    return makeLengthPrefixed(json);
+}
+
 export fn hanzi_get_lexicon() ?[*]const u8 {
     const db = &(global_db orelse return null);
     const json = lexicon.getLexicon(db.handle, &json_buf) orelse return null;

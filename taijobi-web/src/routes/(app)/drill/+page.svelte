@@ -807,18 +807,47 @@
 					</p>
 				{:else}
 					<div
-						class="flex w-full items-stretch overflow-hidden rounded-xl border-2 {answerCorrect === true ? 'border-green-500' : answerCorrect === false ? 'border-red-400' : 'border-primary'} bg-white dark:bg-white/5"
+						class="flex w-full items-stretch overflow-hidden rounded-xl border-2 {answerCorrect === true
+							? 'border-green-500'
+							: answerCorrect === false
+								? 'border-red-400'
+								: 'border-primary'} bg-white dark:bg-white/5"
 					>
-						<div class="flex-1 p-4 text-xl font-semibold {answerCorrect === true ? 'text-green-600' : answerCorrect === false ? 'text-red-600' : 'text-primary'}">
+						<div
+							class="flex-1 p-4 text-xl font-semibold {answerCorrect === true
+								? 'text-green-600 dark:text-green-400'
+								: answerCorrect === false
+									? 'text-red-600 dark:text-red-400'
+									: 'text-primary dark:text-accent'}"
+						>
 							{expectedAnswer || '\u2014'}
 						</div>
-						<div class="flex items-center {answerCorrect === true ? 'bg-green-50' : answerCorrect === false ? 'bg-red-50' : 'bg-primary/5'} px-4">
-							<Icon name={answerCorrect === true ? 'check_circle' : answerCorrect === false ? 'cancel' : 'check_circle'} class="text-3xl font-bold {answerCorrect === true ? 'text-green-500' : answerCorrect === false ? 'text-red-500' : 'text-primary'}" />
+						<div
+							class="flex items-center {answerCorrect === true
+								? 'bg-green-50 dark:bg-green-500/15'
+								: answerCorrect === false
+									? 'bg-red-50 dark:bg-red-500/15'
+									: 'bg-primary/5 dark:bg-primary/20'} px-4"
+						>
+							<Icon
+								name={answerCorrect === true ? 'check_circle' : answerCorrect === false ? 'cancel' : 'check_circle'}
+								class="text-3xl font-bold {answerCorrect === true
+									? 'text-green-500 dark:text-green-400'
+									: answerCorrect === false
+										? 'text-red-500 dark:text-red-400'
+										: 'text-primary dark:text-accent'}"
+							/>
 						</div>
 					</div>
 
 					{#if input}
-						<p class="text-center text-sm {answerCorrect === true ? 'text-green-600' : answerCorrect === false ? 'text-red-500' : 'text-slate-400'}">
+						<p
+							class="text-center text-sm {answerCorrect === true
+								? 'text-green-600 dark:text-green-400'
+								: answerCorrect === false
+									? 'text-red-500 dark:text-red-400'
+									: 'text-slate-400 dark:text-slate-500'}"
+						>
 							Deine Antwort: <span class="font-medium">{input}</span>
 							{#if answerCorrect === true}
 								&mdash; Richtig!

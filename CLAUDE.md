@@ -103,6 +103,7 @@ Inspired by libghostty and libwimg: the library is the product.
 - Buttons: `bg-primary text-white font-bold rounded-xl shadow-sm`
 - Section headings: `text-[11px] font-bold uppercase tracking-wider text-primary`
 - Inline SVG icons in `src/lib/icons/` (Material Symbols Outlined paths, self-hosted, no Google Fonts dependency — work fully offline). Each icon is a Svelte 5 component with `class`/`style` props, `width/height="1em"`, `fill="currentColor"`. `Icon.svelte` dispatcher used where the icon name is dynamic.
+- Command palette (Cmd+K): cards (SQL LIKE), fuzzy pinyin (in-memory normalized index), CEDICT, actions, recent searches, FAQ entries (navigate to `/about#faq-id` and auto-open the matching `<details>`). FAQ list lives in `lib/commandPalette.svelte.ts` (`FAQ_ENTRIES`) and must stay in sync with the `faqs` array on `/about`.
 - German UI strings throughout
 - Character selection tooltip: select any Chinese character → popup with pinyin,
   definition, and link to `/character/[char]` detail page

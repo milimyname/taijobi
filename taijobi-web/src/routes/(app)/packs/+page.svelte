@@ -197,7 +197,7 @@
 	<div class="flex gap-3">
 		<button
 			onclick={handleExport}
-			class="flex items-center gap-2 rounded-xl border border-slate-100 dark:border-white/5 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 shadow-sm transition-colors hover:bg-slate-50 dark:hover:bg-white/5 dark:border-white/5 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/5"
+			class="flex items-center gap-2 rounded-xl border border-slate-100 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 dark:border-white/5 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
 		>
 			<Download class="text-sm" />
 			CSV exportieren
@@ -206,18 +206,20 @@
 
 	<!-- Drop zone -->
 	<div
-		class="mt-4 rounded-2xl border-2 border-dashed p-6 text-center transition-colors {dragging ? 'border-primary bg-primary/5' : 'border-slate-200 dark:border-white/10 bg-white dark:border-white/10 dark:bg-white/5'}"
+		class="mt-4 rounded-2xl border-2 border-dashed p-6 text-center transition-colors {dragging
+			? 'border-primary bg-primary/5'
+			: 'border-slate-200 bg-white dark:border-white/10 dark:bg-white/5'}"
 		role="region"
 		aria-label="CSV Import"
 		ondragover={(e) => { e.preventDefault(); dragging = true; }}
 		ondragleave={() => { dragging = false; }}
 		ondrop={(e) => { e.preventDefault(); handleDrop(e); }}
 	>
-		<UploadFile class="mb-2 text-[32px] text-slate-300 dark:text-slate-500 dark:text-slate-400" />
+		<UploadFile class="mb-2 text-[32px] text-slate-300 dark:text-slate-500" />
 		<p class="text-sm text-slate-500 dark:text-slate-400">
 			CSV/TSV oder .apkg hierher ziehen
 		</p>
-		<p class="mt-1 text-xs text-slate-400 dark:text-slate-500 dark:text-slate-400">oder</p>
+		<p class="mt-1 text-xs text-slate-400 dark:text-slate-500">oder</p>
 		<label class="mt-2 inline-flex cursor-pointer items-center gap-1 rounded-lg bg-primary/10 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/20">
 			<FolderOpen class="text-sm" />
 			Datei ausw&auml;hlen
@@ -227,7 +229,9 @@
 
 	<!-- CSV Preview -->
 	{#if csvPreview}
-		<div class="mt-4 rounded-2xl border border-slate-100 dark:border-white/5 bg-white p-4 shadow-sm">
+		<div
+			class="mt-4 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm dark:border-white/5 dark:bg-white/5"
+		>
 			<div class="mb-3 flex items-center justify-between">
 				<div>
 					<h3 class="font-bold text-slate-900 dark:text-slate-100">{csvPreview.filename}</h3>
@@ -235,7 +239,7 @@
 				</div>
 				<button
 					onclick={() => { csvPreview = null; }}
-					class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-600"
+					class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-white/10 dark:hover:text-slate-200"
 				>
 					<Close class="text-sm" />
 				</button>
@@ -252,7 +256,7 @@
 					</thead>
 					<tbody>
 						{#each csvPreview.rows as row}
-							<tr class="border-b border-slate-50">
+							<tr class="border-b border-slate-50 dark:border-white/5">
 								{#each row as cell}
 									<td class="max-w-[200px] truncate px-3 py-2 text-slate-700 dark:text-slate-200">{cell}</td>
 								{/each}
@@ -263,7 +267,7 @@
 			</div>
 
 			{#if csvPreview.totalRows > 5}
-				<p class="mt-2 text-center text-xs text-slate-400">
+				<p class="mt-2 text-center text-xs text-slate-400 dark:text-slate-500">
 					... und {csvPreview.totalRows - 5} weitere Zeilen
 				</p>
 			{/if}
@@ -294,7 +298,7 @@
 		<div class="space-y-4">
 			{#each installed as pack (pack.id)}
 				<div
-					class="rounded-2xl border border-slate-100 dark:border-white/5 bg-white p-4 shadow-sm"
+					class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm dark:border-white/5 dark:bg-white/5"
 				>
 					<div class="mb-3 flex items-start gap-4">
 						<div
@@ -303,7 +307,7 @@
 							<Language class="text-3xl text-primary" />
 						</div>
 						<div class="min-w-0 flex-1">
-							<h3 class="truncate text-lg font-bold">{pack.name}</h3>
+							<h3 class="truncate text-lg font-bold text-slate-900 dark:text-slate-100">{pack.name}</h3>
 							<p class="text-sm text-slate-500 dark:text-slate-400">
 								{pack.language_pair} &bull; {pack.word_count} W&ouml;rter
 							</p>
@@ -318,7 +322,7 @@
 						</a>
 						<button
 							onclick={() => handleRemove(pack.id)}
-							class="flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
+							class="flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10"
 						>
 							<Delete class="text-sm" />
 							Entfernen
@@ -340,7 +344,7 @@
 		<div class="space-y-4">
 			{#each available as entry (entry.id)}
 				<div
-					class="rounded-2xl border border-slate-100 dark:border-white/5 bg-white p-4 shadow-sm"
+					class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm dark:border-white/5 dark:bg-white/5"
 				>
 					<div class="mb-3 flex items-start gap-4">
 						<div
@@ -349,9 +353,9 @@
 							<Inventory2 class="text-3xl text-primary" />
 						</div>
 						<div class="min-w-0 flex-1">
-							<h3 class="truncate text-lg font-bold">{entry.name}</h3>
+							<h3 class="truncate text-lg font-bold text-slate-900 dark:text-slate-100">{entry.name}</h3>
 							<p class="text-sm text-slate-500 dark:text-slate-400">{entry.description}</p>
-							<p class="text-xs text-slate-400">{entry.word_count} W&ouml;rter</p>
+							<p class="text-xs text-slate-400 dark:text-slate-500">{entry.word_count} W&ouml;rter</p>
 						</div>
 					</div>
 					<button
@@ -373,8 +377,10 @@
 {/if}
 
 {#if installed.length === 0 && available.length === 0}
-	<div class="mt-8 rounded-2xl border border-slate-100 dark:border-white/5 bg-white p-8 text-center shadow-sm">
-		<Inventory2 class="mb-2 text-[32px] text-slate-300" />
+	<div
+		class="mt-8 rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-white/5"
+	>
+		<Inventory2 class="mb-2 text-[32px] text-slate-300 dark:text-slate-500" />
 		<p class="text-sm text-slate-500 dark:text-slate-400">Lade Pakete...</p>
 	</div>
 {/if}

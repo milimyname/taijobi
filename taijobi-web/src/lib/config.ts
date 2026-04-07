@@ -29,6 +29,7 @@ export const LS_LAST_VERSION = 'taijobi-last-version';
 export const LS_CHANGELOG = 'taijobi_changelog';
 export const LS_THEME = 'taijobi_theme';
 export const LS_ONBOARDED = 'taijobi_onboarded';
+export const LS_SEARCH_HISTORY = 'taijobi_search_history';
 
 // --- SessionStorage keys ---
 export const SS_DRILL_SESSION = 'taijobi_drill_session';

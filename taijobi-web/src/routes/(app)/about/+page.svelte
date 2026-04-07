@@ -30,6 +30,11 @@
 			a: 'Eine lokale Vokabel-Engine für jede Sprache, der du begegnest. Tiefer Chinesisch-Support, Lehrbuch-Pakete (HSK, Lóng) und Spaced Repetition mit FSRS — alles in einer App. Inspiriert von libghostty: die Bibliothek (libtaijobi in Zig) ist das Produkt, Web und iOS sind dünne Hüllen.',
 		},
 		{
+			id: 'faq-rewrite',
+			q: 'Warum wurde Taijobi neu geschrieben?',
+			a: 'Das alte Taijobi war ein klassisches Web-Projekt: SvelteKit-Frontend, Supabase/PocketBase als Cloud-DB, Backend-API-Routes für jede Operation, Auth-System mit Konten und Sessions, Docker auf Fly.io, nur Japanisch mit englischer UI, und kein Offline-Modus. 765 Commits, davon das meiste Infrastruktur. Der Rewrite wurde irgendwann komplett zum Stillstand gebracht. Das neue Taijobi dreht das Modell um: libtaijobi (Zig) IST das Produkt, kompiliert zu WASM für Web und zu .a für iOS, alle Logik und SQLite lokal, OPFS statt Cloud-DB, Sync-Schlüssel statt Auth, Cloudflare Pages statt Docker, multi-language statt nur Japanisch, offline-first statt online-only. Die gleiche Architektur wie wimg — bewährt, nicht experimentell — und libhanzi/libtaijobi steht im Mittelpunkt, die UIs sind dünne Hüllen darüber.',
+		},
+		{
 			id: 'faq-fsrs',
 			q: 'Was ist FSRS und wie funktioniert das Üben?',
 			a: 'FSRS (Free Spaced Repetition Scheduler) ist ein moderner Wiederholungs-Algorithmus, der vorhersagt, wann du eine Karte vergisst. Du bewertest jede Karte mit 1–4 (Nochmal, Schwer, Gut, Einfach), und der Algorithmus plant das nächste Review. Implementiert in reinem Zig — keine Rust-FFI, kein externer Dienst.',

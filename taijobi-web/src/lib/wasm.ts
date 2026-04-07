@@ -81,6 +81,7 @@ interface WasmExports {
 	hanzi_remove_word: (id: number, len: number) => number;
 	hanzi_update_word: (id: number, idLen: number, trans: number, transLen: number) => number;
 	hanzi_lookup: (query: number, len: number) => number;
+	hanzi_search_cards: (query: number, len: number, limit: number) => number;
 	hanzi_get_lexicon: () => number;
 	hanzi_get_drill_stats: () => number;
 	hanzi_install_pack: (json: number, len: number) => number;
@@ -592,6 +593,33 @@ export function isEndictLoaded(): boolean {
 export function isDedictLoaded(): boolean {
 	if (!wasm || typeof wasm.hanzi_dedict_loaded !== 'function') return false;
 	return wasm.hanzi_dedict_loaded() === 1;
+}
+
+export interface CardSearchResult {
+	id: string;
+	word: string;
+	language: string;
+	pinyin: string | null;
+	translation: string | null;
+	source_type: string;
+	pack_id: string | null;
+}
+
+export function searchCards(query: string, limit = 20): CardSearchResult[] {
+	if (!wasm || typeof wasm.hanzi_search_cards !== 'function') return [];
+	if (!query) return [];
+	wasm.hanzi_reset_alloc();
+	const encoded = new TextEncoder().encode(query);
+	const ptr = writeBytes(encoded);
+	const resultPtr = wasm.hanzi_search_cards(ptr, encoded.length, limit);
+	if (resultPtr === 0) return [];
+	const json = readLengthPrefixedString(resultPtr);
+	try {
+		return JSON.parse(json);
+	} catch (e) {
+		console.error('[taijobi] Failed to parse searchCards JSON', e, json.slice(0, 200));
+		return [];
+	}
 }
 
 export function lookupCedict(query: string): CedictResult[] {

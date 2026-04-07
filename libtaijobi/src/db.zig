@@ -286,6 +286,102 @@ pub const Db = struct {
         return w.written();
     }
 
+    /// SQL LIKE search across cards.word / translation / pinyin.
+    /// Returns JSON array. Limits query length to 128 bytes.
+    pub fn searchCards(self: *Db, query: []const u8, limit: u32, buf: []u8) ?[]const u8 {
+        if (query.len == 0 or query.len > 128) {
+            var w0 = JsonWriter.init(buf);
+            w0.writeByte('[');
+            w0.writeByte(']');
+            return w0.written();
+        }
+
+        var like_buf: [256]u8 = undefined;
+        var prefix_buf: [256]u8 = undefined;
+        if (query.len + 2 > like_buf.len) return null;
+        like_buf[0] = '%';
+        @memcpy(like_buf[1 .. 1 + query.len], query);
+        like_buf[1 + query.len] = '%';
+        const like_pat = like_buf[0 .. query.len + 2];
+
+        @memcpy(prefix_buf[0..query.len], query);
+        prefix_buf[query.len] = '%';
+        const prefix_pat = prefix_buf[0 .. query.len + 1];
+
+        var stmt: ?*sqlite.sqlite3_stmt = null;
+        const sql =
+            \\SELECT c.id, c.word, c.language, c.pinyin, c.translation, c.source_type, c.pack_id
+            \\FROM cards c
+            \\WHERE COALESCE(c.deleted, 0) = 0
+            \\  AND (c.word LIKE ?1 OR c.translation LIKE ?1 OR c.pinyin LIKE ?1)
+            \\ORDER BY
+            \\  CASE WHEN c.word = ?2 THEN 0
+            \\       WHEN c.word LIKE ?3 THEN 1
+            \\       ELSE 2 END,
+            \\  c.word
+            \\LIMIT ?4
+        ;
+        if (sqlite.sqlite3_prepare_v2(self.handle, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK) return null;
+        defer _ = sqlite.sqlite3_finalize(stmt.?);
+        _ = sqlite.sqlite3_bind_text(stmt.?, 1, like_pat.ptr, @intCast(like_pat.len), sqlite.SQLITE_STATIC);
+        _ = sqlite.sqlite3_bind_text(stmt.?, 2, query.ptr, @intCast(query.len), sqlite.SQLITE_STATIC);
+        _ = sqlite.sqlite3_bind_text(stmt.?, 3, prefix_pat.ptr, @intCast(prefix_pat.len), sqlite.SQLITE_STATIC);
+        _ = sqlite.sqlite3_bind_int(stmt.?, 4, @intCast(limit));
+
+        var w = JsonWriter.init(buf);
+        w.writeByte('[');
+        var count: u32 = 0;
+        while (sqlite.sqlite3_step(stmt.?) == sqlite.SQLITE_ROW) {
+            if (count > 0) w.writeByte(',');
+            count += 1;
+
+            const id = colText(stmt.?, 0);
+            const word = colText(stmt.?, 1);
+            const language = colText(stmt.?, 2);
+            const source = colText(stmt.?, 5);
+
+            w.writeByte('{');
+            w.writeKey("id");
+            w.writeJsonString(id);
+            w.writeByte(',');
+            w.writeKey("word");
+            w.writeJsonString(word);
+            w.writeByte(',');
+            w.writeKey("language");
+            w.writeJsonString(language);
+            w.writeByte(',');
+            w.writeKey("pinyin");
+            if (sqlite.sqlite3_column_text(stmt.?, 3)) |p| {
+                const plen: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 3));
+                w.writeJsonString(p[0..plen]);
+            } else {
+                w.writeNull();
+            }
+            w.writeByte(',');
+            w.writeKey("translation");
+            if (sqlite.sqlite3_column_text(stmt.?, 4)) |t| {
+                const tlen: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 4));
+                w.writeJsonString(t[0..tlen]);
+            } else {
+                w.writeNull();
+            }
+            w.writeByte(',');
+            w.writeKey("source_type");
+            w.writeJsonString(source);
+            w.writeByte(',');
+            w.writeKey("pack_id");
+            if (sqlite.sqlite3_column_text(stmt.?, 6)) |pk| {
+                const pklen: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 6));
+                w.writeJsonString(pk[0..pklen]);
+            } else {
+                w.writeNull();
+            }
+            w.writeByte('}');
+        }
+        w.writeByte(']');
+        return w.written();
+    }
+
     /// Get cards scheduled in the next `ahead_ms` milliseconds (not yet due).
     /// Returns same JSON format as getDueCardsFiltered for use with review.
     pub fn getUpcomingCards(self: *Db, limit: u32, now_ms: i64, ahead_ms: i64, filter: ?[]const u8, buf: []u8) ?[]const u8 {
@@ -1602,6 +1698,26 @@ test "review reduces due count" {
     // Card should no longer be due at the same timestamp
     const count = db.getDueCount(now);
     try std.testing.expectEqual(@as(i32, 24), count);
+}
+
+test "searchCards SQL LIKE matches" {
+    if (builtin.cpu.arch == .wasm32) return error.SkipZigTest;
+    var db = try Db.init(":memory:");
+    defer db.close();
+
+    const insert = "INSERT INTO cards(id, word, language, translation, source_type, created_at, updated_at) VALUES " ++
+        "('t1','Apfel','de','apple','lexicon',1,1)," ++
+        "('t2','Banane','de','banana','lexicon',1,1)," ++
+        "('t3','Birne','de','pear','lexicon',1,1)";
+    try db.exec(insert);
+
+    var buf: [8192]u8 = undefined;
+    const json = db.searchCards("Apf", 10, &buf) orelse return error.TestUnexpectedResult;
+    try std.testing.expect(std.mem.indexOf(u8, json, "Apfel") != null);
+    try std.testing.expect(std.mem.indexOf(u8, json, "Banane") == null);
+
+    const json2 = db.searchCards("banana", 10, &buf) orelse return error.TestUnexpectedResult;
+    try std.testing.expect(std.mem.indexOf(u8, json2, "Banane") != null);
 }
 
 test "getDueCards returns JSON" {

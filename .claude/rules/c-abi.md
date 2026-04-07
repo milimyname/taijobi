@@ -56,6 +56,16 @@ export fn hanzi_import_csv(csv_ptr: [*]const u8, csv_len: usize,
 export fn hanzi_export_csv() ?[*]const u8
 ```
 
+## Phase 5.2 — Search
+
+```zig
+export fn hanzi_search_cards(query_ptr: [*]const u8, query_len: usize, limit: u32) ?[*]const u8
+```
+
+SQL LIKE across `cards.word`, `cards.translation`, `cards.pinyin` (excluding soft-deleted).
+Orders exact match, then prefix, then anywhere. Returns JSON array of
+`{id, word, language, pinyin, translation, source_type, pack_id}`.
+
 ## Phase 4 — Sync
 
 ```zig
