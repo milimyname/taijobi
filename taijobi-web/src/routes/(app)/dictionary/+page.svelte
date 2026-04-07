@@ -1,4 +1,12 @@
 <script lang="ts">
+	import AddCircle from '$lib/icons/AddCircle.svelte';
+	import CheckCircle from '$lib/icons/CheckCircle.svelte';
+	import Close from '$lib/icons/Close.svelte';
+	import HourglassEmpty from '$lib/icons/HourglassEmpty.svelte';
+	import Dictionary from '$lib/icons/Dictionary.svelte';
+	import Search from '$lib/icons/Search.svelte';
+	import SearchOff from '$lib/icons/SearchOff.svelte';
+	import VolumeUp from '$lib/icons/VolumeUp.svelte';
 	import { lookupCedict, lookupWord, addWord, removeWord, type CedictResult, type DictResult } from '$lib/wasm';
 	import { speak } from '$lib/speak';
 	import { data } from '$lib/data.svelte';
@@ -126,7 +134,7 @@
 	<div
 		class="flex h-12 items-center overflow-hidden rounded-xl border border-primary/10 bg-primary/5 px-4 transition-all focus-within:border-primary/30"
 	>
-		<span class="material-symbols-outlined mr-3 text-[20px] text-primary/40">search</span>
+		<Search class="mr-3 text-[20px] text-primary/40" />
 		<input
 			type="text"
 			bind:value={query}
@@ -143,7 +151,7 @@
 				}}
 				class="p-1 text-primary/40 hover:text-primary"
 			>
-				<span class="material-symbols-outlined text-[20px]">close</span>
+				<Close class="text-[20px]" />
 			</button>
 		{/if}
 	</div>
@@ -163,9 +171,7 @@
 		<div
 			class="rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-white/5"
 		>
-			<span class="material-symbols-outlined mb-2 text-[32px] text-slate-300 dark:text-slate-500"
-				>search_off</span
-			>
+			<SearchOff class="mb-2 text-[32px] text-slate-300 dark:text-slate-500" />
 			<p class="text-sm text-slate-500 dark:text-slate-400">
 				Keine Ergebnisse f&uuml;r &laquo;{query.trim()}&raquo;
 			</p>
@@ -214,7 +220,7 @@
 							class="rounded-lg p-1.5 text-slate-300 transition-colors hover:bg-slate-100 hover:text-primary dark:text-slate-500 dark:hover:bg-white/10"
 							title="Aussprechen"
 						>
-							<span class="material-symbols-outlined text-[20px]">volume_up</span>
+							<VolumeUp class="text-[20px]" />
 						</button>
 						<button
 							onclick={() => handleToggle(result.word)}
@@ -224,15 +230,13 @@
 								: 'text-slate-300 hover:bg-primary/10 hover:text-primary dark:text-slate-500 dark:hover:bg-primary/20'}"
 							title={lexiconMap.has(result.word) ? 'Aus Lexikon entfernen' : 'Zum Lexikon hinzuf\u00fcgen'}
 						>
-							<span class="material-symbols-outlined text-[20px]">
-								{#if busyWord === result.word}
-									hourglass_empty
-								{:else if lexiconMap.has(result.word)}
-									check_circle
-								{:else}
-									add_circle
-								{/if}
-							</span>
+							{#if busyWord === result.word}
+								<HourglassEmpty class="text-[20px]" />
+							{:else if lexiconMap.has(result.word)}
+								<CheckCircle class="text-[20px]" />
+							{:else}
+								<AddCircle class="text-[20px]" />
+							{/if}
 						</button>
 					</div>
 				</div>
@@ -272,7 +276,7 @@
 		<div
 			class="rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-white/5"
 		>
-			<span class="material-symbols-outlined mb-2 text-[32px] text-primary/30">dictionary</span>
+			<Dictionary class="mb-2 text-[32px] text-primary/30" />
 			<p class="text-sm text-slate-500 dark:text-slate-400">
 				Durchsuche CC-CEDICT mit 124.000 Eintr&auml;gen.
 			</p>

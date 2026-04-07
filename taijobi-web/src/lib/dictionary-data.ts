@@ -89,20 +89,20 @@ async function downloadSpecificFiles(
 	const root = await navigator.storage.getDirectory();
 	const dir = await root.getDirectoryHandle(OPFS_DIR, { create: true });
 
-	let totalBytes = 0;
+	// Parallel HEAD requests to get total size up front
+	const sizes = await Promise.all(
+		files.map(async (file) => {
+			try {
+				const resp = await fetch(file.path, { method: 'HEAD' });
+				const cl = resp.headers.get('content-length');
+				return cl ? parseInt(cl, 10) : 5_000_000;
+			} catch {
+				return 5_000_000;
+			}
+		})
+	);
+	const totalBytes = sizes.reduce((a, b) => a + b, 0);
 	let loadedBytes = 0;
-
-	// First pass: HEAD requests to get total size
-	for (const file of files) {
-		try {
-			const resp = await fetch(file.path, { method: 'HEAD' });
-			const cl = resp.headers.get('content-length');
-			if (cl) totalBytes += parseInt(cl, 10);
-		} catch {
-			// Estimate if HEAD fails
-			totalBytes += 5_000_000;
-		}
-	}
 
 	onProgress?.(0, totalBytes);
 
@@ -110,8 +110,42 @@ async function downloadSpecificFiles(
 		const resp = await fetch(file.path);
 		if (!resp.ok) throw new Error(`Failed to download ${file.path}: ${resp.status}`);
 
-		const buf = new Uint8Array(await resp.arrayBuffer());
-		loadedBytes += buf.length;
+		// Stream chunks so progress updates during the download, not after
+		const contentLength = parseInt(resp.headers.get('content-length') ?? '0', 10);
+		const chunks: Uint8Array[] = [];
+		let received = 0;
+
+		if (resp.body) {
+			const reader = resp.body.getReader();
+			while (true) {
+				const { done, value } = await reader.read();
+				if (done) break;
+				chunks.push(value);
+				received += value.length;
+				loadedBytes += value.length;
+				onProgress?.(loadedBytes, totalBytes);
+			}
+		} else {
+			// Fallback for environments without streaming body
+			const ab = await resp.arrayBuffer();
+			chunks.push(new Uint8Array(ab));
+			received = ab.byteLength;
+			loadedBytes += ab.byteLength;
+			onProgress?.(loadedBytes, totalBytes);
+		}
+
+		// Concatenate chunks into a single buffer
+		const buf = new Uint8Array(received);
+		let offset = 0;
+		for (const c of chunks) {
+			buf.set(c, offset);
+			offset += c.length;
+		}
+
+		// Sanity check against advertised size
+		if (contentLength > 0 && buf.length !== contentLength) {
+			throw new Error(`Incomplete download for ${file.path}: ${buf.length}/${contentLength} bytes`);
+		}
 
 		// Write to WASM
 		writeToWasm(file.key, buf);
@@ -129,9 +163,9 @@ async function downloadSpecificFiles(
 			}
 		} catch (e) {
 			console.warn(`[taijobi] Chinese data: OPFS cache write failed for ${file.key}:`, e);
+			throw e;
 		}
 
-		onProgress?.(loadedBytes, totalBytes);
 		console.log(`[taijobi] Chinese data: downloaded ${file.key} (${buf.length} bytes)`);
 	}
 }

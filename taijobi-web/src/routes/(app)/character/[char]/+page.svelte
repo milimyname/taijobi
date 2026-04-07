@@ -1,4 +1,8 @@
 <script lang="ts">
+	import Download from '$lib/icons/Download.svelte';
+	import PlayArrow from '$lib/icons/PlayArrow.svelte';
+	import Sync from '$lib/icons/Sync.svelte';
+	import VolumeUp from '$lib/icons/VolumeUp.svelte';
 	import { page } from '$app/state';
 	import {
 		decompose,
@@ -100,7 +104,7 @@
 				onclick={() => speak(char, 'zh')}
 				class="flex items-center justify-center rounded-full bg-primary/10 p-2 text-primary transition-colors hover:bg-primary/20"
 			>
-				<span class="material-symbols-outlined text-xl">volume_up</span>
+				<VolumeUp class="text-xl" />
 			</button>
 		</div>
 	</div>
@@ -110,7 +114,7 @@
 {#if !decompData && !strokeData && !hasChineseData}
 	<section class="mt-6">
 		<div class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-6 text-center dark:border-white/10 dark:bg-white/5">
-			<span class="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600">download</span>
+			<Download class="text-4xl text-slate-300 dark:text-slate-600" />
 			<p class="mt-2 text-sm font-medium text-slate-600 dark:text-slate-300">
 				Chinesische Daten nicht geladen
 			</p>
@@ -123,10 +127,10 @@
 				class="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-primary/90 disabled:opacity-50"
 			>
 				{#if downloading}
-					<span class="material-symbols-outlined animate-spin text-[18px]">sync</span>
+					<Sync class="animate-spin text-[18px]" />
 					Herunterladen…
 				{:else}
-					<span class="material-symbols-outlined text-[18px]">download</span>
+					<Download class="text-[18px]" />
 					Herunterladen
 				{/if}
 			</button>
@@ -218,7 +222,7 @@
 					disabled={animating}
 					class="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90 disabled:opacity-50"
 				>
-					<span class="material-symbols-outlined text-[18px]">play_arrow</span>
+					<PlayArrow class="text-[18px]" />
 					Animation
 				</button>
 				<span class="text-sm text-slate-500 dark:text-slate-400">{strokeData.stroke_count} Striche</span>
@@ -253,7 +257,7 @@
 							onclick={() => speak(word.word, 'zh')}
 							class="text-primary/40 hover:text-primary"
 						>
-							<span class="material-symbols-outlined text-[18px]">volume_up</span>
+							<VolumeUp class="text-[18px]" />
 						</button>
 					</div>
 				</div>

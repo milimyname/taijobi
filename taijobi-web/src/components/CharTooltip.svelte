@@ -1,4 +1,5 @@
 <script lang="ts">
+	import ChevronRight from '$lib/icons/ChevronRight.svelte';
 	import { decompose, type DecompResult } from '$lib/wasm';
 
 	let visible = $state(false);
@@ -90,7 +91,7 @@
 					<p class="text-xs text-slate-400 dark:text-slate-500">Details anzeigen</p>
 				{/if}
 			</div>
-			<span class="material-symbols-outlined text-[16px] text-slate-300 dark:text-slate-500">chevron_right</span>
+			<ChevronRight class="text-[16px] text-slate-300 dark:text-slate-500" />
 		</a>
 		<!-- Arrow -->
 		<div

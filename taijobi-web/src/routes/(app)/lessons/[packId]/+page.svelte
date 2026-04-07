@@ -1,4 +1,7 @@
 <script lang="ts">
+	import ExpandMore from '$lib/icons/ExpandMore.svelte';
+	import PlayCircle from '$lib/icons/PlayCircle.svelte';
+	import VolumeUp from '$lib/icons/VolumeUp.svelte';
 	import { getLessons, getPackProgress, getVocabulary, getPacks, type Lesson, type VocabEntry } from '$lib/wasm';
 	import { speak } from '$lib/speak';
 	import { page } from '$app/state';
@@ -83,11 +86,7 @@
 						</p>
 					</div>
 				</div>
-				<span
-					class="material-symbols-outlined text-primary transition-transform {expandedLesson === lesson.id ? 'rotate-180' : ''}"
-				>
-					expand_more
-				</span>
+				<ExpandMore class="text-primary transition-transform {expandedLesson === lesson.id ? 'rotate-180' : ''}" />
 			</button>
 
 			<!-- Expanded vocabulary -->
@@ -133,7 +132,7 @@
 												onclick={() => speak(word.word, isChinese ? 'zh' : isArabic ? 'ar' : 'en')}
 												class="text-primary/40 hover:text-primary"
 											>
-												<span class="material-symbols-outlined text-[18px]">volume_up</span>
+												<VolumeUp class="text-[18px]" />
 											</button>
 										</td>
 									</tr>
@@ -153,7 +152,7 @@
 						href="/drill"
 						class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90"
 					>
-						<span class="material-symbols-outlined">play_circle</span>
+						<PlayCircle />
 						Drill starten
 					</a>
 				</div>

@@ -1,4 +1,8 @@
 <script lang="ts">
+	import BarChart from '$lib/icons/BarChart.svelte';
+	import LocalFireDepartment from '$lib/icons/LocalFireDepartment.svelte';
+	import PlayArrow from '$lib/icons/PlayArrow.svelte';
+	import Today from '$lib/icons/Today.svelte';
 	import { type DrillStats, type StatsData } from '$lib/wasm';
 	import { data } from '$lib/data.svelte';
 	import Heatmap from '../../../components/Heatmap.svelte';
@@ -60,7 +64,7 @@
 	<!-- Empty state -->
 	<div class="flex flex-col items-center pt-20">
 		<div class="flex size-16 items-center justify-center rounded-full bg-primary/10">
-			<span class="material-symbols-outlined text-[32px] text-primary">bar_chart</span>
+			<BarChart class="text-[32px] text-primary" />
 		</div>
 		<p class="mt-4 text-2xl font-bold text-slate-900 dark:text-slate-100">Noch keine Daten</p>
 		<p class="mt-2 text-center text-sm text-slate-500 dark:text-slate-400">
@@ -70,7 +74,7 @@
 			href="/drill"
 			class="mt-8 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 font-bold text-white shadow-md shadow-primary/20 transition-all hover:bg-primary/90"
 		>
-			<span class="material-symbols-outlined text-lg">play_arrow</span>
+			<PlayArrow class="text-lg" />
 			Lernen starten
 		</a>
 	</div>
@@ -80,7 +84,7 @@
 		<!-- Streak -->
 		<div class="rounded-xl border border-primary/10 bg-white p-4 shadow-sm dark:bg-white/5">
 			<div class="mb-2 flex items-center gap-2">
-				<span class="material-symbols-outlined text-xl text-amber-500">local_fire_department</span>
+				<LocalFireDepartment class="text-xl text-amber-500" />
 				<span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Streak</span>
 			</div>
 			<p class="text-3xl font-bold text-slate-900 dark:text-slate-100">{statsData.streak}</p>
@@ -90,7 +94,7 @@
 		<!-- Today -->
 		<div class="rounded-xl border border-primary/10 bg-white p-4 shadow-sm dark:bg-white/5">
 			<div class="mb-2 flex items-center gap-2">
-				<span class="material-symbols-outlined text-xl text-primary">today</span>
+				<Today class="text-xl text-primary" />
 				<span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Heute</span>
 			</div>
 			<p class="text-3xl font-bold text-slate-900 dark:text-slate-100">{stats.reviewed_today}</p>

@@ -244,7 +244,18 @@ get enriched from CEDICT. All words reviewable via FSRS.
 - [x] Bottom nav: 4th tab "Wörterbuch" with `dictionary` Material icon
 - [x] Layout: pageTitle "Wörterbuch" for `/dictionary` route
 
-**Remaining 5.0:** Onboarding flow, keyboard shortcuts, haptic feedback
+### Phase 5.0 — Onboarding + Keyboard Shortcuts + Haptics ✅ DONE
+
+**taijobi-web:** ✅ DONE
+- [x] `src/lib/onboarding.svelte.ts` — first-run store, 4-slide intro modal, dismissal persisted to `LS_ONBOARDED`. Settings → "Tour erneut zeigen" can re-trigger via `onboardingStore.reset()`.
+- [x] `src/lib/haptics.ts` — `tap`/`medium`/`success`/`error` patterns via `navigator.vibrate()`. Silent no-op on unsupported browsers.
+- [x] Drill: haptic on answer reveal (success/error) and on rating buttons (1=error, 2=medium, 3-4=success).
+- [x] Global keyboard shortcuts in `(app)/+layout.svelte`: vim-style `g {h,d,l,p,s,w,c,e}` chord navigation, `?` toggles shortcut help modal, `Esc` closes it. Ignored when typing in inputs.
+- [x] Inline shortcut help dialog with all bindings (navigation + drill).
+- [x] Streaming dictionary download progress (`response.body.getReader()`) — bar animates smoothly during 19MB endict downloads instead of jumping 0→100. Parallel HEAD requests for total size. Integrity check against `Content-Length`.
+- [x] PWA icons: `static/icon.svg` + `static/icon-maskable.svg` (jade-green 學 glyph), manifest updated to reference SVG icons (`sizes: any`). Replaces missing PNG references.
+- [x] Migrated from Material Symbols Outlined Google Fonts icon font to inline SVG components in `src/lib/icons/` (50 components). Removes cross-origin font dependency, fixes icons not rendering offline.
+
 **5.1 — Stats:** Reviews over time chart, accuracy trends, streak tracking
 **5.2 — Search:** Cmd+K palette, SQL LIKE search, fuzzy pinyin search
 **5.3 — DevTools:** Feature flags, DevTools panel (WASM/Memory/SQL tabs)

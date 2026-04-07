@@ -1,4 +1,12 @@
 <script lang="ts">
+	import ArrowBack from '$lib/icons/ArrowBack.svelte';
+	import AutoStories from '$lib/icons/AutoStories.svelte';
+	import CheckCircle from '$lib/icons/CheckCircle.svelte';
+	import Close from '$lib/icons/Close.svelte';
+	import Delete from '$lib/icons/Delete.svelte';
+	import FastForward from '$lib/icons/FastForward.svelte';
+	import VolumeUp from '$lib/icons/VolumeUp.svelte';
+	import Icon from '$lib/icons/Icon.svelte';
 	import {
 		getDueCards,
 		getDueCardsFiltered,
@@ -16,6 +24,7 @@
 		type ReadCard
 	} from '$lib/wasm';
 	import { speak } from '$lib/speak';
+	import { haptics } from '$lib/haptics';
 	import { data } from '$lib/data.svelte';
 	import { page } from '$app/state';
 	import { untrack } from 'svelte';
@@ -293,14 +302,20 @@
 			const lang = direction === 'zh-pinyin' ? 'pinyin' : direction === 'zh-de' ? 'de' : 'zh';
 			const result = checkAnswer(input, expectedAnswer, lang);
 			answerCorrect = result.correct;
+			if (answerCorrect) haptics.success();
+			else haptics.error();
 		} else {
 			answerCorrect = null;
+			haptics.tap();
 		}
 		phase = 'answer';
 	}
 
 	async function rate(rating: number) {
 		if (!card) return;
+		if (rating === 1) haptics.error();
+		else if (rating >= 3) haptics.success();
+		else haptics.medium();
 		peekCard = card;
 		await reviewCard(card.id, rating);
 		reviewed++;
@@ -453,7 +468,7 @@
 						class="flex w-full items-center justify-between rounded-2xl border border-primary/20 bg-primary-light p-4 shadow-sm transition-colors hover:bg-primary/10"
 					>
 						<div class="flex items-center gap-3">
-							<span class="material-symbols-outlined text-primary">auto_stories</span>
+							<AutoStories class="text-primary" />
 							<span class="font-bold text-slate-900 dark:text-slate-100">{source.label}</span>
 						</div>
 						<span class="rounded-full bg-primary/10 px-3 py-1 text-sm font-bold text-primary">
@@ -475,9 +490,7 @@
 					class="flex w-full items-center justify-between rounded-2xl border border-slate-100 dark:border-white/5 bg-white p-4 shadow-sm transition-colors hover:bg-primary/5 dark:border-white/5 dark:bg-white/5"
 				>
 					<div class="flex items-center gap-3">
-						<span class="material-symbols-outlined text-primary">
-							{source.id === '' ? 'layers' : source.id === 'lexicon' ? 'book' : 'inventory_2'}
-						</span>
+						<Icon name={source.id === '' ? 'layers' : source.id === 'lexicon' ? 'book' : 'inventory_2'} class="text-primary" />
 						<span class="font-bold text-slate-900 dark:text-slate-100">{source.label}</span>
 					</div>
 					<span class="rounded-full bg-primary/10 px-3 py-1 text-sm font-bold text-primary">
@@ -518,7 +531,7 @@
 							onclick={() => speak(readCard!.word, readCard!.language)}
 							class="flex items-center justify-center rounded-full bg-primary/10 p-2 text-primary transition-colors hover:bg-primary/20"
 						>
-							<span class="material-symbols-outlined text-xl">volume_up</span>
+							<VolumeUp class="text-xl" />
 						</button>
 					</div>
 				{:else}
@@ -526,7 +539,7 @@
 						onclick={() => speak(readCard!.word, readCard!.language)}
 						class="mt-2 flex items-center justify-center rounded-full bg-primary/10 p-2 text-primary transition-colors hover:bg-primary/20"
 					>
-						<span class="material-symbols-outlined text-xl">volume_up</span>
+						<VolumeUp class="text-xl" />
 					</button>
 				{/if}
 			{:else if readQuestionIsArabic}
@@ -537,7 +550,7 @@
 					onclick={() => speak(readCard!.word, readCard!.language)}
 					class="mt-2 flex items-center justify-center rounded-full bg-primary/10 p-2 text-primary transition-colors hover:bg-primary/20"
 				>
-					<span class="material-symbols-outlined text-xl">volume_up</span>
+					<VolumeUp class="text-xl" />
 				</button>
 			{:else}
 				<div class="flex items-center justify-center gap-3">
@@ -546,7 +559,7 @@
 						onclick={() => speak(readCard!.word, readCard!.language)}
 						class="flex items-center justify-center rounded-full bg-primary/10 p-2 text-primary transition-colors hover:bg-primary/20"
 					>
-						<span class="material-symbols-outlined text-xl">volume_up</span>
+						<VolumeUp class="text-xl" />
 					</button>
 				</div>
 			{/if}
@@ -590,7 +603,7 @@
 		<div
 			class="flex size-16 items-center justify-center rounded-full bg-primary-light text-primary"
 		>
-			<span class="material-symbols-outlined text-[32px]">check_circle</span>
+			<CheckCircle class="text-[32px]" />
 		</div>
 		{#if readingDone}
 			<p class="mt-4 text-2xl font-bold text-slate-900 dark:text-slate-100">{readCount} neue W&ouml;rter gelesen</p>
@@ -649,7 +662,7 @@
 						class="rounded-lg bg-primary px-8 py-3 font-semibold text-white shadow-md shadow-primary/20 transition-all hover:bg-primary/90"
 					>
 						<span class="inline-flex items-center gap-2">
-							<span class="material-symbols-outlined text-lg">fast_forward</span>
+							<FastForward class="text-lg" />
 							Vorziehen
 						</span>
 					</button>
@@ -677,7 +690,7 @@
 			class="flex items-center gap-1 rounded-full p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-white/10 dark:hover:text-slate-300"
 			title="Sitzung beenden"
 		>
-			<span class="material-symbols-outlined text-xl">close</span>
+			<Close class="text-xl" />
 		</button>
 	</div>
 	<!-- Progress counter -->
@@ -694,7 +707,7 @@
 					class="flex items-center justify-center rounded-full p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-white/10 dark:hover:text-slate-300"
 					title="Vorherige Karte (←)"
 				>
-					<span class="material-symbols-outlined text-xl">arrow_back</span>
+					<ArrowBack class="text-xl" />
 				</button>
 			{/if}
 			<p class="text-lg font-bold text-slate-900 dark:text-slate-100">{isPeeking ? '' : `${index + 1} / ${total}`}</p>
@@ -715,7 +728,7 @@
 							onclick={() => speak(card.word, card.language)}
 							class="flex items-center justify-center rounded-full bg-primary/10 p-2 text-primary transition-colors hover:bg-primary/20"
 						>
-							<span class="material-symbols-outlined text-xl">volume_up</span>
+							<VolumeUp class="text-xl" />
 						</button>
 					</div>
 				{:else}
@@ -723,7 +736,7 @@
 						onclick={() => speak(card.word, card.language)}
 						class="mt-2 flex items-center justify-center rounded-full bg-primary/10 p-2 text-primary transition-colors hover:bg-primary/20"
 					>
-						<span class="material-symbols-outlined text-xl">volume_up</span>
+						<VolumeUp class="text-xl" />
 					</button>
 				{/if}
 			{:else if questionIsArabic}
@@ -734,7 +747,7 @@
 					onclick={() => speak(card.word, card.language)}
 					class="mt-2 flex items-center justify-center rounded-full bg-primary/10 p-2 text-primary transition-colors hover:bg-primary/20"
 				>
-					<span class="material-symbols-outlined text-xl">volume_up</span>
+					<VolumeUp class="text-xl" />
 				</button>
 			{:else}
 				<div class="flex items-center justify-center gap-3">
@@ -743,7 +756,7 @@
 						onclick={() => speak(card.word, card.language)}
 						class="flex items-center justify-center rounded-full bg-primary/10 p-2 text-primary transition-colors hover:bg-primary/20"
 					>
-						<span class="material-symbols-outlined text-xl">volume_up</span>
+						<VolumeUp class="text-xl" />
 					</button>
 				</div>
 			{/if}
@@ -800,9 +813,7 @@
 							{expectedAnswer || '\u2014'}
 						</div>
 						<div class="flex items-center {answerCorrect === true ? 'bg-green-50' : answerCorrect === false ? 'bg-red-50' : 'bg-primary/5'} px-4">
-							<span class="material-symbols-outlined text-3xl font-bold {answerCorrect === true ? 'text-green-500' : answerCorrect === false ? 'text-red-500' : 'text-primary'}">
-								{answerCorrect === true ? 'check_circle' : answerCorrect === false ? 'cancel' : 'check_circle'}
-							</span>
+							<Icon name={answerCorrect === true ? 'check_circle' : answerCorrect === false ? 'cancel' : 'check_circle'} class="text-3xl font-bold {answerCorrect === true ? 'text-green-500' : answerCorrect === false ? 'text-red-500' : 'text-primary'}" />
 						</div>
 					</div>
 
@@ -907,7 +918,7 @@
 								class="flex items-center gap-1 text-[10px] font-medium uppercase tracking-wider text-slate-400 transition-colors hover:text-red-500"
 								title="Aus Lexikon entfernen"
 							>
-								<span class="material-symbols-outlined text-[14px]">delete</span>
+								<Delete class="text-[14px]" />
 								Entfernen
 							</button>
 						{/if}

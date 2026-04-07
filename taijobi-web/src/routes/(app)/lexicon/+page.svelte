@@ -1,4 +1,12 @@
 <script lang="ts">
+	import Add from '$lib/icons/Add.svelte';
+	import Book2 from '$lib/icons/Book2.svelte';
+	import Check from '$lib/icons/Check.svelte';
+	import Close from '$lib/icons/Close.svelte';
+	import Delete from '$lib/icons/Delete.svelte';
+	import Edit from '$lib/icons/Edit.svelte';
+	import Mic from '$lib/icons/Mic.svelte';
+	import PhotoCamera from '$lib/icons/PhotoCamera.svelte';
 	import { addWord, removeWord, updateWord, type LexiconEntry, type AddWordResult } from '$lib/wasm';
 	import { data } from '$lib/data.svelte';
 
@@ -119,10 +127,10 @@
 			/>
 			<div class="flex items-center gap-1">
 				<button class="p-1 text-primary/60 hover:text-primary">
-					<span class="material-symbols-outlined text-[20px]">photo_camera</span>
+					<PhotoCamera class="text-[20px]" />
 				</button>
 				<button class="p-1 text-primary/60 hover:text-primary">
-					<span class="material-symbols-outlined text-[20px]">mic</span>
+					<Mic class="text-[20px]" />
 				</button>
 			</div>
 		</div>
@@ -131,7 +139,7 @@
 			disabled={adding || !input.trim()}
 			class="flex size-12 items-center justify-center rounded-xl bg-primary text-white shadow-sm transition-colors hover:bg-primary/90 disabled:opacity-50"
 		>
-			<span class="material-symbols-outlined">add</span>
+			<Add />
 		</button>
 	</div>
 
@@ -197,7 +205,7 @@
 <section class="mt-6 space-y-6">
 	{#if filtered.length === 0}
 		<div class="rounded-2xl border border-slate-100 dark:border-white/5 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-white/5">
-			<span class="material-symbols-outlined mb-2 text-[32px] text-slate-300 dark:text-slate-500 dark:text-slate-400">book_2</span>
+			<Book2 class="mb-2 text-[32px] text-slate-300 dark:text-slate-500 dark:text-slate-400" />
 			<p class="text-sm text-slate-500 dark:text-slate-400">
 				Noch keine W&ouml;rter. F&uuml;ge W&ouml;rter hinzu, die dir beim Lesen begegnen.
 			</p>
@@ -227,13 +235,13 @@
 									onclick={saveEdit}
 									class="rounded-lg bg-primary p-2 text-white transition-colors hover:bg-primary/90"
 								>
-									<span class="material-symbols-outlined text-[18px]">check</span>
+									<Check class="text-[18px]" />
 								</button>
 								<button
 									onclick={cancelEdit}
 									class="rounded-lg bg-slate-100 p-2 text-slate-500 dark:text-slate-400 transition-colors hover:bg-slate-200 dark:hover:bg-white/15 dark:bg-white/10 dark:text-slate-400 dark:hover:bg-white/15"
 								>
-									<span class="material-symbols-outlined text-[18px]">close</span>
+									<Close class="text-[18px]" />
 								</button>
 							</div>
 						{:else}
@@ -277,14 +285,14 @@
 										class="rounded-lg p-1.5 text-slate-300 transition-colors hover:bg-slate-100 dark:hover:bg-white/10 hover:text-primary dark:text-slate-500 dark:text-slate-400 dark:hover:bg-white/10"
 										title="Bearbeiten"
 									>
-										<span class="material-symbols-outlined text-[18px]">edit</span>
+										<Edit class="text-[18px]" />
 									</button>
 									<button
 										onclick={() => handleRemove(entry.id)}
 										class="rounded-lg p-1.5 text-slate-300 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-slate-500 dark:text-slate-400 dark:hover:bg-red-950"
 										title="Entfernen"
 									>
-										<span class="material-symbols-outlined text-[18px]">delete</span>
+										<Delete class="text-[18px]" />
 									</button>
 									<div
 										class="ml-1 size-2.5 rounded-full {statusColor(entry)}"

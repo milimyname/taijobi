@@ -1,4 +1,15 @@
 <script lang="ts">
+	import Close from '$lib/icons/Close.svelte';
+	import Delete from '$lib/icons/Delete.svelte';
+	import Download from '$lib/icons/Download.svelte';
+	import DownloadDone from '$lib/icons/DownloadDone.svelte';
+	import Explore from '$lib/icons/Explore.svelte';
+	import FolderOpen from '$lib/icons/FolderOpen.svelte';
+	import Inventory2 from '$lib/icons/Inventory2.svelte';
+	import Language from '$lib/icons/Language.svelte';
+	import SwapVert from '$lib/icons/SwapVert.svelte';
+	import Upload from '$lib/icons/Upload.svelte';
+	import UploadFile from '$lib/icons/UploadFile.svelte';
 	import {
 		installPack,
 		removePack,
@@ -179,7 +190,7 @@
 <!-- Import/Export -->
 <section class="mt-6">
 	<h2 class="mb-4 flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-slate-100">
-		<span class="material-symbols-outlined text-primary">swap_vert</span>
+		<SwapVert class="text-primary" />
 		Import / Export
 	</h2>
 
@@ -188,7 +199,7 @@
 			onclick={handleExport}
 			class="flex items-center gap-2 rounded-xl border border-slate-100 dark:border-white/5 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 shadow-sm transition-colors hover:bg-slate-50 dark:hover:bg-white/5 dark:border-white/5 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/5"
 		>
-			<span class="material-symbols-outlined text-sm">download</span>
+			<Download class="text-sm" />
 			CSV exportieren
 		</button>
 	</div>
@@ -202,13 +213,13 @@
 		ondragleave={() => { dragging = false; }}
 		ondrop={(e) => { e.preventDefault(); handleDrop(e); }}
 	>
-		<span class="material-symbols-outlined mb-2 text-[32px] text-slate-300 dark:text-slate-500 dark:text-slate-400">upload_file</span>
+		<UploadFile class="mb-2 text-[32px] text-slate-300 dark:text-slate-500 dark:text-slate-400" />
 		<p class="text-sm text-slate-500 dark:text-slate-400">
 			CSV/TSV oder .apkg hierher ziehen
 		</p>
 		<p class="mt-1 text-xs text-slate-400 dark:text-slate-500 dark:text-slate-400">oder</p>
 		<label class="mt-2 inline-flex cursor-pointer items-center gap-1 rounded-lg bg-primary/10 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/20">
-			<span class="material-symbols-outlined text-sm">folder_open</span>
+			<FolderOpen class="text-sm" />
 			Datei ausw&auml;hlen
 			<input type="file" accept=".csv,.tsv,.txt,.apkg" class="hidden" onchange={handleFileInput} />
 		</label>
@@ -226,7 +237,7 @@
 					onclick={() => { csvPreview = null; }}
 					class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-600"
 				>
-					<span class="material-symbols-outlined text-sm">close</span>
+					<Close class="text-sm" />
 				</button>
 			</div>
 
@@ -265,7 +276,7 @@
 				{#if importing}
 					Importiere...
 				{:else}
-					<span class="material-symbols-outlined text-sm">upload</span>
+					<Upload class="text-sm" />
 					{csvPreview.totalRows} Karten importieren
 				{/if}
 			</button>
@@ -277,7 +288,7 @@
 {#if installed.length > 0}
 	<section class="mt-6">
 		<h2 class="mb-4 flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-slate-100">
-			<span class="material-symbols-outlined text-primary">download_done</span>
+			<DownloadDone class="text-primary" />
 			Installiert
 		</h2>
 		<div class="space-y-4">
@@ -289,7 +300,7 @@
 						<div
 							class="flex size-16 shrink-0 items-center justify-center rounded-lg bg-primary/10"
 						>
-							<span class="material-symbols-outlined text-3xl text-primary">language</span>
+							<Language class="text-3xl text-primary" />
 						</div>
 						<div class="min-w-0 flex-1">
 							<h3 class="truncate text-lg font-bold">{pack.name}</h3>
@@ -309,7 +320,7 @@
 							onclick={() => handleRemove(pack.id)}
 							class="flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
 						>
-							<span class="material-symbols-outlined text-sm">delete</span>
+							<Delete class="text-sm" />
 							Entfernen
 						</button>
 					</div>
@@ -323,7 +334,7 @@
 {#if available.length > 0}
 	<section class="mt-8">
 		<h2 class="mb-4 flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-slate-100">
-			<span class="material-symbols-outlined text-primary">explore</span>
+			<Explore class="text-primary" />
 			Verf&uuml;gbar
 		</h2>
 		<div class="space-y-4">
@@ -335,7 +346,7 @@
 						<div
 							class="flex size-16 shrink-0 items-center justify-center rounded-lg bg-primary/5"
 						>
-							<span class="material-symbols-outlined text-3xl text-primary">inventory_2</span>
+							<Inventory2 class="text-3xl text-primary" />
 						</div>
 						<div class="min-w-0 flex-1">
 							<h3 class="truncate text-lg font-bold">{entry.name}</h3>
@@ -351,7 +362,7 @@
 						{#if loading === entry.id}
 							Installiere...
 						{:else}
-							<span class="material-symbols-outlined text-sm">download</span>
+							<Download class="text-sm" />
 							Installieren
 						{/if}
 					</button>
@@ -363,7 +374,7 @@
 
 {#if installed.length === 0 && available.length === 0}
 	<div class="mt-8 rounded-2xl border border-slate-100 dark:border-white/5 bg-white p-8 text-center shadow-sm">
-		<span class="material-symbols-outlined mb-2 text-[32px] text-slate-300">inventory_2</span>
+		<Inventory2 class="mb-2 text-[32px] text-slate-300" />
 		<p class="text-sm text-slate-500 dark:text-slate-400">Lade Pakete...</p>
 	</div>
 {/if}

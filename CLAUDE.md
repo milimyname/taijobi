@@ -5,7 +5,7 @@
 *A local-first vocabulary engine for all languages you encounter — with deep
 Chinese support, curriculum packs, and spaced repetition.*
 
-Last updated: March 2026 — Phases 0-4 complete, Phase 5.0 + 5.1 done, EN/DE dictionaries added
+Last updated: April 2026 — Phases 0-4 complete, Phase 5.0 + 5.1 done, EN/DE dictionaries added, icons inlined (no Google Fonts), onboarding + keyboard shortcuts + haptics shipped, About/FAQ page added
 
 ---
 
@@ -96,12 +96,13 @@ Inspired by libghostty and libwimg: the library is the product.
 - EN/DE dictionaries: installable from Settings, OPFS cached, auto-enrich lexicon words
 - Drill self-assessment: non-CJK cards with long definitions use reveal-and-rate instead of type-and-check
 - Stats (`/stats`): streak + today summary cards, bar chart with period toggle, accuracy trend, rating distribution, 365-day GitHub-style activity heatmap, totals row
+- About (`/about`): hero, privacy details, tech stack, full FAQ (auto-opens hash anchors), GitHub link, version footer. Linked from Settings.
 - Progress bars: `bg-primary h-2 rounded-full`
 - Chinese characters: `text-4xl font-light` in cards, `text-6xl` in drill
 - Arabic text: `dir="rtl"`, `text-5xl` in drill, `text-xl` in lexicon/lessons
 - Buttons: `bg-primary text-white font-bold rounded-xl shadow-sm`
 - Section headings: `text-[11px] font-bold uppercase tracking-wider text-primary`
-- Material Symbols Outlined icons (weight 400, no fill by default)
+- Inline SVG icons in `src/lib/icons/` (Material Symbols Outlined paths, self-hosted, no Google Fonts dependency — work fully offline). Each icon is a Svelte 5 component with `class`/`style` props, `width/height="1em"`, `fill="currentColor"`. `Icon.svelte` dispatcher used where the icon name is dynamic.
 - German UI strings throughout
 - Character selection tooltip: select any Chinese character → popup with pinyin,
   definition, and link to `/character/[char]` detail page

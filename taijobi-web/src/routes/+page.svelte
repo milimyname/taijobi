@@ -1,10 +1,18 @@
+<script lang="ts">
+	import AutoStories from '$lib/icons/AutoStories.svelte';
+	import CloudOff from '$lib/icons/CloudOff.svelte';
+	import Dictionary from '$lib/icons/Dictionary.svelte';
+	import Draw from '$lib/icons/Draw.svelte';
+	import Inventory2 from '$lib/icons/Inventory2.svelte';
+	import Translate from '$lib/icons/Translate.svelte';
+</script>
+
 <svelte:head>
 	<title>Taijobi — Vokabeln lernen, offline</title>
 	<meta name="description" content="Lokale Vokabel-App für Chinesisch, Englisch und Deutsch. Spaced Repetition, Wörterbücher, offline-first. Kein Konto nötig." />
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-	<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
 	<style>
 		body { font-family: 'Inter', system-ui, sans-serif; margin: 0; background: #fefdfb; color: #1a1c1b; }
 		.jade-gradient { background: linear-gradient(135deg, #195c37 0%, #2d6a4f 100%); }
@@ -25,7 +33,7 @@
 	<!-- Hero -->
 	<section class="py-24 text-center">
 		<div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-[#195c37]/10 mb-8">
-			<span class="material-symbols-outlined text-[#195c37] text-5xl">translate</span>
+			<Translate class="text-[#195c37] text-5xl" />
 		</div>
 		<h1 class="text-5xl font-black text-slate-900 mb-5 tracking-tight leading-tight">
 			Vokabeln lernen,<br />auf deinem Ger&auml;t.
@@ -41,7 +49,7 @@
 	<section class="grid grid-cols-1 md:grid-cols-3 gap-5 pb-20">
 		<div class="bg-white rounded-3xl p-7 shadow-sm hover:shadow-md transition-shadow">
 			<div class="w-14 h-14 rounded-2xl bg-[#195c37]/5 flex items-center justify-center mb-4">
-				<span class="material-symbols-outlined text-2xl text-[#195c37]">auto_stories</span>
+				<AutoStories class="text-2xl text-[#195c37]" />
 			</div>
 			<h3 class="font-extrabold text-slate-900 mb-2 text-lg">Spaced Repetition</h3>
 			<p class="text-sm text-slate-500 leading-relaxed">
@@ -51,7 +59,7 @@
 		</div>
 		<div class="bg-white rounded-3xl p-7 shadow-sm hover:shadow-md transition-shadow">
 			<div class="w-14 h-14 rounded-2xl bg-[#195c37]/5 flex items-center justify-center mb-4">
-				<span class="material-symbols-outlined text-2xl text-[#195c37]">dictionary</span>
+				<Dictionary class="text-2xl text-[#195c37]" />
 			</div>
 			<h3 class="font-extrabold text-slate-900 mb-2 text-lg">3 W&ouml;rterb&uuml;cher</h3>
 			<p class="text-sm text-slate-500 leading-relaxed">
@@ -61,7 +69,7 @@
 		</div>
 		<div class="bg-white rounded-3xl p-7 shadow-sm hover:shadow-md transition-shadow">
 			<div class="w-14 h-14 rounded-2xl bg-[#195c37]/5 flex items-center justify-center mb-4">
-				<span class="material-symbols-outlined text-2xl text-[#195c37]">cloud_off</span>
+				<CloudOff class="text-2xl text-[#195c37]" />
 			</div>
 			<h3 class="font-extrabold text-slate-900 mb-2 text-lg">Offline-first</h3>
 			<p class="text-sm text-slate-500 leading-relaxed">
@@ -75,7 +83,7 @@
 	<section class="grid grid-cols-1 md:grid-cols-2 gap-5 pb-20">
 		<div class="bg-white rounded-3xl p-7 shadow-sm hover:shadow-md transition-shadow">
 			<div class="w-14 h-14 rounded-2xl bg-[#195c37]/5 flex items-center justify-center mb-4">
-				<span class="material-symbols-outlined text-2xl text-[#195c37]">inventory_2</span>
+				<Inventory2 class="text-2xl text-[#195c37]" />
 			</div>
 			<h3 class="font-extrabold text-slate-900 mb-2 text-lg">Content Packs</h3>
 			<p class="text-sm text-slate-500 leading-relaxed">
@@ -85,7 +93,7 @@
 		</div>
 		<div class="bg-white rounded-3xl p-7 shadow-sm hover:shadow-md transition-shadow">
 			<div class="w-14 h-14 rounded-2xl bg-[#195c37]/5 flex items-center justify-center mb-4">
-				<span class="material-symbols-outlined text-2xl text-[#195c37]">draw</span>
+				<Draw class="text-2xl text-[#195c37]" />
 			</div>
 			<h3 class="font-extrabold text-slate-900 mb-2 text-lg">Strichfolge & Zerlegung</h3>
 			<p class="text-sm text-slate-500 leading-relaxed">

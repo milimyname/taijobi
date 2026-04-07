@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Search from '$lib/icons/Search.svelte';
+	import Translate from '$lib/icons/Translate.svelte';
 	import { getLexicon, getPacks, getLessons, getVocabulary, type VocabEntry, type LexiconEntry } from '$lib/wasm';
 
 	let filter = $state<'all' | 'lexicon' | string>('all');
@@ -87,7 +89,7 @@
 	<div
 		class="flex h-12 items-center overflow-hidden rounded-xl border border-primary/10 bg-primary/5 px-4 transition-all focus-within:border-primary/30"
 	>
-		<span class="material-symbols-outlined mr-2 text-primary/40">search</span>
+		<Search class="mr-2 text-primary/40" />
 		<input
 			type="text"
 			bind:value={search}
@@ -134,7 +136,7 @@
 	</h3>
 	{#if filtered.length === 0}
 		<div class="rounded-2xl border border-slate-100 dark:border-white/5 bg-white dark:bg-white/5 p-8 text-center shadow-sm">
-			<span class="material-symbols-outlined mb-2 text-[32px] text-slate-300 dark:text-slate-500 dark:text-slate-400">translate</span>
+			<Translate class="mb-2 text-[32px] text-slate-300 dark:text-slate-500 dark:text-slate-400" />
 			<p class="text-sm text-slate-500 dark:text-slate-400">Keine Zeichen gefunden.</p>
 		</div>
 	{:else}

@@ -1,4 +1,9 @@
 <script lang="ts">
+	import Book from '$lib/icons/Book.svelte';
+	import ChevronRight from '$lib/icons/ChevronRight.svelte';
+	import PlayArrow from '$lib/icons/PlayArrow.svelte';
+	import Shuffle from '$lib/icons/Shuffle.svelte';
+	import Icon from '$lib/icons/Icon.svelte';
 	import { type Card, type DrillStats, type Pack } from '$lib/wasm';
 	import { data } from '$lib/data.svelte';
 
@@ -52,7 +57,7 @@
 				class="flex items-center gap-4 rounded-xl border border-slate-100 dark:border-white/5 bg-white dark:bg-white/5 p-4 shadow-sm transition-colors hover:bg-primary/5"
 			>
 				<div class="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-					<span class="material-symbols-outlined text-2xl text-primary">{source.icon}</span>
+					<Icon name={source.icon} class="text-2xl text-primary" />
 				</div>
 				<div class="flex-1">
 					<h3 class="font-bold text-slate-900 dark:text-slate-100">{source.label}</h3>
@@ -67,7 +72,7 @@
 						&middot; ~{Math.max(1, Math.round((source.due + source.unread) * 0.5))} Min.
 					</p>
 				</div>
-				<span class="material-symbols-outlined text-primary">play_arrow</span>
+				<PlayArrow class="text-primary" />
 			</a>
 		{/each}
 		{#if drillSources.length > 1}
@@ -75,7 +80,7 @@
 				href="/drill"
 				class="flex items-center justify-center gap-2 rounded-xl bg-primary p-4 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-colors hover:bg-primary/90"
 			>
-				<span class="material-symbols-outlined text-lg">shuffle</span>
+				<Shuffle class="text-lg" />
 				Alles gemischt &middot; {dueCount} Karten
 			</a>
 		{/if}
@@ -143,13 +148,13 @@
 			class="flex items-center justify-between rounded-xl border border-primary/10 bg-white dark:bg-white/5 p-4 shadow-sm transition-colors hover:bg-primary/5"
 		>
 			<div class="flex items-center gap-3">
-				<span class="material-symbols-outlined text-primary">book</span>
+				<Book class="text-primary" />
 				<div>
 					<p class="font-bold text-slate-900 dark:text-slate-100">Lexikon</p>
 					<p class="text-xs text-slate-500 dark:text-slate-400">{stats.lexicon_count} W&ouml;rter gesammelt</p>
 				</div>
 			</div>
-			<span class="material-symbols-outlined text-slate-400 dark:text-slate-500">chevron_right</span>
+			<ChevronRight class="text-slate-400 dark:text-slate-500" />
 		</a>
 	</section>
 {/if}

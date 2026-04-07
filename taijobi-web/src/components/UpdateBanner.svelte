@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Sync from '$lib/icons/Sync.svelte';
 	import { updateStore } from '$lib/update.svelte';
 	import { changelogStore } from '$lib/changelog.svelte';
 	import { APP_VERSION } from '$lib/version';
@@ -64,7 +65,7 @@
 				<div
 					class="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10"
 				>
-					<span class="material-symbols-outlined text-primary">sync</span>
+					<Sync class="text-primary" />
 				</div>
 				<div>
 					<p class="text-base font-bold text-slate-900 dark:text-slate-100">Neue Version verf&uuml;gbar</p>
