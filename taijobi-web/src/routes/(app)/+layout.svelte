@@ -1,10 +1,9 @@
 <script lang="ts">
-	import BarChart from '$lib/icons/BarChart.svelte';
-	import Dictionary from '$lib/icons/Dictionary.svelte';
+	import Explore from '$lib/icons/Explore.svelte';
 	import Home from '$lib/icons/Home.svelte';
 	import Inventory2 from '$lib/icons/Inventory2.svelte';
 	import Person from '$lib/icons/Person.svelte';
-	import Settings from '$lib/icons/Settings.svelte';
+	import Search from '$lib/icons/Search.svelte';
 	import Style from '$lib/icons/Style.svelte';
 	import Sync from '$lib/icons/Sync.svelte';
 	import Translate from '$lib/icons/Translate.svelte';
@@ -27,7 +26,6 @@
 	import DevTools from '../../components/DevTools.svelte';
 	import CommandPalette from '../../components/CommandPalette.svelte';
 	import { paletteStore } from '$lib/commandPalette.svelte';
-	import Search from '$lib/icons/Search.svelte';
 
 	let { children } = $props();
 	let ready = $state(false);
@@ -163,8 +161,30 @@
 											? 'Einstellungen'
 											: page.url.pathname === '/about'
 												? 'Über'
-												: 'Taijobi',
+												: page.url.pathname === '/more'
+													? 'Mehr'
+													: 'Taijobi',
 	);
+
+	// Routes that live under the "Mehr" tab — used to highlight it as active.
+	const MORE_ROUTES = [
+		'/more',
+		'/stats',
+		'/dictionary',
+		'/packs',
+		'/lessons',
+		'/lexicon',
+		'/characters',
+		'/character',
+		'/settings',
+		'/about'
+	];
+
+	function isMoreActive(): boolean {
+		return MORE_ROUTES.some(
+			(r) => page.url.pathname === r || page.url.pathname.startsWith(r + '/')
+		);
+	}
 </script>
 
 <svelte:head>
@@ -221,22 +241,14 @@
 					<h2 class="text-lg font-bold leading-tight text-slate-900 dark:text-slate-100">{pageTitle}</h2>
 				</div>
 			</div>
-			<div class="flex items-center gap-1">
-				<button
-					type="button"
-					onclick={() => paletteStore.show()}
-					aria-label="Befehlspalette öffnen (Cmd+K)"
-					class="rounded-full p-2 text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/10"
-				>
-					<Search />
-				</button>
-				<a
-					href="/settings"
-					class="rounded-full p-2 text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/10"
-				>
-					<Settings />
-				</a>
-			</div>
+			<button
+				type="button"
+				onclick={() => paletteStore.show()}
+				aria-label="Befehlspalette öffnen (Cmd+K)"
+				class="rounded-full p-2 text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/10"
+			>
+				<Search />
+			</button>
 		</header>
 
 		<!-- Main Content -->
@@ -244,45 +256,46 @@
 			{@render children()}
 		</main>
 
-		<!-- Bottom Navigation — 5 tabs -->
+		<!-- Bottom Navigation — 4 tabs (Suche / Start / Üben / Mehr) -->
 		<nav
 			class="fixed bottom-0 left-0 right-0 z-20 mx-auto max-w-[768px] border-t border-primary/10 bg-bg-light/80 px-4 pb-6 pt-2 backdrop-blur-md dark:bg-bg-dark/80"
 		>
 			<div class="flex items-center justify-between">
+				<button
+					type="button"
+					onclick={() => paletteStore.show()}
+					aria-label="Befehlspalette öffnen"
+					class="flex flex-1 flex-col items-center gap-1 bg-transparent text-slate-400 transition-colors hover:text-primary"
+				>
+					<Search />
+					<span class="text-[10px] font-bold uppercase tracking-wider">Suche</span>
+				</button>
 				<a
 					href="/home"
-					class="flex flex-col items-center gap-1 {isActive('/home') ? 'text-primary' : 'text-slate-400 hover:text-primary'} transition-colors"
+					class="flex flex-1 flex-col items-center gap-1 {isActive('/home')
+						? 'text-primary'
+						: 'text-slate-400 hover:text-primary'} transition-colors"
 				>
 					<Home class={isActive('/home') ? 'active-icon' : ''} />
 					<span class="text-[10px] font-bold uppercase tracking-wider">Start</span>
 				</a>
 				<a
 					href="/drill"
-					class="flex flex-col items-center gap-1 {isActive('/drill') ? 'text-primary' : 'text-slate-400 hover:text-primary'} transition-colors"
+					class="flex flex-1 flex-col items-center gap-1 {isActive('/drill')
+						? 'text-primary'
+						: 'text-slate-400 hover:text-primary'} transition-colors"
 				>
 					<Style class={isActive('/drill') ? 'active-icon' : ''} />
 					<span class="text-[10px] font-bold uppercase tracking-wider">&Uuml;ben</span>
 				</a>
 				<a
-					href="/stats"
-					class="flex flex-col items-center gap-1 {isActive('/stats') ? 'text-primary' : 'text-slate-400 hover:text-primary'} transition-colors"
+					href="/more"
+					class="flex flex-1 flex-col items-center gap-1 {isMoreActive()
+						? 'text-primary'
+						: 'text-slate-400 hover:text-primary'} transition-colors"
 				>
-					<BarChart class={isActive('/stats') ? 'active-icon' : ''} />
-					<span class="text-[10px] font-bold uppercase tracking-wider">Stats</span>
-				</a>
-				<a
-					href="/dictionary"
-					class="flex flex-col items-center gap-1 {isActive('/dictionary') ? 'text-primary' : 'text-slate-400 hover:text-primary'} transition-colors"
-				>
-					<Dictionary class={isActive('/dictionary') ? 'active-icon' : ''} />
-					<span class="text-[10px] font-bold uppercase tracking-wider">W&ouml;rterbuch</span>
-				</a>
-				<a
-					href="/packs"
-					class="flex flex-col items-center gap-1 {isActive('/packs') || page.url.pathname.startsWith('/lessons') ? 'text-primary' : 'text-slate-400 hover:text-primary'} transition-colors"
-				>
-					<Inventory2 class={isActive('/packs') || page.url.pathname.startsWith('/lessons') ? 'active-icon' : ''} />
-					<span class="text-[10px] font-bold uppercase tracking-wider">Pakete</span>
+					<Explore class={isMoreActive() ? 'active-icon' : ''} />
+					<span class="text-[10px] font-bold uppercase tracking-wider">Mehr</span>
 				</a>
 			</div>
 		</nav>

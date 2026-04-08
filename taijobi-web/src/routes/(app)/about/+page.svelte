@@ -141,7 +141,7 @@
 	<!-- Header -->
 	<div class="flex items-center gap-3">
 		<a
-			href="/settings"
+			href="/more"
 			class="flex size-10 items-center justify-center rounded-2xl bg-white shadow-sm dark:bg-white/5"
 			aria-label="Zurück"
 		>

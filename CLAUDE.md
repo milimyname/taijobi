@@ -89,7 +89,7 @@ Inspired by libghostty and libwimg: the library is the product.
 **Key patterns:**
 - Warm cream background (`#fefdfb`), not pure white
 - Cards: `bg-white dark:bg-slate-800/40 border border-slate-100 rounded-2xl shadow-sm`
-- Bottom nav: fixed, backdrop-blur, 5 tabs (Start/Üben/Stats/Wörterbuch/Pakete)
+- Bottom nav: fixed, backdrop-blur, 4 tabs (Suche/Start/Üben/Mehr) — Suche opens the command palette, Mehr (`/more`) is a 2-col grid linking to Stats/Wörterbuch/Pakete/Lexikon/Zeichen/Einstellungen + a wide About card. wimg-style consolidation.
 - Dashboard: per-source drill cards (each pack + lexicon), "Alles gemischt" button, minimal today stats + link to /stats
 - Drill: session persisted to sessionStorage (survives reload), peek-back at previous card (ArrowLeft), remove lexicon card mid-drill, "Vorziehen" pull-forward for upcoming cards (next 24h)
 - Dictionary: unified search across ZH/EN/DE, default suggestions, add/remove toggle per result
