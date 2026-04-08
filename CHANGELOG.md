@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.5.16 (2026-04-08)
+
+- feat: wimg-style 4-tab bottom nav with /more grid
+- feat: Cmd+K command palette + FAQ navigation + dark mode fixes
+
 ## v0.5.15 (2026-04-07)
 
 - feat: inline icons, onboarding, shortcuts, haptics, About page
