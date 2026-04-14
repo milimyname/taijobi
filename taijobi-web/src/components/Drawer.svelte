@@ -49,12 +49,22 @@
 	let isDragging = $state(false);
 	let wasOpen = $state(false);
 
+	// Touch state
 	let startY = 0;
 	let startHeight = 0;
 	let lastY = 0;
 	let lastTime = 0;
 	let velocity = 0;
 	let isDraggingSheet = false;
+
+	// Wheel state — desktop trackpad / mouse wheel parity with touch drag.
+	// Without this, scrolling the sheet with the wheel does nothing (the handle/
+	// empty area) or only scrolls the inner list (content); you can't expand/
+	// collapse the sheet at all on desktop.
+	let wheelSnapTimer: ReturnType<typeof setTimeout> | undefined;
+	let lastWheelTime = 0;
+	let wheelVelocity = 0;
+	let isWheeling = false;
 
 	const isVisible = $derived(height.current > 5);
 	const isExpanded = $derived.by(() => {
@@ -169,10 +179,12 @@
 		el.addEventListener('touchstart', onTouchStart, { passive: false });
 		el.addEventListener('touchmove', onTouchMove, { passive: false });
 		el.addEventListener('touchend', onTouchEnd);
+		el.addEventListener('wheel', onWheel, { passive: false });
 		return () => {
 			el.removeEventListener('touchstart', onTouchStart);
 			el.removeEventListener('touchmove', onTouchMove);
 			el.removeEventListener('touchend', onTouchEnd);
+			el.removeEventListener('wheel', onWheel);
 			sheetRef = undefined;
 		};
 	};
@@ -233,6 +245,75 @@
 			}
 		}
 	});
+
+	// Wheel: same arbitration as touch — when the inner list is scrolled past
+	// its top, wheel events scroll the list; when at top and scrolling up, they
+	// collapse the sheet. When collapsed, wheel expands it. Snap 150ms after
+	// the last wheel tick to let momentum-scroll deliver its tail.
+	function onWheel(e: WheelEvent) {
+		if (hasNested) return;
+		const hitHandle = handleRef?.contains(e.target as Node);
+		const hitContent = contentRef?.contains(e.target as Node);
+		if (!hitHandle && !hitContent) return;
+
+		if (hitContent && !hitHandle) {
+			if (isExpanded) {
+				// Mid-wheel snap-back: if we were dragging the sheet with the wheel and
+				// the user reverses, lock back to fully-expanded before letting the
+				// list scroll take over.
+				if (isWheeling) {
+					clearTimeout(wheelSnapTimer);
+					isWheeling = false;
+					isDragging = false;
+					wheelVelocity = 0;
+					const s = getSnaps();
+					height.target = s[s.length - 1];
+				}
+				if (!contentRef) return;
+				const isAtTop = contentRef.scrollTop <= 1;
+				if (isAtTop && e.deltaY < 0) {
+					e.preventDefault();
+					applyWheelDelta(e.deltaY);
+					return;
+				}
+				// Otherwise let the content scroll naturally
+				return;
+			}
+		}
+
+		e.preventDefault();
+		applyWheelDelta(e.deltaY);
+	}
+
+	function applyWheelDelta(deltaY: number) {
+		isWheeling = true;
+		isDragging = true;
+
+		const now = Date.now();
+		const dt = now - lastWheelTime;
+		if (dt > 0 && dt < 200) {
+			wheelVelocity = deltaY / dt;
+		}
+		lastWheelTime = now;
+
+		const s = getSnaps();
+		const maxSnap = s[s.length - 1];
+		let newHeight = height.target + deltaY;
+		if (newHeight > maxSnap) {
+			const overflow = newHeight - maxSnap;
+			newHeight = maxSnap + overflow * 0.15;
+		}
+		height.target = Math.max(0, newHeight);
+
+		clearTimeout(wheelSnapTimer);
+		wheelSnapTimer = setTimeout(() => {
+			velocity = wheelVelocity;
+			wheelVelocity = 0;
+			isDragging = false;
+			isWheeling = false;
+			performSnap();
+		}, 150);
+	}
 
 	function onTouchStart(e: TouchEvent) {
 		if (hasNested) return;
