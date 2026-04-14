@@ -1,3 +1,16 @@
 @import 'tailwindcss';
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+/* Match the app surface so wide-screen desktops don't show a white strip
+   next to the centered 1080px column. Values mirror --color-bg-light /
+   --color-bg-dark in (app)/layout.css. */
+html,
+body {
+	background: #fefdfb;
+}
+
+html.dark,
+html.dark body {
+	background: #131f18;
+}

@@ -1,9 +1,14 @@
 <script lang="ts">
+	import BarChart from '$lib/icons/BarChart.svelte';
+	import Book2 from '$lib/icons/Book2.svelte';
+	import Dictionary from '$lib/icons/Dictionary.svelte';
 	import Explore from '$lib/icons/Explore.svelte';
 	import Home from '$lib/icons/Home.svelte';
 	import Inventory2 from '$lib/icons/Inventory2.svelte';
+	import Language from '$lib/icons/Language.svelte';
 	import Person from '$lib/icons/Person.svelte';
 	import Search from '$lib/icons/Search.svelte';
+	import Settings from '$lib/icons/Settings.svelte';
 	import Style from '$lib/icons/Style.svelte';
 	import Sync from '$lib/icons/Sync.svelte';
 	import Translate from '$lib/icons/Translate.svelte';
@@ -189,7 +194,88 @@
 		</div>
 	</div>
 {:else}
-	<div class="relative mx-auto flex min-h-screen max-w-[768px] flex-col bg-bg-light shadow-sm dark:bg-bg-dark">
+	<div class="relative mx-auto flex min-h-screen max-w-[768px] flex-col bg-bg-light shadow-sm dark:bg-bg-dark lg:max-w-[1080px] lg:flex-row lg:shadow-none">
+		<!-- Desktop Sidebar — hidden below lg, persistent on desktop -->
+		<aside
+			class="hidden lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-60 lg:shrink-0 lg:flex-col lg:border-r lg:border-primary/10 lg:px-4 lg:py-6"
+		>
+			<a href="/home" class="mb-6 flex items-center gap-2.5 px-2">
+				<div class="flex size-9 items-center justify-center rounded-xl bg-primary/10">
+					<Translate class="text-primary" />
+				</div>
+				<span class="text-lg font-bold text-slate-900 dark:text-slate-100">Taijobi</span>
+			</a>
+
+			<nav class="flex-1 space-y-0.5">
+				{#each [
+					{ href: '/home', label: 'Start', Icon: Home },
+					{ href: '/drill', label: 'Üben', Icon: Style },
+				] as item (item.href)}
+					<a
+						href={item.href}
+						class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors {isActive(item.href)
+							? 'bg-primary/10 text-primary'
+							: 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5'}"
+					>
+						<item.Icon />
+						{item.label}
+					</a>
+				{/each}
+
+				<div class="my-3 border-t border-slate-100 dark:border-white/5"></div>
+
+				{#each [
+					{ href: '/dictionary', label: 'Wörterbuch', Icon: Dictionary },
+					{ href: '/stats', label: 'Statistik', Icon: BarChart },
+					{ href: '/packs', label: 'Pakete', Icon: Inventory2 },
+					{ href: '/lexicon', label: 'Lexikon', Icon: Book2 },
+					{ href: '/characters', label: 'Zeichen', Icon: Language },
+				] as item (item.href)}
+					<a
+						href={item.href}
+						class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors {isActive(item.href)
+							? 'bg-primary/10 text-primary'
+							: 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5'}"
+					>
+						<item.Icon />
+						{item.label}
+					</a>
+				{/each}
+
+				<div class="my-3 border-t border-slate-100 dark:border-white/5"></div>
+
+				{#each [
+					{ href: '/settings', label: 'Einstellungen', Icon: Settings },
+					{ href: '/about', label: 'Über', Icon: Person },
+				] as item (item.href)}
+					<a
+						href={item.href}
+						class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors {isActive(item.href)
+							? 'bg-primary/10 text-primary'
+							: 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5'}"
+					>
+						<item.Icon />
+						{item.label}
+					</a>
+				{/each}
+			</nav>
+
+			<button
+				type="button"
+				onclick={() => paletteStore.show()}
+				class="mt-4 flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-500 transition-colors hover:border-primary/30 hover:text-primary dark:border-white/10 dark:bg-white/5 dark:text-slate-400"
+			>
+				<Search />
+				<span>Suchen</span>
+				<kbd
+					class="ml-auto rounded-md border border-slate-200 bg-slate-50 px-1.5 py-0.5 font-mono text-[10px] text-slate-500 dark:border-white/10 dark:bg-white/5"
+					>⌘K</kbd
+				>
+			</button>
+		</aside>
+
+		<!-- Main column (mobile frame + tablet/desktop content area) -->
+		<div class="flex min-h-screen flex-1 flex-col lg:min-h-0">
 		<!-- Update Banner -->
 		{#if updateStore.showBanner}
 			<button
@@ -204,11 +290,11 @@
 
 		<!-- Header -->
 		<header
-			class="sticky top-0 z-10 flex items-center justify-between border-b border-primary/10 bg-bg-light/80 px-4 py-4 backdrop-blur-md dark:bg-bg-dark/80"
+			class="sticky top-0 z-10 flex items-center justify-between border-b border-primary/10 bg-bg-light/80 px-4 py-4 backdrop-blur-md dark:bg-bg-dark/80 lg:px-8"
 		>
 			<div class="flex items-center gap-3">
 				<div
-					class="flex size-10 items-center justify-center overflow-hidden rounded-full border border-primary/20 bg-primary/10"
+					class="flex size-10 items-center justify-center overflow-hidden rounded-full border border-primary/20 bg-primary/10 lg:hidden"
 				>
 					<Person class="text-primary" />
 				</div>
@@ -221,20 +307,20 @@
 				type="button"
 				onclick={() => paletteStore.show()}
 				aria-label="Befehlspalette öffnen (Cmd+K)"
-				class="rounded-full p-2 text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/10"
+				class="rounded-full p-2 text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/10 lg:hidden"
 			>
 				<Search />
 			</button>
 		</header>
 
 		<!-- Main Content -->
-		<main class="flex-1 overflow-y-auto px-4 pb-24">
+		<main class="flex-1 overflow-y-auto px-4 pb-24 lg:px-8 lg:pb-8">
 			{@render children()}
 		</main>
 
-		<!-- Bottom Navigation — 4 tabs (Suche / Start / Üben / Mehr) -->
+		<!-- Bottom Navigation — mobile only; desktop uses the sidebar. -->
 		<nav
-			class="fixed bottom-0 left-0 right-0 z-20 mx-auto max-w-[768px] border-t border-primary/10 bg-bg-light/80 px-4 pb-6 pt-2 backdrop-blur-md dark:bg-bg-dark/80"
+			class="fixed bottom-0 left-0 right-0 z-20 mx-auto max-w-[768px] border-t border-primary/10 bg-bg-light/80 px-4 pb-6 pt-2 backdrop-blur-md dark:bg-bg-dark/80 lg:hidden"
 		>
 			<div class="flex items-center justify-between">
 				<button
@@ -275,6 +361,8 @@
 				</a>
 			</div>
 		</nav>
+		</div>
+		<!-- /main column -->
 		<CharTooltip />
 		<Toast />
 		<CommandPalette />
