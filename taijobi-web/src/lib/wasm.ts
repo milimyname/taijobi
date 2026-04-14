@@ -82,6 +82,7 @@ interface WasmExports {
 	hanzi_update_word: (id: number, idLen: number, trans: number, transLen: number) => number;
 	hanzi_lookup: (query: number, len: number) => number;
 	hanzi_search_cards: (query: number, len: number, limit: number) => number;
+	hanzi_query: (sql: number, len: number) => number;
 	hanzi_get_lexicon: () => number;
 	hanzi_get_drill_stats: () => number;
 	hanzi_install_pack: (json: number, len: number) => number;
@@ -620,6 +621,38 @@ export function searchCards(query: string, limit = 20): CardSearchResult[] {
 		console.error('[taijobi] Failed to parse searchCards JSON', e, json.slice(0, 200));
 		return [];
 	}
+}
+
+// === DevTools: raw SQL execution ===
+
+export interface QueryResult {
+	columns: string[];
+	rows: (string | number | null)[][];
+	count: number;
+	truncated: boolean;
+}
+
+/**
+ * Run arbitrary SQL and return a JSON result.
+ * DevTools-only — not safe to expose to untrusted input. Row cap is 500,
+ * result buffer is 2MB. Throws with the SQLite error message on failure.
+ */
+export function queryRaw(sql: string): QueryResult {
+	if (!wasm || typeof wasm.hanzi_query !== 'function') {
+		throw new Error('queryRaw: WASM not initialized');
+	}
+	// Reset FBA so the 2MB scratch + length-prefixed copy don't accumulate
+	// across queries. Safe here because DevTools doesn't interleave with
+	// other WASM calls mid-flight.
+	wasm.hanzi_reset_alloc();
+	const encoded = new TextEncoder().encode(sql);
+	const ptr = writeBytes(encoded);
+	const resultPtr = wasm.hanzi_query(ptr, encoded.length);
+	if (resultPtr === 0) {
+		throw new Error(getLastError('SQL query failed'));
+	}
+	const json = readLengthPrefixedString(resultPtr);
+	return JSON.parse(json) as QueryResult;
 }
 
 export function lookupCedict(query: string): CedictResult[] {

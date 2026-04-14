@@ -5,19 +5,24 @@
 		getBuildId,
 		getPacks,
 		getDrillStats,
-		getLexicon,
 		close,
+		queryRaw,
 		type Pack,
+		type QueryResult,
 	} from '$lib/wasm';
 	import { syncWS } from '$lib/sync-ws.svelte';
 	import { getSyncKey, clearSyncKey, getLastSyncTimestamp } from '$lib/sync';
-	import { isLoaded as isChineseDataLoaded, clearCache as clearChineseCache } from '$lib/dictionary-data';
+	import { clearCache as clearChineseCache } from '$lib/dictionary-data';
+	import { featureStore } from '$lib/features.svelte';
+	import { LS_SQL_HISTORY } from '$lib/config';
 
-	const TABS = ['info', 'sync', 'data'] as const;
+	const TABS = ['info', 'sync', 'data', 'flags', 'sql'] as const;
 	const TAB_LABELS: Record<(typeof TABS)[number], string> = {
 		info: 'Info',
 		sync: 'Sync',
 		data: 'Data',
+		flags: 'Flags',
+		sql: 'SQL',
 	};
 
 	let open = $state(false);
@@ -148,6 +153,71 @@
 			refreshLs();
 		}
 	});
+
+	// Flags tab
+	let flagKeys = $derived(Object.keys(featureStore.enabled).sort());
+
+	// SQL tab
+	let sqlQuery = $state('');
+	let sqlResult = $state<QueryResult | null>(null);
+	let sqlError = $state('');
+	let sqlHistory = $state<string[]>(loadSqlHistory());
+	const SQL_HISTORY_MAX = 20;
+
+	function loadSqlHistory(): string[] {
+		try {
+			const raw = localStorage.getItem(LS_SQL_HISTORY);
+			if (!raw) return [];
+			const parsed = JSON.parse(raw);
+			if (!Array.isArray(parsed)) return [];
+			return parsed.filter((x) => typeof x === 'string').slice(0, SQL_HISTORY_MAX);
+		} catch {
+			return [];
+		}
+	}
+
+	function saveSqlHistory(q: string) {
+		const next = [q, ...sqlHistory.filter((h) => h !== q)].slice(0, SQL_HISTORY_MAX);
+		sqlHistory = next;
+		try {
+			localStorage.setItem(LS_SQL_HISTORY, JSON.stringify(next));
+		} catch {
+			/* ignore quota */
+		}
+	}
+
+	function runQuery() {
+		const q = sqlQuery.trim();
+		if (!q) return;
+		sqlError = '';
+		try {
+			sqlResult = queryRaw(q);
+			saveSqlHistory(q);
+		} catch (e) {
+			sqlError = e instanceof Error ? e.message : String(e);
+			sqlResult = null;
+		}
+	}
+
+	function runSchema() {
+		sqlQuery = "SELECT name, sql FROM sqlite_master WHERE type='table' ORDER BY name";
+		runQuery();
+	}
+
+	function clearSql() {
+		sqlQuery = '';
+		sqlResult = null;
+		sqlError = '';
+	}
+
+	function restoreHistory(q: string) {
+		sqlQuery = q;
+	}
+
+	function stringifyCell(v: string | number | null): string {
+		if (v === null) return '';
+		return typeof v === 'string' ? v : String(v);
+	}
 
 	// Danger zone
 	let confirmAction = $state<string | null>(null);
@@ -504,6 +574,125 @@
 							{/if}
 						</div>
 					</div>
+				</div>
+			{:else if activeTab === 'flags'}
+				<div class="space-y-2 p-3">
+					{#if flagKeys.length === 0}
+						<p class="py-4 text-center text-xs text-slate-400 dark:text-slate-500">
+							No feature flags defined yet.
+						</p>
+						<p class="text-center text-[10px] text-slate-400 dark:text-slate-500">
+							Add keys to <code class="font-mono">DEFAULT_FEATURES</code> in <code class="font-mono">config.ts</code>.
+						</p>
+					{:else}
+						{#each flagKeys as key (key)}
+							<label
+								class="flex cursor-pointer items-center justify-between rounded-lg bg-slate-50 px-3 py-2 transition-colors hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10"
+							>
+								<span class="font-mono text-xs text-slate-700 dark:text-slate-200">{key}</span>
+								<input
+									type="checkbox"
+									checked={featureStore.isEnabled(key)}
+									onchange={() => featureStore.toggle(key)}
+									class="size-4 cursor-pointer accent-primary"
+								/>
+							</label>
+						{/each}
+					{/if}
+				</div>
+			{:else if activeTab === 'sql'}
+				<div class="space-y-2 p-3">
+					<textarea
+						bind:value={sqlQuery}
+						placeholder="SELECT * FROM cards LIMIT 10"
+						rows="4"
+						spellcheck="false"
+						class="w-full resize-y rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 font-mono text-[11px] text-slate-800 placeholder:text-slate-400 focus:border-primary focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:placeholder:text-slate-500"
+					></textarea>
+					<div class="flex gap-1.5">
+						<button
+							onclick={runQuery}
+							disabled={!sqlQuery.trim()}
+							class="flex-1 cursor-pointer rounded-lg bg-primary px-3 py-1.5 text-[10px] font-bold text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-40"
+						>
+							Run
+						</button>
+						<button
+							onclick={runSchema}
+							class="cursor-pointer rounded-lg bg-primary/10 px-3 py-1.5 text-[10px] font-bold text-primary hover:bg-primary/20"
+						>
+							Schema
+						</button>
+						<button
+							onclick={clearSql}
+							class="cursor-pointer rounded-lg px-3 py-1.5 text-[10px] font-medium text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/10"
+						>
+							Clear
+						</button>
+					</div>
+
+					{#if sqlError}
+						<div class="rounded-lg border border-red-200 bg-red-50 p-2 text-[10px] text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
+							<span class="font-bold">Error:</span>
+							<span class="break-words font-mono">{sqlError}</span>
+						</div>
+					{/if}
+
+					{#if sqlResult}
+						<div class="flex items-center justify-between text-[9px] font-medium text-slate-400">
+							<span>{sqlResult.count} row{sqlResult.count === 1 ? '' : 's'}</span>
+							{#if sqlResult.truncated}
+								<span class="rounded bg-amber-100 px-1.5 py-0.5 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300"
+									>showing first 500</span
+								>
+							{/if}
+						</div>
+						<div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-white/10">
+							<table class="min-w-full text-[10px] text-slate-700 dark:text-slate-200">
+								<thead class="bg-slate-50 text-[9px] uppercase tracking-wider text-slate-500 dark:bg-white/5 dark:text-slate-400">
+									<tr>
+										{#each sqlResult.columns as col (col)}
+											<th class="whitespace-nowrap px-2 py-1 text-left font-bold">{col}</th>
+										{/each}
+									</tr>
+								</thead>
+								<tbody class="divide-y divide-slate-100 bg-white dark:divide-white/5 dark:bg-slate-900/50">
+									{#each sqlResult.rows as row, i (i)}
+										<tr>
+											{#each row as cell, j (j)}
+												<td class="whitespace-nowrap px-2 py-1 font-mono">
+													{#if cell === null}
+														<span class="italic text-slate-400">&lt;null&gt;</span>
+													{:else}
+														{stringifyCell(cell)}
+													{/if}
+												</td>
+											{/each}
+										</tr>
+									{/each}
+								</tbody>
+							</table>
+						</div>
+					{/if}
+
+					{#if sqlHistory.length > 0}
+						<div class="pt-1">
+							<div class="mb-1 text-[9px] font-bold uppercase tracking-wider text-slate-400">
+								History
+							</div>
+							<div class="divide-y divide-slate-100 overflow-hidden rounded-lg border border-slate-200 dark:divide-white/5 dark:border-white/10">
+								{#each sqlHistory as entry (entry)}
+									<button
+										onclick={() => restoreHistory(entry)}
+										class="block w-full truncate bg-white px-2 py-1 text-left font-mono text-[10px] text-slate-600 transition-colors hover:bg-slate-50 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
+										title={entry}
+									>
+										{entry}
+									</button>
+								{/each}
+							</div>
+						</div>
+					{/if}
 				</div>
 			{/if}
 		</div>

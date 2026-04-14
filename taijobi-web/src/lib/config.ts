@@ -30,6 +30,14 @@ export const LS_CHANGELOG = 'taijobi_changelog';
 export const LS_THEME = 'taijobi_theme';
 export const LS_ONBOARDED = 'taijobi_onboarded';
 export const LS_SEARCH_HISTORY = 'taijobi_search_history';
+export const LS_FEATURES = 'taijobi_features';
+export const LS_SQL_HISTORY = 'taijobi_sql_history';
 
 // --- SessionStorage keys ---
 export const SS_DRILL_SESSION = 'taijobi_drill_session';
+
+// --- Feature flags ---
+// Map of flag key → default enabled state. Empty by default; add entries
+// when you want to dark-launch something (e.g. an experimental drill mode).
+// The DevTools Flags tab renders a toggle for every key listed here.
+export const DEFAULT_FEATURES: Record<string, boolean> = {};
