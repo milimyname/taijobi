@@ -17,7 +17,7 @@
 	let query = $state('');
 	let selectedIndex = $state(0);
 	let inputRef = $state<HTMLInputElement | undefined>();
-	let listRef = $state<HTMLDivElement | undefined>();
+	let listRef: HTMLDivElement | undefined = $state();
 	let cardResults = $state<CardSearchResult[]>([]);
 	let pinyinResults = $state<PinyinHit[]>([]);
 	let dictResults = $state<CedictResult[]>([]);
@@ -271,8 +271,13 @@
 			<div class="h-1 w-10 rounded-full bg-slate-200 dark:bg-white/10"></div>
 		</div>
 
-		<div {@attach content} class="flex flex-col px-4">
-			<div class="mb-3 flex shrink-0 items-center gap-2 rounded-2xl border border-slate-100 bg-surface px-3 py-2 dark:border-white/5 dark:bg-white/5">
+		<!-- Search input — sibling of content so the Drawer sees the scrollable
+			list directly via @attach content. Nesting another wrapper between them
+			breaks the drag-vs-scroll arbitration: contentRef.scrollTop would read 0
+			even when the inner list is scrolled, so scrolling up from the bottom
+			would drag the sheet closed instead of the list. -->
+		<div class="mb-3 shrink-0 px-4">
+			<div class="flex items-center gap-2 rounded-2xl border border-slate-100 bg-surface px-3 py-2 dark:border-white/5 dark:bg-white/5">
 				<Search class="text-slate-400 dark:text-slate-500" />
 				<input
 					bind:this={inputRef}
@@ -292,8 +297,9 @@
 					</button>
 				{/if}
 			</div>
+		</div>
 
-			<div bind:this={listRef} class="min-h-0 flex-1 overflow-y-auto pb-4">
+		<div bind:this={listRef} {@attach content} class="px-4 pb-4">
 				{#if showRecent}
 					<p class="mb-1 mt-2 px-2 text-[11px] font-bold uppercase tracking-wider text-primary">Letzte Suchen</p>
 					{#each recent as r, i (r)}
@@ -395,10 +401,9 @@
 					</button>
 				{/if}
 
-				{#if flatItems.length === 0 && query.trim()}
-					<div class="px-3 py-8 text-center text-sm text-slate-400 dark:text-slate-500">Keine Ergebnisse</div>
-				{/if}
-			</div>
+			{#if flatItems.length === 0 && query.trim()}
+				<div class="px-3 py-8 text-center text-sm text-slate-400 dark:text-slate-500">Keine Ergebnisse</div>
+			{/if}
 		</div>
 
 		<div {@attach footer} class="flex items-center justify-center gap-4 border-t border-slate-100 px-4 py-3 text-[11px] text-slate-400 dark:border-white/5 dark:text-slate-500">
