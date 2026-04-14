@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.5.17 (2026-04-14)
+
+- fix: CommandPalette scroll — attach Drawer content to scrollable list
+- fix: drop Google Fonts + make OPFS optional + global download store
+
 ## v0.5.16 (2026-04-08)
 
 - feat: wimg-style 4-tab bottom nav with /more grid
