@@ -99,6 +99,37 @@
   and a "Weiter →" button to immediately load the next batch, avoiding the round-trip
   through the picker.
 
+## Phase 5.2 Decisions
+
+- **WASM stays on the main thread.** Moving libtaijobi.wasm into a Web Worker would
+  eliminate jank during the 19MB endict parse and other sync hot spots, but the cost
+  is a system-wide refactor: every `wasm.ts` call site becomes async, `$derived(getDueCount())`
+  loses its sync simplicity, OPFS handles can't cross threads (so the persistence layer
+  moves into the worker too), the DevTools panel + sync WebSocket need RPC layers, and
+  drill answer checking gains 1-3ms postMessage latency per keystroke. Pragmatic middle:
+  keep WASM on the main thread, throttle progress callbacks to ~30Hz, yield to the event
+  loop before/after the sync WASM parse (`scheduler.yield()` with `setTimeout` fallback),
+  and write to OPFS *before* `loadEndict()` so the file is durably cached even if the
+  parse fails or the user closes the tab. Revisit only if Phase 5.4 (Kindle bulk import)
+  or another bulk operation forces the issue. Same call wimg made.
+- **Throttle dictionary-download progress callbacks.** Streaming a 19MB file with 16KB
+  chunks fires ~1200 progress events; without throttling, Svelte reactivity re-renders
+  the progress bar on every chunk and the browser drops frames. `emitProgress()` in
+  `dictionary-data.ts` caps callbacks to 33ms intervals (≈30Hz) and force-emits at 0%
+  and 100%.
+- **Cmd+K palette: in-memory pinyin index, not a SQL column.** Adding a `pinyin_normalized`
+  column would mean a v4 schema migration + backfill + sync coordination. Instead,
+  `searchIndex.svelte.ts` lazily builds a normalized-pinyin lookup from the cards table
+  on first palette open and rebuilds when `data.version()` bumps. Cards are bounded
+  (low thousands typical) so a JS pass is cheap. Diacritic normalization is a small
+  lookup table (`ā→a`, `ǎ→a`, etc.) ported from `pinyin.zig`.
+- **FAQ entries live in `commandPalette.svelte.ts`, not actions.svelte.ts.** Even though
+  they're consumed by the action registry, the canonical list lives in the palette
+  module so the palette stays self-contained and the actions file imports them. The
+  list must be kept in sync with `(app)/about/+page.svelte` — selecting a FAQ entry
+  navigates to `/about#faq-id` which auto-opens the matching `<details>` via the
+  existing `afterNavigate` hook on the about page.
+
 ## Phase 5.x Decisions
 
 - **EN/DE dictionaries via Wiktextract.** Monolingual definitions (not translation pairs).
