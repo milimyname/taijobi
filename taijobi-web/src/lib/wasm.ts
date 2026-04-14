@@ -638,8 +638,13 @@ export interface QueryResult {
  * result buffer is 2MB. Throws with the SQLite error message on failure.
  */
 export function queryRaw(sql: string): QueryResult {
-	if (!wasm || typeof wasm.hanzi_query !== 'function') {
-		throw new Error('queryRaw: WASM not initialized');
+	if (!wasm) {
+		throw new Error('WASM not initialized — reload the page');
+	}
+	if (typeof wasm.hanzi_query !== 'function') {
+		throw new Error(
+			'hanzi_query export missing — stale WASM. Hard-reload (Cmd+Shift+R) or unregister the service worker in DevTools → Application.',
+		);
 	}
 	// Reset FBA so the 2MB scratch + length-prefixed copy don't accumulate
 	// across queries. Safe here because DevTools doesn't interleave with
