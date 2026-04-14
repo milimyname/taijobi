@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.5.18 (2026-04-14)
+
+- refactor: move Kindle parser to Zig + fix Chrome drag-drop + VS Code fallback
+- docs: note Phase 5.4 Kindle import in CLAUDE.md
+- feat: Kindle My Clippings.txt import with one-transaction bulk insert (Phase 5.4)
+- polish: dashboard grid on lg, sidebar child-path highlighting, persist devtools
+- docs: refresh CLAUDE.md for Phase 5.2 / 5.3 + desktop layout
+- feat: desktop-first layout with persistent sidebar nav
+- fix(devtools): clearer error when hanzi_query export is missing
+- feat: DevTools Flags + SQL panels (Phase 5.3)
+- feat(zig): add hanzi_query for DevTools SQL panel
+- fix: load Tailwind on root layout — landing page was unstyled
+- docs: Phase 5.2 Decisions — Cmd+K palette rationale
+- feat: port wheel handler to Drawer for desktop trackpad/mouse parity
+
 ## v0.5.17 (2026-04-14)
 
 - fix: CommandPalette scroll — attach Drawer content to scrollable list
