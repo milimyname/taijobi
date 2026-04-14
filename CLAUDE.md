@@ -5,7 +5,7 @@
 *A local-first vocabulary engine for all languages you encounter — with deep
 Chinese support, curriculum packs, and spaced repetition.*
 
-Last updated: April 2026 — Phases 0-4 complete, Phase 5.0 + 5.1 done, EN/DE dictionaries added, icons inlined (no Google Fonts), onboarding + keyboard shortcuts + haptics shipped, About/FAQ page added
+Last updated: April 2026 — Phases 0-4 complete, Phase 5.0 + 5.1 + 5.2 + 5.3 done. Google Fonts removed (system-ui stack), OPFS made optional (Safari-on-LAN-IP compat), dictionary downloads lifted to a global store so progress survives navigation, Cmd+K command palette with FAQ deep-links, DevTools SQL panel + feature flag store, CommandPalette content-scroll fix + Drawer wheel-handler for desktop parity, desktop-first layout with persistent sidebar on lg+.
 
 ---
 
@@ -82,14 +82,14 @@ Inspired by libghostty and libwimg: the library is the product.
 | `text-secondary` | `slate-500` | `slate-400` | Body text, descriptions |
 | `text-muted` | `slate-400` | `slate-500` | Labels, timestamps |
 
-**Fonts:** Inter (UI), PingFang SC fallback (Chinese chars)
+**Fonts:** `system-ui` stack (UI — SF Pro on macOS/iOS, Segoe UI on Windows, Roboto on Android), PingFang SC fallback (Chinese chars). No web-font downloads — works fully offline.
 
 **Routing:** Landing page at `/`, app at `/home` (SvelteKit route group `(app)`)
 
 **Key patterns:**
 - Warm cream background (`#fefdfb`), not pure white
 - Cards: `bg-white dark:bg-slate-800/40 border border-slate-100 rounded-2xl shadow-sm`
-- Bottom nav: fixed, backdrop-blur, 4 tabs (Suche/Start/Üben/Mehr) — Suche opens the command palette, Mehr (`/more`) is a 2-col grid linking to Stats/Wörterbuch/Pakete/Lexikon/Zeichen/Einstellungen + a wide About card. wimg-style consolidation.
+- Navigation: **mobile** uses the fixed 4-tab bottom nav (Suche/Start/Üben/Mehr) — Suche opens the command palette, Mehr (`/more`) is a 2-col grid linking to Stats/Wörterbuch/Pakete/Lexikon/Zeichen/Einstellungen + a wide About card. **Desktop (`lg:`)** replaces the tab bar with a persistent 240px left sidebar holding the full route tree + a ⌘K search button; the outer wrapper widens from 768px → 1080px. Both paths share the same `isActive()` logic in `(app)/+layout.svelte`.
 - Dashboard: per-source drill cards (each pack + lexicon), "Alles gemischt" button, minimal today stats + link to /stats
 - Drill: session persisted to sessionStorage (survives reload), peek-back at previous card (ArrowLeft), remove lexicon card mid-drill, "Vorziehen" pull-forward for upcoming cards (next 24h)
 - Dictionary: unified search across ZH/EN/DE, default suggestions, add/remove toggle per result
@@ -104,6 +104,8 @@ Inspired by libghostty and libwimg: the library is the product.
 - Section headings: `text-[11px] font-bold uppercase tracking-wider text-primary`
 - Inline SVG icons in `src/lib/icons/` (Material Symbols Outlined paths, self-hosted, no Google Fonts dependency — work fully offline). Each icon is a Svelte 5 component with `class`/`style` props, `width/height="1em"`, `fill="currentColor"`. `Icon.svelte` dispatcher used where the icon name is dynamic.
 - Command palette (Cmd+K): cards (SQL LIKE), fuzzy pinyin (in-memory normalized index), CEDICT, actions, recent searches, FAQ entries (navigate to `/about#faq-id` and auto-open the matching `<details>`). FAQ list lives in `lib/commandPalette.svelte.ts` (`FAQ_ENTRIES`) and must stay in sync with the `faqs` array on `/about`.
+- DevTools (`?devtools` URL param): 5 tabs — Info (build, WASM memory, DB size, counts), Sync (WS status, key, last sync), Data (OPFS browser + localStorage + danger zone), Flags (toggles from `featureStore` in `lib/features.svelte.ts` — empty until `DEFAULT_FEATURES` in `config.ts` is populated), SQL (`queryRaw` via `hanzi_query` export, 500-row cap, 2MB result buffer, history of 20 persisted to `LS_SQL_HISTORY`).
+- Dictionary downloads: managed by `lib/download-state.svelte.ts` — a single global store drives Settings + onboarding, so progress bar + success toast survive page navigation. OPFS is optional (Safari on HTTP LAN IPs skips caching but still loads into WASM for the session).
 - German UI strings throughout
 - Character selection tooltip: select any Chinese character → popup with pinyin,
   definition, and link to `/character/[char]` detail page
