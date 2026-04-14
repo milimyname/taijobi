@@ -7,6 +7,12 @@ pub const SQLITE_OK = 0;
 pub const SQLITE_ROW = 100;
 pub const SQLITE_DONE = 101;
 pub const SQLITE_STATIC = @as(isize, 0);
+
+// Column type codes — return values from sqlite3_column_type.
+pub const SQLITE_INTEGER = 1;
+pub const SQLITE_FLOAT = 2;
+pub const SQLITE_TEXT = 3;
+pub const SQLITE_BLOB = 4;
 pub const SQLITE_NULL = 5;
 
 pub const sqlite3 = opaque {};
@@ -46,6 +52,8 @@ pub extern fn sqlite3_bind_text(
 ) c_int;
 pub extern fn sqlite3_bind_null(stmt: *sqlite3_stmt, col: c_int) c_int;
 
+pub extern fn sqlite3_column_count(stmt: *sqlite3_stmt) c_int;
+pub extern fn sqlite3_column_name(stmt: *sqlite3_stmt, col: c_int) ?[*:0]const u8;
 pub extern fn sqlite3_column_int(stmt: *sqlite3_stmt, col: c_int) c_int;
 pub extern fn sqlite3_column_int64(stmt: *sqlite3_stmt, col: c_int) i64;
 pub extern fn sqlite3_column_double(stmt: *sqlite3_stmt, col: c_int) f64;

@@ -257,6 +257,53 @@ export fn hanzi_search_cards(query_ptr: [*]const u8, query_len: usize, limit: u3
     return makeLengthPrefixed(json);
 }
 
+/// DevTools SQL panel — run arbitrary SQL and return JSON results.
+/// Returns length-prefixed JSON `{columns, rows, count, truncated}`.
+/// FBA caveat: burns ~2MB per call (scratch + length-prefix copy) until the
+/// next hanzi_reset_alloc(). Acceptable for dev-only use within the 64MB budget.
+export fn hanzi_query(sql_ptr: [*]const u8, sql_len: u32) ?[*]const u8 {
+    const db = &(global_db orelse {
+        setError("hanzi_query: database not initialized");
+        return null;
+    });
+
+    // Copy SQL into a null-terminated FBA buffer for sqlite3_prepare_v2.
+    const sql_buf = fba.allocator().alloc(u8, sql_len + 1) catch {
+        setError("hanzi_query: alloc failed for SQL");
+        return null;
+    };
+    @memcpy(sql_buf[0..sql_len], sql_ptr[0..sql_len]);
+    sql_buf[sql_len] = 0;
+
+    // 2MB scratch — bounded by the 500-row cap inside rawQuery.
+    const buf_size: usize = 2 * 1024 * 1024;
+    const scratch = fba.allocator().alloc(u8, buf_size) catch {
+        setError("hanzi_query: alloc failed for result buffer");
+        return null;
+    };
+
+    const json_len = db.rawQuery(@ptrCast(sql_buf.ptr), scratch.ptr, buf_size) catch {
+        if (db.lastError()) |msg_ptr| {
+            const msg = std.mem.span(msg_ptr);
+            var combined: [512]u8 = undefined;
+            const prefix = "hanzi_query: ";
+            const plen = @min(prefix.len, combined.len);
+            @memcpy(combined[0..plen], prefix[0..plen]);
+            const mlen = @min(msg.len, combined.len - plen);
+            @memcpy(combined[plen..][0..mlen], msg[0..mlen]);
+            setError(combined[0 .. plen + mlen]);
+        } else {
+            setError("hanzi_query: prepare failed");
+        }
+        return null;
+    } orelse {
+        setError("hanzi_query: result too large for 2MB buffer");
+        return null;
+    };
+
+    return makeLengthPrefixed(scratch[0..json_len]);
+}
+
 export fn hanzi_get_lexicon() ?[*]const u8 {
     const db = &(global_db orelse return null);
     const json = lexicon.getLexicon(db.handle, &json_buf) orelse return null;

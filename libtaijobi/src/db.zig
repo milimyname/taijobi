@@ -45,6 +45,100 @@ pub const Db = struct {
         }
     }
 
+    /// Last SQLite error message (C string). Safe to call after any failed op.
+    pub fn lastError(self: *Db) ?[*:0]const u8 {
+        return sqlite.sqlite3_errmsg(self.handle);
+    }
+
+    /// Run arbitrary SQL, write JSON result `{columns, rows, count, truncated}`
+    /// into `buf`, return bytes written. Used by the DevTools SQL panel only.
+    /// Returns `null` if the serialized JSON would overflow the buffer; caller
+    /// should treat that as "result too large". Returns `DbError.PrepareFailed`
+    /// on prepare failure (syntax error etc.) — caller reads `lastError()` for
+    /// the SQLite-level message.
+    pub fn rawQuery(self: *Db, sql: [*:0]const u8, buf: [*]u8, buf_size: usize) DbError!?usize {
+        var stmt: ?*sqlite.sqlite3_stmt = null;
+        const rc = sqlite.sqlite3_prepare_v2(self.handle, sql, -1, &stmt, null);
+        if (rc != sqlite.SQLITE_OK or stmt == null) return DbError.PrepareFailed;
+        defer _ = sqlite.sqlite3_finalize(stmt.?);
+
+        const s = stmt.?;
+        const col_count: usize = @intCast(sqlite.sqlite3_column_count(s));
+
+        // Collect column names (cap at 64 columns for the debug table)
+        var col_names: [64][*:0]const u8 = undefined;
+        const cols = @min(col_count, 64);
+        for (0..cols) |i| {
+            col_names[i] = sqlite.sqlite3_column_name(s, @intCast(i)) orelse "?";
+        }
+
+        var stream = std.io.fixedBufferStream(buf[0..buf_size]);
+        const w = stream.writer();
+
+        w.writeAll("{\"columns\":[") catch return null;
+        for (0..cols) |i| {
+            if (i > 0) w.writeByte(',') catch return null;
+            w.writeByte('"') catch return null;
+            w.writeAll(std.mem.span(col_names[i])) catch return null;
+            w.writeByte('"') catch return null;
+        }
+        w.writeAll("],\"rows\":[") catch return null;
+
+        var row_idx: usize = 0;
+        const max_rows: usize = 500;
+        while (sqlite.sqlite3_step(s) == sqlite.SQLITE_ROW) {
+            if (row_idx >= max_rows) break;
+            if (row_idx > 0) w.writeByte(',') catch return null;
+            w.writeByte('[') catch return null;
+            for (0..cols) |i| {
+                if (i > 0) w.writeByte(',') catch return null;
+                const col_type = sqlite.sqlite3_column_type(s, @intCast(i));
+                if (col_type == sqlite.SQLITE_NULL) {
+                    w.writeAll("null") catch return null;
+                } else if (col_type == sqlite.SQLITE_INTEGER) {
+                    const v = sqlite.sqlite3_column_int64(s, @intCast(i));
+                    std.fmt.format(w, "{d}", .{v}) catch return null;
+                } else if (col_type == sqlite.SQLITE_FLOAT) {
+                    const v = sqlite.sqlite3_column_double(s, @intCast(i));
+                    std.fmt.format(w, "{d}", .{v}) catch return null;
+                } else if (col_type == sqlite.SQLITE_BLOB) {
+                    const len: usize = @intCast(sqlite.sqlite3_column_bytes(s, @intCast(i)));
+                    std.fmt.format(w, "\"<BLOB {d} bytes>\"", .{len}) catch return null;
+                } else { // TEXT
+                    const ptr = sqlite.sqlite3_column_text(s, @intCast(i));
+                    const len: usize = @intCast(sqlite.sqlite3_column_bytes(s, @intCast(i)));
+                    w.writeByte('"') catch return null;
+                    if (ptr) |p| {
+                        for (p[0..len]) |ch| {
+                            switch (ch) {
+                                '"' => w.writeAll("\\\"") catch return null,
+                                '\\' => w.writeAll("\\\\") catch return null,
+                                '\n' => w.writeAll("\\n") catch return null,
+                                '\r' => w.writeAll("\\r") catch return null,
+                                '\t' => w.writeAll("\\t") catch return null,
+                                else => {
+                                    if (ch < 0x20) {
+                                        std.fmt.format(w, "\\u{x:0>4}", .{@as(u16, ch)}) catch return null;
+                                    } else {
+                                        w.writeByte(ch) catch return null;
+                                    }
+                                },
+                            }
+                        }
+                    }
+                    w.writeByte('"') catch return null;
+                }
+            }
+            w.writeByte(']') catch return null;
+            row_idx += 1;
+        }
+
+        w.writeAll("]") catch return null;
+        std.fmt.format(w, ",\"count\":{d},\"truncated\":{s}}}", .{ row_idx, if (row_idx >= max_rows) "true" else "false" }) catch return null;
+
+        return stream.pos;
+    }
+
     fn migrate(self: *Db) DbError!void {
         // Create meta table first (may already exist)
         try self.exec(
