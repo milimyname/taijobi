@@ -55,14 +55,16 @@
 			{#each drillSources as source (source.id)}
 				<a
 					href="/drill?pack={encodeURIComponent(source.id)}"
-					class="flex items-center gap-4 rounded-xl border border-slate-100 bg-white p-4 shadow-sm transition-colors hover:bg-primary/5 dark:border-white/5 dark:bg-white/5"
+					class="flex min-w-0 items-center gap-4 rounded-xl border border-slate-100 bg-white p-4 shadow-sm transition-colors hover:bg-primary/5 dark:border-white/5 dark:bg-white/5"
 				>
 					<div class="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
 						<Icon name={source.icon} class="text-2xl text-primary" />
 					</div>
-					<div class="flex-1">
-						<h3 class="font-bold text-slate-900 dark:text-slate-100">{source.label}</h3>
-						<p class="text-xs text-slate-500 dark:text-slate-400">
+					<div class="min-w-0 flex-1">
+						<h3 class="truncate font-bold text-slate-900 dark:text-slate-100" title={source.label}>
+							{source.label}
+						</h3>
+						<p class="truncate text-xs text-slate-500 dark:text-slate-400">
 							{#if source.due > 0 && source.unread > 0}
 								{source.due} f&auml;llig &middot; {source.unread} neu
 							{:else if source.due > 0}
@@ -73,7 +75,7 @@
 							&middot; ~{Math.max(1, Math.round((source.due + source.unread) * 0.5))} Min.
 						</p>
 					</div>
-					<PlayArrow class="text-primary" />
+					<PlayArrow class="shrink-0 text-primary" />
 				</a>
 			{/each}
 		</div>
@@ -96,8 +98,11 @@
 	</section>
 {/if}
 
-<!-- Today + Lexicon — stacked on mobile, side-by-side on lg -->
-<section class="mb-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
+<!-- Today + Lexicon — stacked on mobile; on lg, side-by-side only when
+     both cards exist, otherwise Today spans the full row. -->
+<section
+	class="mb-8 grid gap-4 {stats.lexicon_count > 0 ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}"
+>
 	<div>
 		<div class="mb-4 flex items-center justify-between">
 			<h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Heute</h3>
