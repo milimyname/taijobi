@@ -37,8 +37,24 @@ const ALL_FILES: DataFile[] = [
 
 const OPFS_DIR = 'dictionary-data';
 
+/** OPFS requires a secure context (HTTPS or localhost). Safari on LAN IPs over
+ *  plain HTTP does not expose it, and some older/embedded browsers lack it too.
+ *  When unavailable we still download + load into WASM for the session, just
+ *  without durable persistence. */
+function opfsAvailable(): boolean {
+	return (
+		typeof navigator !== 'undefined' &&
+		!!navigator.storage &&
+		typeof navigator.storage.getDirectory === 'function'
+	);
+}
+
 /** Load data from OPFS cache into WASM (no network). Called at startup. */
 export async function loadCachedData(): Promise<void> {
+	if (!opfsAvailable()) {
+		console.info('[taijobi] data: OPFS unavailable — skipping cache load');
+		return;
+	}
 	try {
 		const root = await navigator.storage.getDirectory();
 		let dir: FileSystemDirectoryHandle;
@@ -62,7 +78,7 @@ export async function loadCachedData(): Promise<void> {
 			}
 		}
 	} catch (e) {
-		console.warn('[taijobi] Chinese data: OPFS cache load failed:', e);
+		console.warn('[taijobi] data: OPFS cache load failed:', e);
 	}
 }
 
@@ -82,12 +98,33 @@ export async function downloadByKeys(
 	return downloadSpecificFiles(files, onProgress);
 }
 
+/** Yield to the event loop so the browser can paint and run other tasks. */
+function yieldToMain(): Promise<void> {
+	// Use scheduler.yield() if available (Chrome 129+), otherwise fall back to
+	// MessageChannel-based microtask, otherwise setTimeout.
+	const sched = (globalThis as { scheduler?: { yield?: () => Promise<void> } }).scheduler;
+	if (sched && typeof sched.yield === 'function') {
+		return sched.yield();
+	}
+	return new Promise((resolve) => setTimeout(resolve, 0));
+}
+
 async function downloadSpecificFiles(
 	files: DataFile[],
 	onProgress?: (loaded: number, total: number) => void
 ): Promise<void> {
-	const root = await navigator.storage.getDirectory();
-	const dir = await root.getDirectoryHandle(OPFS_DIR, { create: true });
+	// OPFS is best-effort. If unavailable (Safari on LAN IP over HTTP, private
+	// browsing in some browsers, etc.) we still download + load into WASM; the
+	// user just loses the cache on reload.
+	let dir: FileSystemDirectoryHandle | null = null;
+	if (opfsAvailable()) {
+		try {
+			const root = await navigator.storage.getDirectory();
+			dir = await root.getDirectoryHandle(OPFS_DIR, { create: true });
+		} catch (e) {
+			console.warn('[taijobi] data: OPFS unavailable, download will not persist:', e);
+		}
+	}
 
 	// Parallel HEAD requests to get total size up front
 	const sizes = await Promise.all(
@@ -104,7 +141,20 @@ async function downloadSpecificFiles(
 	const totalBytes = sizes.reduce((a, b) => a + b, 0);
 	let loadedBytes = 0;
 
-	onProgress?.(0, totalBytes);
+	// Throttle progress callbacks to ~30Hz so reactive UI doesn't re-render on
+	// every 16KB chunk. Without this, a 19MB file fires ~1200 progress events
+	// and the browser drops frames trying to keep up.
+	let lastProgressAt = 0;
+	const PROGRESS_INTERVAL_MS = 33;
+	function emitProgress(loaded: number, total: number, force = false): void {
+		const now = performance.now();
+		if (force || now - lastProgressAt >= PROGRESS_INTERVAL_MS) {
+			lastProgressAt = now;
+			onProgress?.(loaded, total);
+		}
+	}
+
+	emitProgress(0, totalBytes, true);
 
 	for (const file of files) {
 		const resp = await fetch(file.path);
@@ -123,7 +173,7 @@ async function downloadSpecificFiles(
 				chunks.push(value);
 				received += value.length;
 				loadedBytes += value.length;
-				onProgress?.(loadedBytes, totalBytes);
+				emitProgress(loadedBytes, totalBytes);
 			}
 		} else {
 			// Fallback for environments without streaming body
@@ -131,8 +181,16 @@ async function downloadSpecificFiles(
 			chunks.push(new Uint8Array(ab));
 			received = ab.byteLength;
 			loadedBytes += ab.byteLength;
-			onProgress?.(loadedBytes, totalBytes);
+			emitProgress(loadedBytes, totalBytes);
 		}
+
+		// Force-emit at 100% so the bar lands on the final position before we
+		// hand off to the OPFS write + WASM parse stages.
+		emitProgress(loadedBytes, totalBytes, true);
+
+		// Yield to the event loop so the browser can paint the 100% bar before
+		// we start the synchronous chunk concat.
+		await yieldToMain();
 
 		// Concatenate chunks into a single buffer
 		const buf = new Uint8Array(received);
@@ -147,26 +205,40 @@ async function downloadSpecificFiles(
 			throw new Error(`Incomplete download for ${file.path}: ${buf.length}/${contentLength} bytes`);
 		}
 
-		// Write to WASM
-		writeToWasm(file.key, buf);
-
-		// Cache in OPFS
-		try {
-			const fh = await dir.getFileHandle(`${file.key}.bin`, { create: true });
-			if (typeof fh.createWritable === 'function') {
-				const w = await fh.createWritable();
-				await w.write(buf);
-				await w.close();
-			} else {
-				// Fallback: write via Worker + createSyncAccessHandle for older Safari
-				await opfsWriteViaWorker(OPFS_DIR + '/' + file.key + '.bin', buf);
+		// Write to OPFS FIRST so the file is durably cached even if the WASM
+		// parse below fails or the user closes the tab. Subsequent runs will
+		// load from OPFS via loadCachedData(). If OPFS is unavailable we skip
+		// persistence and still load into WASM below.
+		if (dir) {
+			try {
+				const fh = await dir.getFileHandle(`${file.key}.bin`, { create: true });
+				if (typeof fh.createWritable === 'function') {
+					const w = await fh.createWritable();
+					await w.write(buf);
+					await w.close();
+				} else {
+					// Fallback: write via Worker + createSyncAccessHandle for older Safari
+					await opfsWriteViaWorker(OPFS_DIR + '/' + file.key + '.bin', buf);
+				}
+			} catch (e) {
+				// Cache write failed — log but continue, don't fail the whole download.
+				console.warn(`[taijobi] data: OPFS cache write failed for ${file.key}:`, e);
 			}
-		} catch (e) {
-			console.warn(`[taijobi] Chinese data: OPFS cache write failed for ${file.key}:`, e);
-			throw e;
 		}
 
-		console.log(`[taijobi] Chinese data: downloaded ${file.key} (${buf.length} bytes)`);
+		// Yield again before the synchronous WASM parse — this is the longest
+		// blocking step (loadEndict on 19MB takes hundreds of ms). Yielding
+		// here lets the browser repaint the bar and any "Wird geladen..." UI.
+		await yieldToMain();
+
+		// Write to WASM (synchronous, blocks main thread for the parse)
+		writeToWasm(file.key, buf);
+
+		// Yield once more so subsequent reactive updates (e.g. data.bump from
+		// the caller) can repaint without piling up.
+		await yieldToMain();
+
+		console.log(`[taijobi] data: downloaded ${file.key} (${buf.length} bytes)`);
 	}
 }
 
@@ -243,10 +315,11 @@ export function isLoaded(): boolean {
 
 /** Clear cached data from OPFS. */
 export async function clearCache(): Promise<void> {
+	if (!opfsAvailable()) return;
 	try {
 		const root = await navigator.storage.getDirectory();
 		await root.removeEntry(OPFS_DIR, { recursive: true });
-		console.log('[taijobi] Chinese data: OPFS cache cleared');
+		console.log('[taijobi] data: OPFS cache cleared');
 	} catch {
 		// Doesn't exist
 	}

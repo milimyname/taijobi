@@ -16,8 +16,7 @@
 	import { goto } from '$app/navigation';
 	import { onboardingStore } from '$lib/onboarding.svelte';
 	import Download from '$lib/icons/Download.svelte';
-	import { downloadAndLoad, downloadByKeys } from '$lib/dictionary-data';
-	import { toastStore } from '$lib/toast.svelte';
+	import { downloadStore } from '$lib/download-state.svelte';
 	import { updateStore } from '$lib/update.svelte';
 	import { themeStore } from '$lib/theme.svelte';
 	import UpdateBanner from '../../components/UpdateBanner.svelte';
@@ -32,34 +31,11 @@
 	let error = $state('');
 	let showShortcuts = $state(false);
 
-	// Onboarding dictionary install state
+	// Onboarding dictionary install state (uses global downloadStore so progress
+	// survives if the user skips the onboarding modal mid-download).
 	let zhLoaded = $derived(data.chineseDataLoaded());
 	let enLoaded = $derived(data.endictLoaded());
 	let deLoaded = $derived(data.dedictLoaded());
-	let installing = $state<'zh' | 'en' | 'de' | null>(null);
-	let installProgress = $state(0);
-	let installTotal = $state(0);
-
-	async function installDict(which: 'zh' | 'en' | 'de'): Promise<void> {
-		if (installing) return;
-		installing = which;
-		installProgress = 0;
-		installTotal = 0;
-		try {
-			const cb = (loaded: number, total: number) => {
-				installProgress = loaded;
-				installTotal = total;
-			};
-			if (which === 'zh') await downloadAndLoad(cb);
-			else await downloadByKeys([which === 'en' ? 'endict' : 'dedict'], cb);
-			data.bump();
-			toastStore.show('Wörterbuch installiert');
-		} catch (e) {
-			toastStore.show(`Fehlgeschlagen: ${e instanceof Error ? e.message : 'Fehler'}`);
-		} finally {
-			installing = null;
-		}
-	}
 
 	onMount(async () => {
 		try {
@@ -424,18 +400,18 @@
 										</div>
 										{#if opt.loaded}
 											<span class="rounded-md bg-green-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-green-700 dark:bg-green-500/20 dark:text-green-400">Geladen</span>
-										{:else if installing === opt.key}
+										{:else if downloadStore.active === opt.key}
 											<span class="text-xs text-primary">
-												{#if installTotal > 0}
-													{Math.round((installProgress / installTotal) * 100)}%
+												{#if downloadStore.total > 0}
+													{Math.round((downloadStore.progress / downloadStore.total) * 100)}%
 												{:else}
 													…
 												{/if}
 											</span>
 										{:else}
 											<button
-												onclick={() => installDict(opt.key)}
-												disabled={installing !== null}
+												onclick={() => downloadStore.start(opt.key)}
+												disabled={downloadStore.active !== null}
 												class="flex items-center gap-1 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary transition-colors hover:bg-primary/20 disabled:opacity-50"
 											>
 												<Download style="font-size: 14px" />
@@ -443,11 +419,11 @@
 											</button>
 										{/if}
 									</div>
-									{#if installing === opt.key && installTotal > 0}
+									{#if downloadStore.active === opt.key && downloadStore.total > 0}
 										<div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
 											<div
 												class="h-full rounded-full bg-primary transition-all duration-200"
-												style="width: {Math.round((installProgress / installTotal) * 100)}%"
+												style="width: {Math.round((downloadStore.progress / downloadStore.total) * 100)}%"
 											></div>
 										</div>
 									{/if}
@@ -466,14 +442,14 @@
 				<div class="mt-5 flex gap-2">
 					<button
 						onclick={() => onboardingStore.dismiss()}
-						disabled={installing !== null}
+						disabled={downloadStore.active !== null}
 						class="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 disabled:opacity-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/5"
 					>
 						Überspringen
 					</button>
 					<button
 						onclick={() => onboardingStore.next()}
-						disabled={installing !== null}
+						disabled={downloadStore.active !== null}
 						class="flex-1 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-primary/90 disabled:opacity-50"
 					>
 						{onboardingStore.step === 4 ? 'Loslegen' : 'Weiter'}

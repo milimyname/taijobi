@@ -18,7 +18,7 @@
 	import { toastStore } from '$lib/toast.svelte';
 	import { themeStore, type Theme } from '$lib/theme.svelte';
 	import { data } from '$lib/data.svelte';
-	import { downloadAndLoad, downloadByKeys, isLoaded } from '$lib/dictionary-data';
+	import { downloadStore } from '$lib/download-state.svelte';
 
 	const themeOptions: { value: Theme; label: string; icon: string }[] = [
 		{ value: 'light', label: 'Hell', icon: 'light_mode' },
@@ -100,75 +100,10 @@
 		});
 	}
 
-	// Prevent accidental navigation during downloads
-	function onBeforeUnload(e: BeforeUnloadEvent) {
-		e.preventDefault();
-	}
-
-	function guardDownload(active: boolean) {
-		if (active) {
-			window.addEventListener('beforeunload', onBeforeUnload);
-		} else {
-			window.removeEventListener('beforeunload', onBeforeUnload);
-		}
-	}
-
-	// Chinese data
+	// Dictionary load state + active download (shared across pages via downloadStore)
 	let chineseLoaded = $derived(data.chineseDataLoaded());
-	let downloading = $state(false);
-	let downloadProgress = $state(0);
-	let downloadTotal = $state(0);
-
-	async function downloadChineseData(): Promise<void> {
-		if (downloading) return;
-		downloading = true;
-		downloadProgress = 0;
-		downloadTotal = 0;
-		guardDownload(true);
-		try {
-			await downloadAndLoad((loaded, total) => {
-				downloadProgress = loaded;
-				downloadTotal = total;
-			});
-			data.bump();
-			toastStore.show('Chinesische Daten geladen');
-		} catch (e) {
-			toastStore.show(`Download fehlgeschlagen: ${e instanceof Error ? e.message : 'Fehler'}`);
-		} finally {
-			downloading = false;
-			guardDownload(false);
-		}
-	}
-
-	// EN/DE dictionaries
 	let enLoaded = $derived(data.endictLoaded());
 	let deLoaded = $derived(data.dedictLoaded());
-	let downloadingDict = $state<string | null>(null);
-	let dictProgress = $state(0);
-	let dictTotal = $state(0);
-
-	async function downloadDict(lang: 'en' | 'de'): Promise<void> {
-		if (downloadingDict) return;
-		const key = lang === 'en' ? 'endict' : 'dedict';
-		const label = lang === 'en' ? 'Englisch' : 'Deutsch';
-		downloadingDict = lang;
-		dictProgress = 0;
-		dictTotal = 0;
-		guardDownload(true);
-		try {
-			await downloadByKeys([key as 'endict' | 'dedict'], (loaded, total) => {
-				dictProgress = loaded;
-				dictTotal = total;
-			});
-			data.bump();
-			toastStore.show(`${label}-Wörterbuch geladen`);
-		} catch (e) {
-			toastStore.show(`Download fehlgeschlagen: ${e instanceof Error ? e.message : 'Fehler'}`);
-		} finally {
-			downloadingDict = null;
-			guardDownload(false);
-		}
-	}
 </script>
 
 <div class="space-y-6 py-4">
@@ -209,20 +144,20 @@
 			<p class="mt-2 text-xs text-slate-400 dark:text-slate-500">
 				CC-CEDICT, Strichfolge und Zerlegungsdaten sind verfügbar.
 			</p>
-		{:else if downloading}
+		{:else if downloadStore.active === 'zh'}
 			<div class="flex items-center gap-2">
 				<Sync class="animate-spin text-[18px] text-primary" />
 				<span class="text-sm font-medium text-slate-700 dark:text-slate-200">Herunterladen…</span>
 			</div>
-			{#if downloadTotal > 0}
+			{#if downloadStore.total > 0}
 				<div class="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
 					<div
 						class="h-full rounded-full bg-primary transition-all duration-300"
-						style="width: {Math.round((downloadProgress / downloadTotal) * 100)}%"
+						style="width: {Math.round((downloadStore.progress / downloadStore.total) * 100)}%"
 					></div>
 				</div>
 				<p class="mt-1 text-xs text-slate-400 dark:text-slate-500">
-					{Math.round(downloadProgress / 1024 / 1024)} / {Math.round(downloadTotal / 1024 / 1024)} MB
+					{Math.round(downloadStore.progress / 1024 / 1024)} / {Math.round(downloadStore.total / 1024 / 1024)} MB
 				</p>
 			{/if}
 		{:else}
@@ -234,8 +169,9 @@
 				Für Zeichenzerlegung, Strichfolge und CEDICT-Suche.
 			</p>
 			<button
-				onclick={downloadChineseData}
-				class="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-primary/90"
+				onclick={() => downloadStore.start('zh')}
+				disabled={downloadStore.active !== null}
+				class="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-primary/90 disabled:opacity-50"
 			>
 				<Download class="text-[18px]" />
 				Herunterladen
@@ -264,18 +200,18 @@
 				</div>
 				{#if enLoaded}
 					<span class="text-xs text-slate-400 dark:text-slate-500">Geladen</span>
-				{:else if downloadingDict === 'en'}
+				{:else if downloadStore.active === 'en'}
 					<span class="text-xs text-primary">
-						{#if dictTotal > 0}
-							{Math.round(dictProgress / 1024 / 1024)} / {Math.round(dictTotal / 1024 / 1024)} MB
+						{#if downloadStore.total > 0}
+							{Math.round(downloadStore.progress / 1024 / 1024)} / {Math.round(downloadStore.total / 1024 / 1024)} MB
 						{:else}
 							Herunterladen&hellip;
 						{/if}
 					</span>
 				{:else}
 					<button
-						onclick={() => downloadDict('en')}
-						disabled={downloadingDict !== null}
+						onclick={() => downloadStore.start('en')}
+						disabled={downloadStore.active !== null}
 						class="flex items-center gap-1 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary transition-colors hover:bg-primary/20 disabled:opacity-50"
 					>
 						<Download class="text-[14px]" />
@@ -283,11 +219,11 @@
 					</button>
 				{/if}
 			</div>
-			{#if downloadingDict === 'en' && dictTotal > 0}
+			{#if downloadStore.active === 'en' && downloadStore.total > 0}
 				<div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
 					<div
 						class="h-full rounded-full bg-primary transition-all duration-300"
-						style="width: {Math.round((dictProgress / dictTotal) * 100)}%"
+						style="width: {Math.round((downloadStore.progress / downloadStore.total) * 100)}%"
 					></div>
 				</div>
 			{/if}
@@ -306,18 +242,18 @@
 				</div>
 				{#if deLoaded}
 					<span class="text-xs text-slate-400 dark:text-slate-500">Geladen</span>
-				{:else if downloadingDict === 'de'}
+				{:else if downloadStore.active === 'de'}
 					<span class="text-xs text-primary">
-						{#if dictTotal > 0}
-							{Math.round(dictProgress / 1024 / 1024)} / {Math.round(dictTotal / 1024 / 1024)} MB
+						{#if downloadStore.total > 0}
+							{Math.round(downloadStore.progress / 1024 / 1024)} / {Math.round(downloadStore.total / 1024 / 1024)} MB
 						{:else}
 							Herunterladen&hellip;
 						{/if}
 					</span>
 				{:else}
 					<button
-						onclick={() => downloadDict('de')}
-						disabled={downloadingDict !== null}
+						onclick={() => downloadStore.start('de')}
+						disabled={downloadStore.active !== null}
 						class="flex items-center gap-1 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary transition-colors hover:bg-primary/20 disabled:opacity-50"
 					>
 						<Download class="text-[14px]" />
@@ -325,11 +261,11 @@
 					</button>
 				{/if}
 			</div>
-			{#if downloadingDict === 'de' && dictTotal > 0}
+			{#if downloadStore.active === 'de' && downloadStore.total > 0}
 				<div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
 					<div
 						class="h-full rounded-full bg-primary transition-all duration-300"
-						style="width: {Math.round((dictProgress / dictTotal) * 100)}%"
+						style="width: {Math.round((downloadStore.progress / downloadStore.total) * 100)}%"
 					></div>
 				</div>
 			{/if}

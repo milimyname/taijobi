@@ -10,11 +10,8 @@
 <svelte:head>
 	<title>Taijobi — Vokabeln lernen, offline</title>
 	<meta name="description" content="Lokale Vokabel-App für Chinesisch, Englisch und Deutsch. Spaced Repetition, Wörterbücher, offline-first. Kein Konto nötig." />
-	<link rel="preconnect" href="https://fonts.googleapis.com" />
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
-	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 	<style>
-		body { font-family: 'Inter', system-ui, sans-serif; margin: 0; background: #fefdfb; color: #1a1c1b; }
+		body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; margin: 0; background: #fefdfb; color: #1a1c1b; }
 		.jade-gradient { background: linear-gradient(135deg, #195c37 0%, #2d6a4f 100%); }
 	</style>
 </svelte:head>
