@@ -1,16 +1,12 @@
 /**
- * Kindle `My Clippings.txt` parser.
+ * Kindle `My Clippings.txt` import — UI adapter.
  *
- * Format: entries separated by `==========` on its own line. Each entry is:
- *
- *   Title (Author)
- *   - Your Highlight on page X | Location Y-Z | Added on <date>
- *
- *   <the highlighted text, possibly multi-line>
- *
- * Metadata lines are localized (German: "Ihre Markierung auf Seite X | Position
- * Y-Z | Hinzugefügt am ..."), but the overall structure holds for every locale.
+ * Parsing itself lives in `libtaijobi/src/kindle.zig` and is exposed via the
+ * `hanzi_parse_kindle` WASM export; this module just wraps the call so the
+ * Svelte page gets a typed array back. When iOS ships, the Zig parser runs
+ * unchanged there too.
  */
+import { parseKindleClippings } from './wasm';
 
 export type ClippingType = 'highlight' | 'note' | 'bookmark';
 
@@ -21,51 +17,14 @@ export interface KindleEntry {
 	text: string;
 }
 
-function stripBom(s: string): string {
-	return s.charCodeAt(0) === 0xfeff ? s.slice(1) : s;
-}
-
-function detectType(metaLine: string): ClippingType {
-	if (/\b(note|notiz)\b/i.test(metaLine)) return 'note';
-	if (/\b(bookmark|lesezeichen|marque-page)\b/i.test(metaLine)) return 'bookmark';
-	return 'highlight';
-}
-
-function parseTitleAndAuthor(line: string): { book: string; author: string } {
-	// Match the LAST parenthesized group, so titles with parens in them
-	// don't steal the author: "Title (foo) (Author)" → author="Author".
-	const m = line.trim().match(/^(.*?)\s*\(([^)]+)\)\s*$/);
-	if (!m) return { book: line.trim(), author: '' };
-	return { book: m[1].trim(), author: m[2].trim() };
-}
-
-/** Parse the full contents of a My Clippings.txt file. */
+/** Parse the full contents of a My Clippings.txt file via the WASM export. */
 export function parseClippings(raw: string): KindleEntry[] {
-	const text = stripBom(raw).replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-	const blocks = text.split(/^==========$/m);
-	const entries: KindleEntry[] = [];
-
-	for (const block of blocks) {
-		const trimmed = block.trim();
-		if (!trimmed) continue;
-		const lines = trimmed.split('\n');
-		if (lines.length < 3) continue;
-
-		const { book, author } = parseTitleAndAuthor(lines[0]);
-		const type = detectType(lines[1]);
-		const bodyText = lines.slice(2).join('\n').trim();
-		if (!bodyText) continue;
-		// Skip bookmarks — they have no text to import.
-		if (type === 'bookmark') continue;
-
-		entries.push({ book, author, type, text: bodyText });
-	}
-
-	return entries;
+	return parseKindleClippings(raw);
 }
 
 /** Word count heuristic for the "short clipping" filter — short clippings
- *  are usually dictionary lookups (single words), long ones are passages. */
+ *  are usually dictionary lookups (single words), long ones are passages.
+ *  Stays in TS because it's pure UI filtering — no reason to round-trip. */
 export function wordCount(text: string): number {
 	// Count CJK chars as 1 "word" each for the purposes of the short-filter.
 	// Otherwise split on whitespace.

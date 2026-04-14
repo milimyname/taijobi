@@ -83,6 +83,7 @@ interface WasmExports {
 	hanzi_lookup: (query: number, len: number) => number;
 	hanzi_search_cards: (query: number, len: number, limit: number) => number;
 	hanzi_query: (sql: number, len: number) => number;
+	hanzi_parse_kindle: (data: number, len: number) => number;
 	hanzi_bulk_add_lexicon: (data: number, len: number) => number;
 	hanzi_get_lexicon: () => number;
 	hanzi_get_drill_stats: () => number;
@@ -676,6 +677,38 @@ export interface BulkAddResult {
  * Wire format (length-prefixed, little-endian u32):
  *   [count][len1][bytes1][len2][bytes2]...
  */
+/** Kindle `My Clippings.txt` entry shape returned by the Zig parser. */
+export interface KindleClipping {
+	book: string;
+	author: string;
+	type: 'highlight' | 'note' | 'bookmark';
+	text: string;
+}
+
+/**
+ * Parse a raw My Clippings.txt file via the Zig parser. Bookmarks are
+ * skipped server-side (they have no body). Throws on fatal parse errors.
+ */
+export function parseKindleClippings(raw: string): KindleClipping[] {
+	if (!wasm) throw new Error('WASM not initialized — reload the page');
+	if (typeof wasm.hanzi_parse_kindle !== 'function') {
+		throw new Error(
+			'hanzi_parse_kindle export missing — stale WASM. Hard-reload (Cmd+Shift+R) or unregister the service worker in DevTools → Application.'
+		);
+	}
+	if (!raw) return [];
+
+	wasm.hanzi_reset_alloc();
+	const encoded = new TextEncoder().encode(raw);
+	const ptr = writeBytes(encoded);
+	const resultPtr = wasm.hanzi_parse_kindle(ptr, encoded.length);
+	if (resultPtr === 0) {
+		throw new Error(getLastError('parseKindleClippings failed'));
+	}
+	const json = readLengthPrefixedString(resultPtr);
+	return JSON.parse(json) as KindleClipping[];
+}
+
 export async function bulkAddLexicon(words: string[]): Promise<BulkAddResult> {
 	if (!wasm) throw new Error('WASM not initialized — reload the page');
 	if (typeof wasm.hanzi_bulk_add_lexicon !== 'function') {

@@ -23,6 +23,20 @@
 	// Drag state for the drop zone
 	let dragging = $state(false);
 
+	// Swallow drag-over/drop on the window so the browser doesn't navigate
+	// to the file when the user releases slightly outside the drop zone.
+	// Our zone handlers stopPropagation, so this never preempts them.
+	$effect(() => {
+		const over = (e: DragEvent) => e.preventDefault();
+		const drop = (e: DragEvent) => e.preventDefault();
+		window.addEventListener('dragover', over);
+		window.addEventListener('drop', drop);
+		return () => {
+			window.removeEventListener('dragover', over);
+			window.removeEventListener('drop', drop);
+		};
+	});
+
 	const filtered = $derived.by(() => {
 		if (filter === 'all') return entries.map((e, i) => ({ e, i }));
 		if (filter === 'short')
@@ -79,11 +93,34 @@
 		input.value = '';
 	}
 
-	function handleDrop(e: DragEvent) {
+	async function handleDrop(e: DragEvent) {
 		dragging = false;
 		const files = e.dataTransfer?.files ? Array.from(e.dataTransfer.files) : [];
-		if (files.length === 0) return;
-		handleFiles(files);
+		if (files.length > 0) {
+			handleFiles(files);
+			return;
+		}
+
+		// Fallback for editor-native drags (VS Code, Cursor, Sublime): those
+		// put the file content or path in items[] as 'string' kind rather than
+		// in files[]. If the payload looks like a clippings file (contains the
+		// `==========` separator), treat it as dropped content.
+		const items = e.dataTransfer?.items;
+		if (items) {
+			for (let i = 0; i < items.length; i++) {
+				const item = items[i];
+				if (item.kind !== 'string' || item.type !== 'text/plain') continue;
+				const text = await new Promise<string>((resolve) => item.getAsString(resolve));
+				if (text.includes('==========')) {
+					const synthetic = new File([text], 'dropped.txt', { type: 'text/plain' });
+					handleFiles([synthetic]);
+					return;
+				}
+			}
+		}
+
+		parseError =
+			'Keine Datei erkannt. Ziehe die Datei aus dem Finder/Datei-Explorer — oder aus dem ge\u00f6ffneten Editor-Tab (nicht aus der Seitenleiste des Editors). Alternativ auf "Datei ausw\u00e4hlen" klicken.';
 	}
 
 	async function loadSample() {
@@ -165,18 +202,26 @@
 		<div
 			role="region"
 			aria-label="Drop zone für My Clippings.txt"
-			ondragover={(e) => {
+			ondragenter={(e) => {
 				e.preventDefault();
+				e.stopPropagation();
 				dragging = true;
 			}}
-			ondragleave={() => {
-				dragging = false;
+			ondragover={(e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+				dragging = true;
+			}}
+			ondragleave={(e) => {
+				if (e.currentTarget === e.target) dragging = false;
 			}}
 			ondrop={(e) => {
 				e.preventDefault();
+				e.stopPropagation();
 				handleDrop(e);
 			}}
-			class="mt-6 flex flex-col items-center rounded-2xl border-2 border-dashed p-8 text-center shadow-sm transition-colors {dragging
+			class="relative mt-6 flex flex-col items-center rounded-2xl border-2 border-dashed p-8 text-center shadow-sm transition-colors {dragging
 				? 'border-primary bg-primary/10'
 				: 'border-slate-200 bg-white dark:border-white/10 dark:bg-white/5'}"
 		>

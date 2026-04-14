@@ -14,6 +14,7 @@ const decompose = @import("decompose.zig");
 const strokes_mod = @import("strokes.zig");
 const csv_mod = @import("csv.zig");
 const apkg_mod = @import("apkg.zig");
+const kindle = @import("kindle.zig");
 const wiktdict = @import("wiktdict.zig");
 
 // --- Fixed buffer allocator (64MB) ---
@@ -205,6 +206,31 @@ export fn hanzi_add_word(word_ptr: [*]const u8, word_len: usize) ?[*]const u8 {
     }
     w.writeByte('}');
     return makeLengthPrefixed(w.written());
+}
+
+/// Parse a Kindle `My Clippings.txt` file and return a JSON array of entries.
+/// Each entry: `{book, author, type, text}`. Bookmarks are skipped.
+///
+/// FBA leaks (input.len + 512KB) per call until the next `hanzi_reset_alloc`
+/// — acceptable for an import flow the user triggers once.
+export fn hanzi_parse_kindle(data_ptr: [*]const u8, data_len: u32) ?[*]const u8 {
+    const input = data_ptr[0..data_len];
+
+    const scratch = fba.allocator().alloc(u8, input.len) catch {
+        setError("hanzi_parse_kindle: scratch alloc failed");
+        return null;
+    };
+    const out_size: usize = 512 * 1024;
+    const out = fba.allocator().alloc(u8, out_size) catch {
+        setError("hanzi_parse_kindle: output alloc failed");
+        return null;
+    };
+
+    const json = kindle.parseClippings(input, scratch, out) orelse {
+        setError("hanzi_parse_kindle: output buffer overflow (too many clippings)");
+        return null;
+    };
+    return makeLengthPrefixed(json);
 }
 
 /// Bulk-add lexicon words inside a single transaction.
