@@ -50,35 +50,37 @@
 
 <!-- Drill Sources -->
 {#if drillSources.length > 0}
-	<section class="mb-8 space-y-3">
-		{#each drillSources as source (source.id)}
-			<a
-				href="/drill?pack={encodeURIComponent(source.id)}"
-				class="flex items-center gap-4 rounded-xl border border-slate-100 dark:border-white/5 bg-white dark:bg-white/5 p-4 shadow-sm transition-colors hover:bg-primary/5"
-			>
-				<div class="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-					<Icon name={source.icon} class="text-2xl text-primary" />
-				</div>
-				<div class="flex-1">
-					<h3 class="font-bold text-slate-900 dark:text-slate-100">{source.label}</h3>
-					<p class="text-xs text-slate-500 dark:text-slate-400">
-						{#if source.due > 0 && source.unread > 0}
-							{source.due} f&auml;llig &middot; {source.unread} neu
-						{:else if source.due > 0}
-							{source.due} Karten f&auml;llig
-						{:else}
-							{source.unread} neue W&ouml;rter
-						{/if}
-						&middot; ~{Math.max(1, Math.round((source.due + source.unread) * 0.5))} Min.
-					</p>
-				</div>
-				<PlayArrow class="text-primary" />
-			</a>
-		{/each}
+	<section class="mb-8">
+		<div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
+			{#each drillSources as source (source.id)}
+				<a
+					href="/drill?pack={encodeURIComponent(source.id)}"
+					class="flex items-center gap-4 rounded-xl border border-slate-100 bg-white p-4 shadow-sm transition-colors hover:bg-primary/5 dark:border-white/5 dark:bg-white/5"
+				>
+					<div class="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+						<Icon name={source.icon} class="text-2xl text-primary" />
+					</div>
+					<div class="flex-1">
+						<h3 class="font-bold text-slate-900 dark:text-slate-100">{source.label}</h3>
+						<p class="text-xs text-slate-500 dark:text-slate-400">
+							{#if source.due > 0 && source.unread > 0}
+								{source.due} f&auml;llig &middot; {source.unread} neu
+							{:else if source.due > 0}
+								{source.due} Karten f&auml;llig
+							{:else}
+								{source.unread} neue W&ouml;rter
+							{/if}
+							&middot; ~{Math.max(1, Math.round((source.due + source.unread) * 0.5))} Min.
+						</p>
+					</div>
+					<PlayArrow class="text-primary" />
+				</a>
+			{/each}
+		</div>
 		{#if drillSources.length > 1}
 			<a
 				href="/drill"
-				class="flex items-center justify-center gap-2 rounded-xl bg-primary p-4 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-colors hover:bg-primary/90"
+				class="mt-3 flex items-center justify-center gap-2 rounded-xl bg-primary p-4 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-colors hover:bg-primary/90"
 			>
 				<Shuffle class="text-lg" />
 				Alles gemischt &middot; {dueCount} Karten
@@ -94,29 +96,54 @@
 	</section>
 {/if}
 
-<!-- Today Stats -->
-<section class="mb-8">
-	<div class="flex items-center justify-between mb-4">
-		<h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Heute</h3>
-		<a href="/stats" class="text-xs font-bold uppercase tracking-wider text-primary hover:underline">
-			Alle Statistiken
-		</a>
-	</div>
-	<div
-		class="flex items-center justify-between rounded-xl border border-primary/10 bg-white dark:bg-white/5 p-4"
-	>
-		<div class="flex gap-2">
-			{#each Array(Math.min(stats.reviewed_today, 7)) as _, i (i)}
-				<div class="size-3 rounded-full bg-primary"></div>
-			{/each}
-			{#each Array(Math.max(0, 7 - Math.min(stats.reviewed_today, 7))) as _, i (i)}
-				<div class="size-3 rounded-full bg-primary/10"></div>
-			{/each}
+<!-- Today + Lexicon — stacked on mobile, side-by-side on lg -->
+<section class="mb-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
+	<div>
+		<div class="mb-4 flex items-center justify-between">
+			<h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Heute</h3>
+			<a href="/stats" class="text-xs font-bold uppercase tracking-wider text-primary hover:underline">
+				Alle Statistiken
+			</a>
 		</div>
-		<p class="text-sm text-slate-500 dark:text-slate-400">
-			{stats.reviewed_today} gelernt &middot; {accuracy(stats)}
-		</p>
+		<div
+			class="flex items-center justify-between rounded-xl border border-primary/10 bg-white p-4 dark:bg-white/5"
+		>
+			<div class="flex gap-2">
+				{#each Array(Math.min(stats.reviewed_today, 7)) as _, i (i)}
+					<div class="size-3 rounded-full bg-primary"></div>
+				{/each}
+				{#each Array(Math.max(0, 7 - Math.min(stats.reviewed_today, 7))) as _, i (i)}
+					<div class="size-3 rounded-full bg-primary/10"></div>
+				{/each}
+			</div>
+			<p class="text-sm text-slate-500 dark:text-slate-400">
+				{stats.reviewed_today} gelernt &middot; {accuracy(stats)}
+			</p>
+		</div>
 	</div>
+
+	{#if stats.lexicon_count > 0}
+		<div>
+			<div class="mb-4 flex items-center justify-between">
+				<h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Lexikon</h3>
+				<a href="/lexicon" class="text-xs font-bold uppercase tracking-wider text-primary hover:underline">
+					&Ouml;ffnen
+				</a>
+			</div>
+			<a
+				href="/lexicon"
+				class="flex items-center justify-between rounded-xl border border-primary/10 bg-white p-4 shadow-sm transition-colors hover:bg-primary/5 dark:bg-white/5"
+			>
+				<div class="flex items-center gap-3">
+					<Book class="text-primary" />
+					<p class="text-sm text-slate-500 dark:text-slate-400">
+						{stats.lexicon_count} W&ouml;rter gesammelt
+					</p>
+				</div>
+				<ChevronRight class="text-slate-400 dark:text-slate-500" />
+			</a>
+		</div>
+	{/if}
 </section>
 
 <!-- Recent Words -->
@@ -126,7 +153,7 @@
 		<div class="flex flex-wrap gap-2">
 			{#each previewCards.slice(0, 5) as card (card.id)}
 				<div
-					class="rounded-full border border-primary/5 bg-white dark:bg-white/5 px-4 py-2 shadow-sm"
+					class="rounded-full border border-primary/5 bg-white px-4 py-2 shadow-sm dark:bg-white/5"
 				>
 					<span class="font-medium text-slate-900 dark:text-slate-100" class:chinese-char={card.language === 'zh'}
 						>{card.word}</span
@@ -137,24 +164,5 @@
 				</div>
 			{/each}
 		</div>
-	</section>
-{/if}
-
-<!-- Lexicon Link -->
-{#if stats.lexicon_count > 0}
-	<section class="mb-8">
-		<a
-			href="/lexicon"
-			class="flex items-center justify-between rounded-xl border border-primary/10 bg-white dark:bg-white/5 p-4 shadow-sm transition-colors hover:bg-primary/5"
-		>
-			<div class="flex items-center gap-3">
-				<Book class="text-primary" />
-				<div>
-					<p class="font-bold text-slate-900 dark:text-slate-100">Lexikon</p>
-					<p class="text-xs text-slate-500 dark:text-slate-400">{stats.lexicon_count} W&ouml;rter gesammelt</p>
-				</div>
-			</div>
-			<ChevronRight class="text-slate-400 dark:text-slate-500" />
-		</a>
 	</section>
 {/if}

@@ -24,6 +24,7 @@
 	import { downloadStore } from '$lib/download-state.svelte';
 	import { updateStore } from '$lib/update.svelte';
 	import { themeStore } from '$lib/theme.svelte';
+	import { LS_DEVTOOLS } from '$lib/config';
 	import UpdateBanner from '../../components/UpdateBanner.svelte';
 	import CharTooltip from '../../components/CharTooltip.svelte';
 	import Toast from '../../components/Toast.svelte';
@@ -35,6 +36,23 @@
 	let ready = $state(false);
 	let error = $state('');
 	let showShortcuts = $state(false);
+
+	// DevTools gating — persisted in localStorage so it survives reloads.
+	// ?devtools (any value) turns it on for this + future sessions;
+	// ?devtools=off clears the flag.
+	let devtoolsEnabled = $state(false);
+	$effect(() => {
+		const param = page.url.searchParams.get('devtools');
+		if (param === 'off' || param === '0' || param === 'false') {
+			localStorage.removeItem(LS_DEVTOOLS);
+			devtoolsEnabled = false;
+		} else if (page.url.searchParams.has('devtools')) {
+			localStorage.setItem(LS_DEVTOOLS, '1');
+			devtoolsEnabled = true;
+		} else {
+			devtoolsEnabled = localStorage.getItem(LS_DEVTOOLS) === '1';
+		}
+	});
 
 	// Onboarding dictionary install state (uses global downloadStore so progress
 	// survives if the user skips the onboarding modal mid-download).
@@ -119,6 +137,18 @@
 
 	function isActive(path: string): boolean {
 		return page.url.pathname === path;
+	}
+
+	/** Like isActive but also matches child paths, e.g. /packs matches /packs/hsk3.
+	 *  Used by the desktop sidebar so a lesson or character detail page keeps
+	 *  the parent nav link highlighted. */
+	function isActiveSection(path: string): boolean {
+		const p = page.url.pathname;
+		if (p === path) return true;
+		if (p.startsWith(path + '/')) return true;
+		// /characters is the list, /character/:ch is the detail — keep them in sync.
+		if (path === '/characters' && p.startsWith('/character/')) return true;
+		return false;
 	}
 
 	const pageTitle = $derived(
@@ -213,7 +243,9 @@
 				] as item (item.href)}
 					<a
 						href={item.href}
-						class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors {isActive(item.href)
+						class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors {isActiveSection(
+							item.href,
+						)
 							? 'bg-primary/10 text-primary'
 							: 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5'}"
 					>
@@ -233,7 +265,9 @@
 				] as item (item.href)}
 					<a
 						href={item.href}
-						class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors {isActive(item.href)
+						class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors {isActiveSection(
+							item.href,
+						)
 							? 'bg-primary/10 text-primary'
 							: 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5'}"
 					>
@@ -250,7 +284,9 @@
 				] as item (item.href)}
 					<a
 						href={item.href}
-						class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors {isActive(item.href)
+						class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors {isActiveSection(
+							item.href,
+						)
 							? 'bg-primary/10 text-primary'
 							: 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5'}"
 					>
@@ -366,7 +402,7 @@
 		<CharTooltip />
 		<Toast />
 		<CommandPalette />
-		{#if page.url.searchParams.has('devtools')}
+		{#if devtoolsEnabled}
 			<DevTools />
 		{/if}
 
