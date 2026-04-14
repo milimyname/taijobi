@@ -7,6 +7,7 @@
 	import Edit from '$lib/icons/Edit.svelte';
 	import Mic from '$lib/icons/Mic.svelte';
 	import PhotoCamera from '$lib/icons/PhotoCamera.svelte';
+	import UploadFile from '$lib/icons/UploadFile.svelte';
 	import { addWord, removeWord, updateWord, type LexiconEntry, type AddWordResult } from '$lib/wasm';
 	import { data } from '$lib/data.svelte';
 
@@ -111,6 +112,21 @@
 		return 'Wiederholen';
 	}
 </script>
+
+<!-- Import from Kindle link -->
+<section class="mt-4">
+	<a
+		href="/lexicon/import"
+		class="flex items-center justify-between rounded-xl border border-primary/10 bg-primary/5 px-4 py-2.5 text-sm text-primary transition-colors hover:bg-primary/10"
+	>
+		<span class="flex items-center gap-2">
+			<UploadFile class="text-[18px]" />
+			<span class="font-bold">Kindle-Import</span>
+			<span class="text-xs opacity-70">My Clippings.txt</span>
+		</span>
+		<span class="text-xs font-bold">&rarr;</span>
+	</a>
+</section>
 
 <!-- Quick Add Bar -->
 <section class="mt-4 px-0">

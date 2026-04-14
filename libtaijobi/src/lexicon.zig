@@ -96,6 +96,56 @@ pub fn addWord(
     return lang_code;
 }
 
+/// Bulk-add words inside one SQLite transaction. Duplicates are counted as
+/// "skipped" (not failed). Returns the counts via out-parameters.
+///
+/// Wrapping the N inserts in a single BEGIN/COMMIT is the whole point — it
+/// collapses 100× fsync-style work (and, on the JS side, one OPFS save)
+/// into one. This is the critical path for Kindle `My Clippings.txt`
+/// imports where you routinely add tens to hundreds of entries at once.
+pub fn bulkAddWords(
+    db: *sqlite.sqlite3,
+    words: []const []const u8,
+    now_ms: i64,
+    added_out: *u32,
+    skipped_out: *u32,
+    failed_out: *u32,
+) LexiconError!void {
+    added_out.* = 0;
+    skipped_out.* = 0;
+    failed_out.* = 0;
+
+    if (sqlite.sqlite3_exec(db, "BEGIN TRANSACTION", null, null, null) != sqlite.SQLITE_OK) {
+        return error.StepFailed;
+    }
+    errdefer _ = sqlite.sqlite3_exec(db, "ROLLBACK", null, null, null);
+
+    for (words) |word| {
+        const trimmed = std.mem.trim(u8, word, " \t\r\n");
+        if (trimmed.len == 0) {
+            failed_out.* += 1;
+            continue;
+        }
+        _ = addWord(db, trimmed, null, now_ms) catch |err| switch (err) {
+            error.AlreadyExists => {
+                skipped_out.* += 1;
+                continue;
+            },
+            error.WordEmpty => {
+                failed_out.* += 1;
+                continue;
+            },
+            // Prepare/Step failures are fatal — roll back the whole batch.
+            error.PrepareFailed, error.StepFailed, error.NotFound => return err,
+        };
+        added_out.* += 1;
+    }
+
+    if (sqlite.sqlite3_exec(db, "COMMIT", null, null, null) != sqlite.SQLITE_OK) {
+        return error.StepFailed;
+    }
+}
+
 /// Soft-delete a lexicon word (sets deleted=1, updated_at=now).
 pub fn removeWord(db: *sqlite.sqlite3, card_id: []const u8, now_ms: i64) LexiconError!void {
     var stmt: ?*sqlite.sqlite3_stmt = null;

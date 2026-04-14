@@ -207,6 +207,89 @@ export fn hanzi_add_word(word_ptr: [*]const u8, word_len: usize) ?[*]const u8 {
     return makeLengthPrefixed(w.written());
 }
 
+/// Bulk-add lexicon words inside a single transaction.
+///
+/// Wire format for `data`:
+///   [u32 LE: count]
+///   N × ( [u32 LE: word_len] [word_bytes] )
+///
+/// Length-prefixed (not UTF-8 / not null-terminated) so word content is
+/// unrestricted — Kindle highlights can contain newlines, tabs, null bytes
+/// (rare but legal in text). Returns length-prefixed JSON
+/// `{added, skipped, failed}` or null on fatal SQL error.
+export fn hanzi_bulk_add_lexicon(data_ptr: [*]const u8, data_len: u32) ?[*]const u8 {
+    const db = &(global_db orelse {
+        setError("hanzi_bulk_add_lexicon: database not initialized");
+        return null;
+    });
+
+    const data = data_ptr[0..data_len];
+    if (data.len < 4) {
+        setError("hanzi_bulk_add_lexicon: input too small for count header");
+        return null;
+    }
+    const count = std.mem.readInt(u32, data[0..4], .little);
+    if (count == 0) {
+        // Nothing to do — return zero summary.
+        var w = types.JsonWriter.init(&json_buf);
+        w.writeStr("{\"added\":0,\"skipped\":0,\"failed\":0}");
+        return makeLengthPrefixed(w.written());
+    }
+
+    // Cap at a sane ceiling; anything bigger is almost certainly a bug.
+    const MAX_WORDS: u32 = 10_000;
+    const n = @min(count, MAX_WORDS);
+
+    // Allocate a slice of slices from FBA. One fixed allocation, no resize.
+    const words = fba.allocator().alloc([]const u8, n) catch {
+        setError("hanzi_bulk_add_lexicon: FBA alloc failed");
+        return null;
+    };
+
+    var offset: usize = 4;
+    var i: u32 = 0;
+    while (i < n) : (i += 1) {
+        if (offset + 4 > data.len) {
+            setError("hanzi_bulk_add_lexicon: truncated — missing length prefix");
+            return null;
+        }
+        const word_len = std.mem.readInt(u32, data[offset..][0..4], .little);
+        offset += 4;
+        if (offset + word_len > data.len) {
+            setError("hanzi_bulk_add_lexicon: truncated — word bytes past end");
+            return null;
+        }
+        words[i] = data[offset..][0..word_len];
+        offset += word_len;
+    }
+
+    var added: u32 = 0;
+    var skipped: u32 = 0;
+    var failed: u32 = 0;
+    lexicon.bulkAddWords(db.handle, words, now(), &added, &skipped, &failed) catch |err| {
+        const msg = switch (err) {
+            error.PrepareFailed => "bulk_add_lexicon: SQL prepare failed",
+            error.StepFailed => "bulk_add_lexicon: SQL step failed",
+            else => "bulk_add_lexicon: unknown error",
+        };
+        setError(msg);
+        return null;
+    };
+
+    var w = types.JsonWriter.init(&json_buf);
+    w.writeByte('{');
+    w.writeKey("added");
+    w.writeInt(@intCast(added));
+    w.writeByte(',');
+    w.writeKey("skipped");
+    w.writeInt(@intCast(skipped));
+    w.writeByte(',');
+    w.writeKey("failed");
+    w.writeInt(@intCast(failed));
+    w.writeByte('}');
+    return makeLengthPrefixed(w.written());
+}
+
 export fn hanzi_remove_word(id_ptr: [*]const u8, id_len: usize) i32 {
     const db = &(global_db orelse return -1);
     const card_id = id_ptr[0..id_len];
