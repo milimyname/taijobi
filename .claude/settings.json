@@ -1,0 +1,17 @@
+{
+	"hooks": {
+		"PreToolUse": [
+			{
+				"matcher": "Bash",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "python3 -c \"\nimport sys, json, subprocess\nd = json.load(sys.stdin)\ncmd = d.get('tool_input', {}).get('command', '')\nif not cmd.startswith('git commit'):\n    sys.exit(0)\nerrors = []\nr1 = subprocess.run(['zig', 'fmt', '--check', 'src/'], cwd='libtaijobi', capture_output=True, text=True)\nif r1.returncode != 0:\n    errors.append('zig fmt failed:\\n' + (r1.stdout or r1.stderr).strip())\nr2 = subprocess.run(['bunx', 'oxfmt', '--check'], cwd='taijobi-web', capture_output=True, text=True)\nif r2.returncode != 0:\n    errors.append('oxfmt failed:\\n' + (r2.stdout or r2.stderr).strip())\nr3 = subprocess.run(['bunx', 'oxlint'], cwd='taijobi-web', capture_output=True, text=True)\nif r3.returncode != 0 and 'errors' in r3.stdout and 'Found 0 errors' not in r3.stdout:\n    errors.append('oxlint errors:\\n' + r3.stdout.strip())\nif errors:\n    json.dump({'continue': False, 'stopReason': 'Pre-commit checks failed:\\n\\n' + '\\n\\n'.join(errors)}, sys.stdout)\n\"",
+						"timeout": 30,
+						"statusMessage": "Running pre-commit checks..."
+					}
+				]
+			}
+		]
+	}
+}
