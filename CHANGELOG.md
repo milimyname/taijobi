@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.5.19 (2026-04-14)
+
+- fix(/home): drill cards overflow + Today full-width when Lexikon is empty
+
 ## v0.5.18 (2026-04-14)
 
 - refactor: move Kindle parser to Zig + fix Chrome drag-drop + VS Code fallback
