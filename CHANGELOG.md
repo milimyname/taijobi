@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.5.21 (2026-04-15)
+
+- polish: import summary banner, DevTools TSV export, sidebar scroll, dedup dark: typos
+
 ## v0.5.20 (2026-04-15)
 
 - fix: dark-mode landing + drill "Neue Wörter" + custom +error.svelte
