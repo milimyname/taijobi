@@ -114,28 +114,27 @@
 		if (file.name.endsWith('.apkg')) {
 			// Binary .apkg — import directly (no text preview)
 			const reader = new FileReader();
-			reader.onload = async () => {
+			reader.addEventListener('load', async () => {
 				importing = true;
 				try {
 					const count = await importApkg(reader.result as ArrayBuffer, name);
 					toastStore.show(`${count} Karten aus .apkg importiert`);
-			
 				} catch (e) {
 					toastStore.show(e instanceof Error ? e.message : '.apkg import failed');
 				} finally {
 					importing = false;
 				}
-			};
+			});
 			reader.readAsArrayBuffer(file);
 			return;
 		}
 
 		// CSV/TSV — show text preview
 		const reader = new FileReader();
-		reader.onload = () => {
+		reader.addEventListener('load', () => {
 			const text = reader.result as string;
 			csvPreview = parseCsvPreview(text, name);
-		};
+		});
 		reader.readAsText(file);
 	}
 

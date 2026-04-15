@@ -142,7 +142,10 @@
 	});
 
 	$effect(() => {
-		flatItems;
+		// Read flatItems to register it as a reactive dependency — whenever
+		// the list changes (new query, new results), reset the highlight to
+		// the first row.
+		void flatItems;
 		selectedIndex = 0;
 	});
 

@@ -23,17 +23,19 @@
 	// Drag state for the drop zone
 	let dragging = $state(false);
 
+	// Hoisted so oxlint doesn't re-create these every effect run. They capture
+	// no state, just preventDefault the event.
+	const swallowDragEvent = (e: DragEvent) => e.preventDefault();
+
 	// Swallow drag-over/drop on the window so the browser doesn't navigate
 	// to the file when the user releases slightly outside the drop zone.
 	// Our zone handlers stopPropagation, so this never preempts them.
 	$effect(() => {
-		const over = (e: DragEvent) => e.preventDefault();
-		const drop = (e: DragEvent) => e.preventDefault();
-		window.addEventListener('dragover', over);
-		window.addEventListener('drop', drop);
+		window.addEventListener('dragover', swallowDragEvent);
+		window.addEventListener('drop', swallowDragEvent);
 		return () => {
-			window.removeEventListener('dragover', over);
-			window.removeEventListener('drop', drop);
+			window.removeEventListener('dragover', swallowDragEvent);
+			window.removeEventListener('drop', swallowDragEvent);
 		};
 	});
 
@@ -158,7 +160,7 @@
 	async function doImport() {
 		if (importing || selectedCount === 0) return;
 		importing = true;
-		const toImport = [...selected].sort((a, b) => a - b).map((i) => entries[i].text);
+		const toImport = [...selected].toSorted((a, b) => a - b).map((i) => entries[i].text);
 		try {
 			const { added, skipped, failed } = await bulkAddLexicon(toImport);
 			const parts: string[] = [];

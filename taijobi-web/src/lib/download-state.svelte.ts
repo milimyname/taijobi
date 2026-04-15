@@ -13,6 +13,10 @@ import { toastStore } from './toast.svelte';
 
 export type DownloadKey = 'zh' | 'en' | 'de';
 
+// Hoisted so the handler identity is stable across invocations (addEventListener
+// / removeEventListener match by reference). Captures nothing from start().
+const onBeforeUnload = (e: BeforeUnloadEvent) => e.preventDefault();
+
 class DownloadStore {
 	active = $state<DownloadKey | null>(null);
 	progress = $state(0);
@@ -28,7 +32,6 @@ class DownloadStore {
 		// Prevent accidental tab close / page reload during the download. SvelteKit
 		// client-side navigation doesn't trigger this, which is exactly what we
 		// want — the store keeps driving progress while the user browses.
-		const onBeforeUnload = (e: BeforeUnloadEvent) => e.preventDefault();
 		window.addEventListener('beforeunload', onBeforeUnload);
 
 		try {

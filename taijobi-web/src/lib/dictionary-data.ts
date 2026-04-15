@@ -278,6 +278,7 @@ async function opfsWriteViaWorker(path: string, data: Uint8Array): Promise<void>
 			worker.terminate();
 			reject(err);
 		});
+		// oxlint-disable-next-line require-post-message-target-origin -- Worker.postMessage's 2nd arg is `transfer`, not a target origin (that's Window.postMessage).
 		worker.postMessage({ path, bytes: data });
 	});
 }

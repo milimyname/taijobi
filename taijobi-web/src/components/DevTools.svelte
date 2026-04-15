@@ -155,7 +155,7 @@
 	});
 
 	// Flags tab
-	let flagKeys = $derived(Object.keys(featureStore.enabled).sort());
+	let flagKeys = $derived(Object.keys(featureStore.enabled).toSorted());
 
 	// SQL tab
 	let sqlQuery = $state('');

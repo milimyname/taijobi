@@ -98,6 +98,7 @@ class UpdateStore {
 			window.location.reload();
 			return;
 		}
+		// oxlint-disable-next-line require-post-message-target-origin -- ServiceWorker.postMessage's 2nd arg is `transfer`, not a target origin (that's Window.postMessage).
 		this.#waitingSW.postMessage({ type: 'SKIP_WAITING' });
 	}
 
