@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.5.20 (2026-04-15)
+
+- fix: dark-mode landing + drill "Neue Wörter" + custom +error.svelte
+- fix(sw): keep offline support for WASM via network-first + cache fallback
+- fix(sw): stop caching libtaijobi.wasm so Zig-only rebuilds reach users
+
 ## v0.5.19 (2026-04-14)
 
 - fix(/home): drill cards overflow + Today full-width when Lexikon is empty
