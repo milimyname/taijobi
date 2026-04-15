@@ -8,21 +8,20 @@ import { build, files, version } from '$service-worker';
 declare const self: ServiceWorkerGlobalScope;
 
 const CACHE = `taijobi-${version}`;
-// libtaijobi.wasm and /data/*.bin files are never cached by the SW — they
-// change independently of the JS build (a Zig-only rebuild leaves `version`
-// the same), and a stale WASM served from the SW cache silently breaks new
-// C-ABI exports until the user manually unregisters the SW. Leaving them
-// out of the precache lets the browser HTTP cache handle freshness, with
-// 304 Not Modified for unchanged builds.
-const ASSETS = [...build, ...files.filter((f) => f !== '/libtaijobi.wasm')];
+const ASSETS = [...build, ...files];
 
-// Install: precache JS/CSS/icons (not WASM, not dictionary .bin files)
+// Install: precache all assets — including libtaijobi.wasm so a first-install
+// still works offline. Freshness for the WASM is handled at fetch time
+// (network-first) rather than at SW-version time, because Zig-only rebuilds
+// don't change the SW `version` hash.
 self.addEventListener('install', (event) => {
 	event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll([...ASSETS, '/'])));
 });
 
-// Activate: delete old caches + purge any stale .bin or .wasm entries that
-// previous SW versions may have cached, then claim clients.
+// Activate: delete old caches + purge /data/*.bin entries (OPFS is their
+// cache layer, the SW cache would just duplicate storage). We deliberately
+// do NOT purge libtaijobi.wasm — it's the offline fallback for the fetch
+// handler below.
 self.addEventListener('activate', (event) => {
 	event.waitUntil(
 		caches
@@ -35,10 +34,7 @@ self.addEventListener('activate', (event) => {
 						requests
 							.filter((r) => {
 								const u = new URL(r.url);
-								return (
-									(u.pathname.startsWith('/data/') && u.pathname.endsWith('.bin')) ||
-									u.pathname === '/libtaijobi.wasm'
-								);
+								return u.pathname.startsWith('/data/') && u.pathname.endsWith('.bin');
 							})
 							.map((r) => cache.delete(r))
 					)
@@ -66,10 +62,26 @@ self.addEventListener('fetch', (event) => {
 		return;
 	}
 
-	// Skip the Zig WASM binary — see the comment above ASSETS. Letting the
-	// browser hit the network (or its HTTP cache) means a Zig-only rebuild
-	// reaches the user on next reload instead of waiting for an SW bump.
+	// Network-first for the Zig WASM binary. Zig-only rebuilds don't bump the
+	// SW `version` hash, so a cache-first strategy would keep serving the old
+	// WASM until the user manually unregisters the SW (silently breaking new
+	// C-ABI exports). Network-first picks up the fresh build on any online
+	// reload; the cached copy stays as the offline fallback.
 	if (url.pathname === '/libtaijobi.wasm') {
+		event.respondWith(
+			fetch(event.request)
+				.then((response) => {
+					if (response.ok) {
+						const clone = response.clone();
+						caches.open(CACHE).then((cache) => cache.put(event.request, clone));
+					}
+					return response;
+				})
+				.catch(async () => {
+					const cached = await caches.match(event.request);
+					return cached ?? new Response('Offline', { status: 503 });
+				})
+		);
 		return;
 	}
 
