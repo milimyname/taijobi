@@ -8,14 +8,21 @@ import { build, files, version } from '$service-worker';
 declare const self: ServiceWorkerGlobalScope;
 
 const CACHE = `taijobi-${version}`;
-const ASSETS = [...build, ...files];
+// libtaijobi.wasm and /data/*.bin files are never cached by the SW — they
+// change independently of the JS build (a Zig-only rebuild leaves `version`
+// the same), and a stale WASM served from the SW cache silently breaks new
+// C-ABI exports until the user manually unregisters the SW. Leaving them
+// out of the precache lets the browser HTTP cache handle freshness, with
+// 304 Not Modified for unchanged builds.
+const ASSETS = [...build, ...files.filter((f) => f !== '/libtaijobi.wasm')];
 
-// Install: precache all assets
+// Install: precache JS/CSS/icons (not WASM, not dictionary .bin files)
 self.addEventListener('install', (event) => {
 	event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll([...ASSETS, '/'])));
 });
 
-// Activate: delete old caches + purge .bin entries from current cache, claim clients
+// Activate: delete old caches + purge any stale .bin or .wasm entries that
+// previous SW versions may have cached, then claim clients.
 self.addEventListener('activate', (event) => {
 	event.waitUntil(
 		caches
@@ -28,7 +35,10 @@ self.addEventListener('activate', (event) => {
 						requests
 							.filter((r) => {
 								const u = new URL(r.url);
-								return u.pathname.startsWith('/data/') && u.pathname.endsWith('.bin');
+								return (
+									(u.pathname.startsWith('/data/') && u.pathname.endsWith('.bin')) ||
+									u.pathname === '/libtaijobi.wasm'
+								);
 							})
 							.map((r) => cache.delete(r))
 					)
@@ -53,6 +63,13 @@ self.addEventListener('fetch', (event) => {
 
 	// Skip caching for Chinese data files — OPFS is the cache layer
 	if (url.pathname.startsWith('/data/') && url.pathname.endsWith('.bin')) {
+		return;
+	}
+
+	// Skip the Zig WASM binary — see the comment above ASSETS. Letting the
+	// browser hit the network (or its HTTP cache) means a Zig-only rebuild
+	// reaches the user on next reload instead of waiting for an SW bump.
+	if (url.pathname === '/libtaijobi.wasm') {
 		return;
 	}
 
