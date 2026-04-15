@@ -219,6 +219,27 @@
 		return typeof v === 'string' ? v : String(v);
 	}
 
+	/** Escape a cell for TSV — replace tabs/newlines/CR so each row is one line
+	 *  and each column is one tab-delimited field. */
+	function tsvCell(v: string | number | null): string {
+		if (v === null) return '';
+		const s = typeof v === 'string' ? v : String(v);
+		return s.replace(/\t/g, ' ').replace(/\r?\n/g, ' ');
+	}
+
+	function exportResultTsv() {
+		if (!sqlResult) return;
+		const lines = [sqlResult.columns.join('\t')];
+		for (const row of sqlResult.rows) lines.push(row.map(tsvCell).join('\t'));
+		const blob = new Blob([lines.join('\n')], { type: 'text/tab-separated-values' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `taijobi-query-${Date.now()}.tsv`;
+		a.click();
+		URL.revokeObjectURL(url);
+	}
+
 	// Danger zone
 	let confirmAction = $state<string | null>(null);
 
@@ -639,13 +660,22 @@
 					{/if}
 
 					{#if sqlResult}
-						<div class="flex items-center justify-between text-[9px] font-medium text-slate-400">
+						<div class="flex items-center justify-between gap-2 text-[9px] font-medium text-slate-400">
 							<span>{sqlResult.count} row{sqlResult.count === 1 ? '' : 's'}</span>
-							{#if sqlResult.truncated}
-								<span class="rounded bg-amber-100 px-1.5 py-0.5 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300"
-									>showing first 500</span
+							<div class="flex items-center gap-1.5">
+								{#if sqlResult.truncated}
+									<span
+										class="rounded bg-amber-100 px-1.5 py-0.5 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300"
+										>showing first 500</span
+									>
+								{/if}
+								<button
+									onclick={exportResultTsv}
+									class="cursor-pointer rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[9px] text-slate-600 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-300 dark:hover:bg-white/15"
 								>
-							{/if}
+									TSV
+								</button>
+							</div>
 						</div>
 						<div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-white/10">
 							<table class="min-w-full text-[10px] text-slate-700 dark:text-slate-200">

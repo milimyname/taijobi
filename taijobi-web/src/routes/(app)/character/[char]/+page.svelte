@@ -158,7 +158,7 @@
 					<span class="chinese-char text-2xl {comp.type === 'radical' ? 'text-primary' : 'text-slate-900 dark:text-slate-100'}">
 						{comp.char}
 					</span>
-					<span class="mt-1 text-[10px] font-bold uppercase tracking-wider {comp.type === 'radical' ? 'text-primary' : 'text-slate-400 dark:text-slate-500 dark:text-slate-400'}">
+					<span class="mt-1 text-[10px] font-bold uppercase tracking-wider {comp.type === 'radical' ? 'text-primary' : 'text-slate-400 dark:text-slate-500'}">
 						{componentLabel(comp.type)}
 					</span>
 					{#if comp.definition}
@@ -251,7 +251,7 @@
 					</div>
 					<div class="flex items-center gap-2">
 						{#if word.reps > 0}
-							<span class="text-xs text-slate-400 dark:text-slate-500 dark:text-slate-400">{word.reps}x</span>
+							<span class="text-xs text-slate-400 dark:text-slate-500">{word.reps}x</span>
 						{/if}
 						<button
 							onclick={() => speak(word.word, 'zh')}

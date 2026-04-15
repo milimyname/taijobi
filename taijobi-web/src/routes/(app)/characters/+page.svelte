@@ -136,7 +136,7 @@
 	</h3>
 	{#if filtered.length === 0}
 		<div class="rounded-2xl border border-slate-100 dark:border-white/5 bg-white dark:bg-white/5 p-8 text-center shadow-sm">
-			<Translate class="mb-2 text-[32px] text-slate-300 dark:text-slate-500 dark:text-slate-400" />
+			<Translate class="mb-2 text-[32px] text-slate-300 dark:text-slate-500" />
 			<p class="text-sm text-slate-500 dark:text-slate-400">Keine Zeichen gefunden.</p>
 		</div>
 	{:else}

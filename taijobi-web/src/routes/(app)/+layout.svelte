@@ -229,7 +229,7 @@
 	<div class="relative mx-auto flex min-h-screen max-w-[768px] flex-col bg-bg-light shadow-sm dark:bg-bg-dark lg:max-w-[1080px] lg:flex-row lg:shadow-none">
 		<!-- Desktop Sidebar — hidden below lg, persistent on desktop -->
 		<aside
-			class="hidden lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-60 lg:shrink-0 lg:flex-col lg:border-r lg:border-primary/10 lg:px-4 lg:py-6"
+			class="hidden lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-60 lg:shrink-0 lg:flex-col lg:overflow-y-auto lg:border-r lg:border-primary/10 lg:px-4 lg:py-6"
 		>
 			<a href="/home" class="mb-6 flex items-center gap-2.5 px-2">
 				<div class="flex size-9 items-center justify-center rounded-xl bg-primary/10">

@@ -487,7 +487,7 @@
 			{#each sources as source (source.id)}
 				<button
 					onclick={() => startDrill(source.id, source.label)}
-					class="flex w-full items-center justify-between rounded-2xl border border-slate-100 dark:border-white/5 bg-white p-4 shadow-sm transition-colors hover:bg-primary/5 dark:border-white/5 dark:bg-white/5"
+					class="flex w-full items-center justify-between rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition-colors hover:bg-primary/5 dark:border-white/5 dark:bg-white/5"
 				>
 					<div class="flex items-center gap-3">
 						<Icon name={source.id === '' ? 'layers' : source.id === 'lexicon' ? 'book' : 'inventory_2'} class="text-primary" />
@@ -500,7 +500,7 @@
 			{/each}
 		</div>
 		{#if sources.length === 0 && readSources.length === 0}
-			<div class="rounded-2xl border border-slate-100 dark:border-white/5 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-white/5">
+			<div class="rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-white/5">
 				<p class="text-2xl font-bold text-slate-900 dark:text-slate-100">Alles erledigt!</p>
 				<p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Keine Karten f&auml;llig.</p>
 			</div>

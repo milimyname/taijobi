@@ -161,14 +161,26 @@
 		if (importing || selectedCount === 0) return;
 		importing = true;
 		const toImport = [...selected].toSorted((a, b) => a - b).map((i) => entries[i].text);
+		const books = new Set<string>();
+		for (const idx of selected) if (entries[idx].book) books.add(entries[idx].book);
 		try {
 			const { added, skipped, failed } = await bulkAddLexicon(toImport);
-			const parts: string[] = [];
-			if (added > 0) parts.push(`${added} importiert`);
-			if (skipped > 0) parts.push(`${skipped} schon vorhanden`);
-			if (failed > 0) parts.push(`${failed} fehlgeschlagen`);
-			toastStore.show(parts.length > 0 ? parts.join(', ') : 'Nichts importiert');
-			if (failed === 0) goto('/lexicon');
+			if (failed > 0) {
+				const parts = [`${added} importiert`, `${skipped} schon vorhanden`, `${failed} fehlgeschlagen`];
+				toastStore.show(parts.join(', '));
+			} else if (added + skipped === 0) {
+				toastStore.show('Nichts importiert');
+			} else {
+				// Hand off the summary to /lexicon via query params so the destination
+				// can show an "Imported N words from M books — Undo" banner. Refresh-
+				// safe; no extra store needed.
+				const params = new URLSearchParams({
+					imported: String(added),
+					skipped: String(skipped),
+					books: String(books.size),
+				});
+				goto(`/lexicon?${params}`);
+			}
 		} catch (e) {
 			toastStore.show(`Import fehlgeschlagen: ${e instanceof Error ? e.message : 'Fehler'}`);
 		} finally {

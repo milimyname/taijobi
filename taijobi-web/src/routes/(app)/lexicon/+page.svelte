@@ -8,6 +8,8 @@
 	import Mic from '$lib/icons/Mic.svelte';
 	import PhotoCamera from '$lib/icons/PhotoCamera.svelte';
 	import UploadFile from '$lib/icons/UploadFile.svelte';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import { addWord, removeWord, updateWord, type LexiconEntry, type AddWordResult } from '$lib/wasm';
 	import { data } from '$lib/data.svelte';
 
@@ -111,13 +113,60 @@
 		if (entry.stability > 5) return 'Gelernt';
 		return 'Wiederholen';
 	}
+
+	// Import summary banner — driven by ?imported=N&skipped=M&books=K query
+	// params that /lexicon/import redirects with after a successful bulk-add.
+	const importSummary = $derived.by(() => {
+		const imported = Number(page.url.searchParams.get('imported'));
+		if (!Number.isFinite(imported) || imported <= 0) return null;
+		return {
+			imported,
+			skipped: Number(page.url.searchParams.get('skipped')) || 0,
+			books: Number(page.url.searchParams.get('books')) || 0,
+		};
+	});
+
+	function dismissImportSummary() {
+		goto('/lexicon', { replaceState: true });
+	}
 </script>
+
+<!-- Post-import summary banner -->
+{#if importSummary}
+	<section class="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-3 dark:border-primary/30 dark:bg-primary/10">
+		<div class="flex items-start gap-3">
+			<div class="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 dark:bg-primary/20">
+				<Check class="text-primary" />
+			</div>
+			<div class="min-w-0 flex-1">
+				<p class="text-sm font-bold text-slate-900 dark:text-slate-100">
+					{importSummary.imported} W&ouml;rter importiert{#if importSummary.books > 0}
+						aus {importSummary.books} B&uuml;chern
+					{/if}
+				</p>
+				{#if importSummary.skipped > 0}
+					<p class="text-xs text-slate-500 dark:text-slate-400">
+						{importSummary.skipped} schon im Lexikon &mdash; &uuml;bersprungen.
+					</p>
+				{/if}
+			</div>
+			<button
+				type="button"
+				onclick={dismissImportSummary}
+				class="rounded-lg p-1 text-slate-400 transition-colors hover:bg-white/50 hover:text-slate-600 dark:text-slate-500 dark:hover:bg-white/10 dark:hover:text-slate-300"
+				aria-label="Schlie&szlig;en"
+			>
+				<Close class="text-[18px]" />
+			</button>
+		</div>
+	</section>
+{/if}
 
 <!-- Import from Kindle link -->
 <section class="mt-4">
 	<a
 		href="/lexicon/import"
-		class="flex items-center justify-between rounded-xl border border-primary/10 bg-primary/5 px-4 py-2.5 text-sm text-primary transition-colors hover:bg-primary/10"
+		class="flex items-center justify-between rounded-xl border border-primary/10 bg-primary/5 px-4 py-2.5 text-sm text-primary transition-colors hover:bg-primary/10 dark:border-primary/20 dark:bg-primary/10 dark:hover:bg-primary/15"
 	>
 		<span class="flex items-center gap-2">
 			<UploadFile class="text-[18px]" />
@@ -220,8 +269,8 @@
 <!-- Word List -->
 <section class="mt-6 space-y-6">
 	{#if filtered.length === 0}
-		<div class="rounded-2xl border border-slate-100 dark:border-white/5 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-white/5">
-			<Book2 class="mb-2 text-[32px] text-slate-300 dark:text-slate-500 dark:text-slate-400" />
+		<div class="rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-white/5">
+			<Book2 class="mb-2 text-[32px] text-slate-300 dark:text-slate-500" />
 			<p class="text-sm text-slate-500 dark:text-slate-400">
 				Noch keine W&ouml;rter. F&uuml;ge W&ouml;rter hinzu, die dir beim Lesen begegnen.
 			</p>
@@ -235,7 +284,7 @@
 			<div class="space-y-3">
 				{#each filtered as entry (entry.id)}
 					<div
-						class="rounded-2xl border border-slate-100 dark:border-white/5 bg-white p-4 shadow-sm dark:border-white/5 dark:bg-slate-800/40"
+						class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm dark:border-white/5 dark:bg-slate-800/40"
 					>
 						{#if editingId === entry.id}
 							<!-- Edit mode -->
@@ -245,7 +294,7 @@
 									bind:value={editTranslation}
 									onkeydown={handleEditKeydown}
 									placeholder="&Uuml;bersetzung..."
-									class="min-w-0 flex-1 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder-primary/40 outline-none focus:border-primary/40 dark:text-slate-100"
+									class="min-w-0 flex-1 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-slate-900 placeholder-primary/40 outline-none focus:border-primary/40 dark:text-slate-100"
 								/>
 								<button
 									onclick={saveEdit}
@@ -255,7 +304,7 @@
 								</button>
 								<button
 									onclick={cancelEdit}
-									class="rounded-lg bg-slate-100 p-2 text-slate-500 dark:text-slate-400 transition-colors hover:bg-slate-200 dark:hover:bg-white/15 dark:bg-white/10 dark:text-slate-400 dark:hover:bg-white/15"
+									class="rounded-lg bg-slate-100 p-2 text-slate-500 transition-colors hover:bg-slate-200 dark:bg-white/10 dark:text-slate-400 dark:hover:bg-white/15"
 								>
 									<Close class="text-[18px]" />
 								</button>
@@ -298,14 +347,14 @@
 								<div class="flex items-center gap-1">
 									<button
 										onclick={() => startEdit(entry)}
-										class="rounded-lg p-1.5 text-slate-300 transition-colors hover:bg-slate-100 dark:hover:bg-white/10 hover:text-primary dark:text-slate-500 dark:text-slate-400 dark:hover:bg-white/10"
+										class="rounded-lg p-1.5 text-slate-300 transition-colors hover:bg-slate-100 hover:text-primary dark:text-slate-500 dark:hover:bg-white/10 dark:hover:text-primary"
 										title="Bearbeiten"
 									>
 										<Edit class="text-[18px]" />
 									</button>
 									<button
 										onclick={() => handleRemove(entry.id)}
-										class="rounded-lg p-1.5 text-slate-300 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-slate-500 dark:text-slate-400 dark:hover:bg-red-950"
+										class="rounded-lg p-1.5 text-slate-300 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-slate-500 dark:hover:bg-red-950"
 										title="Entfernen"
 									>
 										<Delete class="text-[18px]" />
