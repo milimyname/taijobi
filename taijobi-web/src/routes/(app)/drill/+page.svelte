@@ -465,13 +465,13 @@
 				{#each readSources as source (source.id)}
 					<button
 						onclick={() => startReading(source.id, source.label)}
-						class="flex w-full items-center justify-between rounded-2xl border border-primary/20 bg-primary-light p-4 shadow-sm transition-colors hover:bg-primary/10"
+						class="flex w-full items-center justify-between rounded-2xl border border-primary/20 bg-primary-light p-4 shadow-sm transition-colors hover:bg-primary/10 dark:border-primary/30 dark:bg-primary/10 dark:hover:bg-primary/20"
 					>
 						<div class="flex items-center gap-3">
 							<AutoStories class="text-primary" />
 							<span class="font-bold text-slate-900 dark:text-slate-100">{source.label}</span>
 						</div>
-						<span class="rounded-full bg-primary/10 px-3 py-1 text-sm font-bold text-primary">
+						<span class="rounded-full bg-primary/10 px-3 py-1 text-sm font-bold text-primary dark:bg-primary/20">
 							{source.count} neu
 						</span>
 					</button>
