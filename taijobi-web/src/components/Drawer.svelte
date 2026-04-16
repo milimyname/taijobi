@@ -257,30 +257,51 @@
 		if (!hitHandle && !hitContent) return;
 
 		if (hitContent && !hitHandle) {
-			if (isExpanded) {
-				// Mid-wheel snap-back: if we were dragging the sheet with the wheel and
-				// the user reverses, lock back to fully-expanded before letting the
-				// list scroll take over.
-				if (isWheeling) {
-					clearTimeout(wheelSnapTimer);
-					isWheeling = false;
-					isDragging = false;
-					wheelVelocity = 0;
-					const s = getSnaps();
-					height.target = s[s.length - 1];
-				}
-				if (!contentRef) return;
-				const isAtTop = contentRef.scrollTop <= 1;
-				if (isAtTop && e.deltaY < 0) {
-					e.preventDefault();
-					applyWheelDelta(e.deltaY);
-					return;
-				}
-				// Otherwise let the content scroll naturally
+			// Mid-wheel snap-back: if we were dragging the sheet with the wheel
+			// and the user reverses at full expansion, lock back to fully-expanded
+			// before letting the list scroll take over.
+			if (isExpanded && isWheeling) {
+				clearTimeout(wheelSnapTimer);
+				isWheeling = false;
+				isDragging = false;
+				wheelVelocity = 0;
+				const s = getSnaps();
+				height.target = s[s.length - 1];
+			}
+
+			if (!contentRef) return;
+
+			// Same arbitration as touch: scroll content until it can't scroll
+			// further, then start dragging the sheet. This matches iOS sheets
+			// and prevents the "sheet collapses while I'm scrolling the list"
+			// feel that happens at mid-snap positions.
+			const isAtTop = contentRef.scrollTop <= 1;
+			const isAtBottom =
+				contentRef.scrollTop + contentRef.clientHeight >= contentRef.scrollHeight - 1;
+			const noScroll = contentRef.scrollHeight <= contentRef.clientHeight + 1;
+
+			if (noScroll) {
+				e.preventDefault();
+				applyWheelDelta(e.deltaY);
 				return;
 			}
+			// Scrolling up (deltaY < 0) at top of content → drag sheet toward close/collapse.
+			if (e.deltaY < 0 && isAtTop) {
+				e.preventDefault();
+				applyWheelDelta(e.deltaY);
+				return;
+			}
+			// Scrolling down (deltaY > 0) at bottom of content with room to expand → grow sheet.
+			if (e.deltaY > 0 && isAtBottom && !isExpanded) {
+				e.preventDefault();
+				applyWheelDelta(e.deltaY);
+				return;
+			}
+			// Otherwise let the content scroll naturally.
+			return;
 		}
 
+		// Handle or sheet-chrome wheel → always move the sheet.
 		e.preventDefault();
 		applyWheelDelta(e.deltaY);
 	}
@@ -354,14 +375,31 @@
 		lastTime = currentTime;
 
 		if (!isDraggingSheet && contentRef) {
-			if (isExpanded) {
-				const isAtTop = contentRef.scrollTop <= 1;
-				if (isAtTop && velocity < -0.05) {
-					takeOverDrag(currentY);
-				}
-			} else {
+			// Arbitration: let the content scroll whenever it still can in the
+			// drag direction; only drag the sheet when the content has
+			// scroll-exhausted toward that edge (or has no overflow at all).
+			//
+			// velocity convention:
+			//   velocity > 0 → finger moving UP (content should scroll down)
+			//   velocity < 0 → finger moving DOWN (content should scroll up)
+			const isAtTop = contentRef.scrollTop <= 1;
+			const isAtBottom =
+				contentRef.scrollTop + contentRef.clientHeight >= contentRef.scrollHeight - 1;
+			const noScroll = contentRef.scrollHeight <= contentRef.clientHeight + 1;
+
+			if (noScroll) {
+				// Nothing to scroll — any drag belongs to the sheet.
+				takeOverDrag(currentY);
+			} else if (velocity < -0.05 && isAtTop) {
+				// Pulling down with content already at top → collapse/close sheet.
+				takeOverDrag(currentY);
+			} else if (velocity > 0.05 && isAtBottom && !isExpanded) {
+				// Pulling up with content at bottom and sheet not yet maxed →
+				// expand sheet to the next snap. At full expansion, further pull
+				// just hits the overflow damping in applyWheelDelta / touchmove.
 				takeOverDrag(currentY);
 			}
+			// Otherwise: let the content scroll naturally.
 		}
 
 		if (isDraggingSheet) {
