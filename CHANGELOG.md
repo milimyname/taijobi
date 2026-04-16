@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.6.0 (2026-04-16)
+
+- fix(drawer): capture scroll intent at touchstart, not every frame
+- fix(drawer): per-gesture content-scroll lock, iOS share-sheet style
+- docs: Phase 6.2 MCP server — CLAUDE.md, decisions, c-abi, /about FAQ
+- feat(sync): wire /mcp routes + MCP_SESSION DO binding; docs
+- fix(drawer): scroll content first before dragging sheet at mid-snap
+- feat(sync): MCP internals — WASM loader, session DO, tool registry
+- build(zig): -Dmcp compact WASM target for the MCP server
+- fix: bump WASM persistent allocator 64MB → 128MB for endict growth
+
 ## v0.5.21 (2026-04-15)
 
 - polish: import summary banner, DevTools TSV export, sidebar scroll, dedup dark: typos
