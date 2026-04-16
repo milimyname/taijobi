@@ -56,6 +56,12 @@
 	let lastTime = 0;
 	let velocity = 0;
 	let isDraggingSheet = false;
+	// Once content scrolling begins during a gesture, lock the entire gesture
+	// to content-scroll. Without this, a fast flick that brings scrollTop to 0
+	// mid-gesture would instantly hijack the drag and snap the sheet — the
+	// behavior the user was seeing. iOS share sheet semantics: one gesture =
+	// either content scroll or sheet drag, never a swap mid-way.
+	let contentScrollLocked = false;
 
 	// Wheel state — desktop trackpad / mouse wheel parity with touch drag.
 	// Without this, scrolling the sheet with the wheel does nothing (the handle/
@@ -354,6 +360,11 @@
 		} else if (!isContent) {
 			isDraggingSheet = true;
 		}
+
+		// Seed the content-scroll lock at gesture start. If the user begins
+		// with content already scrolled (not at top), treat the whole gesture
+		// as content-scroll — they're interacting with the list, not the sheet.
+		contentScrollLocked = !!(contentRef && contentRef.scrollTop > 0) && !isHandle;
 	}
 
 	function takeOverDrag(currentY: number) {
@@ -375,31 +386,43 @@
 		lastTime = currentTime;
 
 		if (!isDraggingSheet && contentRef) {
-			// Arbitration: let the content scroll whenever it still can in the
-			// drag direction; only drag the sheet when the content has
-			// scroll-exhausted toward that edge (or has no overflow at all).
-			//
-			// velocity convention:
-			//   velocity > 0 → finger moving UP (content should scroll down)
-			//   velocity < 0 → finger moving DOWN (content should scroll up)
-			const isAtTop = contentRef.scrollTop <= 1;
-			const isAtBottom =
-				contentRef.scrollTop + contentRef.clientHeight >= contentRef.scrollHeight - 1;
-			const noScroll = contentRef.scrollHeight <= contentRef.clientHeight + 1;
-
-			if (noScroll) {
-				// Nothing to scroll — any drag belongs to the sheet.
-				takeOverDrag(currentY);
-			} else if (velocity < -0.05 && isAtTop) {
-				// Pulling down with content already at top → collapse/close sheet.
-				takeOverDrag(currentY);
-			} else if (velocity > 0.05 && isAtBottom && !isExpanded) {
-				// Pulling up with content at bottom and sheet not yet maxed →
-				// expand sheet to the next snap. At full expansion, further pull
-				// just hits the overflow damping in applyWheelDelta / touchmove.
-				takeOverDrag(currentY);
+			// Promote the content-scroll lock the instant the content actually
+			// scrolls during this gesture. Protects against the fast-flick case
+			// where scrollTop briefly touches 0 and the arbitration below
+			// would otherwise hijack the drag.
+			if (!contentScrollLocked && contentRef.scrollTop > 0) {
+				contentScrollLocked = true;
 			}
-			// Otherwise: let the content scroll naturally.
+
+			if (contentScrollLocked) {
+				// Locked to content scroll for the rest of this gesture. iOS
+				// Safari share-sheet style: one gesture = one mode. User lifts
+				// finger → lock clears in onTouchEnd → next gesture can drag
+				// the sheet.
+			} else {
+				// Gesture started with content at top (or empty). Arbitrate based
+				// on direction + edges.
+				//
+				// velocity > 0 → finger moving UP (content would scroll down)
+				// velocity < 0 → finger moving DOWN (content would scroll up)
+				const isAtTop = contentRef.scrollTop <= 1;
+				const isAtBottom =
+					contentRef.scrollTop + contentRef.clientHeight >= contentRef.scrollHeight - 1;
+				const noScroll = contentRef.scrollHeight <= contentRef.clientHeight + 1;
+
+				if (noScroll) {
+					// Nothing to scroll — the whole gesture is a sheet drag.
+					takeOverDrag(currentY);
+				} else if (velocity < -0.05 && isAtTop) {
+					// Pulling down with content already at top → collapse/close sheet.
+					takeOverDrag(currentY);
+				} else if (velocity > 0.05 && isAtBottom && !isExpanded) {
+					// Pulling up at bottom and sheet can still expand → grow sheet.
+					takeOverDrag(currentY);
+				}
+				// Otherwise: let the content scroll (and the lock above will kick
+				// in on the next touchmove as soon as scrollTop moves off 0).
+			}
 		}
 
 		if (isDraggingSheet) {
@@ -421,6 +444,8 @@
 		isDragging = false;
 		isDraggingSheet = false;
 		velocity = 0;
+		// Gesture is done — next one re-evaluates from scratch.
+		contentScrollLocked = false;
 	}
 
 	function performSnap() {
