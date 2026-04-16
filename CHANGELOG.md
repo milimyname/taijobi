@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.6.1 (2026-04-16)
+
+- fix(sync): use new_sqlite_classes for McpSession migration
+
 ## v0.6.0 (2026-04-16)
 
 - fix(drawer): capture scroll intent at touchstart, not every frame
