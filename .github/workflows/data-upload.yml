@@ -1,0 +1,72 @@
+name: Dictionary Data Upload
+
+# Builds and uploads the dictionary binary files (cedict, decomp, strokes,
+# endict, dedict) to the `taijobi-data` R2 bucket. Previously this lived
+# inside the release workflow and ran on every deploy — 80 MB re-uploaded
+# for nothing. Now it's its own workflow, triggered only when something
+# that actually changes the binaries changes, or manually.
+#
+# Fresh R2 bucket? → `gh workflow run data-upload.yml` once to seed it.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/build-cedict.sh"
+      - "scripts/build-decomp.sh"
+      - "scripts/build-strokes.sh"
+      - "scripts/build-endict.sh"
+      - "scripts/build-dedict.sh"
+      - "scripts/build-all-data.sh"
+      - "scripts/compile-cedict.ts"
+      - "scripts/compile-decomp.ts"
+      - "scripts/compile-strokes.ts"
+      - "scripts/compile-wiktdict.ts"
+      - ".github/workflows/data-upload.yml"
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Cache Wiktextract JSONL
+        uses: actions/cache@v4
+        with:
+          path: data/
+          key: wiktextract-v1
+
+      - name: Build CEDICT + decomposition + strokes
+        run: ./scripts/build-all-data.sh
+
+      - name: Build EN/DE dictionaries
+        run: |
+          ./scripts/build-endict.sh
+          ./scripts/build-dedict.sh
+
+      - name: Stage all .bin files for upload
+        run: |
+          mkdir -p upload/data
+          cp libtaijobi/src/cedict.bin   upload/data/
+          cp libtaijobi/src/decomp.bin   upload/data/
+          cp libtaijobi/src/strokes.bin  upload/data/
+          cp taijobi-web/static/data/endict.bin upload/data/
+          cp taijobi-web/static/data/dedict.bin upload/data/
+          ls -lh upload/data/
+
+      - name: Upload to R2 (taijobi-data bucket)
+        run: |
+          for f in upload/data/*.bin; do
+            key="data/$(basename $f)"
+            echo "Uploading $key ($(stat -c%s $f) bytes)..."
+            bunx wrangler r2 object put "taijobi-data/$key" --file "$f" --remote
+          done
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

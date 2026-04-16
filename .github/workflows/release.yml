@@ -104,29 +104,7 @@ jobs:
       - name: Build WASM
         run: ./scripts/build-wasm.sh
 
-      - name: Cache Wiktextract JSONL
-        uses: actions/cache@v4
-        with:
-          path: data/
-          key: wiktextract-v1
-
-      - name: Build EN/DE dictionaries
-        run: |
-          ./scripts/build-endict.sh
-          ./scripts/build-dedict.sh
-
-      - name: Upload dictionary data to R2
-        run: |
-          for f in taijobi-web/static/data/*.bin; do
-            key="data/$(basename $f)"
-            echo "Uploading $key..."
-            bunx wrangler r2 object put "taijobi-data/$key" --file "$f" --remote
-          done
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-
-      - name: Remove .bin from static (served from R2)
+      - name: Strip .bin files from deploy (served from R2 via .github/workflows/data-upload.yml)
         run: rm -f taijobi-web/static/data/*.bin
 
       - name: Upload WASM artifact
