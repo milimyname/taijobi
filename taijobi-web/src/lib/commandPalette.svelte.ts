@@ -101,6 +101,11 @@ export const FAQ_ENTRIES: FaqEntry[] = [
 		keywords: ['sync', 'synchronisieren', 'geräte', 'schlüssel']
 	},
 	{
+		id: 'faq-mcp',
+		q: 'Kann ich Taijobi mit Claude verbinden?',
+		keywords: ['mcp', 'claude', 'ai', 'desktop', 'tool', 'agent']
+	},
+	{
 		id: 'faq-shortcuts',
 		q: 'Gibt es Tastenkürzel?',
 		keywords: ['shortcuts', 'tastenkürzel', 'keyboard', 'vim']

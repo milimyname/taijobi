@@ -167,3 +167,53 @@
 - **Sync namespace:** Separate `hanzi-sync` worker or add namespace to `wimg-sync`?
   Separate is cleaner, same code, independent deployment.
 - **Word capture while reading:** Start with batch input in app. Kindle import in Phase 5.4.
+
+## Phase 6.2 Decisions
+
+- **Cloudflare Workers, not a VPS.** The 128 MB Worker memory cap looks scary
+  until you write down the actual MCP budget: WASM code (~1 MB) + SQLite
+  instance (~5 MB) + FBA scratch (~1 MB) + compact persist allocator (16 MB)
+  = ~23 MB total. Fits 5× over. Worker gives us free-tier hosting, CF edge
+  latency, no new ops, and the MCP server lives inside the existing
+  `taijobi-sync` Worker so there's zero new infra. Revisit if multi-user
+  load hits the 30 s CPU cap or we need long-lived connections beyond
+  SyncRoom's WebSockets.
+- **Compact WASM via `-Dmcp=true`, not a runtime flag.** Same Zig source,
+  different `PERSIST_SIZE` picked at comptime via
+  `@import("build_options").mcp`. A runtime flag would still reserve 128 MB
+  of `[N]u8 = undefined` in the binary and the Worker would OOM on
+  instantiate regardless. The flag saves 112 MB of reserved memory for a
+  one-line change.
+- **Hand-rolled JSON-RPC, not `@modelcontextprotocol/sdk`.** The MCP spec's
+  HTTP Streamable transport boils down to ~40 lines of `initialize` /
+  `tools/list` / `tools/call` / `ping` / `notifications/initialized` dispatch
+  over POST. The SDK adds ~100 KB of dependencies for the same shape. Wimg
+  proved the hand-rolled path works with Claude Desktop; we follow suit.
+- **Durable Object per sync key, not stateless.** Lazily instantiating
+  libtaijobi-mcp.wasm on every request would work but waste ~150 ms of cold
+  start per tool call. A DO keyed by the sync key keeps the WASM warm +
+  caches the decrypted DB between calls. `pullFromSync` runs once at init
+  and then every 60 s on reads to stay current with the web client's
+  changes; write tools fire-and-forget `state.waitUntil(pushToSync())` so
+  the client doesn't wait for the R2 round-trip. `DELETE /mcp` evicts the
+  session explicitly.
+- **Auth via `Authorization: Bearer <sync-key>`.** The sync key is already
+  the root of identity in the existing sync design — no accounts, no
+  OAuth. For personal use this is fine; the key grants the same access
+  MCP gets. We map `Bearer <key>` to a DO id via `idFromName(key)`.
+- **Tool surface: 8, not 24.** Wimg has 24 because its domain (banking,
+  categories, debts, goals, undo/redo, accounts) legitimately needs it.
+  Taijobi's tool-worthy surface is narrower: pick cards to drill, add
+  words, record reviews, import Kindle highlights. Five read + three write
+  covers every conversation I can imagine having with Claude about
+  taijobi. Add more only when a concrete user flow needs them.
+- **Deferred: `lookup_word` (CEDICT), `install_pack`, `query_cards(sql)`.**
+  `lookup_word` would add ~9 MB to the compact WASM (CEDICT binary) — not
+  worth it when Claude already knows Chinese dictionary definitions.
+  `install_pack` needs a pack catalog + download coordination from the
+  Worker; tractable but out of scope for v1. `query_cards(sql)` is a
+  DevTools-grade escape hatch; gated behind a feature flag when it
+  actually ships. These are all single-commit adds once there's demand.
+- **No CEDICT in the Worker build.** Cleanest way to respect the 128 MB
+  cap without hedging. Leaves room for iOS parity later (where dictionaries
+  ship in the app bundle, not in the Worker).

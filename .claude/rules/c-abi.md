@@ -77,3 +77,21 @@ export fn hanzi_encrypt_field(pt_ptr: [*]const u8, pt_len: u32,
 export fn hanzi_decrypt_field(ct_ptr: [*]const u8, ct_len: u32,
     key_ptr: [*]const u8) ?[*]const u8
 ```
+
+## Phase 6.2 — MCP Server
+
+No new Zig exports. The MCP Worker reuses the Phase 1 / 4 / 5.4 surface
+verbatim — tool handlers in `taijobi-sync/src/mcp-tools.ts` map directly
+onto `hanzi_get_due_cards`, `hanzi_add_word`, `hanzi_parse_kindle`,
+`hanzi_bulk_add_lexicon`, etc.
+
+The one Zig-side change is a **build flag**, not an ABI change:
+
+```sh
+zig build -Dmcp=true   # produces libtaijobi-mcp.wasm
+```
+
+Toggling `mcp=true` at compile time swaps `PERSIST_SIZE` (128 MB → 16 MB)
+inside `root.zig` via `@import("build_options").mcp`. Both artifacts export
+the same `hanzi_*` functions with identical signatures; callers don't know
+which binary they loaded.

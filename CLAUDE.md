@@ -5,7 +5,7 @@
 *A local-first vocabulary engine for all languages you encounter — with deep
 Chinese support, curriculum packs, and spaced repetition.*
 
-Last updated: April 2026 — Phases 0-4 complete, Phase 5.0 + 5.1 + 5.2 + 5.3 + 5.4 done. Google Fonts removed (system-ui stack), OPFS made optional (Safari-on-LAN-IP compat), dictionary downloads lifted to a global store so progress survives navigation, Cmd+K command palette with FAQ deep-links, DevTools SQL panel + feature flag store, CommandPalette content-scroll fix + Drawer wheel-handler for desktop parity, desktop-first layout with persistent sidebar on lg+, Kindle `My Clippings.txt` import to the lexicon with a Zig bulk-transaction path.
+Last updated: April 2026 — Phases 0-4 complete, Phase 5.0 + 5.1 + 5.2 + 5.3 + 5.4 done, Phase 6.2 MCP server deployed. Google Fonts removed (system-ui stack), OPFS made optional (Safari-on-LAN-IP compat), dictionary downloads lifted to a global store so progress survives navigation, Cmd+K command palette with FAQ deep-links, DevTools SQL panel + feature flag store, CommandPalette content-scroll fix + Drawer wheel-handler for desktop parity + mid-snap scroll-first arbitration, desktop-first layout with persistent sidebar on lg+, Kindle `My Clippings.txt` import to the lexicon with a Zig bulk-transaction path, remote MCP server at `sync.taijobi.com/mcp` exposing 8 tools to Claude Desktop over Bearer-auth HTTP JSON-RPC.
 
 ---
 
@@ -107,6 +107,14 @@ Inspired by libghostty and libwimg: the library is the product.
 - DevTools (`?devtools` URL param): 5 tabs — Info (build, WASM memory, DB size, counts), Sync (WS status, key, last sync), Data (OPFS browser + localStorage + danger zone), Flags (toggles from `featureStore` in `lib/features.svelte.ts` — empty until `DEFAULT_FEATURES` in `config.ts` is populated), SQL (`queryRaw` via `hanzi_query` export, 500-row cap, 2MB result buffer, history of 20 persisted to `LS_SQL_HISTORY`).
 - Dictionary downloads: managed by `lib/download-state.svelte.ts` — a single global store drives Settings + onboarding, so progress bar + success toast survive page navigation. OPFS is optional (Safari on HTTP LAN IPs skips caching but still loads into WASM for the session).
 - Kindle import (`/lexicon/import`): client-side parser in `lib/kindle.ts` splits `My Clippings.txt` on `==========` lines, handles CRLF + BOM, localized metadata. Drag-and-drop + file picker support **multiple** files (entries merge). Bulk-insert uses the Zig `hanzi_bulk_add_lexicon` export (one BEGIN/COMMIT transaction + one OPFS save) — critical because per-word `addWord()` would do N OPFS writes. Wire format is length-prefixed (`[u32 count][u32 len][bytes]…`) to accept any byte in highlight text. Sample fixture at `static/examples/my-clippings.txt` exercises EN/DE/ZH — load via the "Beispiel-Datei laden" button.
+- MCP server (`taijobi-sync/src/mcp-*.ts`): Claude Desktop — and any MCP client — reaches taijobi over HTTP at `POST https://sync.taijobi.com/mcp` with `Authorization: Bearer <sync-key>`. Runs inside the existing sync Worker, no new deploy target. A separate compact WASM build (`libtaijobi-mcp.wasm`, 16 MB persist allocator) is bundled so the whole thing fits in the 128 MB Worker memory cap without dictionaries. One `McpSession` Durable Object per sync key keeps WASM + decrypted DB warm; writes fire-and-forget push back to `SyncRoom` via `state.waitUntil` so the client response isn't blocked. Hand-rolled JSON-RPC (no SDK dep, ~40 LOC). 8 tools: `due_count`, `get_due_cards`, `search_cards`, `get_lexicon`, `get_stats` (read); `add_word`, `import_kindle_clippings`, `review_card` (write). Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
+  ```json
+  { "mcpServers": { "taijobi": {
+      "url": "https://sync.taijobi.com/mcp",
+      "transport": "http",
+      "headers": { "Authorization": "Bearer <sync-key>" }
+  }}}
+  ```
 - German UI strings throughout
 - Character selection tooltip: select any Chinese character → popup with pinyin,
   definition, and link to `/character/[char]` detail page

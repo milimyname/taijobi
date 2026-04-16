@@ -90,6 +90,11 @@
 			a: 'Einstellungen → Sync → Schlüssel generieren. Kopiere den Schlüssel und füge ihn auf dem zweiten Gerät ein. Änderungen werden in Echtzeit per WebSocket synchronisiert, Ende-zu-Ende verschlüsselt. Kein Konto, kein Passwort — der Schlüssel ist deine Identität. Ohne Sync funktioniert alles lokal weiter.',
 		},
 		{
+			id: 'faq-mcp',
+			q: 'Kann ich Taijobi mit Claude verbinden?',
+			a: 'Ja, über einen MCP-Server (Model Context Protocol). Claude Desktop kann dein Taijobi-Lexikon direkt abfragen und ändern — fällige Karten anzeigen, Wörter hinzufügen, Kindle-Clippings importieren, Statistiken lesen. Authentifizierung läuft über deinen Sync-Schlüssel, die gleiche Ende-zu-Ende-Verschlüsselung wie beim Geräte-Sync. Konfiguration in ~/Library/Application Support/Claude/claude_desktop_config.json: { "mcpServers": { "taijobi": { "url": "https://sync.taijobi.com/mcp", "transport": "http", "headers": { "Authorization": "Bearer <dein-sync-schlüssel>" } } } }. Claude neustarten, und die 8 Tools erscheinen im Tool-Picker.',
+		},
+		{
 			id: 'faq-shortcuts',
 			q: 'Gibt es Tastenkürzel?',
 			a: 'Ja. Drücke ? irgendwo in der App, um die Hilfe zu öffnen. Vim-Style-Navigation mit g h (Start), g d (Üben), g s (Statistik), g w (Wörterbuch), g p (Pakete), g l (Lexikon), g c (Zeichen), g e (Einstellungen). Im Drill: 1–4 zum Bewerten, ← für die vorherige Karte.',
