@@ -1,6 +1,12 @@
 const std = @import("std");
 const builtin = @import("builtin");
+const build_options = @import("build_options");
 const sqlite = @import("sqlite_c.zig");
+
+/// Set true for the Cloudflare Worker build (libtaijobi-mcp.wasm). Used to
+/// drop the big dictionary-holding persistent allocator down to something
+/// that fits in the 128MB Worker memory cap.
+const MCP_BUILD = build_options.mcp;
 const types = @import("types.zig");
 const db_mod = @import("db.zig");
 const fsrs_mod = @import("fsrs.zig");
@@ -24,20 +30,15 @@ var fba = std.heap.FixedBufferAllocator.init(&fba_backing);
 
 // --- Persistent allocator — never reset, holds all dictionary .bin data ---
 //
-// Sizing budget (observed prod file sizes as of 2026-04):
-//   cedict   ~9MB
-//   decomp   ~1MB
-//   strokes  ~9MB
-//   endict  ~60MB  (Wiktextract English has grown)
-//   dedict   ~5MB
-//   -------
-//   total   ~84MB with all dictionaries loaded
+// Web build sizing budget (prod as of 2026-04):
+//   cedict ~9MB, decomp ~1MB, strokes ~9MB, endict ~60MB, dedict ~5MB
+//   → ~84MB total; 128MB leaves headroom for JMdict/KDICT later.
 //
-// 128MB leaves headroom for future additions (JMdict, KDICT) before we need
-// to either split loads or move dictionaries off the persistent allocator.
-// WASM max_memory is 512MB (see build.zig), so this is cheap — WASM pages are
-// lazily allocated by the host, unused tail doesn't cost real RAM.
-const PERSIST_SIZE = 128 * 1024 * 1024;
+// MCP build: MCP tools never touch dictionaries (Claude already knows
+// definitions for the languages we support), so we skip the 128MB reservation
+// entirely. 16MB fits well inside the 128MB Cloudflare Worker memory cap and
+// is plenty for CEDICT if we re-enable `lookup_word` in v2.
+const PERSIST_SIZE: usize = if (MCP_BUILD) 16 * 1024 * 1024 else 128 * 1024 * 1024;
 var persist_backing: [PERSIST_SIZE]u8 = undefined;
 var persist_fba = std.heap.FixedBufferAllocator.init(&persist_backing);
 

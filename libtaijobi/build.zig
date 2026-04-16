@@ -1,6 +1,13 @@
 const std = @import("std");
 
 pub fn build(b: *std.Build) void {
+    // MCP build toggle: when true, produces libtaijobi-mcp.wasm with a much
+    // smaller persistent allocator. The Cloudflare Worker hosting the MCP
+    // server caps at 128MB per invocation; the full 128MB persist buffer used
+    // by the web client (for endict + dedict + strokes + cedict + decomp)
+    // doesn't fit. MCP tools don't touch dictionaries, so 16MB is plenty.
+    const mcp = b.option(bool, "mcp", "Compact build for MCP server (no dictionaries)") orelse false;
+
     // SQLite compile flags shared between all targets
     const common_sqlite_flags: []const []const u8 = &.{
         "-DSQLITE_OMIT_WAL",
@@ -23,7 +30,7 @@ pub fn build(b: *std.Build) void {
         "-DSQLITE_OMIT_AUTOINIT",
     };
 
-    // --- WASM target (web) ---
+    // --- WASM target (web or MCP) ---
     const wasm_mod = b.createModule(.{
         .root_source_file = b.path("src/root.zig"),
         .target = b.resolveTargetQuery(.{
@@ -32,6 +39,13 @@ pub fn build(b: *std.Build) void {
         }),
         .optimize = .ReleaseSmall,
     });
+
+    // Expose `mcp` to Zig as an @import("build_options") constant. root.zig
+    // reads it at comptime to pick PERSIST_SIZE.
+    const build_opts = b.addOptions();
+    build_opts.addOption(bool, "mcp", mcp);
+    wasm_mod.addOptions("build_options", build_opts);
+
     wasm_mod.addCSourceFile(.{
         .file = b.path("vendor/sqlite3.c"),
         .flags = wasm_sqlite_flags,
@@ -48,7 +62,7 @@ pub fn build(b: *std.Build) void {
     wasm_mod.addSystemIncludePath(b.path("vendor/libc"));
 
     const wasm_exe = b.addExecutable(.{
-        .name = "libtaijobi",
+        .name = if (mcp) "libtaijobi-mcp" else "libtaijobi",
         .root_module = wasm_mod,
     });
     wasm_exe.entry = .disabled;
@@ -69,6 +83,10 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
         .link_libc = true,
     });
+    // Native tests always build with the full (non-MCP) config.
+    const test_opts = b.addOptions();
+    test_opts.addOption(bool, "mcp", false);
+    test_mod.addOptions("build_options", test_opts);
     test_mod.addCSourceFile(.{
         .file = b.path("vendor/sqlite3.c"),
         .flags = common_sqlite_flags,

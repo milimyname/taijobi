@@ -152,12 +152,33 @@ jobs:
 
   deploy-sync:
     needs: check
-    if: needs.check.outputs.sync == 'true'
+    # libtaijobi changes also require a sync redeploy because the MCP Worker
+    # bundles libtaijobi-mcp.wasm. The scripts check covers build-wasm.sh
+    # edits that change how the compact WASM is produced.
+    if: needs.check.outputs.sync == 'true' || needs.check.outputs.libtaijobi == 'true' || needs.check.outputs.scripts == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
 
+      - uses: mlugg/setup-zig@v2
+        with:
+          version: 0.15.2
+
       - uses: oven-sh/setup-bun@v2
+
+      - name: Download SQLite amalgamation
+        working-directory: libtaijobi/vendor
+        run: |
+          curl -fsSL https://www.sqlite.org/2026/sqlite-amalgamation-3520000.zip -o sqlite.zip
+          unzip -o sqlite.zip
+          cp sqlite-amalgamation-3520000/sqlite3.c sqlite3.c
+          cp sqlite-amalgamation-3520000/sqlite3.h sqlite3.h
+
+      - name: Build compact MCP WASM
+        working-directory: libtaijobi
+        run: |
+          zig build -Dmcp=true --release=small
+          cp zig-out/bin/libtaijobi-mcp.wasm ../taijobi-sync/libtaijobi-mcp.wasm
 
       - name: Install sync worker dependencies
         working-directory: taijobi-sync
