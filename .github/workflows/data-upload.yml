@@ -12,6 +12,10 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
+    # NOTE: deliberately do not list this workflow file itself. Editing the
+    # workflow config should not cause a full 80MB re-upload of dictionary
+    # data that hasn't changed. Use `gh workflow run data-upload.yml` (or
+    # the GitHub UI) to trigger manually after a config change.
     paths:
       - "scripts/build-cedict.sh"
       - "scripts/build-decomp.sh"
@@ -23,7 +27,6 @@ on:
       - "scripts/compile-decomp.ts"
       - "scripts/compile-strokes.ts"
       - "scripts/compile-wiktdict.ts"
-      - ".github/workflows/data-upload.yml"
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
