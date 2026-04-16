@@ -5,11 +5,22 @@ routes = [
   { pattern = "sync.taijobi.com", custom_domain = true }
 ]
 
+# Bundle the compact MCP WASM into the Worker at build time. Imported as a
+# pre-compiled WebAssembly.Module via `import wasmModule from "../libtaijobi-mcp.wasm"`.
+rules = [
+  { type = "CompiledWasm", globs = ["**/*.wasm"], fallthrough = true }
+]
+
 [durable_objects]
 bindings = [
-  { name = "SYNC_ROOM", class_name = "SyncRoom" }
+  { name = "SYNC_ROOM", class_name = "SyncRoom" },
+  { name = "MCP_SESSION", class_name = "McpSession" }
 ]
 
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["SyncRoom"]
+
+[[migrations]]
+tag = "v2"
+new_classes = ["McpSession"]

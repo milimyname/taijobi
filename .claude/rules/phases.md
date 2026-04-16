@@ -262,15 +262,55 @@ get enriched from CEDICT. All words reviewable via FSRS.
 **libtaijobi:** `db.zig` `searchCards()` (SQL LIKE on word/translation/pinyin, exact-then-prefix ordering); `hanzi_search_cards` C ABI export.
 
 **taijobi-web:** `searchCards()` wrapper, lazy in-memory pinyin index with diacritic normalization (`searchIndex.svelte.ts`), palette store, action registry (Navigation/Drill/Daten/Theme/Sync/Onboarding/Danger Zone), `CommandPalette.svelte` Drawer UI with debounced search, sections (Recent/Actions/Karten/Pinyin/Wörterbuch/Zeichen), keyboard nav, recent history in localStorage. Cmd+K / Ctrl+K global shortcut and header search button wired in `(app)/+layout.svelte`.
-**5.3 — DevTools:** Feature flags, DevTools panel (WASM/Memory/SQL tabs)
-**5.4 — Kindle:** Parse `My Clippings.txt`, auto-detect + bulk import to lexicon
+
+### Phase 5.3 — DevTools ✅ DONE
+
+**libtaijobi:** `db.rawQuery()` + `db.lastError()` in `db.zig` (JSON-stream arbitrary SQL results, 500-row cap, proper control-char escaping). `hanzi_query` C ABI export in `root.zig` (2MB FBA scratch, `makeLengthPrefixed` result). Exposes `SQLITE_INTEGER/FLOAT/TEXT/BLOB` constants + `sqlite3_column_count/name` in `sqlite_c.zig`.
+
+**taijobi-web:** `features.svelte.ts` feature flag store (persisted to `LS_FEATURES`), `queryRaw(sql)` + `QueryResult` type in `wasm.ts`, `?devtools` URL param flag persisted to `LS_DEVTOOLS`. `DevTools.svelte` gains 2 new tabs — **Flags** (toggles from `featureStore`, empty until `DEFAULT_FEATURES` is populated) and **SQL** (textarea + Run/Schema/Clear buttons, error banner, result table with null-italic cells, 500-row truncation badge, 20-entry history persisted to `LS_SQL_HISTORY`, one-click **TSV export**).
+
+### Phase 5.4 — Kindle import ✅ DONE
+
+**libtaijobi:** `kindle.zig` — pure Zig parser for `My Clippings.txt` (splits on `==========`, handles CRLF + BOM, title-last-`(` for author extraction, localized type detection EN+DE). `hanzi_parse_kindle` export returns JSON array `[{book, author, type, text}]`. Bookmarks skipped server-side. `lexicon.bulkAddWords()` + `hanzi_bulk_add_lexicon` export — single `BEGIN/COMMIT` transaction wrapping N `addWord` calls, counts `{added, skipped, failed}`. Wire format: `[u32 count][u32 len][bytes]…` so word content is byte-transparent.
+
+**taijobi-web:** `/lexicon/import` route. Multi-file drag-and-drop + file picker + "Beispiel-Datei laden" button (fetches `static/examples/my-clippings.txt`). VS Code / Cursor editor-pane fallback (reads `text/plain` item when `files[]` is empty and the payload contains `==========`). Window-level `dragover`/`drop` preventDefault so Chrome doesn't navigate when the drop lands slightly off the zone. Review UI: filter chips (Alle / Kurz ≤5 W. / Lang), select-all toggle, per-entry checkbox with book + word-count footer. Sticky bottom action bar (no `fixed` hack — `sticky bottom-0 -mx-4` bleeds to content edges). `parseClippings()` in `kindle.ts` is a thin wrapper around the Zig export. On success, redirects to `/lexicon?imported=N&skipped=M&books=K` where a dismissable banner reads the query params.
 
 ---
 
 ## Phase 6 — Native + Community
 
 **6.1 — iOS:** SwiftUI shell linking libhanzi.a, all core screens, push notifications
-**6.2 — MCP Server:** Claude integration (add_word, due_count, lookup, study plan)
+
+### Phase 6.2 — MCP Server 🚧 IN PROGRESS
+
+**Goal:** Claude Desktop (and any MCP-capable client) reaches taijobi over HTTP and executes real tool calls against the user's actual lexicon data. Deployed into the existing `taijobi-sync` Worker so there's no new infra.
+
+**libtaijobi:** ✅ DONE
+- [x] `build.zig` — `-Dmcp=true` option produces `libtaijobi-mcp.wasm` with a 16 MB `PERSIST_SIZE` instead of 128 MB. Fits inside the 128 MB Cloudflare Worker memory cap without dictionary data (MCP tools don't need endict / dedict / strokes).
+- [x] `root.zig` — reads `@import("build_options").mcp` at comptime to pick the allocator size.
+- [x] `scripts/build-wasm.sh` — builds both WASMs; compact lands at `taijobi-sync/libtaijobi-mcp.wasm`.
+- [x] `.github/workflows/release.yml` — `deploy-sync` job now triggers on `libtaijobi/` + `scripts/` changes, sets up Zig, builds the compact artifact before `wrangler deploy`.
+
+**taijobi-sync:** ✅ DONE so far
+- [x] `src/wasm.d.ts` — `*.wasm` → `WebAssembly.Module` declaration (wrangler bundles).
+- [x] `src/mcp-wasm.ts` — `WasmInstance` class wrapping the compact WASM. `env` imports match the web client (`js_console_log`, `js_time_ms`). Typed wrappers for the 8 tool exports + crypto (`deriveEncryptionKey`, `encryptField`, `decryptField`) + sync (`getChanges`, `applyChanges`) + `decryptRows` helper.
+- [x] `src/mcp-tools.ts` — 8 tools with Zod schemas + handlers:
+  - **Read:** `due_count`, `get_due_cards`, `search_cards`, `get_lexicon`, `get_stats`.
+  - **Write:** `add_word`, `import_kindle_clippings` (parse → bulk-add composed), `review_card`.
+  - `WRITE_TOOL_NAMES` set drives session's push-to-sync behavior.
+- [x] `src/mcp-session.ts` — `McpSession` Durable Object, one per sync key. Lazily instantiates WASM on first POST, pulls encrypted rows from `SyncRoom` on init + every 60 s on reads, dispatches JSON-RPC (`initialize` / `tools/list` / `tools/call` / `ping` / `notifications/initialized`). Write tools fire-and-forget `state.waitUntil(pushToSync())` — client response isn't blocked. `DELETE /mcp` evicts the session. Generates `Mcp-Session-Id` on `initialize` and validates on subsequent calls.
+
+**taijobi-sync:** 🚧 remaining
+- [ ] `src/index.ts` — add `export { McpSession }`, extend `Bindings`, CORS `allowHeaders` for `Authorization` + `Mcp-Session-Id`, new `POST /mcp` and `DELETE /mcp` routes forwarding to the DO.
+- [ ] `wrangler.toml` — add the `MCP_SESSION` DO binding + migration + `.wasm` bundling rule.
+- [ ] CLAUDE.md + decisions.md — docs + architectural rationale.
+- [ ] Verification: `wrangler dev` + `curl` smoke test, Claude Desktop config snippet.
+
+**Transport:** Streamable HTTP (MCP protocol 2025-03-26). **Auth:** `Authorization: Bearer <sync-key>`. **Implementation:** hand-rolled JSON-RPC (~40 LOC), no `@modelcontextprotocol/sdk` dependency.
+
+**Deferred tools (v2+):** `lookup_word` (needs CEDICT, adds 9 MB to compact WASM), `install_pack` (requires pack catalog coordination), `query_cards(sql)` (dev-only, behind a flag).
+
+**6.3 — Community Packs (Marketplace):** Monorepo — packs live in `packs/` alongside
 **6.3 — Community Packs (Marketplace):** Monorepo — packs live in `packs/` alongside
   the app. Contributors submit packs via PR. CI validates pack JSON against schema,
   auto-generates `catalog.json` from pack directories, copies into `static/packs/`,
@@ -298,3 +338,32 @@ get enriched from CEDICT. All words reviewable via FSRS.
 | 4 | Sync (reuse wimg-sync) | 1 weekend | Phase 2 |
 | 5.x | Polish, stats, search, dark mode | Ongoing | Phase 3 |
 | 6.x | iOS, MCP, community | Later | Phase 4 |
+
+---
+
+## Toolchain — Zig 0.16 upgrade (deferred)
+
+Zig 0.16 shipped in April 2026. Don't upgrade until Phase 6.2 (MCP) is
+fully shipped and stable. Reasons:
+
+1. **Zero pressure.** `zig build` + `zig build test` + `zig build -Dmcp=true`
+   all pass on 0.15.2. No bug is waiting on a 0.16 fix.
+2. **Zig minor bumps routinely break things.** 0.13 → 0.14 changed the `std.io`
+   reader/writer API; 0.14 → 0.15 changed allocator interfaces and some build
+   system APIs. Expect 0.15 → 0.16 to have similar churn.
+3. **Taijobi is tightly coupled to specific Zig APIs.** `std.io.fixedBufferStream`,
+   `std.heap.FixedBufferAllocator`, `std.fmt.format` into writers, `@memcpy` +
+   `std.mem.readInt`, and build-system bits like `b.addOptions` and
+   `wasm_mod.addCSourceFile` — any of these can rename or move.
+4. **Pipeline is pinned.** `.github/workflows/release.yml` uses
+   `mlugg/setup-zig@v2 version: 0.15.2`. Bumping the toolchain requires every
+   dev + CI to bump in lock-step.
+5. **Ecosystem-settle tax.** Wait 4–6 weeks for the first patch release
+   (0.16.1) that fixes the common migration papercuts before jumping.
+
+**When to actually do it** (dedicated PR, no other changes mixed in):
+- After Phase 6.2 lands with no open bugs touching `libtaijobi/`.
+- Run `zig fmt --check src/` + `zig build test` + `zig build` + `zig build -Dmcp=true`;
+  fix each failure in turn.
+- Update the pin in `release.yml` from `0.15.2` → `0.16.x`.
+- Allocate ~2 hours; usually takes less but don't rush it.

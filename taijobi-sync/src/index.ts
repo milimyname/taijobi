@@ -2,9 +2,11 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 
 export { SyncRoom } from "./sync-room";
+export { McpSession } from "./mcp-session";
 
 type Bindings = {
   SYNC_ROOM: DurableObjectNamespace;
+  MCP_SESSION: DurableObjectNamespace;
 };
 
 const ALLOWED_ORIGINS = [
@@ -29,8 +31,9 @@ app.use(
         return origin;
       return "";
     },
-    allowMethods: ["GET", "POST", "OPTIONS"],
-    allowHeaders: ["Content-Type"],
+    allowMethods: ["GET", "POST", "DELETE", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization", "Mcp-Session-Id"],
+    exposeHeaders: ["Mcp-Session-Id"],
   }),
 );
 
@@ -85,6 +88,78 @@ app.get("/sync/:key", async (c) => {
   return stub.fetch(
     new Request(url.toString(), {
       headers: { "X-Sync-Key": key },
+    }),
+  );
+});
+
+// --- MCP server (Phase 6.2) ---
+
+/** Extract Bearer token from Authorization header. */
+function extractBearerToken(header: string | undefined): string | null {
+  if (!header) return null;
+  const match = header.match(/^Bearer\s+(.+)$/i);
+  return match?.[1] ?? null;
+}
+
+/** Get the McpSession DO stub keyed by sync key. One DO per key so the
+ *  decrypted in-memory DB stays warm between tool calls. */
+function getMcpSession(env: Bindings, key: string) {
+  const id = env.MCP_SESSION.idFromName(key);
+  return env.MCP_SESSION.get(id);
+}
+
+// MCP doesn't support SSE in this server — reject GET.
+app.get("/mcp", (c) => c.text("Method Not Allowed", 405));
+
+// MCP JSON-RPC endpoint (Streamable HTTP transport).
+app.post("/mcp", async (c) => {
+  const syncKey = extractBearerToken(c.req.header("Authorization"));
+  if (!syncKey) {
+    return c.json(
+      {
+        jsonrpc: "2.0",
+        id: null,
+        error: { code: -32600, message: "Missing Authorization: Bearer <sync-key>" },
+      },
+      401,
+    );
+  }
+
+  const stub = getMcpSession(c.env, syncKey);
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    "X-Sync-Key": syncKey,
+  };
+  const sessionId = c.req.header("Mcp-Session-Id");
+  if (sessionId) headers["Mcp-Session-Id"] = sessionId;
+  const accept = c.req.header("Accept");
+  if (accept) headers["Accept"] = accept;
+
+  return stub.fetch(
+    new Request(c.req.url, {
+      method: "POST",
+      headers,
+      body: c.req.raw.body,
+    }),
+  );
+});
+
+// Evict MCP session (drops the warm WASM instance).
+app.delete("/mcp", async (c) => {
+  const syncKey = extractBearerToken(c.req.header("Authorization"));
+  if (!syncKey) return c.text("Missing Authorization", 401);
+
+  const stub = getMcpSession(c.env, syncKey);
+
+  const headers: Record<string, string> = { "X-Sync-Key": syncKey };
+  const sessionId = c.req.header("Mcp-Session-Id");
+  if (sessionId) headers["Mcp-Session-Id"] = sessionId;
+
+  return stub.fetch(
+    new Request(c.req.url, {
+      method: "DELETE",
+      headers,
     }),
   );
 });
