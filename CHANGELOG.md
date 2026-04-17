@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.6.6 (2026-04-17)
+
+- docs: CLAUDE.md — unified packs catalog + context-column search
+- fix: format issues
+
 ## v0.6.5 (2026-04-17)
 
 - feat: unified packs catalog — dictionaries + content + imports
