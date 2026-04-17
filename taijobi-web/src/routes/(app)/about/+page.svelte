@@ -19,8 +19,20 @@
 			.replace(/</g, '&lt;')
 			.replace(/>/g, '&gt;');
 
-		// Convert backtick-wrapped text to <code>
-		const withCode = escaped.replace(/`([^`]+)`/g, '<code class="rounded bg-slate-100 px-1 py-0.5 font-mono text-xs text-slate-700 dark:bg-white/10 dark:text-slate-300">$1</code>');
+		// Extract fenced code blocks (```...```) BEFORE other formatting
+		// so their content isn't mangled by bullet/paragraph logic.
+		const codeBlockClass =
+			'my-2 overflow-x-auto rounded-lg bg-slate-50 p-3 font-mono text-xs leading-relaxed text-slate-700 dark:bg-white/5 dark:text-slate-300';
+		const withCodeBlocks = escaped.replace(
+			/```(\w*)\n?([\s\S]*?)```/g,
+			(_, _lang, code) => `<pre class="${codeBlockClass}"><code>${code.trim()}</code></pre>`,
+		);
+
+		// Convert inline backtick-wrapped text to <code>
+		const withCode = withCodeBlocks.replace(
+			/`([^`]+)`/g,
+			'<code class="rounded bg-slate-100 px-1 py-0.5 font-mono text-xs text-slate-700 dark:bg-white/10 dark:text-slate-300">$1</code>',
+		);
 
 		// Split into paragraphs on double newlines
 		const paragraphs = withCode.split(/\n\n+/);
@@ -142,7 +154,7 @@
 		{
 			id: 'faq-mcp',
 			q: 'Kann ich Taijobi mit Claude verbinden?',
-			a: 'Ja, über einen MCP-Server (Model Context Protocol). Claude Desktop kann dein Taijobi-Lexikon direkt abfragen und ändern.\n\nVerfügbare Tools:\n\n• Fällige Karten anzeigen\n• Wörter zum Lexikon hinzufügen\n• Kindle-Clippings importieren\n• Statistiken und Streak lesen\n• Karten suchen und bewerten\n\nAuthentifizierung läuft über deinen Sync-Schlüssel — die gleiche Ende-zu-Ende-Verschlüsselung wie beim Geräte-Sync.\n\nEinrichtung: Füge in `~/Library/Application Support/Claude/claude_desktop_config.json` hinzu:\n\n`{ "mcpServers": { "taijobi": { "url": "https://sync.taijobi.com/mcp", "transport": "http", "headers": { "Authorization": "Bearer <dein-sync-schlüssel>" } } } }`\n\nClaude neustarten — die 8 Tools erscheinen im Tool-Picker.',
+			a: 'Ja, über einen MCP-Server (Model Context Protocol). Claude Desktop kann dein Taijobi-Lexikon direkt abfragen und ändern.\n\nVerfügbare Tools:\n\n• Fällige Karten anzeigen\n• Wörter zum Lexikon hinzufügen\n• Kindle-Clippings importieren\n• Statistiken und Streak lesen\n• Karten suchen und bewerten\n\nAuthentifizierung läuft über deinen Sync-Schlüssel — die gleiche Ende-zu-Ende-Verschlüsselung wie beim Geräte-Sync.\n\nEinrichtung: Öffne die `claude_desktop_config.json` und füge hinzu:\n\n• macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`\n• Windows: `%APPDATA%\\Claude\\claude_desktop_config.json`\n• Linux: `~/.config/Claude/claude_desktop_config.json`\n\n```json\n{\n  "mcpServers": {\n    "taijobi": {\n      "url": "https://sync.taijobi.com/mcp",\n      "transport": "http",\n      "headers": {\n        "Authorization": "Bearer <dein-sync-schlüssel>"\n      }\n    }\n  }\n}\n```\n\nClaude neustarten — die 8 Tools erscheinen im Tool-Picker.',
 		},
 		{
 			id: 'faq-benachrichtigungen',
