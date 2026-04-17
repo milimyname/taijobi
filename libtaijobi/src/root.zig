@@ -797,6 +797,20 @@ export fn hanzi_chinese_data_loaded() i32 {
     return 0;
 }
 
+// Unload the Chinese data bundle. Clears the data slice references so
+// `*_loaded()` returns false and the UI reflects removal. Persistent
+// allocator blocks are NOT freed (FBA arena, no individual free) — the
+// bytes stay reserved until the next page reload, which also zeros out
+// the FBA. Callers should pair this with deleting the OPFS cache files
+// and nudge the user to reload for a clean slate.
+export fn hanzi_unload_chinese() i32 {
+    cedict.unload();
+    decompose.unload();
+    strokes_mod.unload();
+    log("chinese data unloaded");
+    return 0;
+}
+
 // === Wiktionary EN/DE dictionaries ===
 
 export fn hanzi_load_endict(ptr: [*]const u8, len: usize) i32 {
@@ -808,6 +822,18 @@ export fn hanzi_load_endict(ptr: [*]const u8, len: usize) i32 {
 export fn hanzi_load_dedict(ptr: [*]const u8, len: usize) i32 {
     wiktdict.loadDe(ptr, len);
     log("dedict data loaded");
+    return 0;
+}
+
+export fn hanzi_unload_endict() i32 {
+    wiktdict.unloadEn();
+    log("endict data unloaded");
+    return 0;
+}
+
+export fn hanzi_unload_dedict() i32 {
+    wiktdict.unloadDe();
+    log("dedict data unloaded");
     return 0;
 }
 

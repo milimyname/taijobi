@@ -113,11 +113,14 @@ interface WasmExports {
 	hanzi_load_decomp: (ptr: number, len: number) => number;
 	hanzi_load_strokes: (ptr: number, len: number) => number;
 	hanzi_chinese_data_loaded: () => number;
+	hanzi_unload_chinese: () => number;
 	// Wiktionary EN/DE dictionaries
 	hanzi_load_endict: (ptr: number, len: number) => number;
 	hanzi_load_dedict: (ptr: number, len: number) => number;
 	hanzi_endict_loaded: () => number;
 	hanzi_dedict_loaded: () => number;
+	hanzi_unload_endict: () => number;
+	hanzi_unload_dedict: () => number;
 	hanzi_lookup_word: (query: number, len: number) => number;
 	// Phase 4 — Sync
 	hanzi_get_changes: (sinceTs: bigint) => number;
@@ -388,6 +391,11 @@ export function isChineseDataLoaded(): boolean {
 	return wasm.hanzi_chinese_data_loaded() === 1;
 }
 
+export function unloadChinese(): void {
+	if (!wasm || typeof wasm.hanzi_unload_chinese !== 'function') return;
+	wasm.hanzi_unload_chinese();
+}
+
 export function loadEndict(ptr: number, data: Uint8Array): void {
 	if (!wasm || typeof wasm.hanzi_load_endict !== 'function') return;
 	const mem = new Uint8Array(wasm.memory.buffer);
@@ -617,6 +625,16 @@ export function isEndictLoaded(): boolean {
 export function isDedictLoaded(): boolean {
 	if (!wasm || typeof wasm.hanzi_dedict_loaded !== 'function') return false;
 	return wasm.hanzi_dedict_loaded() === 1;
+}
+
+export function unloadEndict(): void {
+	if (!wasm || typeof wasm.hanzi_unload_endict !== 'function') return;
+	wasm.hanzi_unload_endict();
+}
+
+export function unloadDedict(): void {
+	if (!wasm || typeof wasm.hanzi_unload_dedict !== 'function') return;
+	wasm.hanzi_unload_dedict();
 }
 
 export interface CardSearchResult {

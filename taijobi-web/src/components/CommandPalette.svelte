@@ -283,25 +283,26 @@
 			even when the inner list is scrolled, so scrolling up from the bottom
 			would drag the sheet closed instead of the list. -->
 		<div class="mb-3 shrink-0 px-4">
-			<div class="flex items-center gap-2 rounded-2xl border border-slate-100 bg-surface px-3 py-2 dark:border-white/5 dark:bg-white/5">
+			<div class="flex h-11 items-center gap-2 rounded-2xl border border-slate-100 bg-surface px-3 dark:border-white/5 dark:bg-white/5">
 				<Search class="text-slate-400 dark:text-slate-500" />
 				<input
 					bind:this={inputRef}
 					bind:value={query}
 					placeholder="Suchen oder Befehl eingeben..."
-					class="flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500"
+					class="h-full flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500"
 					autocomplete="off"
 					spellcheck="false"
 				/>
-				{#if query}
-					<button
-						onclick={() => (query = '')}
-						class="rounded-lg p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10"
-						aria-label="Eingabe l&ouml;schen"
-					>
-						<Close />
-					</button>
-				{/if}
+				<button
+					onclick={() => (query = '')}
+					class="rounded-lg p-1 text-slate-400 transition-opacity hover:bg-slate-100 dark:hover:bg-white/10 {query
+						? 'opacity-100'
+						: 'pointer-events-none opacity-0'}"
+					aria-label="Eingabe löschen"
+					tabindex={query ? 0 : -1}
+				>
+					<Close />
+				</button>
 			</div>
 		</div>
 

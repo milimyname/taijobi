@@ -32,6 +32,14 @@ pub fn loadDe(ptr: [*]const u8, len: usize) void {
     de_data = ptr[0..len];
 }
 
+pub fn unloadEn() void {
+    en_data = &.{};
+}
+
+pub fn unloadDe() void {
+    de_data = &.{};
+}
+
 pub fn isEnLoaded() bool {
     return en_data.len > 0;
 }

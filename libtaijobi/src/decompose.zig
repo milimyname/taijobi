@@ -23,6 +23,10 @@ pub fn load(ptr: [*]const u8, len: usize) void {
     data = ptr[0..len];
 }
 
+pub fn unload() void {
+    data = &.{};
+}
+
 pub fn isLoaded() bool {
     return data.len > 0;
 }

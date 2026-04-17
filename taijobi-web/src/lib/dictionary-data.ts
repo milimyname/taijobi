@@ -13,7 +13,10 @@ import {
 	loadStrokes,
 	loadEndict,
 	loadDedict,
-	isChineseDataLoaded
+	isChineseDataLoaded,
+	unloadChinese,
+	unloadEndict,
+	unloadDedict
 } from './wasm';
 
 type DataKey = 'cedict' | 'decomp' | 'strokes' | 'endict' | 'dedict';
@@ -323,5 +326,36 @@ export async function clearCache(): Promise<void> {
 		console.log('[taijobi] data: OPFS cache cleared');
 	} catch {
 		// Doesn't exist
+	}
+}
+
+/**
+ * Uninstall a dictionary bundle. Clears the WASM data slice reference so
+ * `*_loaded()` returns false and the UI reflects removal, then deletes the
+ * underlying .bin file(s) from OPFS so the next session starts clean.
+ *
+ * The bytes in the WASM persistent allocator stay reserved until the next
+ * page reload — the FBA is an arena without per-block free. Callers should
+ * hint the user to reload if they want the memory back.
+ */
+export async function uninstallDictionary(kind: 'zh' | 'en' | 'de'): Promise<void> {
+	if (kind === 'zh') unloadChinese();
+	else if (kind === 'en') unloadEndict();
+	else unloadDedict();
+
+	if (!opfsAvailable()) return;
+	const files = kind === 'zh' ? CHINESE_FILES.map((f) => f.key) : [kind === 'en' ? 'endict' : 'dedict'];
+	try {
+		const root = await navigator.storage.getDirectory();
+		const dir = await root.getDirectoryHandle(OPFS_DIR);
+		for (const key of files) {
+			try {
+				await dir.removeEntry(`${key}.bin`);
+			} catch {
+				// File didn't exist
+			}
+		}
+	} catch {
+		// OPFS dir missing — nothing to clean
 	}
 }

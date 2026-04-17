@@ -25,6 +25,7 @@
 	import { toastStore } from '$lib/toast.svelte';
 	import { data } from '$lib/data.svelte';
 	import { downloadStore, type DownloadKey } from '$lib/download-state.svelte';
+	import { uninstallDictionary } from '$lib/dictionary-data';
 
 	type CatalogKind = 'content' | 'dictionary';
 	type CatalogTag = 'official' | 'community' | 'personal' | string;
@@ -243,12 +244,22 @@
 		}
 	}
 
-	async function handleRemove(id: string) {
-		const pack = installed.find((p) => p.id === id);
+	async function handleRemove(entry: CatalogEntry) {
+		if (entry.kind === 'dictionary') {
+			try {
+				await uninstallDictionary(entry.language_pair as DownloadKey);
+				data.bump();
+				toastStore.show(`${entry.name} entfernt — für vollständige Freigabe bitte neu laden`);
+			} catch (e) {
+				toastStore.show(e instanceof Error ? e.message : 'Entfernen fehlgeschlagen');
+			}
+			return;
+		}
+		const pack = installed.find((p) => p.id === entry.id);
 		try {
-			await removePack(id);
+			await removePack(entry.id);
 			toastStore.show(`${pack?.name ?? 'Pack'} gelöscht`, async () => {
-				await restorePack(id);
+				await restorePack(entry.id);
 			});
 		} catch (e) {
 			toastStore.show(e instanceof Error ? e.message : 'Löschen fehlgeschlagen');
@@ -433,7 +444,17 @@
 										Lektionen anzeigen &rarr;
 									</a>
 									<button
-										onclick={() => handleRemove(entry.id)}
+										onclick={() => handleRemove(entry)}
+										class="flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10"
+									>
+										<Delete class="text-sm" />
+										Entfernen
+									</button>
+								</div>
+							{:else}
+								<div class="flex justify-end">
+									<button
+										onclick={() => handleRemove(entry)}
 										class="flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10"
 									>
 										<Delete class="text-sm" />
