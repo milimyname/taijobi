@@ -142,6 +142,29 @@ self.addEventListener('fetch', (event) => {
 		return;
 	}
 
+	// Network-first for the pack catalog. catalog.json changes when the
+	// catalog is edited (new packs, dictionary entries, tag updates) — the
+	// content hash of the file isn't part of the SW `version`, so a
+	// cache-first strategy would silently hide new entries until SW refresh.
+	// Network-first fetches fresh, falls back to cache offline.
+	if (url.pathname === '/packs/catalog.json') {
+		event.respondWith(
+			fetch(event.request)
+				.then((response) => {
+					if (response.ok) {
+						const clone = response.clone();
+						caches.open(CACHE).then((cache) => cache.put(event.request, clone));
+					}
+					return response;
+				})
+				.catch(async () => {
+					const cached = await caches.match(event.request);
+					return cached ?? new Response('[]', { headers: { 'content-type': 'application/json' } });
+				})
+		);
+		return;
+	}
+
 	// Cache-first for precached assets (WASM, JS, CSS, icons)
 	if (ASSETS.includes(url.pathname)) {
 		event.respondWith(

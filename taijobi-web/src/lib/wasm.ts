@@ -155,11 +155,14 @@ import { devtoolsStore } from './devtools-store.svelte';
 
 /** Wrap a synchronous WASM call with timing. Records name + duration
  *  into the devtools store so the DevTools WASM tab can show a live
- *  call log with avg/slowest stats. */
+ *  call log with avg/slowest stats. Recording is deferred via
+ *  queueMicrotask so it doesn't mutate $state inside a $derived chain
+ *  (e.g. when a derived reads data.stats() → getStats() → timed()). */
 function timed<T>(name: string, fn: () => T): T {
 	const start = performance.now();
 	const result = fn();
-	devtoolsStore.record(name, performance.now() - start);
+	const duration = performance.now() - start;
+	queueMicrotask(() => devtoolsStore.record(name, duration));
 	return result;
 }
 

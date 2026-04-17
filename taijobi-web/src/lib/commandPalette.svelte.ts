@@ -63,7 +63,23 @@ export const FAQ_ENTRIES: FaqEntry[] = [
 	{
 		id: 'faq-pakete',
 		q: 'Welche Pakete gibt es?',
-		keywords: ['pakete', 'hsk', 'lóng', 'long', 'csv', 'apkg']
+		keywords: [
+			'pakete',
+			'hsk',
+			'lóng',
+			'long',
+			'csv',
+			'apkg',
+			'tag',
+			'offiziell',
+			'persönlich',
+			'community'
+		]
+	},
+	{
+		id: 'faq-pakete-verwalten',
+		q: 'Wie verwalte ich Pakete und Wörterbücher?',
+		keywords: ['verwalten', 'pakete', 'wörterbücher', 'installieren', 'eigene', 'filter', 'suche']
 	},
 	{
 		id: 'faq-lexikon',

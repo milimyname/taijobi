@@ -1,15 +1,17 @@
 <script lang="ts">
 	import Close from '$lib/icons/Close.svelte';
 	import Delete from '$lib/icons/Delete.svelte';
+	import Dictionary from '$lib/icons/Dictionary.svelte';
 	import Download from '$lib/icons/Download.svelte';
 	import DownloadDone from '$lib/icons/DownloadDone.svelte';
 	import Explore from '$lib/icons/Explore.svelte';
 	import FolderOpen from '$lib/icons/FolderOpen.svelte';
 	import Inventory2 from '$lib/icons/Inventory2.svelte';
 	import Language from '$lib/icons/Language.svelte';
-	import SwapVert from '$lib/icons/SwapVert.svelte';
+	import Search from '$lib/icons/Search.svelte';
 	import Upload from '$lib/icons/Upload.svelte';
 	import UploadFile from '$lib/icons/UploadFile.svelte';
+	import Sync from '$lib/icons/Sync.svelte';
 	import {
 		installPack,
 		removePack,
@@ -19,16 +21,23 @@
 		exportCsv,
 		type Pack,
 	} from '$lib/wasm';
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount } from 'svelte';
 	import { toastStore } from '$lib/toast.svelte';
 	import { data } from '$lib/data.svelte';
+	import { downloadStore, type DownloadKey } from '$lib/download-state.svelte';
+
+	type CatalogKind = 'content' | 'dictionary';
+	type CatalogTag = 'official' | 'community' | 'personal' | string;
 
 	interface CatalogEntry {
 		id: string;
+		kind: CatalogKind;
+		tag: CatalogTag;
 		name: string;
 		language_pair: string;
-		word_count: number;
 		description: string;
+		word_count?: number;
+		size_mb?: number;
 	}
 
 	interface CsvPreview {
@@ -45,27 +54,188 @@
 	let csvPreview: CsvPreview | null = $state(null);
 	let importing = $state(false);
 	let dragging = $state(false);
+	let searchQuery = $state('');
+	let kindFilter = $state<'all' | CatalogKind>('all');
+
+	let zhLoaded = $derived(data.chineseDataLoaded());
+	let enLoaded = $derived(data.endictLoaded());
+	let deLoaded = $derived(data.dedictLoaded());
+
+	// Built-in dictionaries — defined in-code so they appear even if
+	// catalog.json is stale (service-worker cache serving pre-refactor JSON
+	// that doesn't list dict-* entries). These merge with catalog.json on
+	// load; catalog-version wins if the id matches.
+	const BUILTIN_DICTIONARIES: CatalogEntry[] = [
+		{
+			id: 'dict-zh',
+			kind: 'dictionary',
+			tag: 'official',
+			name: 'Chinesisches Wörterbuch',
+			language_pair: 'zh',
+			size_mb: 8,
+			description: 'CC-CEDICT, Strichfolge und Zeichenzerlegung',
+		},
+		{
+			id: 'dict-en',
+			kind: 'dictionary',
+			tag: 'official',
+			name: 'Englisches Wörterbuch',
+			language_pair: 'en',
+			size_mb: 7,
+			description: 'Wiktionary-Definitionen (Englisch)',
+		},
+		{
+			id: 'dict-de',
+			kind: 'dictionary',
+			tag: 'official',
+			name: 'Deutsches Wörterbuch',
+			language_pair: 'de',
+			size_mb: 2,
+			description: 'Wiktionary-Definitionen (Deutsch)',
+		},
+	];
+
+	// Normalize catalog entries — defends against stale service-worker cache
+	// serving pre-refactor catalog.json that lacks kind/tag fields. Any entry
+	// without kind is treated as a content pack, any without tag as official.
+	function normalizeEntry(raw: Partial<CatalogEntry> & { id: string; name: string }): CatalogEntry {
+		return {
+			id: raw.id,
+			kind: raw.kind ?? 'content',
+			tag: raw.tag ?? 'official',
+			name: raw.name,
+			language_pair: raw.language_pair ?? '',
+			description: raw.description ?? '',
+			word_count: raw.word_count,
+			size_mb: raw.size_mb,
+		};
+	}
 
 	onMount(async () => {
+		// Seed with built-in dictionaries so the UI has them even if the
+		// catalog fetch fails or serves a stale payload.
+		catalog = [...BUILTIN_DICTIONARIES];
 		try {
-			const res = await fetch('/packs/catalog.json');
-			catalog = await res.json();
+			const res = await fetch('/packs/catalog.json', { cache: 'no-cache' });
+			const raw = (await res.json()) as Partial<CatalogEntry>[];
+			const fromCatalog = raw
+				.filter((e): e is Partial<CatalogEntry> & { id: string; name: string } =>
+					typeof e.id === 'string' && typeof e.name === 'string',
+				)
+				.map(normalizeEntry);
+			// Merge: catalog entries override built-ins by id.
+			const catalogIds = new Set(fromCatalog.map((e) => e.id));
+			const missingBuiltins = BUILTIN_DICTIONARIES.filter((b) => !catalogIds.has(b.id));
+			catalog = [...missingBuiltins, ...fromCatalog];
 		} catch {
 			console.error('Failed to load pack catalog');
 		}
 	});
 
-	let available = $derived(
-		catalog.filter((c) => !installed.some((p) => p.id === c.id))
+	function isDictInstalled(id: string): boolean {
+		if (id === 'dict-zh') return zhLoaded;
+		if (id === 'dict-en') return enLoaded;
+		if (id === 'dict-de') return deLoaded;
+		return false;
+	}
+
+	function isInstalled(entry: CatalogEntry): boolean {
+		if (entry.kind === 'dictionary') return isDictInstalled(entry.id);
+		return installed.some((p) => p.id === entry.id);
+	}
+
+	function tagLabel(tag: CatalogTag): string {
+		if (tag === 'official') return 'Offiziell';
+		if (tag === 'community') return 'Community';
+		if (tag === 'personal') return 'Persönlich';
+		return tag;
+	}
+
+	function tagBadgeClass(tag: CatalogTag): string {
+		if (tag === 'official')
+			return 'bg-primary/10 text-primary dark:bg-primary/20';
+		if (tag === 'community')
+			return 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300';
+		return 'bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-300';
+	}
+
+	// ----- filtering + grouping -----
+
+	function matchesSearch(entry: CatalogEntry, q: string): boolean {
+		if (!q) return true;
+		const hay = `${entry.name} ${entry.description} ${entry.language_pair}`.toLowerCase();
+		return hay.includes(q.toLowerCase());
+	}
+
+	let filteredCatalog = $derived(
+		catalog.filter(
+			(e) =>
+				(kindFilter === 'all' || e.kind === kindFilter) && matchesSearch(e, searchQuery.trim()),
+		),
 	);
 
-	async function handleInstall(id: string) {
-		loading = id;
+	// Installed entries include catalog-tracked packs that are installed,
+	// plus any SQLite packs not in the catalog (imports → tag 'personal').
+	let installedEntries = $derived.by<CatalogEntry[]>(() => {
+		const fromCatalog = filteredCatalog.filter(isInstalled);
+		const catalogIds = new Set(catalog.map((e) => e.id));
+		const orphans = installed
+			.filter((p) => !catalogIds.has(p.id))
+			.map<CatalogEntry>((p) => ({
+				id: p.id,
+				kind: 'content',
+				tag: 'personal',
+				name: p.name,
+				language_pair: p.language_pair,
+				word_count: p.word_count,
+				description: 'Importiertes Paket',
+			}));
+		const orphansFiltered = orphans.filter(
+			(e) =>
+				(kindFilter === 'all' || e.kind === kindFilter) && matchesSearch(e, searchQuery.trim()),
+		);
+		return [...orphansFiltered, ...fromCatalog];
+	});
+
+	let availableEntries = $derived(filteredCatalog.filter((e) => !isInstalled(e)));
+
+	const GROUPS: {
+		key: string;
+		label: string;
+		match: (e: CatalogEntry) => boolean;
+	}[] = [
+		{ key: 'personal', label: 'Eigene', match: (e) => e.tag === 'personal' },
+		{ key: 'dictionary', label: 'Wörterbücher', match: (e) => e.kind === 'dictionary' },
+		{
+			key: 'content-official',
+			label: 'Lehrbücher',
+			match: (e) => e.kind === 'content' && e.tag === 'official',
+		},
+		{ key: 'community', label: 'Community', match: (e) => e.tag === 'community' },
+	];
+
+	function groupEntries(list: CatalogEntry[]) {
+		return GROUPS.map((g) => ({ ...g, entries: list.filter(g.match) })).filter(
+			(g) => g.entries.length > 0,
+		);
+	}
+
+	let installedGroups = $derived(groupEntries(installedEntries));
+	let availableGroups = $derived(groupEntries(availableEntries));
+
+	// ----- install / remove -----
+
+	async function handleInstall(entry: CatalogEntry) {
+		if (entry.kind === 'dictionary') {
+			if (downloadStore.active !== null) return;
+			await downloadStore.start(entry.language_pair as DownloadKey);
+			return;
+		}
+		loading = entry.id;
 		try {
-			const res = await fetch(`/packs/${id}.json`);
+			const res = await fetch(`/packs/${entry.id}.json`);
 			const json = await res.text();
 			await installPack(json);
-	
 		} catch (e) {
 			toastStore.show(e instanceof Error ? e.message : 'Install failed');
 		} finally {
@@ -84,6 +254,8 @@
 			toastStore.show(e instanceof Error ? e.message : 'Löschen fehlgeschlagen');
 		}
 	}
+
+	// ----- import / export -----
 
 	function parseCsvPreview(text: string, filename: string): CsvPreview {
 		const lines = text.split('\n').filter((l) => l.trim().length > 0);
@@ -112,7 +284,6 @@
 		const name = file.name.replace(/\.\w+$/, '');
 
 		if (file.name.endsWith('.apkg')) {
-			// Binary .apkg — import directly (no text preview)
 			const reader = new FileReader();
 			reader.addEventListener('load', async () => {
 				importing = true;
@@ -129,7 +300,6 @@
 			return;
 		}
 
-		// CSV/TSV — show text preview
 		const reader = new FileReader();
 		reader.addEventListener('load', () => {
 			const text = reader.result as string;
@@ -158,7 +328,6 @@
 			const count = await importCsv(csvPreview.text, csvPreview.filename);
 			toastStore.show(`${count} Karten importiert`);
 			csvPreview = null;
-	
 		} catch (e) {
 			toastStore.show(e instanceof Error ? e.message : 'Import failed');
 		} finally {
@@ -186,12 +355,204 @@
 	<title>Pakete — Taijobi</title>
 </svelte:head>
 
-<!-- Import/Export -->
-<section class="mt-6">
-	<h2 class="mb-4 flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-slate-100">
-		<SwapVert class="text-primary" />
-		Import / Export
-	</h2>
+<!-- Search + kind filter -->
+<section class="mt-4 space-y-3">
+	<div class="relative">
+		<Search class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
+		<input
+			type="search"
+			bind:value={searchQuery}
+			placeholder="Pakete und Wörterbücher suchen"
+			class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-3 text-sm text-slate-700 placeholder:text-slate-400 focus:border-primary focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:placeholder:text-slate-500"
+		/>
+	</div>
+
+	<div class="flex flex-wrap gap-2">
+		{#each [
+			{ value: 'all' as const, label: 'Alle' },
+			{ value: 'dictionary' as const, label: 'Wörterbücher' },
+			{ value: 'content' as const, label: 'Lehrbücher' },
+		] as chip (chip.value)}
+			<button
+				onclick={() => (kindFilter = chip.value)}
+				class="rounded-full px-3 py-1.5 text-xs font-bold transition-colors {kindFilter === chip.value
+					? 'bg-primary text-white'
+					: 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10'}"
+			>
+				{chip.label}
+			</button>
+		{/each}
+	</div>
+</section>
+
+<!-- Installed Packs -->
+{#if installedGroups.length > 0}
+	<section class="mt-6">
+		<h2 class="mb-4 flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-slate-100">
+			<DownloadDone class="text-primary" />
+			Installiert
+		</h2>
+		<div class="space-y-6">
+			{#each installedGroups as group (group.key)}
+				<div class="space-y-3">
+					<p class="text-[11px] font-bold uppercase tracking-wider text-primary">{group.label}</p>
+					{#each group.entries as entry (entry.id)}
+						{@const pack = installed.find((p) => p.id === entry.id)}
+						<div
+							class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm dark:border-white/5 dark:bg-white/5"
+						>
+							<div class="mb-3 flex items-start gap-4">
+								<div class="flex size-16 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+									{#if entry.kind === 'dictionary'}
+										<Dictionary class="text-3xl text-primary" />
+									{:else}
+										<Language class="text-3xl text-primary" />
+									{/if}
+								</div>
+								<div class="min-w-0 flex-1">
+									<div class="flex items-center gap-2">
+										<h3 class="truncate text-lg font-bold text-slate-900 dark:text-slate-100">{entry.name}</h3>
+										<span class="shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider {tagBadgeClass(entry.tag)}">
+											{tagLabel(entry.tag)}
+										</span>
+									</div>
+									<p class="text-sm text-slate-500 dark:text-slate-400">
+										{#if entry.kind === 'dictionary'}
+											{entry.description}
+										{:else if pack}
+											{pack.language_pair} &bull; {pack.word_count} W&ouml;rter
+										{:else}
+											{entry.language_pair} &bull; {entry.word_count ?? 0} W&ouml;rter
+										{/if}
+									</p>
+								</div>
+							</div>
+							{#if entry.kind === 'content'}
+								<div class="flex justify-between">
+									<a href="/lessons/{entry.id}" class="text-sm font-medium text-primary">
+										Lektionen anzeigen &rarr;
+									</a>
+									<button
+										onclick={() => handleRemove(entry.id)}
+										class="flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10"
+									>
+										<Delete class="text-sm" />
+										Entfernen
+									</button>
+								</div>
+							{/if}
+						</div>
+					{/each}
+				</div>
+			{/each}
+		</div>
+	</section>
+{/if}
+
+<!-- Available Packs -->
+{#if availableGroups.length > 0}
+	<section class="mt-8">
+		<h2 class="mb-4 flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-slate-100">
+			<Explore class="text-primary" />
+			Verf&uuml;gbar
+		</h2>
+		<div class="space-y-6">
+			{#each availableGroups as group (group.key)}
+				<div class="space-y-3">
+					<p class="text-[11px] font-bold uppercase tracking-wider text-primary">{group.label}</p>
+					{#each group.entries as entry (entry.id)}
+						{@const isDict = entry.kind === 'dictionary'}
+						{@const downloadingThis = isDict && downloadStore.active === entry.language_pair}
+						<div
+							class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm dark:border-white/5 dark:bg-white/5"
+						>
+							<div class="mb-3 flex items-start gap-4">
+								<div class="flex size-16 shrink-0 items-center justify-center rounded-lg bg-primary/5">
+									{#if isDict}
+										<Dictionary class="text-3xl text-primary" />
+									{:else}
+										<Inventory2 class="text-3xl text-primary" />
+									{/if}
+								</div>
+								<div class="min-w-0 flex-1">
+									<div class="flex items-center gap-2">
+										<h3 class="truncate text-lg font-bold text-slate-900 dark:text-slate-100">{entry.name}</h3>
+										<span class="shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider {tagBadgeClass(entry.tag)}">
+											{tagLabel(entry.tag)}
+										</span>
+									</div>
+									<p class="text-sm text-slate-500 dark:text-slate-400">{entry.description}</p>
+									<p class="text-xs text-slate-400 dark:text-slate-500">
+										{#if isDict}
+											~{entry.size_mb} MB komprimiert
+										{:else}
+											{entry.word_count ?? 0} W&ouml;rter
+										{/if}
+									</p>
+								</div>
+							</div>
+							<button
+								onclick={() => handleInstall(entry)}
+								disabled={(isDict && downloadStore.active !== null) || loading === entry.id}
+								class="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-2.5 font-medium text-white transition-colors hover:bg-primary/90 disabled:opacity-50"
+							>
+								{#if downloadingThis}
+									<Sync class="animate-spin text-sm" />
+									{#if downloadStore.total > 0}
+										{Math.round((downloadStore.progress / downloadStore.total) * 100)}%
+									{:else}
+										Herunterladen&hellip;
+									{/if}
+								{:else if loading === entry.id}
+									Installiere&hellip;
+								{:else}
+									<Download class="text-sm" />
+									Installieren
+								{/if}
+							</button>
+							{#if downloadingThis && downloadStore.total > 0}
+								<div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
+									<div
+										class="h-full rounded-full bg-primary transition-all duration-200"
+										style="width: {Math.round((downloadStore.progress / downloadStore.total) * 100)}%"
+									></div>
+								</div>
+							{/if}
+						</div>
+					{/each}
+				</div>
+			{/each}
+		</div>
+	</section>
+{/if}
+
+<!-- Empty / loading state -->
+{#if catalog.length === 0 && installed.length === 0}
+	<div
+		class="mt-8 rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-white/5"
+	>
+		<Inventory2 class="mb-2 text-[32px] text-slate-300 dark:text-slate-500" />
+		<p class="text-sm text-slate-500 dark:text-slate-400">Lade Pakete...</p>
+	</div>
+{:else if installedGroups.length === 0 && availableGroups.length === 0}
+	<div
+		class="mt-8 rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-white/5"
+	>
+		<p class="text-sm text-slate-500 dark:text-slate-400">Keine Treffer.</p>
+	</div>
+{/if}
+
+<!-- Eigene Pakete (Import / Export) -->
+<section class="mt-10">
+	<div class="mb-4">
+		<h2 class="flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-slate-100">
+			<UploadFile class="text-primary" />
+			Eigene Pakete
+		</h2>
+		<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+			CSV, TSV oder Anki-Export (.apkg). Anki-Decks werden direkt ohne Vorschau importiert.
+		</p>
+	</div>
 
 	<div class="flex gap-3">
 		<button
@@ -199,7 +560,7 @@
 			class="flex items-center gap-2 rounded-xl border border-slate-100 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 dark:border-white/5 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
 		>
 			<Download class="text-sm" />
-			CSV exportieren
+			Alle Karten exportieren (TSV)
 		</button>
 	</div>
 
@@ -209,17 +570,19 @@
 			? 'border-primary bg-primary/5'
 			: 'border-slate-200 bg-white dark:border-white/10 dark:bg-white/5'}"
 		role="region"
-		aria-label="CSV Import"
+		aria-label="Datei importieren"
 		ondragover={(e) => { e.preventDefault(); dragging = true; }}
 		ondragleave={() => { dragging = false; }}
 		ondrop={(e) => { e.preventDefault(); handleDrop(e); }}
 	>
 		<UploadFile class="mb-2 text-[32px] text-slate-300 dark:text-slate-500" />
 		<p class="text-sm text-slate-500 dark:text-slate-400">
-			CSV/TSV oder .apkg hierher ziehen
+			Datei hierher ziehen
 		</p>
-		<p class="mt-1 text-xs text-slate-400 dark:text-slate-500">oder</p>
-		<label class="mt-2 inline-flex cursor-pointer items-center gap-1 rounded-lg bg-primary/10 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/20">
+		<p class="mt-1 text-xs text-slate-400 dark:text-slate-500">
+			Unterstützt: .csv, .tsv, .apkg
+		</p>
+		<label class="mt-3 inline-flex cursor-pointer items-center gap-1 rounded-lg bg-primary/10 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/20">
 			<FolderOpen class="text-sm" />
 			Datei ausw&auml;hlen
 			<input type="file" accept=".csv,.tsv,.txt,.apkg" class="hidden" onchange={handleFileInput} />
@@ -286,100 +649,3 @@
 		</div>
 	{/if}
 </section>
-
-<!-- Installed Packs -->
-{#if installed.length > 0}
-	<section class="mt-6">
-		<h2 class="mb-4 flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-slate-100">
-			<DownloadDone class="text-primary" />
-			Installiert
-		</h2>
-		<div class="space-y-4">
-			{#each installed as pack (pack.id)}
-				<div
-					class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm dark:border-white/5 dark:bg-white/5"
-				>
-					<div class="mb-3 flex items-start gap-4">
-						<div
-							class="flex size-16 shrink-0 items-center justify-center rounded-lg bg-primary/10"
-						>
-							<Language class="text-3xl text-primary" />
-						</div>
-						<div class="min-w-0 flex-1">
-							<h3 class="truncate text-lg font-bold text-slate-900 dark:text-slate-100">{pack.name}</h3>
-							<p class="text-sm text-slate-500 dark:text-slate-400">
-								{pack.language_pair} &bull; {pack.word_count} W&ouml;rter
-							</p>
-						</div>
-					</div>
-					<div class="flex justify-between">
-						<a
-							href="/lessons/{pack.id}"
-							class="text-sm font-medium text-primary"
-						>
-							Lektionen anzeigen &rarr;
-						</a>
-						<button
-							onclick={() => handleRemove(pack.id)}
-							class="flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10"
-						>
-							<Delete class="text-sm" />
-							Entfernen
-						</button>
-					</div>
-				</div>
-			{/each}
-		</div>
-	</section>
-{/if}
-
-<!-- Available Packs -->
-{#if available.length > 0}
-	<section class="mt-8">
-		<h2 class="mb-4 flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-slate-100">
-			<Explore class="text-primary" />
-			Verf&uuml;gbar
-		</h2>
-		<div class="space-y-4">
-			{#each available as entry (entry.id)}
-				<div
-					class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm dark:border-white/5 dark:bg-white/5"
-				>
-					<div class="mb-3 flex items-start gap-4">
-						<div
-							class="flex size-16 shrink-0 items-center justify-center rounded-lg bg-primary/5"
-						>
-							<Inventory2 class="text-3xl text-primary" />
-						</div>
-						<div class="min-w-0 flex-1">
-							<h3 class="truncate text-lg font-bold text-slate-900 dark:text-slate-100">{entry.name}</h3>
-							<p class="text-sm text-slate-500 dark:text-slate-400">{entry.description}</p>
-							<p class="text-xs text-slate-400 dark:text-slate-500">{entry.word_count} W&ouml;rter</p>
-						</div>
-					</div>
-					<button
-						onclick={() => handleInstall(entry.id)}
-						disabled={loading === entry.id}
-						class="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-2.5 font-medium text-white transition-colors hover:bg-primary/90 disabled:opacity-50"
-					>
-						{#if loading === entry.id}
-							Installiere...
-						{:else}
-							<Download class="text-sm" />
-							Installieren
-						{/if}
-					</button>
-				</div>
-			{/each}
-		</div>
-	</section>
-{/if}
-
-{#if installed.length === 0 && available.length === 0}
-	<div
-		class="mt-8 rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-white/5"
-	>
-		<Inventory2 class="mb-2 text-[32px] text-slate-300 dark:text-slate-500" />
-		<p class="text-sm text-slate-500 dark:text-slate-400">Lade Pakete...</p>
-	</div>
-{/if}

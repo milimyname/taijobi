@@ -513,7 +513,7 @@
 							</div>
 							<h3 class="mt-4 text-xl font-bold text-slate-900 dark:text-slate-100">Wörterbücher installieren</h3>
 							<p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
-								Für automatische Anreicherung neuer Wörter. Du kannst das auch später in den Einstellungen nachholen.
+								Für automatische Anreicherung neuer Wörter. Du kannst das auch später unter Pakete nachholen.
 							</p>
 						</div>
 

@@ -114,7 +114,12 @@
 		{
 			id: 'faq-pakete',
 			q: 'Welche Pakete gibt es?',
-			a: 'Eingebaut: HSK 1–6 (3.0) und Lóng neu L5. Außerdem kannst du eigene Pakete per CSV/TSV oder Anki .apkg importieren — Spaltenerkennung läuft heuristisch, du musst nichts manuell zuordnen. Lehrbuch-Pakete leben statisch im Cloudflare-Worker, neue können per PR ergänzt werden.',
+			a: 'Eingebaut: HSK 1–6 (3.0) und Lóng neu L5. Außerdem kannst du eigene Pakete per CSV/TSV oder Anki .apkg importieren — Spaltenerkennung läuft heuristisch, du musst nichts manuell zuordnen. Lehrbuch-Pakete leben statisch im Cloudflare-Worker, neue können per PR ergänzt werden.\n\nPakete und Wörterbücher bekommen ein Tag-Badge:\n\n• Offiziell — von Taijobi kuratiert (HSK, Lóng, Wörterbücher)\n• Persönlich — deine .csv/.tsv/.apkg-Importe\n• Community — PR-basiert (Phase 6.3, zukünftig)',
+		},
+		{
+			id: 'faq-pakete-verwalten',
+			q: 'Wie verwalte ich Pakete und Wörterbücher?',
+			a: 'Alles unter Pakete im Bottom-Nav (oder ⌘K → Pakete):\n\n• Eigene — deine .csv/.tsv/.apkg-Importe (Badge: Persönlich)\n• Wörterbücher — Chinesisch, Englisch, Deutsch (Offline-Datenpakete)\n• Lehrbücher — HSK 1–6 und Lóng neu (Badge: Offiziell)\n• Community — zukünftig, PR-basiert\n\nSuche und Kind-Filter-Chips (Alle / Wörterbücher / Lehrbücher) helfen beim Finden. Installierte Pakete zeigen den passenden Tag-Badge.',
 		},
 		{
 			id: 'faq-lexikon',
@@ -124,7 +129,7 @@
 		{
 			id: 'faq-wörterbücher',
 			q: 'Welche Wörterbücher sind verfügbar?',
-			a: 'Drei Wörterbücher, alle lokal und offline:\n\n• CC-CEDICT — Chinesisch (124k Einträge)\n• Wiktextract Englisch — 166k Einträge\n• Wiktextract Deutsch\n\nPlus Strichfolgen-Animation und Radikal-Zerlegung für 9.500 chinesische Zeichen aus Make Me a Hanzi.\n\nWörterbücher werden auf Wunsch installiert (Einstellungen → Wörterbücher), nicht ungefragt heruntergeladen.',
+			a: 'Drei Wörterbücher, alle lokal und offline:\n\n• CC-CEDICT — Chinesisch (124k Einträge)\n• Wiktextract Englisch — 166k Einträge\n• Wiktextract Deutsch\n\nPlus Strichfolgen-Animation und Radikal-Zerlegung für 9.500 chinesische Zeichen aus Make Me a Hanzi.\n\nWörterbücher werden auf Wunsch installiert (Pakete → Wörterbücher), nicht ungefragt heruntergeladen.',
 		},
 		{
 			id: 'faq-zeichen',

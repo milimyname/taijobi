@@ -425,7 +425,7 @@
 							<div
 								class="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 dark:divide-white/5 dark:border-white/10"
 							>
-								{#each devtoolsStore.recent(20) as entry (entry.timestamp)}
+								{#each devtoolsStore.recent(20) as entry (entry.id)}
 									<div
 										class="flex items-center justify-between bg-white px-2.5 py-1.5 dark:bg-white/5"
 									>

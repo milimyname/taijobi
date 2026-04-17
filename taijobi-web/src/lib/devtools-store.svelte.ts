@@ -9,6 +9,7 @@
 const MAX_ENTRIES = 200;
 
 export interface WasmCallEntry {
+	id: number; // monotonic — unique even when multiple calls land in the same ms
 	name: string;
 	durationMs: number;
 	timestamp: number; // Date.now()
@@ -17,11 +18,17 @@ export interface WasmCallEntry {
 class DevtoolsStore {
 	#entries = $state<WasmCallEntry[]>([]);
 	#callCount = $state(0);
+	#nextId = 0;
 
 	/** Push a new timing entry. Called by wasm.ts timed() wrapper. */
 	record(name: string, durationMs: number): void {
 		this.#callCount++;
-		const entry: WasmCallEntry = { name, durationMs, timestamp: Date.now() };
+		const entry: WasmCallEntry = {
+			id: this.#nextId++,
+			name,
+			durationMs,
+			timestamp: Date.now(),
+		};
 		// Ring buffer: drop oldest when full
 		if (this.#entries.length >= MAX_ENTRIES) {
 			this.#entries = [...this.#entries.slice(1), entry];

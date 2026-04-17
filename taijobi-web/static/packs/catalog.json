@@ -1,6 +1,35 @@
 [
 	{
+		"id": "dict-zh",
+		"kind": "dictionary",
+		"tag": "official",
+		"name": "Chinesisches Wörterbuch",
+		"language_pair": "zh",
+		"size_mb": 8,
+		"description": "CC-CEDICT, Strichfolge und Zeichenzerlegung"
+	},
+	{
+		"id": "dict-en",
+		"kind": "dictionary",
+		"tag": "official",
+		"name": "Englisches Wörterbuch",
+		"language_pair": "en",
+		"size_mb": 7,
+		"description": "Wiktionary-Definitionen (Englisch)"
+	},
+	{
+		"id": "dict-de",
+		"kind": "dictionary",
+		"tag": "official",
+		"name": "Deutsches Wörterbuch",
+		"language_pair": "de",
+		"size_mb": 2,
+		"description": "Wiktionary-Definitionen (Deutsch)"
+	},
+	{
 		"id": "long-neu-l5",
+		"kind": "content",
+		"tag": "official",
 		"name": "Lóng neu L5",
 		"language_pair": "zh-de",
 		"word_count": 25,
@@ -8,6 +37,8 @@
 	},
 	{
 		"id": "hsk-1",
+		"kind": "content",
+		"tag": "official",
 		"name": "HSK 1",
 		"language_pair": "zh-en",
 		"word_count": 150,
@@ -15,6 +46,8 @@
 	},
 	{
 		"id": "hsk-2",
+		"kind": "content",
+		"tag": "official",
 		"name": "HSK 2",
 		"language_pair": "zh-en",
 		"word_count": 150,
@@ -22,6 +55,8 @@
 	},
 	{
 		"id": "hsk-3",
+		"kind": "content",
+		"tag": "official",
 		"name": "HSK 3",
 		"language_pair": "zh-en",
 		"word_count": 299,
@@ -29,6 +64,8 @@
 	},
 	{
 		"id": "hsk-4",
+		"kind": "content",
+		"tag": "official",
 		"name": "HSK 4",
 		"language_pair": "zh-en",
 		"word_count": 601,
@@ -36,6 +73,8 @@
 	},
 	{
 		"id": "hsk-5",
+		"kind": "content",
+		"tag": "official",
 		"name": "HSK 5",
 		"language_pair": "zh-en",
 		"word_count": 1298,
@@ -43,6 +82,8 @@
 	},
 	{
 		"id": "hsk-6",
+		"kind": "content",
+		"tag": "official",
 		"name": "HSK 6",
 		"language_pair": "zh-en",
 		"word_count": 2500,

@@ -407,7 +407,7 @@ pub const Db = struct {
             \\SELECT c.id, c.word, c.language, c.pinyin, c.translation, c.source_type, c.pack_id
             \\FROM cards c
             \\WHERE COALESCE(c.deleted, 0) = 0
-            \\  AND (c.word LIKE ?1 OR c.translation LIKE ?1 OR c.pinyin LIKE ?1)
+            \\  AND (c.word LIKE ?1 OR c.translation LIKE ?1 OR c.pinyin LIKE ?1 OR c.context LIKE ?1)
             \\ORDER BY
             \\  CASE WHEN c.word = ?2 THEN 0
             \\       WHEN c.word LIKE ?3 THEN 1
@@ -1799,10 +1799,10 @@ test "searchCards SQL LIKE matches" {
     var db = try Db.init(":memory:");
     defer db.close();
 
-    const insert = "INSERT INTO cards(id, word, language, translation, source_type, created_at, updated_at) VALUES " ++
-        "('t1','Apfel','de','apple','lexicon',1,1)," ++
-        "('t2','Banane','de','banana','lexicon',1,1)," ++
-        "('t3','Birne','de','pear','lexicon',1,1)";
+    const insert = "INSERT INTO cards(id, word, language, translation, context, source_type, created_at, updated_at) VALUES " ++
+        "('t1','Apfel','de','apple',NULL,'lexicon',1,1)," ++
+        "('t2','Banane','de','banana','Dune chapter 3','lexicon',1,1)," ++
+        "('t3','Birne','de','pear',NULL,'lexicon',1,1)";
     try db.exec(insert);
 
     var buf: [8192]u8 = undefined;
@@ -1812,6 +1812,11 @@ test "searchCards SQL LIKE matches" {
 
     const json2 = db.searchCards("banana", 10, &buf) orelse return error.TestUnexpectedResult;
     try std.testing.expect(std.mem.indexOf(u8, json2, "Banane") != null);
+
+    // Context-field match: find Banane via its Kindle source "Dune"
+    const json3 = db.searchCards("Dune", 10, &buf) orelse return error.TestUnexpectedResult;
+    try std.testing.expect(std.mem.indexOf(u8, json3, "Banane") != null);
+    try std.testing.expect(std.mem.indexOf(u8, json3, "Apfel") == null);
 }
 
 test "getDueCards returns JSON" {
