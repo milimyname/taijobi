@@ -7,6 +7,7 @@
 	import FastForward from '$lib/icons/FastForward.svelte';
 	import VolumeUp from '$lib/icons/VolumeUp.svelte';
 	import Icon from '$lib/icons/Icon.svelte';
+	import { pushStore } from '$lib/push.svelte';
 	import {
 		getDueCards,
 		getDueCardsFiltered,
@@ -318,6 +319,9 @@
 		else haptics.medium();
 		peekCard = card;
 		await reviewCard(card.id, rating);
+		// Update the server's last-review timestamp so the push-notification
+		// cron knows we're active — fire-and-forget, never blocks the drill.
+		pushStore.heartbeat();
 		reviewed++;
 		index++;
 		input = '';

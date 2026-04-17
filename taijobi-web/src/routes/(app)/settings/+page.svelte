@@ -19,6 +19,7 @@
 	import { themeStore, type Theme } from '$lib/theme.svelte';
 	import { data } from '$lib/data.svelte';
 	import { downloadStore } from '$lib/download-state.svelte';
+	import { pushStore } from '$lib/push.svelte';
 
 	const themeOptions: { value: Theme; label: string; icon: string }[] = [
 		{ value: 'light', label: 'Hell', icon: 'light_mode' },
@@ -371,6 +372,67 @@
 			</div>
 		</div>
 	{/if}
+
+	<!-- Notifications -->
+	<div>
+		<p class="text-[11px] font-bold uppercase tracking-wider text-primary">Benachrichtigungen</p>
+		<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+			Erinnerung, wenn dein Streak droht zu brechen.
+		</p>
+	</div>
+	<div class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm dark:border-white/5 dark:bg-white/5">
+		{#if !pushStore.supported}
+			<div class="flex items-center gap-2">
+				<div class="size-2.5 rounded-full bg-slate-300 dark:bg-slate-600"></div>
+				<span class="text-sm font-medium text-slate-700 dark:text-slate-200">Nicht verf&uuml;gbar</span>
+			</div>
+			<p class="mt-2 text-xs text-slate-400 dark:text-slate-500">
+				Dein Browser unterst&uuml;tzt keine Push-Benachrichtigungen.
+				{#if /iPhone|iPad/.test(navigator.userAgent) && !('standalone' in navigator)}
+					F&uuml;ge die App zum Home-Bildschirm hinzu, um Benachrichtigungen zu aktivieren.
+				{/if}
+			</p>
+		{:else if pushStore.permission === 'denied'}
+			<div class="flex items-center gap-2">
+				<div class="size-2.5 rounded-full bg-red-400"></div>
+				<span class="text-sm font-medium text-slate-700 dark:text-slate-200">Blockiert</span>
+			</div>
+			<p class="mt-2 text-xs text-slate-400 dark:text-slate-500">
+				Benachrichtigungen wurden im Browser blockiert. &Auml;ndere die Einstellung in den Browser-/Systemeinstellungen.
+			</p>
+		{:else}
+			<div class="flex items-center justify-between">
+				<div class="flex items-center gap-2">
+					{#if pushStore.subscribed}
+						<div class="size-2.5 rounded-full bg-green-500"></div>
+					{:else}
+						<div class="size-2.5 rounded-full bg-slate-300 dark:bg-slate-600"></div>
+					{/if}
+					<span class="text-sm font-medium text-slate-700 dark:text-slate-200">Streak-Erinnerung</span>
+				</div>
+				<button
+					onclick={() => (pushStore.subscribed ? pushStore.disable() : pushStore.enable())}
+					class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors duration-200 {pushStore.subscribed
+						? 'bg-primary'
+						: 'bg-slate-200 dark:bg-white/10'}"
+					role="switch"
+					aria-checked={pushStore.subscribed}
+					aria-label="Streak-Erinnerung aktivieren"
+				>
+					<span
+						class="pointer-events-none inline-block size-5 rounded-full bg-white shadow-sm ring-0 transition-transform duration-200 {pushStore.subscribed
+							? 'translate-x-5'
+							: 'translate-x-0.5'} mt-0.5"
+					></span>
+				</button>
+			</div>
+			<p class="mt-2 text-xs text-slate-400 dark:text-slate-500">
+				{pushStore.subscribed
+					? 'Du erh\u00e4ltst eine Erinnerung, wenn du l\u00e4nger als 20 Stunden nicht ge\u00fcbt hast.'
+					: 'Aktiviere, um t\u00e4glich erinnert zu werden, bevor dein Streak bricht.'}
+			</p>
+		{/if}
+	</div>
 
 	<!-- About link -->
 	<a

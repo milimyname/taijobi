@@ -21,6 +21,7 @@
 	import { goto } from '$app/navigation';
 	import { onboardingStore } from '$lib/onboarding.svelte';
 	import { streakBannerStore } from '$lib/streak-banner.svelte';
+	import { pushStore } from '$lib/push.svelte';
 	import Download from '$lib/icons/Download.svelte';
 	import { downloadStore } from '$lib/download-state.svelte';
 	import { updateStore } from '$lib/update.svelte';
@@ -69,6 +70,8 @@
 			updateStore.init();
 			onboardingStore.init();
 			streakBannerStore.init();
+			pushStore.init();
+			pushStore.heartbeat();
 			setOnDataChanged(() => queueMicrotask(() => data.bump()));
 			if (isSyncEnabled()) connectSync();
 		} catch (e) {
