@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.6.9 (2026-04-18)
+
+- feat: deep-link ⌘K card hits into the lesson page + dark-theme + error-button
+
 ## v0.6.8 (2026-04-18)
 
 - feat: CommandPalette becomes the universal find-and-do surface
