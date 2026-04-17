@@ -4,6 +4,56 @@
 	import ArrowBack from '$lib/icons/ArrowBack.svelte';
 	import Translate from '$lib/icons/Translate.svelte';
 
+	/**
+	 * Convert plain-text FAQ answers into light HTML:
+	 * - Lines starting with • become <li> in a <ul>
+	 * - Double newlines become paragraph breaks
+	 * - Single newlines become <br>
+	 * - Text wrapped in backticks becomes <code>
+	 * Safe: all FAQ text is hardcoded in this file, not user input.
+	 */
+	function formatAnswer(text: string): string {
+		// Escape HTML entities first
+		const escaped = text
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;');
+
+		// Convert backtick-wrapped text to <code>
+		const withCode = escaped.replace(/`([^`]+)`/g, '<code class="rounded bg-slate-100 px-1 py-0.5 font-mono text-xs text-slate-700 dark:bg-white/10 dark:text-slate-300">$1</code>');
+
+		// Split into paragraphs on double newlines
+		const paragraphs = withCode.split(/\n\n+/);
+
+		return paragraphs
+			.map((p) => {
+				const lines = p.split('\n');
+				const bullets = lines.filter((l) => l.startsWith('• '));
+				if (bullets.length > 0) {
+					// Mix of bullets and non-bullets in one paragraph
+					const parts: string[] = [];
+					let currentBullets: string[] = [];
+					for (const line of lines) {
+						if (line.startsWith('• ')) {
+							currentBullets.push(`<li class="ml-4">${line.slice(2)}</li>`);
+						} else {
+							if (currentBullets.length > 0) {
+								parts.push(`<ul class="my-2 list-disc space-y-1.5 pl-2">${currentBullets.join('')}</ul>`);
+								currentBullets = [];
+							}
+							if (line.trim()) parts.push(`<p>${line}</p>`);
+						}
+					}
+					if (currentBullets.length > 0) {
+						parts.push(`<ul class="my-2 list-disc space-y-1.5 pl-2">${currentBullets.join('')}</ul>`);
+					}
+					return parts.join('');
+				}
+				return `<p>${p.replace(/\n/g, '<br>')}</p>`;
+			})
+			.join('<div class="mt-2"></div>');
+	}
+
 	// Scroll to hash anchor and auto-open <details> after navigation completes.
 	afterNavigate(() => {
 		const hash = window.location.hash;
@@ -92,17 +142,17 @@
 		{
 			id: 'faq-mcp',
 			q: 'Kann ich Taijobi mit Claude verbinden?',
-			a: 'Ja, über einen MCP-Server (Model Context Protocol). Claude Desktop kann dein Taijobi-Lexikon direkt abfragen und ändern — fällige Karten anzeigen, Wörter hinzufügen, Kindle-Clippings importieren, Statistiken lesen. Authentifizierung läuft über deinen Sync-Schlüssel, die gleiche Ende-zu-Ende-Verschlüsselung wie beim Geräte-Sync. Konfiguration in ~/Library/Application Support/Claude/claude_desktop_config.json: { "mcpServers": { "taijobi": { "url": "https://sync.taijobi.com/mcp", "transport": "http", "headers": { "Authorization": "Bearer <dein-sync-schlüssel>" } } } }. Claude neustarten, und die 8 Tools erscheinen im Tool-Picker.',
+			a: 'Ja, über einen MCP-Server (Model Context Protocol). Claude Desktop kann dein Taijobi-Lexikon direkt abfragen und ändern.\n\nVerfügbare Tools:\n\n• Fällige Karten anzeigen\n• Wörter zum Lexikon hinzufügen\n• Kindle-Clippings importieren\n• Statistiken und Streak lesen\n• Karten suchen und bewerten\n\nAuthentifizierung läuft über deinen Sync-Schlüssel — die gleiche Ende-zu-Ende-Verschlüsselung wie beim Geräte-Sync.\n\nEinrichtung: Füge in `~/Library/Application Support/Claude/claude_desktop_config.json` hinzu:\n\n`{ "mcpServers": { "taijobi": { "url": "https://sync.taijobi.com/mcp", "transport": "http", "headers": { "Authorization": "Bearer <dein-sync-schlüssel>" } } } }`\n\nClaude neustarten — die 8 Tools erscheinen im Tool-Picker.',
 		},
 		{
 			id: 'faq-benachrichtigungen',
 			q: 'Benachrichtigungen kommen nicht an — was tun?',
-			a: 'Taijobi nutzt Web-Push-Benachrichtigungen. Damit sie ankommen, muss dein Betriebssystem dem Browser/der PWA erlauben, Benachrichtigungen zu senden. So aktivierst du es:\n\n• macOS: Systemeinstellungen → Mitteilungen → [Chrome/Safari/Edge] → „Mitteilungen erlauben" aktivieren. Prüfe auch, dass kein Fokus-Modus aktiv ist.\n\n• iOS (16.4+): Die App muss als PWA auf dem Home-Bildschirm installiert sein (Teilen → „Zum Home-Bildschirm"). Dann: Einstellungen → Mitteilungen → Taijobi → erlauben.\n\n• Windows: Einstellungen → System → Benachrichtigungen → [Chrome/Edge] → Ein.\n\n• Android: Einstellungen → Apps → [Chrome/Browser] → Benachrichtigungen → erlauben. Oder lange auf das App-Icon drücken → App-Info → Benachrichtigungen.\n\nWenn alles erlaubt ist und trotzdem nichts kommt: Einstellungen → Benachrichtigungen → Streak-Erinnerung aus- und wieder einschalten (setzt das Abo neu). Bei weiteren Problemen: Seite neu laden und erneut erlauben.',
+			a: 'Taijobi nutzt Web-Push-Benachrichtigungen. Damit sie ankommen, muss dein Betriebssystem dem Browser bzw. der PWA erlauben, Benachrichtigungen zu senden.\n\nSo aktivierst du es pro Plattform:\n\n• macOS: Systemeinstellungen → Mitteilungen → [Chrome/Safari/Edge] → „Mitteilungen erlauben" aktivieren. Prüfe auch, dass kein Fokus-Modus aktiv ist.\n• iOS (16.4+): Die App muss als PWA installiert sein (Teilen → „Zum Home-Bildschirm"). Danach: Einstellungen → Mitteilungen → Taijobi → erlauben.\n• Windows: Einstellungen → System → Benachrichtigungen → [Chrome/Edge] → Ein.\n• Android: Einstellungen → Apps → [Chrome/Browser] → Benachrichtigungen → erlauben. Oder: lange auf das App-Icon drücken → App-Info → Benachrichtigungen.\n\nWenn alles erlaubt ist und trotzdem nichts kommt:\n\n• Einstellungen → Benachrichtigungen → Streak-Erinnerung aus- und wieder einschalten (setzt das Push-Abo neu).\n• Seite neu laden und Berechtigung erneut erteilen.',
 		},
 		{
 			id: 'faq-shortcuts',
 			q: 'Gibt es Tastenkürzel?',
-			a: 'Ja. Drücke ? irgendwo in der App, um die Hilfe zu öffnen. Vim-Style-Navigation mit g h (Start), g d (Üben), g s (Statistik), g w (Wörterbuch), g p (Pakete), g l (Lexikon), g c (Zeichen), g e (Einstellungen). Im Drill: 1–4 zum Bewerten, ← für die vorherige Karte.',
+			a: 'Ja. Drücke `?` irgendwo in der App, um die Hilfe zu öffnen.\n\nNavigation (Vim-Style — tippe `g` dann den Buchstaben):\n\n• `g h` — Start\n• `g d` — Üben\n• `g s` — Statistik\n• `g w` — Wörterbuch\n• `g p` — Pakete\n• `g l` — Lexikon\n• `g c` — Zeichen\n• `g e` — Einstellungen\n\nIm Drill:\n\n• `1–4` — Karte bewerten (Nochmal / Schwer / Gut / Einfach)\n• `←` — Vorherige Karte anzeigen\n• `Enter` — Antwort prüfen\n\nGlobal:\n\n• `⌘ K` / `Ctrl+K` — Befehlspalette öffnen',
 		},
 		{
 			id: 'faq-darkmode',
@@ -310,8 +360,8 @@
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
 						</svg>
 					</summary>
-					<div class="px-4 pb-4 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
-						{faq.a}
+					<div class="faq-answer px-4 pb-4 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
+						{@html formatAnswer(faq.a)}
 					</div>
 				</details>
 			{/each}
