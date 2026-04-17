@@ -281,7 +281,7 @@ get enriched from CEDICT. All words reviewable via FSRS.
 
 **6.1 — iOS:** SwiftUI shell linking libhanzi.a, all core screens, push notifications
 
-### Phase 6.2 — MCP Server 🚧 IN PROGRESS
+### Phase 6.2 — MCP Server ✅ DONE
 
 **Goal:** Claude Desktop (and any MCP-capable client) reaches taijobi over HTTP and executes real tool calls against the user's actual lexicon data. Deployed into the existing `taijobi-sync` Worker so there's no new infra.
 
