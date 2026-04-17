@@ -124,7 +124,7 @@
 		{
 			id: 'faq-wörterbücher',
 			q: 'Welche Wörterbücher sind verfügbar?',
-			a: 'CC-CEDICT für Chinesisch (124k Einträge), Wiktextract Englisch (166k Einträge) und Wiktextract Deutsch. Plus Strichfolgen-Animation und Radikal-Zerlegung für 9.500 chinesische Zeichen aus Make Me a Hanzi. Wörterbücher werden auf Wunsch installiert (Einstellungen → Wörterbücher), nicht ungefragt heruntergeladen.',
+			a: 'Drei Wörterbücher, alle lokal und offline:\n\n• CC-CEDICT — Chinesisch (124k Einträge)\n• Wiktextract Englisch — 166k Einträge\n• Wiktextract Deutsch\n\nPlus Strichfolgen-Animation und Radikal-Zerlegung für 9.500 chinesische Zeichen aus Make Me a Hanzi.\n\nWörterbücher werden auf Wunsch installiert (Einstellungen → Wörterbücher), nicht ungefragt heruntergeladen.',
 		},
 		{
 			id: 'faq-zeichen',
@@ -134,7 +134,7 @@
 		{
 			id: 'faq-arabisch',
 			q: 'Werden auch andere Sprachen unterstützt?',
-			a: 'Ja. Sprach-Erkennung läuft per Unicode-Bereichen — Chinesisch, Arabisch (RTL mit Vokalisation), Deutsch, Englisch und mehr. Arabische Karten zeigen Wörter rechts-nach-links mit großer Schrift für die Diakritika. Anki-Imports erkennen die Sprache pro Karte automatisch.',
+			a: 'Ja. Sprach-Erkennung läuft per Unicode-Bereichen:\n\n• Chinesisch (CJK)\n• Arabisch (RTL mit Vokalisation)\n• Deutsch\n• Englisch\n• und mehr\n\nArabische Karten zeigen Wörter rechts-nach-links mit großer Schrift für die Diakritika. Anki-Imports erkennen die Sprache pro Karte automatisch.',
 		},
 		{
 			id: 'faq-self-assess',
@@ -149,7 +149,7 @@
 		{
 			id: 'faq-sync',
 			q: 'Wie synchronisiere ich zwischen Geräten?',
-			a: 'Einstellungen → Sync → Schlüssel generieren. Kopiere den Schlüssel und füge ihn auf dem zweiten Gerät ein. Änderungen werden in Echtzeit per WebSocket synchronisiert, Ende-zu-Ende verschlüsselt. Kein Konto, kein Passwort — der Schlüssel ist deine Identität. Ohne Sync funktioniert alles lokal weiter.',
+			a: 'So richtest du Sync ein:\n\n• Einstellungen → Sync → Schlüssel generieren\n• Schlüssel kopieren und auf dem zweiten Gerät einfügen\n• Änderungen werden in Echtzeit per WebSocket synchronisiert\n\nAlles Ende-zu-Ende verschlüsselt mit XChaCha20-Poly1305 — der Server sieht nur Chiffretext. Kein Konto, kein Passwort — der Schlüssel ist deine Identität. Ohne Sync funktioniert alles lokal weiter.',
 		},
 		{
 			id: 'faq-mcp',
@@ -184,7 +184,7 @@
 		{
 			id: 'faq-stats',
 			q: 'Was zeigt die Statistik?',
-			a: 'Streak und Tagesübersicht oben, dann ein Balkendiagramm der Reviews mit Zeitraum-Toggle, Genauigkeitsverlauf, Bewertungs-Verteilung und ein 365-Tage-Aktivitäts-Heatmap im GitHub-Stil. Alle Daten kommen aus dem lokalen review_log — nichts geht in die Cloud.',
+			a: 'Die Statistik-Seite zeigt:\n\n• Streak + Tagesübersicht (oben)\n• Balkendiagramm der Reviews mit Zeitraum-Toggle\n• Genauigkeitsverlauf\n• Bewertungs-Verteilung (1–4)\n• 365-Tage-Aktivitäts-Heatmap im GitHub-Stil\n\nAlle Daten kommen aus dem lokalen `review_log` — nichts geht in die Cloud.',
 		},
 		{
 			id: 'faq-kostenlos',
