@@ -51,6 +51,63 @@ self.addEventListener('message', (event) => {
 	}
 });
 
+// --- Web Push (Phase 6.6) ---
+
+// Push event — show a system notification. Payload is JSON:
+//   { title: string, body: string, url?: string }
+// The url defaults to /drill so clicking the notification opens the drill.
+self.addEventListener('push', (event) => {
+	if (!event.data) return;
+	try {
+		const payload = event.data.json() as {
+			title?: string;
+			body?: string;
+			url?: string;
+		};
+		const title = payload.title ?? 'Taijobi';
+		const body = payload.body ?? 'Zeit zum Üben!';
+		const url = payload.url ?? '/drill';
+		event.waitUntil(
+			self.registration.showNotification(title, {
+				body,
+				icon: '/icon.svg',
+				badge: '/icon.svg',
+				data: { url }
+			})
+		);
+	} catch {
+		// Malformed push — show a fallback notification so the browser doesn't
+		// penalize us for swallowing a push silently (Chrome requires a visible
+		// notification per push or it throttles the subscription).
+		event.waitUntil(
+			self.registration.showNotification('Taijobi', {
+				body: 'Zeit zum Üben!',
+				data: { url: '/drill' }
+			})
+		);
+	}
+});
+
+// Notification click — focus or open the app at the target URL.
+self.addEventListener('notificationclick', (event) => {
+	event.notification.close();
+	const url = (event.notification.data?.url as string) ?? '/drill';
+	event.waitUntil(
+		self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+			// If there's already a taijobi tab, focus + navigate.
+			for (const client of clients) {
+				if (new URL(client.url).origin === self.location.origin) {
+					client.focus();
+					client.navigate(url);
+					return;
+				}
+			}
+			// No tab open — open a new one.
+			return self.clients.openWindow(url);
+		})
+	);
+});
+
 self.addEventListener('fetch', (event) => {
 	const url = new URL(event.request.url);
 	if (event.request.method !== 'GET') return;
