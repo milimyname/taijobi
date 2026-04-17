@@ -187,7 +187,7 @@
 				type="text"
 				bind:value={input}
 				onkeydown={handleKeydown}
-				class="min-w-0 flex-1 border-none bg-transparent p-0 text-base font-normal text-slate-900 placeholder:text-primary/40 focus:ring-0 dark:text-slate-100"
+				class="min-w-0 flex-1 border-none bg-transparent p-0 text-base font-normal text-slate-900 placeholder:text-primary/40 focus:outline-none focus:ring-0 dark:text-slate-100"
 				placeholder="Schnell hinzuf&uuml;gen..."
 			/>
 			<div class="flex items-center gap-1">
