@@ -10,7 +10,7 @@ echo ""
 # Start sync worker in background
 cd "$ROOT/taijobi-sync"
 bun install --frozen-lockfile 2>/dev/null
-bunx wrangler dev --port 8788 &
+bunx wrangler dev --port 8788 --test-scheduled &
 SYNC_PID=$!
 
 # Start web app
