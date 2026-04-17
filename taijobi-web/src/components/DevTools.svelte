@@ -14,11 +14,13 @@
 	import { getSyncKey, clearSyncKey, getLastSyncTimestamp } from '$lib/sync';
 	import { clearCache as clearChineseCache } from '$lib/dictionary-data';
 	import { featureStore } from '$lib/features.svelte';
+	import { devtoolsStore } from '$lib/devtools-store.svelte';
 	import { LS_SQL_HISTORY } from '$lib/config';
 
-	const TABS = ['info', 'sync', 'data', 'flags', 'sql'] as const;
+	const TABS = ['info', 'wasm', 'sync', 'data', 'flags', 'sql'] as const;
 	const TAB_LABELS: Record<(typeof TABS)[number], string> = {
 		info: 'Info',
+		wasm: 'WASM',
 		sync: 'Sync',
 		data: 'Data',
 		flags: 'Flags',
@@ -377,6 +379,82 @@
 					>
 						Refresh
 					</button>
+				</div>
+			{:else if activeTab === 'wasm'}
+				<div class="space-y-3 p-3">
+					<!-- Stats row -->
+					<div class="grid grid-cols-3 gap-2">
+						<div class="rounded-lg bg-slate-50 px-3 py-2 text-center dark:bg-white/5">
+							<div class="text-sm font-bold text-slate-900 dark:text-slate-100">
+								{devtoolsStore.callCount}
+							</div>
+							<div class="text-[9px] text-slate-400">Calls</div>
+						</div>
+						<div class="rounded-lg bg-slate-50 px-3 py-2 text-center dark:bg-white/5">
+							<div class="text-sm font-bold text-slate-900 dark:text-slate-100">
+								{devtoolsStore.avgMs.toFixed(1)}ms
+							</div>
+							<div class="text-[9px] text-slate-400">Avg</div>
+						</div>
+						<div class="rounded-lg bg-slate-50 px-3 py-2 text-center dark:bg-white/5">
+							<div class="text-sm font-bold text-slate-900 dark:text-slate-100">
+								{devtoolsStore.slowest?.name ?? '—'}
+							</div>
+							<div class="text-[9px] text-slate-400">
+								Slowest{#if devtoolsStore.slowest}
+									({devtoolsStore.slowest.durationMs.toFixed(1)}ms)
+								{/if}
+							</div>
+						</div>
+					</div>
+
+					<!-- Call log -->
+					<div>
+						<div class="mb-2 flex items-center justify-between">
+							<span class="text-[11px] font-semibold text-slate-900 dark:text-slate-100">Recent calls</span>
+							<button
+								onclick={() => devtoolsStore.clear()}
+								class="cursor-pointer rounded px-1.5 py-0.5 text-[10px] font-medium text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-white/10 dark:hover:text-slate-200"
+							>
+								clear
+							</button>
+						</div>
+						{#if devtoolsStore.entries.length === 0}
+							<div class="py-3 text-center text-xs text-slate-400">No calls yet</div>
+						{:else}
+							<div
+								class="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 dark:divide-white/5 dark:border-white/10"
+							>
+								{#each devtoolsStore.recent(20) as entry (entry.timestamp)}
+									<div
+										class="flex items-center justify-between bg-white px-2.5 py-1.5 dark:bg-white/5"
+									>
+										<div class="min-w-0 flex-1">
+											<span class="font-mono text-[11px] font-medium text-slate-700 dark:text-slate-200">
+												{entry.name}
+											</span>
+										</div>
+										<div class="flex shrink-0 items-center gap-2">
+											<span
+												class="font-mono text-[10px] {entry.durationMs > 5
+													? 'font-bold text-amber-600 dark:text-amber-400'
+													: 'text-slate-400'}"
+											>
+												{entry.durationMs.toFixed(1)}ms
+											</span>
+											<span class="text-[8px] text-slate-300 dark:text-slate-600">
+												{new Date(entry.timestamp).toLocaleTimeString('de-DE', {
+													hour: '2-digit',
+													minute: '2-digit',
+													second: '2-digit',
+												})}
+											</span>
+										</div>
+									</div>
+								{/each}
+							</div>
+						{/if}
+					</div>
 				</div>
 			{:else if activeTab === 'sync'}
 				<div class="space-y-3 p-3">

@@ -149,6 +149,20 @@ let wasm: WasmExports | null = null;
 
 const OPFS_DB_NAME = 'taijobi.db';
 
+// --- Instrumentation ---
+
+import { devtoolsStore } from './devtools-store.svelte';
+
+/** Wrap a synchronous WASM call with timing. Records name + duration
+ *  into the devtools store so the DevTools WASM tab can show a live
+ *  call log with avg/slowest stats. */
+function timed<T>(name: string, fn: () => T): T {
+	const start = performance.now();
+	const result = fn();
+	devtoolsStore.record(name, performance.now() - start);
+	return result;
+}
+
 // --- Internal helpers ---
 
 function readLengthPrefixedString(ptr: number): string {
@@ -387,7 +401,7 @@ export function loadDedict(ptr: number, data: Uint8Array): void {
 
 export function getDueCount(): number {
 	if (!wasm) return 0;
-	return wasm.hanzi_get_due_count();
+	return timed('getDueCount', () => wasm!.hanzi_get_due_count());
 }
 
 export function getDueCards(limit: number = 50): Card[] {
@@ -414,28 +428,32 @@ export function getDueCards(limit: number = 50): Card[] {
 }
 
 export function getDueCardsFiltered(filter: string, limit: number = 50): Card[] {
-	if (!wasm) return [];
-	wasm.hanzi_reset_alloc();
-	const encoded = new TextEncoder().encode(filter);
-	const ptr = filter ? writeBytes(encoded) : 0;
-	const resultPtr = wasm.hanzi_get_due_cards_filtered(ptr, encoded.length, limit);
-	if (resultPtr === 0) return [];
-	const json = readLengthPrefixedString(resultPtr);
-	try {
-		return JSON.parse(json);
-	} catch (e) {
-		console.error('[taijobi] Failed to parse filtered due cards JSON:', e);
-		console.error('[taijobi] json length:', json.length, 'first 200:', json.slice(0, 200));
-		return [];
-	}
+	return timed('getDueCardsFiltered', () => {
+		if (!wasm) return [];
+		wasm.hanzi_reset_alloc();
+		const encoded = new TextEncoder().encode(filter);
+		const ptr = filter ? writeBytes(encoded) : 0;
+		const resultPtr = wasm.hanzi_get_due_cards_filtered(ptr, encoded.length, limit);
+		if (resultPtr === 0) return [];
+		const json = readLengthPrefixedString(resultPtr);
+		try {
+			return JSON.parse(json);
+		} catch (e) {
+			console.error('[taijobi] Failed to parse filtered due cards JSON:', e);
+			console.error('[taijobi] json length:', json.length, 'first 200:', json.slice(0, 200));
+			return [];
+		}
+	});
 }
 
 export function getDueCountFiltered(filter: string): number {
-	if (!wasm) return 0;
-	wasm.hanzi_reset_alloc();
-	const encoded = new TextEncoder().encode(filter);
-	const ptr = filter ? writeBytes(encoded) : 0;
-	return wasm.hanzi_get_due_count_filtered(ptr, encoded.length);
+	return timed('getDueCountFiltered', () => {
+		if (!wasm) return 0;
+		wasm.hanzi_reset_alloc();
+		const encoded = new TextEncoder().encode(filter);
+		const ptr = filter ? writeBytes(encoded) : 0;
+		return wasm.hanzi_get_due_count_filtered(ptr, encoded.length);
+	});
 }
 
 export function getUpcomingCards(
@@ -609,20 +627,22 @@ export interface CardSearchResult {
 }
 
 export function searchCards(query: string, limit = 20): CardSearchResult[] {
-	if (!wasm || typeof wasm.hanzi_search_cards !== 'function') return [];
-	if (!query) return [];
-	wasm.hanzi_reset_alloc();
-	const encoded = new TextEncoder().encode(query);
-	const ptr = writeBytes(encoded);
-	const resultPtr = wasm.hanzi_search_cards(ptr, encoded.length, limit);
-	if (resultPtr === 0) return [];
-	const json = readLengthPrefixedString(resultPtr);
-	try {
-		return JSON.parse(json);
-	} catch (e) {
-		console.error('[taijobi] Failed to parse searchCards JSON', e, json.slice(0, 200));
-		return [];
-	}
+	return timed('searchCards', () => {
+		if (!wasm || typeof wasm.hanzi_search_cards !== 'function') return [];
+		if (!query) return [];
+		wasm.hanzi_reset_alloc();
+		const encoded = new TextEncoder().encode(query);
+		const ptr = writeBytes(encoded);
+		const resultPtr = wasm.hanzi_search_cards(ptr, encoded.length, limit);
+		if (resultPtr === 0) return [];
+		const json = readLengthPrefixedString(resultPtr);
+		try {
+			return JSON.parse(json);
+		} catch (e) {
+			console.error('[taijobi] Failed to parse searchCards JSON', e, json.slice(0, 200));
+			return [];
+		}
+	});
 }
 
 // === DevTools: raw SQL execution ===
@@ -766,46 +786,52 @@ export function lookupCedict(query: string): CedictResult[] {
 }
 
 export function getLexicon(): LexiconEntry[] {
-	if (!wasm) return [];
-	wasm.hanzi_reset_alloc();
-	const ptr = wasm.hanzi_get_lexicon();
-	if (ptr === 0) return [];
-	const json = readLengthPrefixedString(ptr);
-	try {
-		return JSON.parse(json);
-	} catch {
-		console.error('[taijobi] Failed to parse lexicon JSON');
-		return [];
-	}
+	return timed('getLexicon', () => {
+		if (!wasm) return [];
+		wasm.hanzi_reset_alloc();
+		const ptr = wasm.hanzi_get_lexicon();
+		if (ptr === 0) return [];
+		const json = readLengthPrefixedString(ptr);
+		try {
+			return JSON.parse(json);
+		} catch {
+			console.error('[taijobi] Failed to parse lexicon JSON');
+			return [];
+		}
+	});
 }
 
 export function getDrillStats(): DrillStats {
-	if (!wasm) return { reviewed_today: 0, correct_today: 0, total_cards: 0, lexicon_count: 0 };
-	wasm.hanzi_reset_alloc();
-	const ptr = wasm.hanzi_get_drill_stats();
-	if (ptr === 0) return { reviewed_today: 0, correct_today: 0, total_cards: 0, lexicon_count: 0 };
-	const json = readLengthPrefixedString(ptr);
-	try {
-		return JSON.parse(json);
-	} catch {
-		console.error('[taijobi] Failed to parse drill stats JSON');
-		return { reviewed_today: 0, correct_today: 0, total_cards: 0, lexicon_count: 0 };
-	}
+	return timed('getDrillStats', () => {
+		if (!wasm) return { reviewed_today: 0, correct_today: 0, total_cards: 0, lexicon_count: 0 };
+		wasm.hanzi_reset_alloc();
+		const ptr = wasm.hanzi_get_drill_stats();
+		if (ptr === 0) return { reviewed_today: 0, correct_today: 0, total_cards: 0, lexicon_count: 0 };
+		const json = readLengthPrefixedString(ptr);
+		try {
+			return JSON.parse(json);
+		} catch {
+			console.error('[taijobi] Failed to parse drill stats JSON');
+			return { reviewed_today: 0, correct_today: 0, total_cards: 0, lexicon_count: 0 };
+		}
+	});
 }
 
 export function getStats(days: number = 30): StatsData {
-	const empty: StatsData = { days: [], ratings: [0, 0, 0, 0], streak: 0, longest_streak: 0 };
-	if (!wasm || typeof wasm.hanzi_get_stats !== 'function') return empty;
-	wasm.hanzi_reset_alloc();
-	const ptr = wasm.hanzi_get_stats(days);
-	if (ptr === 0) return empty;
-	const json = readLengthPrefixedString(ptr);
-	try {
-		return JSON.parse(json);
-	} catch {
-		console.error('[taijobi] Failed to parse stats JSON');
-		return empty;
-	}
+	return timed('getStats', () => {
+		const empty: StatsData = { days: [], ratings: [0, 0, 0, 0], streak: 0, longest_streak: 0 };
+		if (!wasm || typeof wasm.hanzi_get_stats !== 'function') return empty;
+		wasm.hanzi_reset_alloc();
+		const ptr = wasm.hanzi_get_stats(days);
+		if (ptr === 0) return empty;
+		const json = readLengthPrefixedString(ptr);
+		try {
+			return JSON.parse(json);
+		} catch {
+			console.error('[taijobi] Failed to parse stats JSON');
+			return empty;
+		}
+	});
 }
 
 // --- Phase 2: Content Packs ---
