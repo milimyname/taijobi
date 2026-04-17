@@ -4,6 +4,7 @@
 	import PlayArrow from '$lib/icons/PlayArrow.svelte';
 	import Shuffle from '$lib/icons/Shuffle.svelte';
 	import Icon from '$lib/icons/Icon.svelte';
+	import StreakBanner from '../../../components/StreakBanner.svelte';
 	import { type Card, type DrillStats, type Pack } from '$lib/wasm';
 	import { data } from '$lib/data.svelte';
 
@@ -47,6 +48,9 @@
 <section class="mb-6 mt-4">
 	<h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Guten Morgen</h1>
 </section>
+
+<!-- Streak-in-danger banner — shows when streak > 0 and no reviews yet today -->
+<StreakBanner />
 
 <!-- Drill Sources -->
 {#if drillSources.length > 0}

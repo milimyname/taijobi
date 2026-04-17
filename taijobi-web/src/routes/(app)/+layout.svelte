@@ -20,6 +20,7 @@
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { onboardingStore } from '$lib/onboarding.svelte';
+	import { streakBannerStore } from '$lib/streak-banner.svelte';
 	import Download from '$lib/icons/Download.svelte';
 	import { downloadStore } from '$lib/download-state.svelte';
 	import { updateStore } from '$lib/update.svelte';
@@ -67,6 +68,7 @@
 			ready = true;
 			updateStore.init();
 			onboardingStore.init();
+			streakBannerStore.init();
 			setOnDataChanged(() => queueMicrotask(() => data.bump()));
 			if (isSyncEnabled()) connectSync();
 		} catch (e) {
