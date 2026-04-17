@@ -95,6 +95,11 @@
 			a: 'Ja, über einen MCP-Server (Model Context Protocol). Claude Desktop kann dein Taijobi-Lexikon direkt abfragen und ändern — fällige Karten anzeigen, Wörter hinzufügen, Kindle-Clippings importieren, Statistiken lesen. Authentifizierung läuft über deinen Sync-Schlüssel, die gleiche Ende-zu-Ende-Verschlüsselung wie beim Geräte-Sync. Konfiguration in ~/Library/Application Support/Claude/claude_desktop_config.json: { "mcpServers": { "taijobi": { "url": "https://sync.taijobi.com/mcp", "transport": "http", "headers": { "Authorization": "Bearer <dein-sync-schlüssel>" } } } }. Claude neustarten, und die 8 Tools erscheinen im Tool-Picker.',
 		},
 		{
+			id: 'faq-benachrichtigungen',
+			q: 'Benachrichtigungen kommen nicht an — was tun?',
+			a: 'Taijobi nutzt Web-Push-Benachrichtigungen. Damit sie ankommen, muss dein Betriebssystem dem Browser/der PWA erlauben, Benachrichtigungen zu senden. So aktivierst du es:\n\n• macOS: Systemeinstellungen → Mitteilungen → [Chrome/Safari/Edge] → „Mitteilungen erlauben" aktivieren. Prüfe auch, dass kein Fokus-Modus aktiv ist.\n\n• iOS (16.4+): Die App muss als PWA auf dem Home-Bildschirm installiert sein (Teilen → „Zum Home-Bildschirm"). Dann: Einstellungen → Mitteilungen → Taijobi → erlauben.\n\n• Windows: Einstellungen → System → Benachrichtigungen → [Chrome/Edge] → Ein.\n\n• Android: Einstellungen → Apps → [Chrome/Browser] → Benachrichtigungen → erlauben. Oder lange auf das App-Icon drücken → App-Info → Benachrichtigungen.\n\nWenn alles erlaubt ist und trotzdem nichts kommt: Einstellungen → Benachrichtigungen → Streak-Erinnerung aus- und wieder einschalten (setzt das Abo neu). Bei weiteren Problemen: Seite neu laden und erneut erlauben.',
+		},
+		{
 			id: 'faq-shortcuts',
 			q: 'Gibt es Tastenkürzel?',
 			a: 'Ja. Drücke ? irgendwo in der App, um die Hilfe zu öffnen. Vim-Style-Navigation mit g h (Start), g d (Üben), g s (Statistik), g w (Wörterbuch), g p (Pakete), g l (Lexikon), g c (Zeichen), g e (Einstellungen). Im Drill: 1–4 zum Bewerten, ← für die vorherige Karte.',

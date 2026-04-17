@@ -106,6 +106,21 @@ export const FAQ_ENTRIES: FaqEntry[] = [
 		keywords: ['mcp', 'claude', 'ai', 'desktop', 'tool', 'agent']
 	},
 	{
+		id: 'faq-benachrichtigungen',
+		q: 'Benachrichtigungen kommen nicht an — was tun?',
+		keywords: [
+			'notification',
+			'benachrichtigung',
+			'push',
+			'streak',
+			'erlauben',
+			'macos',
+			'ios',
+			'android',
+			'windows'
+		]
+	},
+	{
 		id: 'faq-shortcuts',
 		q: 'Gibt es Tastenkürzel?',
 		keywords: ['shortcuts', 'tastenkürzel', 'keyboard', 'vim']
