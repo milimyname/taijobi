@@ -36,6 +36,7 @@ Thumbs.db
 .env.*
 !.env.example
 !.env.test
+.dev.vars
 
 # IDE
 .cursor

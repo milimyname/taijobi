@@ -11,7 +11,7 @@ import { SYNC_API_URL, LS_SYNC_KEY } from './config';
 // VAPID public key — base64url-encoded, 65-byte uncompressed EC P-256 point.
 // The matching private key is stored as a wrangler secret in taijobi-sync.
 const VAPID_PUBLIC_KEY =
-	'BNu8V2LOWYFX79QTBv3_HsOR78Ze4wQssEFgLYRKTG9Udf-StfUu7yZEXfZ-eJnzH1vFv1qIl1lulwODgT0UVTI';
+	'BK9oASOZIlC4POEOW-VROIDMJlCA7qR88-m7R6GIRg6lGAZlHq6F8cTGXZKDPYb6my4MTFWz3Z6LGPWMCfiRsAQ';
 
 const LS_PUSH_SUBSCRIBED = 'taijobi_push_subscribed';
 

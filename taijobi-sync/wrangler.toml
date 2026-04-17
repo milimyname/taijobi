@@ -1,15 +1,11 @@
 name = "taijobi-sync"
 main = "src/index.ts"
 compatibility_date = "2025-03-12"
-routes = [
-  { pattern = "sync.taijobi.com", custom_domain = true }
-]
+routes = [{ pattern = "sync.taijobi.com", custom_domain = true }]
 
 # Bundle the compact MCP WASM into the Worker at build time. Imported as a
 # pre-compiled WebAssembly.Module via `import wasmModule from "../libtaijobi-mcp.wasm"`.
-rules = [
-  { type = "CompiledWasm", globs = ["**/*.wasm"], fallthrough = true }
-]
+rules = [{ type = "CompiledWasm", globs = ["**/*.wasm"], fallthrough = true }]
 
 # Hourly cron trigger for push-notification delivery.
 # The scheduled() handler in index.ts queries PushSubs for subscriptions
@@ -20,13 +16,13 @@ crons = ["0 * * * *"]
 # VAPID public key — safe to commit, browsers need it to subscribe.
 # The private key lives as a wrangler secret (VAPID_PRIVATE_KEY).
 [vars]
-VAPID_PUBLIC_KEY = "BNu8V2LOWYFX79QTBv3_HsOR78Ze4wQssEFgLYRKTG9Udf-StfUu7yZEXfZ-eJnzH1vFv1qIl1lulwODgT0UVTI"
+VAPID_PUBLIC_KEY = "BK9oASOZIlC4POEOW-VROIDMJlCA7qR88-m7R6GIRg6lGAZlHq6F8cTGXZKDPYb6my4MTFWz3Z6LGPWMCfiRsAQ"
 
 [durable_objects]
 bindings = [
   { name = "SYNC_ROOM", class_name = "SyncRoom" },
   { name = "MCP_SESSION", class_name = "McpSession" },
-  { name = "PUSH_SUBS", class_name = "PushSubs" }
+  { name = "PUSH_SUBS", class_name = "PushSubs" },
 ]
 
 [[migrations]]
