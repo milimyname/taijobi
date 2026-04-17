@@ -295,8 +295,11 @@ export default {
       }),
     );
 
-    console.log(
-      `[push-cron] Sent ${results.length} pushes: ${results.filter((r) => r.status === "fulfilled").length} ok`,
-    );
+    const fulfilled = results.filter((r) => r.status === "fulfilled").length;
+    const rejected = results.filter((r) => r.status === "rejected");
+    console.log(`[push-cron] Sent ${results.length} pushes: ${fulfilled} ok, ${rejected.length} failed`);
+    for (const r of rejected) {
+      console.error("[push-cron] Error:", (r as PromiseRejectedResult).reason);
+    }
   },
 };

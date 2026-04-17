@@ -102,10 +102,13 @@ async function encryptPayload(
   );
 
   // Derive shared secret via ECDH
-  // Workers types use `$public` instead of `public` (TS reserved word).
+  // `public` is the real WebCrypto property name. Workers TS types alias
+  // it to `$public` but the runtime expects the actual key.
+  const ecdhParams = { name: "ECDH" } as Record<string, unknown>;
+  ecdhParams["public"] = subscriberKey;
   const sharedSecret = new Uint8Array(
     await crypto.subtle.deriveBits(
-      { name: "ECDH", $public: subscriberKey } as SubtleCryptoDeriveKeyAlgorithm,
+      ecdhParams as SubtleCryptoDeriveKeyAlgorithm,
       localKeyPair.privateKey,
       256,
     ),
