@@ -11,10 +11,22 @@ rules = [
   { type = "CompiledWasm", globs = ["**/*.wasm"], fallthrough = true }
 ]
 
+# Hourly cron trigger for push-notification delivery.
+# The scheduled() handler in index.ts queries PushSubs for subscriptions
+# in the 20–28h "streak in danger" window and sends Web Push to each.
+[triggers]
+crons = ["0 * * * *"]
+
+# VAPID public key — safe to commit, browsers need it to subscribe.
+# The private key lives as a wrangler secret (VAPID_PRIVATE_KEY).
+[vars]
+VAPID_PUBLIC_KEY = "BNu8V2LOWYFX79QTBv3_HsOR78Ze4wQssEFgLYRKTG9Udf-StfUu7yZEXfZ-eJnzH1vFv1qIl1lulwODgT0UVTI"
+
 [durable_objects]
 bindings = [
   { name = "SYNC_ROOM", class_name = "SyncRoom" },
-  { name = "MCP_SESSION", class_name = "McpSession" }
+  { name = "MCP_SESSION", class_name = "McpSession" },
+  { name = "PUSH_SUBS", class_name = "PushSubs" }
 ]
 
 [[migrations]]
@@ -23,8 +35,8 @@ new_sqlite_classes = ["SyncRoom"]
 
 [[migrations]]
 tag = "v2"
-# McpSession doesn't actually persist to storage (in-memory WASM + cached key
-# only), but the free plan requires every DO class to be declared with the
-# SQLite storage backend via new_sqlite_classes. new_classes (the legacy
-# KV-style backend) was rejected at deploy time with CF error 10097.
 new_sqlite_classes = ["McpSession"]
+
+[[migrations]]
+tag = "v3"
+new_sqlite_classes = ["PushSubs"]

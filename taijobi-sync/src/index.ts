@@ -3,10 +3,16 @@ import { cors } from "hono/cors";
 
 export { SyncRoom } from "./sync-room";
 export { McpSession } from "./mcp-session";
+export { PushSubs } from "./push-subs-do";
+
+import { sendPush, type VapidKeys, type PushSubscription } from "./push-send";
 
 type Bindings = {
   SYNC_ROOM: DurableObjectNamespace;
   MCP_SESSION: DurableObjectNamespace;
+  PUSH_SUBS: DurableObjectNamespace;
+  VAPID_PUBLIC_KEY: string;
+  VAPID_PRIVATE_KEY: string; // JWK JSON string, stored as wrangler secret
 };
 
 const ALLOWED_ORIGINS = [
@@ -92,6 +98,63 @@ app.get("/sync/:key", async (c) => {
   );
 });
 
+// --- Push notifications (Phase 6.6) ---
+
+/** SHA-256 hash a sync key to a stable string for storage (never store raw keys). */
+async function hashSyncKey(key: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(key));
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+/** Get the singleton PushSubs DO. */
+function getPushSubs(env: Bindings) {
+  const id = env.PUSH_SUBS.idFromName("push-subs");
+  return env.PUSH_SUBS.get(id);
+}
+
+app.post("/push/subscribe", async (c) => {
+  const syncKey = extractBearerToken(c.req.header("Authorization"));
+  if (!syncKey) return c.json({ error: "Missing Authorization" }, 401);
+  const hash = await hashSyncKey(syncKey);
+  const stub = getPushSubs(c.env);
+  return stub.fetch(
+    new Request("https://internal/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Sync-Key-Hash": hash },
+      body: c.req.raw.body,
+    }),
+  );
+});
+
+app.delete("/push/subscribe", async (c) => {
+  const syncKey = extractBearerToken(c.req.header("Authorization"));
+  if (!syncKey) return c.json({ error: "Missing Authorization" }, 401);
+  const hash = await hashSyncKey(syncKey);
+  const stub = getPushSubs(c.env);
+  return stub.fetch(
+    new Request("https://internal/subscribe", {
+      method: "DELETE",
+      headers: { "X-Sync-Key-Hash": hash },
+    }),
+  );
+});
+
+app.post("/push/heartbeat", async (c) => {
+  const syncKey = extractBearerToken(c.req.header("Authorization"));
+  if (!syncKey) return c.json({ error: "Missing Authorization" }, 401);
+  const hash = await hashSyncKey(syncKey);
+  const stub = getPushSubs(c.env);
+  return stub.fetch(
+    new Request("https://internal/heartbeat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Sync-Key-Hash": hash },
+      body: c.req.raw.body,
+    }),
+  );
+});
+
 // --- MCP server (Phase 6.2) ---
 
 /** Extract Bearer token from Authorization header. */
@@ -164,4 +227,76 @@ app.delete("/mcp", async (c) => {
   );
 });
 
-export default app;
+// --- Cron: send streak-reminder pushes hourly (Phase 6.6) ---
+
+export default {
+  fetch: app.fetch,
+
+  async scheduled(_event: ScheduledEvent, env: Bindings, ctx: ExecutionContext) {
+    const stub = getPushSubs(env);
+
+    // Ask PushSubs DO for subscriptions in the 20–28h window
+    const res = await stub.fetch(new Request("https://internal/due"));
+    if (!res.ok) return;
+
+    const { subs } = (await res.json()) as {
+      subs: Array<{
+        sync_key_hash: string;
+        endpoint: string;
+        p256dh: string;
+        auth: string;
+      }>;
+    };
+    if (!subs.length) return;
+
+    const vapidKeys: VapidKeys = {
+      publicKeyBase64: env.VAPID_PUBLIC_KEY,
+      privateKeyJwk: JSON.parse(env.VAPID_PRIVATE_KEY),
+    };
+
+    const payload = {
+      title: "🔥 Streak-Erinnerung",
+      body: "Dein Streak droht zu brechen — jetzt üben!",
+      url: "/drill",
+    };
+
+    // Send all pushes in parallel, update last_notified_at for successes
+    const results = await Promise.allSettled(
+      subs.map(async (sub) => {
+        const pushSub: PushSubscription = {
+          endpoint: sub.endpoint,
+          p256dh: sub.p256dh,
+          auth: sub.auth,
+        };
+        const { ok, status } = await sendPush(pushSub, payload, vapidKeys);
+        if (ok) {
+          // Mark as notified so we don't spam on the next cron tick
+          ctx.waitUntil(
+            stub.fetch(
+              new Request("https://internal/notified", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ sync_key_hash: sub.sync_key_hash }),
+              }),
+            ),
+          );
+        } else if (status === 410) {
+          // 410 Gone = subscription expired, clean it up
+          ctx.waitUntil(
+            stub.fetch(
+              new Request("https://internal/subscribe", {
+                method: "DELETE",
+                headers: { "X-Sync-Key-Hash": sub.sync_key_hash },
+              }),
+            ),
+          );
+        }
+        return { hash: sub.sync_key_hash, ok, status };
+      }),
+    );
+
+    console.log(
+      `[push-cron] Sent ${results.length} pushes: ${results.filter((r) => r.status === "fulfilled").length} ok`,
+    );
+  },
+};
