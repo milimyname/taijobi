@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.6.8 (2026-04-18)
+
+- feat: CommandPalette becomes the universal find-and-do surface
+- feat: dictionary uninstall from /packs + CommandPalette stability
+
 ## v0.6.7 (2026-04-17)
 
 - fix: format app.css iOS input block
