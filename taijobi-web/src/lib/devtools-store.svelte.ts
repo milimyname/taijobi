@@ -27,7 +27,7 @@ class DevtoolsStore {
 			id: this.#nextId++,
 			name,
 			durationMs,
-			timestamp: Date.now(),
+			timestamp: Date.now()
 		};
 		// Ring buffer: drop oldest when full
 		if (this.#entries.length >= MAX_ENTRIES) {
