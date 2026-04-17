@@ -83,6 +83,7 @@ interface WasmExports {
 	hanzi_lookup: (query: number, len: number) => number;
 	hanzi_search_cards: (query: number, len: number, limit: number) => number;
 	hanzi_get_last_reviewed_card: () => number;
+	hanzi_get_card_by_id: (id: number, len: number) => number;
 	hanzi_query: (sql: number, len: number) => number;
 	hanzi_parse_kindle: (data: number, len: number) => number;
 	hanzi_bulk_add_lexicon: (data: number, len: number) => number;
@@ -647,6 +648,7 @@ export interface CardSearchResult {
 	source_type: string;
 	pack_id: string | null;
 	context: string | null;
+	lesson_id: string | null;
 }
 
 export function searchCards(query: string, limit = 20): CardSearchResult[] {
@@ -666,6 +668,26 @@ export function searchCards(query: string, limit = 20): CardSearchResult[] {
 			return [];
 		}
 	});
+}
+
+/** Look up a single card by id — used for deep-links where the target may
+ *  be past the getVocabulary 200-row LIMIT. Returns null if not found. */
+export function getCardById(id: string): CardSearchResult | null {
+	if (!wasm || typeof wasm.hanzi_get_card_by_id !== 'function') return null;
+	if (!id) return null;
+	wasm.hanzi_reset_alloc();
+	const encoded = new TextEncoder().encode(id);
+	const ptr = writeBytes(encoded);
+	const resultPtr = wasm.hanzi_get_card_by_id(ptr, encoded.length);
+	if (resultPtr === 0) return null;
+	const json = readLengthPrefixedString(resultPtr);
+	try {
+		const arr = JSON.parse(json) as CardSearchResult[];
+		return arr[0] ?? null;
+	} catch (e) {
+		console.error('[taijobi] Failed to parse getCardById JSON', e, json.slice(0, 200));
+		return null;
+	}
 }
 
 /** Most recently reviewed card, or null if there are no reviews yet. */

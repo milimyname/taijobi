@@ -85,6 +85,16 @@
 		return false;
 	}
 
+	// Build a /lessons/{pack} URL with optional ?lesson=&card= for deep-link
+	// scroll + highlight on the target row.
+	function buildLessonUrl(packId: string, lessonId: string | null, cardId: string): string {
+		const params = new URLSearchParams();
+		if (lessonId) params.set('lesson', lessonId);
+		if (cardId) params.set('card', cardId);
+		const qs = params.toString();
+		return `/lessons/${encodeURIComponent(packId)}${qs ? `?${qs}` : ''}`;
+	}
+
 	// ----- Query parsing: prefixes + modes -----
 	// `drill ` / `üben `  → drill launcher mode (suppress everything else)
 	// `book:X` / `quelle:X` / `from:X`  → filter cards by context column
@@ -312,7 +322,7 @@
 			} else if (c.source_type === 'lexicon') {
 				goto('/lexicon');
 			} else if (c.pack_id) {
-				goto(`/lessons/${encodeURIComponent(c.pack_id)}`);
+				goto(buildLessonUrl(c.pack_id, c.lesson_id, c.id));
 			} else {
 				goto('/lexicon');
 			}
@@ -375,6 +385,10 @@
 			const c = item.value;
 			if (hasChinese(c.word) && isSingleHanzi(c.word)) {
 				goto(`/character/${encodeURIComponent(c.word)}`);
+			} else if (c.source_type === 'lexicon') {
+				goto('/lexicon');
+			} else if (c.pack_id) {
+				goto(buildLessonUrl(c.pack_id, c.lesson_id, c.id));
 			} else {
 				goto('/lexicon');
 			}

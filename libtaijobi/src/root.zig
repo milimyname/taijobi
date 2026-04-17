@@ -390,6 +390,17 @@ export fn hanzi_get_last_reviewed_card() ?[*]const u8 {
     return makeLengthPrefixed(json);
 }
 
+/// Look up a single card by id. Returns a 1-element JSON array in the
+/// CardSearchResult shape, or `[]` if not found. Used for deep-linking
+/// into lesson pages where the target card may be past the 200-row
+/// vocabulary LIMIT and so absent from the rendered list.
+export fn hanzi_get_card_by_id(id_ptr: [*]const u8, id_len: usize) ?[*]const u8 {
+    const db = &(global_db orelse return null);
+    const card_id = id_ptr[0..id_len];
+    const json = db.getCardById(card_id, &json_buf) orelse return null;
+    return makeLengthPrefixed(json);
+}
+
 /// DevTools SQL panel — run arbitrary SQL and return JSON results.
 /// Returns length-prefixed JSON `{columns, rows, count, truncated}`.
 /// FBA caveat: burns ~2MB per call (scratch + length-prefix copy) until the

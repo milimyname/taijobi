@@ -2,6 +2,16 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Root-level theme tokens — duplicated from (app)/layout.css so pages
+   outside the (app) route group (e.g. the top-level +error.svelte and
+   the landing page at /) can use bg-primary / text-primary / etc.
+   Without this, error pages render the primary button as white-on-white. */
+@theme {
+	--color-primary: #195c37;
+	--color-primary-light: #f0fdf4;
+	--color-accent: #52b788;
+}
+
 /* Match the app surface so wide-screen desktops don't show a white strip
    next to the centered 1080px column. Values mirror --color-bg-light /
    --color-bg-dark in (app)/layout.css. */

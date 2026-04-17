@@ -404,7 +404,7 @@ pub const Db = struct {
 
         var stmt: ?*sqlite.sqlite3_stmt = null;
         const sql =
-            \\SELECT c.id, c.word, c.language, c.pinyin, c.translation, c.source_type, c.pack_id, c.context
+            \\SELECT c.id, c.word, c.language, c.pinyin, c.translation, c.source_type, c.pack_id, c.context, c.lesson_id
             \\FROM cards c
             \\WHERE COALESCE(c.deleted, 0) = 0
             \\  AND (c.word LIKE ?1 OR c.translation LIKE ?1 OR c.pinyin LIKE ?1 OR c.context LIKE ?1)
@@ -478,6 +478,96 @@ pub const Db = struct {
             } else {
                 w.writeNull();
             }
+            w.writeByte(',');
+            w.writeKey("lesson_id");
+            if (sqlite.sqlite3_column_text(stmt.?, 8)) |ls| {
+                const lslen: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 8));
+                w.writeJsonString(ls[0..lslen]);
+            } else {
+                w.writeNull();
+            }
+            w.writeByte('}');
+        }
+        w.writeByte(']');
+        return w.written();
+    }
+
+    /// Look up a single card by id. Returns a 1-element JSON array in the
+    /// CardSearchResult shape, or `[]` if not found. Used for deep-linking
+    /// into lesson pages where the target card may be past the 200-row
+    /// vocabulary LIMIT and so absent from the rendered list.
+    pub fn getCardById(self: *Db, card_id: []const u8, buf: []u8) ?[]const u8 {
+        var stmt: ?*sqlite.sqlite3_stmt = null;
+        const sql =
+            \\SELECT c.id, c.word, c.language, c.pinyin, c.translation, c.source_type, c.pack_id, c.context, c.lesson_id
+            \\FROM cards c
+            \\WHERE c.id = ? AND COALESCE(c.deleted, 0) = 0
+            \\LIMIT 1
+        ;
+        if (sqlite.sqlite3_prepare_v2(self.handle, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK) return null;
+        defer _ = sqlite.sqlite3_finalize(stmt.?);
+        _ = sqlite.sqlite3_bind_text(stmt.?, 1, card_id.ptr, @intCast(card_id.len), sqlite.SQLITE_STATIC);
+
+        var w = JsonWriter.init(buf);
+        w.writeByte('[');
+        if (sqlite.sqlite3_step(stmt.?) == sqlite.SQLITE_ROW) {
+            const id = colText(stmt.?, 0);
+            const word = colText(stmt.?, 1);
+            const language = colText(stmt.?, 2);
+            const source = colText(stmt.?, 5);
+
+            w.writeByte('{');
+            w.writeKey("id");
+            w.writeJsonString(id);
+            w.writeByte(',');
+            w.writeKey("word");
+            w.writeJsonString(word);
+            w.writeByte(',');
+            w.writeKey("language");
+            w.writeJsonString(language);
+            w.writeByte(',');
+            w.writeKey("pinyin");
+            if (sqlite.sqlite3_column_text(stmt.?, 3)) |p| {
+                const plen: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 3));
+                w.writeJsonString(p[0..plen]);
+            } else {
+                w.writeNull();
+            }
+            w.writeByte(',');
+            w.writeKey("translation");
+            if (sqlite.sqlite3_column_text(stmt.?, 4)) |t| {
+                const tlen: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 4));
+                w.writeJsonString(t[0..tlen]);
+            } else {
+                w.writeNull();
+            }
+            w.writeByte(',');
+            w.writeKey("source_type");
+            w.writeJsonString(source);
+            w.writeByte(',');
+            w.writeKey("pack_id");
+            if (sqlite.sqlite3_column_text(stmt.?, 6)) |pk| {
+                const pklen: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 6));
+                w.writeJsonString(pk[0..pklen]);
+            } else {
+                w.writeNull();
+            }
+            w.writeByte(',');
+            w.writeKey("context");
+            if (sqlite.sqlite3_column_text(stmt.?, 7)) |ctx| {
+                const ctxlen: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 7));
+                w.writeJsonString(ctx[0..ctxlen]);
+            } else {
+                w.writeNull();
+            }
+            w.writeByte(',');
+            w.writeKey("lesson_id");
+            if (sqlite.sqlite3_column_text(stmt.?, 8)) |ls| {
+                const lslen: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 8));
+                w.writeJsonString(ls[0..lslen]);
+            } else {
+                w.writeNull();
+            }
             w.writeByte('}');
         }
         w.writeByte(']');
@@ -492,7 +582,7 @@ pub const Db = struct {
     pub fn getLastReviewedCard(self: *Db, buf: []u8) ?[]const u8 {
         var stmt: ?*sqlite.sqlite3_stmt = null;
         const sql =
-            \\SELECT c.id, c.word, c.language, c.pinyin, c.translation, c.source_type, c.pack_id, c.context
+            \\SELECT c.id, c.word, c.language, c.pinyin, c.translation, c.source_type, c.pack_id, c.context, c.lesson_id
             \\FROM cards c
             \\JOIN review_log rl ON rl.card_id = c.id
             \\WHERE COALESCE(c.deleted, 0) = 0
@@ -551,6 +641,14 @@ pub const Db = struct {
             if (sqlite.sqlite3_column_text(stmt.?, 7)) |ctx| {
                 const ctxlen: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 7));
                 w.writeJsonString(ctx[0..ctxlen]);
+            } else {
+                w.writeNull();
+            }
+            w.writeByte(',');
+            w.writeKey("lesson_id");
+            if (sqlite.sqlite3_column_text(stmt.?, 8)) |ls| {
+                const lslen: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 8));
+                w.writeJsonString(ls[0..lslen]);
             } else {
                 w.writeNull();
             }

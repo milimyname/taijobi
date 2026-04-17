@@ -20,12 +20,17 @@
 	import { data } from '$lib/data.svelte';
 	import { toastStore } from '$lib/toast.svelte';
 	import { recentCharsStore } from '$lib/recent-chars.svelte';
+	import { untrack } from 'svelte';
 
 	let char = $derived(decodeURIComponent(page.params.char ?? ''));
 
-	// Track visits for the ⌘K "Kürzlich" section.
+	// Track visits for the ⌘K "Kürzlich" section. untrack() keeps the
+	// effect from depending on recentCharsStore.chars (which visit() reads
+	// internally to dedupe — without untrack, the write triggers the
+	// effect again and we get effect_update_depth_exceeded).
 	$effect(() => {
-		if (char) recentCharsStore.visit(char);
+		const c = char;
+		if (c) untrack(() => recentCharsStore.visit(c));
 	});
 	let decompData: DecompResult | null = $state(null);
 	let strokeData: StrokeData | null = $state(null);

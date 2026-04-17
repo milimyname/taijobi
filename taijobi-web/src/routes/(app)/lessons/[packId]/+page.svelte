@@ -2,9 +2,19 @@
 	import ExpandMore from '$lib/icons/ExpandMore.svelte';
 	import PlayCircle from '$lib/icons/PlayCircle.svelte';
 	import VolumeUp from '$lib/icons/VolumeUp.svelte';
-	import { getLessons, getPackProgress, getVocabulary, getPacks, type Lesson, type VocabEntry } from '$lib/wasm';
+	import {
+		getLessons,
+		getPackProgress,
+		getVocabulary,
+		getPacks,
+		getCardById,
+		type Lesson,
+		type VocabEntry,
+		type CardSearchResult
+	} from '$lib/wasm';
 	import { speak } from '$lib/speak';
 	import { page } from '$app/state';
+	import { tick } from 'svelte';
 
 	let packId = $derived(page.params.packId ?? '');
 	let lessons: Lesson[] = $state([]);
@@ -15,6 +25,9 @@
 	let isChinese = $state(false);
 	let isArabic = $state(false);
 	let hasPinyin = $state(false);
+	let highlightedCardId = $state<string | null>(null);
+	let focusedCard = $state<CardSearchResult | null>(null);
+	let deepLinkHandled = $state(false);
 
 	function refresh() {
 		if (!packId) return;
@@ -29,6 +42,43 @@
 
 	$effect(() => {
 		if (packId) refresh();
+	});
+
+	// Honor `?lesson={id}&card={id}` from ⌘K: auto-expand the lesson and
+	// scroll to the card row. If the card is past the 200-row vocabulary
+	// limit and not in the rendered list, pin it at the top as a "focused"
+	// banner so the user still sees the target they asked for.
+	$effect(() => {
+		if (deepLinkHandled || lessons.length === 0) return;
+		const lessonParam = page.url.searchParams.get('lesson');
+		const cardParam = page.url.searchParams.get('card');
+		if (!lessonParam) {
+			deepLinkHandled = true;
+			return;
+		}
+		deepLinkHandled = true;
+		const lesson = lessons.find((l) => l.id === lessonParam);
+		if (!lesson) return;
+		expandedLesson = lessonParam;
+		vocabulary = getVocabulary(lessonParam);
+		if (cardParam) {
+			highlightedCardId = cardParam;
+			void tick().then(() => {
+				const inList = vocabulary.some((v) => v.id === cardParam);
+				if (inList) {
+					const el = document.getElementById(`card-${cardParam}`);
+					if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				} else {
+					// Target is past LIMIT 200 — fetch it directly and pin at top.
+					focusedCard = getCardById(cardParam);
+					void tick().then(() => {
+						const el = document.getElementById(`focused-card`);
+						if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+					});
+				}
+				setTimeout(() => (highlightedCardId = null), 1800);
+			});
+		}
 	});
 
 	function toggleLesson(lessonId: string) {
@@ -49,7 +99,7 @@
 
 <!-- Pack progress -->
 <section class="mt-4">
-	<div class="rounded-2xl border border-slate-100 dark:border-white/5 bg-white p-4 shadow-sm">
+	<div class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm dark:border-white/5 dark:bg-white/5">
 		<div class="mb-3 flex items-center justify-between">
 			<h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">{packName}</h2>
 			<span class="text-sm font-bold text-primary">{progressPercent(progress.mastered, progress.total)}%</span>
@@ -66,10 +116,63 @@
 	</div>
 </section>
 
+<!-- Focused card (deep-link target past the vocabulary LIMIT 200) -->
+{#if focusedCard}
+	<section
+		id="focused-card"
+		class="mt-4 rounded-2xl border-2 border-primary/40 bg-primary/5 p-4 shadow-sm ring-2 ring-primary/20"
+	>
+		<p class="mb-2 text-[11px] font-bold uppercase tracking-wider text-primary">Gesuchte Karte</p>
+		<div class="flex items-start justify-between gap-3">
+			<div class="min-w-0 flex-1">
+				<p
+					class="text-xl font-bold text-slate-900 dark:text-slate-100"
+					class:chinese-char={isChinese}
+					dir={isArabic ? 'rtl' : undefined}
+				>
+					{focusedCard.word}
+				</p>
+				{#if focusedCard.pinyin}
+					<p class="text-sm text-primary/80">{focusedCard.pinyin}</p>
+				{/if}
+				{#if focusedCard.translation}
+					<p class="mt-1 text-sm text-slate-600 dark:text-slate-300">{focusedCard.translation}</p>
+				{/if}
+				{#if focusedCard.context}
+					<p class="mt-2 truncate text-xs italic text-slate-500 dark:text-slate-400">
+						&bdquo;{focusedCard.context}&ldquo;
+					</p>
+				{/if}
+				<p class="mt-2 text-xs text-slate-400 dark:text-slate-500">
+					Außerhalb der ersten 200 Wörter dieser Lektion
+				</p>
+			</div>
+			<div class="flex items-start gap-1">
+				<button
+					onclick={() =>
+						focusedCard &&
+						speak(focusedCard.word, isChinese ? 'zh' : isArabic ? 'ar' : focusedCard.language)}
+					class="rounded-lg p-1.5 text-primary/60 transition-colors hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20"
+					aria-label="Aussprechen"
+				>
+					<VolumeUp class="text-[20px]" />
+				</button>
+				<button
+					onclick={() => (focusedCard = null)}
+					class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-white/10"
+					aria-label="Schließen"
+				>
+					<span class="text-lg leading-none">×</span>
+				</button>
+			</div>
+		</div>
+	</section>
+{/if}
+
 <!-- Lessons -->
 <section class="mt-6 space-y-3">
 	{#each lessons as lesson (lesson.id)}
-		<div class="overflow-hidden rounded-2xl border border-slate-100 dark:border-white/5 bg-white shadow-sm">
+		<div class="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm dark:border-white/5 dark:bg-white/5">
 			<!-- Lesson header -->
 			<button
 				onclick={() => toggleLesson(lesson.id)}
@@ -115,8 +218,13 @@
 							</thead>
 							<tbody class="divide-y divide-primary/5">
 								{#each vocabulary as word (word.id)}
-									<tr class="bg-white/50 dark:bg-white/5">
-										<td class="px-3 py-2 font-medium" class:chinese-char={isChinese} class:text-lg={isArabic} dir={isArabic ? 'rtl' : undefined}>
+									<tr
+										id="card-{word.id}"
+										class="transition-colors {highlightedCardId === word.id
+											? 'bg-primary/15 dark:bg-primary/25'
+											: 'bg-white/50 dark:bg-white/5'}"
+									>
+										<td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100" class:chinese-char={isChinese} class:text-lg={isArabic} dir={isArabic ? 'rtl' : undefined}>
 											{#if isChinese}
 												<a href="/character/{encodeURIComponent(word.word)}" class="hover:text-primary">{word.word}</a>
 											{:else}
@@ -126,7 +234,7 @@
 										{#if hasPinyin}
 											<td class="px-3 py-2 text-primary/80">{word.pinyin ?? ''}</td>
 										{/if}
-										<td class="max-w-[200px] truncate px-3 py-2">{word.translation ?? ''}</td>
+										<td class="max-w-[200px] truncate px-3 py-2 text-slate-700 dark:text-slate-300">{word.translation ?? ''}</td>
 										<td class="px-2 py-2">
 											<button
 												onclick={() => speak(word.word, isChinese ? 'zh' : isArabic ? 'ar' : 'en')}
@@ -162,7 +270,7 @@
 </section>
 
 {#if lessons.length === 0}
-	<div class="mt-8 rounded-2xl border border-slate-100 dark:border-white/5 bg-white p-8 text-center shadow-sm">
+	<div class="mt-8 rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-white/5">
 		<p class="text-sm text-slate-500 dark:text-slate-400">Keine Lektionen gefunden.</p>
 		<a href="/packs" class="mt-2 text-sm font-medium text-primary">Zur&uuml;ck zu Paketen</a>
 	</div>
