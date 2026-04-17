@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.6.4 (2026-04-17)
+
+- fix: remove blue focus outline from lexicon quick-add input
+- fix: lexicon dark mode — input + word text were black on dark bg
+- docs: add push notification testing guide to decisions.md
+- docs: mark Phase 6.2 MCP server as ✅ DONE in phases.md
+- docs: refresh CLAUDE.md — consolidate session summary
+
 ## v0.6.3 (2026-04-17)
 
 - polish: format remaining FAQ answers with bullets
