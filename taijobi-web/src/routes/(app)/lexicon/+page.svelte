@@ -187,7 +187,7 @@
 				type="text"
 				bind:value={input}
 				onkeydown={handleKeydown}
-				class="min-w-0 flex-1 border-none bg-transparent p-0 text-base font-normal placeholder:text-primary/40 focus:ring-0"
+				class="min-w-0 flex-1 border-none bg-transparent p-0 text-base font-normal text-slate-900 placeholder:text-primary/40 focus:ring-0 dark:text-slate-100"
 				placeholder="Schnell hinzuf&uuml;gen..."
 			/>
 			<div class="flex items-center gap-1">
@@ -317,12 +317,12 @@
 										{#if entry.language === 'zh'}
 										<a
 											href="/character/{encodeURIComponent(entry.word)}"
-											class="chinese-char text-lg font-bold hover:text-primary"
+											class="chinese-char text-lg font-bold text-slate-900 hover:text-primary dark:text-slate-100"
 										>{entry.word}</a>
 									{:else if entry.language === 'ar'}
-										<span dir="rtl" class="text-xl font-bold">{entry.word}</span>
+										<span dir="rtl" class="text-xl font-bold text-slate-900 dark:text-slate-100">{entry.word}</span>
 									{:else}
-										<span class="text-lg font-bold">{entry.word}</span>
+										<span class="text-lg font-bold text-slate-900 dark:text-slate-100">{entry.word}</span>
 									{/if}
 										<span
 											class="rounded bg-primary/5 px-1.5 py-0.5 text-[10px] font-bold text-primary"
