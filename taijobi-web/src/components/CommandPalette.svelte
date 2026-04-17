@@ -151,7 +151,10 @@
 
 	$effect(() => {
 		if (paletteStore.open) {
-			queueMicrotask(() => inputRef?.focus());
+			// Delay so the Drawer animation has time to settle and the input
+			// is mounted + visible before we focus it. queueMicrotask is too
+			// fast — the input might not be rendered yet.
+			setTimeout(() => inputRef?.focus(), 200);
 		} else {
 			query = '';
 			selectedIndex = 0;
