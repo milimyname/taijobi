@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.6.3 (2026-04-17)
+
+- polish: format remaining FAQ answers with bullets
+- fix: delay CommandPalette input focus until Drawer animation settles
+- polish: fenced code blocks in FAQ + platform-specific MCP config paths
+- polish: rich FAQ formatting with bullets, code, and paragraphs
+
 ## v0.6.2 (2026-04-17)
 
 - docs: add per-platform notification troubleshooting FAQ
