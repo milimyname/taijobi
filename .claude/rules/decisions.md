@@ -253,3 +253,104 @@
   When a push endpoint returns 410, the subscription is permanently expired
   (browser unsubscribed, device changed, etc.). The cron deletes it
   immediately so future ticks don't waste cycles on dead endpoints.
+
+## Phase 6.6 — Testing Push Notifications
+
+### Quick test: notification UI only (no server)
+
+```bash
+cd taijobi-web && bun run build && bun run preview
+```
+
+Open `http://localhost:4173` in Chrome. DevTools → Application → Service
+Workers → find the registered SW → type this in the "Push" input:
+
+```json
+{"title":"🔥 Test","body":"Streak droht zu brechen","url":"/drill"}
+```
+
+Hit Enter → system notification should pop up. Click it → app opens at
+`/drill`. If nothing happens: check macOS System Settings → Notifications →
+Chrome → Allow.
+
+**Important:** `bun run dev` (port 6173) does NOT register the SW with the
+push handler. Always use `build + preview` for push testing.
+
+### Full end-to-end test (subscribe → cron → push)
+
+**Terminal 1 — sync Worker:**
+
+```bash
+cd taijobi-sync
+
+# Ensure .dev.vars has the VAPID private key (one line, JWK JSON):
+# VAPID_PRIVATE_KEY={"kty":"EC","x":"...","y":"...","crv":"P-256","d":"..."}
+
+bunx wrangler dev --port 8788 --test-scheduled
+```
+
+**Terminal 2 — web app (preview mode):**
+
+```bash
+cd taijobi-web && bun run build && bun run preview --port 4173
+```
+
+**In the browser** at `http://localhost:4173`:
+
+1. Settings → Sync → generate or paste a sync key
+2. Settings → Benachrichtigungen → toggle "Streak-Erinnerung" on
+3. Allow the browser notification permission prompt
+4. Wrangler terminal should show `POST /push/subscribe 200 OK`
+
+**Trigger the cron** (Terminal 3):
+
+```bash
+# Set last-review to 24h ago so the cron window matches
+SYNC_KEY="your-sync-key-here"
+ts=$(($(date +%s) * 1000 - 86400000))
+
+curl -X POST http://localhost:8788/push/heartbeat \
+  -H "Authorization: Bearer $SYNC_KEY" \
+  -H "Content-Type: application/json" \
+  -d "{\"ts\": $ts}"
+
+# Fire the cron manually
+curl "http://localhost:8788/__scheduled?cron=0+*+*+*+*"
+```
+
+Wrangler terminal should show `[push-cron] Sent 1 pushes: 1 ok, 0 failed`.
+A system notification appears on your desktop.
+
+### Testing on prod
+
+```bash
+# Fake old heartbeat
+curl -X POST https://sync.taijobi.com/push/heartbeat \
+  -H "Authorization: Bearer $SYNC_KEY" \
+  -H "Content-Type: application/json" \
+  -d "{\"ts\": $(($(date +%s) * 1000 - 86400000))}"
+```
+
+Can't trigger the cron remotely — wait for the next hourly tick (:00), or
+go to Cloudflare Dashboard → Workers → taijobi-sync → Triggers → Cron.
+
+### Testing on iOS
+
+1. Deploy to prod (`git push`, CI deploys)
+2. On iPhone Safari: open `https://taijobi.com`
+3. Share → "Add to Home Screen" → Add
+4. Open the app **from the home screen icon** (not Safari)
+5. Settings → Benachrichtigungen → toggle on → Allow
+6. iOS requires 16.4+. Safari-in-browser: push is NOT supported.
+
+### Troubleshooting
+
+| Symptom | Fix |
+|---|---|
+| No notification on desktop | macOS: System Settings → Notifications → [Browser] → Allow. Check Focus/DND mode. |
+| `POST /push/subscribe 200` but cron says `0 pushes` | Heartbeat timestamp is outside the 20–28h window. Use `ts=$(($(date +%s) * 1000 - 86400000))`. |
+| Cron says `1 failed` with error | Check wrangler logs — usually VAPID key mismatch or `.dev.vars` missing/corrupt. |
+| `/__scheduled` returns 404 | Restart wrangler with `--test-scheduled` flag. |
+| `"undefined" is not valid JSON` | `.dev.vars` is missing or empty. Write the VAPID private JWK into it. |
+| iOS: toggle shows "nicht verfügbar" | App not installed to home screen, or iOS < 16.4. |
+| Push works locally but not on prod | Run `wrangler secret put VAPID_PRIVATE_KEY` with the same JWK as `.dev.vars`. |
