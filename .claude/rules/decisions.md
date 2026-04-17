@@ -217,3 +217,39 @@
 - **No CEDICT in the Worker build.** Cleanest way to respect the 128 MB
   cap without hedging. Leaves room for iOS parity later (where dictionaries
   ship in the app bundle, not in the Worker).
+
+## Phase 6.6 Decisions
+
+- **Server-side cron, not client-side TaskScheduler/Notification.schedule.**
+  Browser APIs for scheduling future notifications are either non-existent
+  (iOS) or behind flags (Chrome). CF Worker cron triggers are free, trivial,
+  and fire regardless of device state.
+- **Heartbeat pushed from client, not decrypted from SyncRoom.**
+  Decrypting the snapshot to read `last_review_at` would boot a full WASM
+  runtime per sub per cron tick. Client pushing a timestamp after each
+  review is ~100 bytes, zero WASM, zero crypto.
+- **20–28h window relative to last review, not a fixed local time.**
+  Timezone-free for v1. Fires ~once daily relative to the user's natural
+  cadence. Duolingo does time-of-day personalization later; we start simple.
+- **VAPID signing via `crypto.subtle`, no `web-push` npm dep.**
+  ~30 LoC. The `web-push` library depends on Node-only crypto modules that
+  don't work in Workers; `crypto.subtle.sign('ECDSA')` does.
+- **RFC 8291 aes128gcm payload encryption hand-rolled.**
+  ~60 LoC using `crypto.subtle.deriveBits` (ECDH) + HKDF + AES-GCM. No
+  deps, runs in Workers. The alternative (`web-push` or `push-encryption`)
+  both import Node `crypto`.
+- **Single PushSubs DO, not one-per-sync-key.**
+  Cron needs to iterate every subscription. One DO with a SQLite table is
+  scannable in one query; per-key DOs would need a separate index.
+- **Banner default-on, push opt-in.**
+  Push requires a permission prompt — can't be default. The banner is pure
+  UI, zero infra, shows immediately. Both are independently useful and
+  complement each other.
+- **Email deferred to Phase 7+.**
+  Email adds: provider integration (Resend/Postmark), Doppel-Opt-In (German
+  law), unsubscribe links, bounce handling, GDPR consent flow. Push + banner
+  covers the "reminder when not in app" case without any of that.
+- **410 Gone subscription cleanup.**
+  When a push endpoint returns 410, the subscription is permanently expired
+  (browser unsubscribed, device changed, etc.). The cron deletes it
+  immediately so future ticks don't waste cycles on dead endpoints.

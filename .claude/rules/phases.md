@@ -300,15 +300,32 @@ get enriched from CEDICT. All words reviewable via FSRS.
   - `WRITE_TOOL_NAMES` set drives session's push-to-sync behavior.
 - [x] `src/mcp-session.ts` — `McpSession` Durable Object, one per sync key. Lazily instantiates WASM on first POST, pulls encrypted rows from `SyncRoom` on init + every 60 s on reads, dispatches JSON-RPC (`initialize` / `tools/list` / `tools/call` / `ping` / `notifications/initialized`). Write tools fire-and-forget `state.waitUntil(pushToSync())` — client response isn't blocked. `DELETE /mcp` evicts the session. Generates `Mcp-Session-Id` on `initialize` and validates on subsequent calls.
 
-**taijobi-sync:** 🚧 remaining
-- [ ] `src/index.ts` — add `export { McpSession }`, extend `Bindings`, CORS `allowHeaders` for `Authorization` + `Mcp-Session-Id`, new `POST /mcp` and `DELETE /mcp` routes forwarding to the DO.
-- [ ] `wrangler.toml` — add the `MCP_SESSION` DO binding + migration + `.wasm` bundling rule.
-- [ ] CLAUDE.md + decisions.md — docs + architectural rationale.
-- [ ] Verification: `wrangler dev` + `curl` smoke test, Claude Desktop config snippet.
+**taijobi-sync:** ✅ DONE
+- [x] `src/index.ts` — `export { McpSession }`, extended `Bindings`, CORS headers, `POST /mcp` + `DELETE /mcp` routes forwarding to the DO.
+- [x] `wrangler.toml` — `MCP_SESSION` DO binding + migration v2 + CompiledWasm rule.
+- [x] CLAUDE.md + decisions.md + c-abi.md — docs + architectural rationale.
+- [x] Verification: `wrangler dev` + `curl` smoke test, Claude Desktop config snippet in CLAUDE.md + /about FAQ.
 
 **Transport:** Streamable HTTP (MCP protocol 2025-03-26). **Auth:** `Authorization: Bearer <sync-key>`. **Implementation:** hand-rolled JSON-RPC (~40 LOC), no `@modelcontextprotocol/sdk` dependency.
 
 **Deferred tools (v2+):** `lookup_word` (needs CEDICT, adds 9 MB to compact WASM), `install_pack` (requires pack catalog coordination), `query_cards(sql)` (dev-only, behind a flag).
+
+### Phase 6.6 — Streak banner + Web Push ✅ DONE
+
+**Goal:** Duolingo-style streak retention — don't let a review streak die silently.
+
+**taijobi-web:** ✅ DONE
+- [x] `StreakBanner.svelte` + `streak-banner.svelte.ts` — amber banner on `/home` when `streak > 0 && reviewed_today === 0`. Dismissable per-tab (sessionStorage, keyed by day). Shows due + unread count, links to `/drill`.
+- [x] `push.svelte.ts` — Web Push subscription store. VAPID public key committed; subscribes via `PushManager.subscribe`, POSTs subscription + heartbeat to sync Worker. Settings toggle in `/settings` → "Benachrichtigungen" with switch, supported/denied/iOS-install states.
+- [x] `service-worker.ts` — `push` event shows system notification; `notificationclick` focuses/opens the app at target URL.
+- [x] `(app)/+layout.svelte` — `pushStore.init()` + `pushStore.heartbeat()` on WASM ready.
+- [x] `drill/+page.svelte` — `pushStore.heartbeat()` after each `reviewCard`.
+
+**taijobi-sync:** ✅ DONE
+- [x] `push-subs-do.ts` — `PushSubs` DO (SQLite-backed, one instance, all subs). Routes: subscribe/unsubscribe/heartbeat/due/notified.
+- [x] `push-send.ts` — VAPID JWT signing + RFC 8291 aes128gcm payload encryption. Zero npm deps.
+- [x] `index.ts` — /push routes (Bearer auth, SHA-256 hashed sync keys). `scheduled()` export: hourly cron, 20–28h window, 18h no-spam, cleans up 410 Gone.
+- [x] `wrangler.toml` — cron + PUSH_SUBS DO binding + v3 migration + VAPID_PUBLIC_KEY var.
 
 **6.3 — Community Packs (Marketplace):** Monorepo — packs live in `packs/` alongside
 **6.3 — Community Packs (Marketplace):** Monorepo — packs live in `packs/` alongside
