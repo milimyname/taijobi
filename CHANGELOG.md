@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.6.7 (2026-04-17)
+
+- fix: format app.css iOS input block
+- fix: cross-dict fallback + iOS input zoom + tooltip opacity
+
 ## v0.6.6 (2026-04-17)
 
 - docs: CLAUDE.md — unified packs catalog + context-column search
