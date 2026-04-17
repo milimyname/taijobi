@@ -14,3 +14,15 @@ html.dark,
 html.dark body {
 	background: #131f18;
 }
+
+/* iOS Safari auto-zooms into any input whose computed font-size is below
+   16px on focus. Override Tailwind's text-sm / text-xs on inputs so the
+   effective size stays at 16px on touch devices — the viewport stays put
+   when the keyboard opens. Desktop unaffected. */
+@media (hover: none) and (pointer: coarse) {
+	input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']):not([type='color']),
+	textarea,
+	select {
+		font-size: 16px !important;
+	}
+}

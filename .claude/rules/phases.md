@@ -336,6 +336,13 @@ get enriched from CEDICT. All words reviewable via FSRS.
   `packs/schema.json` (validation schema). The app already fetches catalog.json and
   installs packs — just automate the curation pipeline.
 **6.4 — More Languages:** Japanese (JMdict), Korean (KDICT), Wiktextract for any language
+  - **Optional — DE dict in German (dewiktionary):** today dedict.bin is built from
+    `kaikki.org/dictionary/German/pos-*` (English Wiktionary's German extract → English
+    glosses). Swapping to `kaikki.org/dewiktionary/raw-wiktextract-data.jsonl.gz` (280MB
+    compressed, 2.8GB uncompressed multilingual dump, no per-POS splits) gives native
+    German definitions but costs a streaming `lang_code === "de"` filter in the compile
+    step + likely a bigger dedict.bin. Only worth doing when there's a true
+    German-monolingual user segment. See decisions.md (Phase 5.x).
 **6.5 — Battle Mode (iOS):** Offline multiplayer vocab battles via MultipeerConnectivity
   - Speed Battle: same card, first to answer scores. Timer per round (10s).
   - Shared deck selection, score display, rematch. Cards feed into FSRS.

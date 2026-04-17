@@ -80,7 +80,7 @@
 		<a
 			href="/character/{encodeURIComponent(selectedChar)}"
 			onclick={hide}
-			class="flex items-center gap-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 px-3 py-2 shadow-lg transition-colors hover:bg-primary/5"
+			class="flex items-center gap-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 px-3 py-2 shadow-lg transition-colors hover:bg-slate-50 dark:hover:bg-slate-700"
 		>
 			<span class="chinese-char text-2xl text-primary">{selectedChar}</span>
 			<div class="text-left">

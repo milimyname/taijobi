@@ -137,7 +137,29 @@
 	{#if filtered.length === 0}
 		<div class="rounded-2xl border border-slate-100 dark:border-white/5 bg-white dark:bg-white/5 p-8 text-center shadow-sm">
 			<Translate class="mb-2 text-[32px] text-slate-300 dark:text-slate-500" />
-			<p class="text-sm text-slate-500 dark:text-slate-400">Keine Zeichen gefunden.</p>
+			{#if allChars.length === 0}
+				<p class="text-sm font-medium text-slate-700 dark:text-slate-200">Noch keine Zeichen.</p>
+				<p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
+					Diese Seite zeigt Zeichen aus <b>Lehrbuch-Paketen</b> und deinem <b>Lexikon</b>.
+					Das Chinesisch-Wörterbuch (CEDICT) liefert nur Definitionen — keine browsbare Zeichenliste.
+				</p>
+				<div class="mt-4 flex flex-col items-center gap-2 sm:flex-row sm:justify-center">
+					<a
+						href="/packs"
+						class="inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-primary/90"
+					>
+						HSK-Paket installieren
+					</a>
+					<a
+						href="/lexicon"
+						class="inline-flex items-center justify-center rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-white/10"
+					>
+						Wort zum Lexikon hinzufügen
+					</a>
+				</div>
+			{:else}
+				<p class="text-sm text-slate-500 dark:text-slate-400">Keine Treffer für diesen Filter.</p>
+			{/if}
 		</div>
 	{:else}
 		<div class="grid grid-cols-5 gap-2 sm:grid-cols-7">

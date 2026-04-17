@@ -136,6 +136,22 @@
   Compiled from kaikki.org JSONL per-POS files (noun/verb/adj/adv only — full dump is 6GB).
   Same binary format as CEDICT: magic + count + offset index + sorted entries with binary search.
   Case-insensitive lookup for Latin text. EN: 166k entries (~19MB), DE: ~4.6MB.
+- **DE dict uses en.wiktionary extract, not de.wiktionary.** Source is `kaikki.org/dictionary/German/pos-*`
+  (English Wiktionary's coverage of German words) → definitions are in English ("to limp, to hobble…"),
+  not German. Accepted trade because: (a) target user speaks English and an English gloss of a German
+  word is often clearer than a circular German definition ("sich beim Gehen einseitig schonend bewegen"),
+  (b) de.wiktionary only ships as a 280MB-compressed / 2.8GB-uncompressed multilingual raw dump
+  (`kaikki.org/dewiktionary/raw-wiktextract-data.jsonl.gz`) — no per-POS splits — that would require
+  streaming-filter-by-`lang_code` during compile, (c) de.wiktionary has thinner coverage than en.wiktionary's
+  German extract in several POS categories, so a swap could net-lose entries. Revisit at Phase 6.4+ if
+  monolingual German users join — then the German-defined glosses become load-bearing.
+- **Cross-dict fallback in `addWord` + `hanzi_lookup_word`.** `lang.detect` is heuristic and
+  misclassifies many German words without umlauts or German-pattern bigrams (`hinken`, `laufen`,
+  `hinterherhinken`) as English. `addWord` now tries the opposite-language dict when the primary
+  misses and corrects `language_code` from whichever dict actually hit; `hanzi_lookup_word` treats
+  an empty JSON array `"[]"` as a miss and falls back (plain `orelse` doesn't trigger, since `"[]"`
+  is non-null). Without these two fixes: "hinken" landed in the lexicon as `language='en'` with no
+  translation, and the dictionary page returned "Keine Ergebnisse" despite "hinken" being in dedict.
 - **Dictionaries are installable, not embedded.** Users install from Settings → Wörterbücher.
   Downloaded to OPFS, loaded into WASM persistent allocator on startup. Chinese data + EN + DE
   total ~42MB → bumped persistent allocator to 64MB, WASM max memory to 512MB.

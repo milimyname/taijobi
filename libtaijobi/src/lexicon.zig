@@ -31,9 +31,13 @@ pub fn addWord(
     if (word.len == 0) return error.WordEmpty;
 
     const detected = lang.detect(word);
-    const lang_code = detected.code();
+    var lang_code = detected.code();
 
-    // Auto-enrich from dictionaries
+    // Auto-enrich from dictionaries. Cross-dict fallback: language detection is
+    // heuristic — many German words (e.g. "hinken", "laufen") have no umlauts
+    // and don't match German-pattern bigrams, so they're misclassified as en.
+    // After the primary lookup misses, try the other Wiktionary dict and
+    // correct the language code from the dict that actually hit.
     var pinyin: ?[]const u8 = null;
     var translation: ?[]const u8 = null;
     if (detected == .zh) {
@@ -44,10 +48,16 @@ pub fn addWord(
     } else if (detected == .en) {
         if (wiktdict.lookupEn(word)) |entry| {
             translation = entry.definition;
+        } else if (wiktdict.lookupDe(word)) |entry| {
+            translation = entry.definition;
+            lang_code = lang.Language.de.code();
         }
     } else if (detected == .de) {
         if (wiktdict.lookupDe(word)) |entry| {
             translation = entry.definition;
+        } else if (wiktdict.lookupEn(word)) |entry| {
+            translation = entry.definition;
+            lang_code = lang.Language.en.code();
         }
     }
 

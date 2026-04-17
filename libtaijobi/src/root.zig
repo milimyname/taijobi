@@ -821,16 +821,28 @@ export fn hanzi_dedict_loaded() i32 {
 
 export fn hanzi_lookup_word(query_ptr: [*]const u8, query_len: usize) ?[*]const u8 {
     const query = query_ptr[0..query_len];
-    // Auto-detect language and search appropriate dictionary
+    // Auto-detect language and search appropriate dictionary. The primary
+    // dict may return "[]" (empty JSON array) rather than null when the
+    // query has zero prefix matches — non-null, so a plain `orelse` never
+    // falls through. Treat empty as "try the other dict" so German words
+    // without umlauts (e.g. "hinken", misdetected as English) still resolve.
     const detected = lang_mod.detect(query);
-    const json = switch (detected) {
-        .de => wiktdict.searchDe(query, 20, &json_buf) orelse
-            wiktdict.searchEn(query, 20, &json_buf),
-        else => wiktdict.searchEn(query, 20, &json_buf) orelse
-            wiktdict.searchDe(query, 20, &json_buf),
+    const primary = switch (detected) {
+        .de => wiktdict.searchDe(query, 20, &json_buf),
+        else => wiktdict.searchEn(query, 20, &json_buf),
     };
-    const result = json orelse return null;
+    const fallback_is_de = detected != .de;
+    const result = if (primary != null and !isEmptyJsonArray(primary.?))
+        primary.?
+    else switch (fallback_is_de) {
+        true => wiktdict.searchDe(query, 20, &json_buf) orelse return null,
+        false => wiktdict.searchEn(query, 20, &json_buf) orelse return null,
+    };
     return makeLengthPrefixed(result);
+}
+
+fn isEmptyJsonArray(s: []const u8) bool {
+    return s.len == 2 and s[0] == '[' and s[1] == ']';
 }
 
 // === WASM-only exports ===
