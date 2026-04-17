@@ -5,7 +5,9 @@
 *A local-first vocabulary engine for all languages you encounter — with deep
 Chinese support, curriculum packs, and spaced repetition.*
 
-Last updated: April 2026 — Phases 0-4 complete, Phase 5.0 + 5.1 + 5.2 + 5.3 + 5.4 done, Phase 6.2 MCP server deployed, Phase 6.6 streak banner + Web Push notifications. Google Fonts removed (system-ui stack), OPFS made optional (Safari-on-LAN-IP compat), dictionary downloads lifted to a global store so progress survives navigation, Cmd+K command palette with FAQ deep-links, DevTools SQL panel + feature flag store, CommandPalette content-scroll fix + Drawer wheel-handler for desktop parity + mid-snap scroll-first arbitration, desktop-first layout with persistent sidebar on lg+, Kindle `My Clippings.txt` import to the lexicon with a Zig bulk-transaction path, remote MCP server at `sync.taijobi.com/mcp` exposing 8 tools to Claude Desktop over Bearer-auth HTTP JSON-RPC.
+Last updated: April 2026 — Phases 0-5.4 complete, Phase 6.2 + 6.6 shipped.
+
+**Recent (April 2026 session):** Google Fonts → system-ui stack, OPFS made optional (Safari LAN-IP compat), global download store (progress survives navigation), DevTools SQL panel + feature flags + TSV export, Kindle `My Clippings.txt` import (Zig parser + bulk transaction), desktop sidebar layout (lg+), Drawer iOS-share-sheet-style scroll lock, custom `+error.svelte`, SW network-first WASM cache, CI dictionary-data workflow split, WASM persistent allocator 64→128 MB, oxlint 0-warnings baseline, rich FAQ formatting (bullets + code blocks + fenced blocks), MCP server (8 tools, compact WASM build, Hono, Cloudflare Worker DO), Web Push streak notifications (VAPID + RFC 8291 aes128gcm + hourly cron), streak-in-danger banner on `/home`, per-platform notification troubleshooting FAQ.
 
 ---
 
