@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.6.5 (2026-04-17)
+
+- feat: unified packs catalog — dictionaries + content + imports
+- fix: truncate slowest function name in DevTools WASM tab
+- feat: DevTools WASM call timing tab (like wimg)
+
 ## v0.6.4 (2026-04-17)
 
 - fix: remove blue focus outline from lexicon quick-add input
