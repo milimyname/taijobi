@@ -397,7 +397,7 @@
 							<div class="text-[9px] text-slate-400">Avg</div>
 						</div>
 						<div class="rounded-lg bg-slate-50 px-3 py-2 text-center dark:bg-white/5">
-							<div class="text-sm font-bold text-slate-900 dark:text-slate-100">
+							<div class="truncate text-sm font-bold text-slate-900 dark:text-slate-100">
 								{devtoolsStore.slowest?.name ?? '—'}
 							</div>
 							<div class="text-[9px] text-slate-400">
