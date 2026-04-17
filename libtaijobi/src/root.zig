@@ -381,6 +381,15 @@ export fn hanzi_search_cards(query_ptr: [*]const u8, query_len: usize, limit: u3
     return makeLengthPrefixed(json);
 }
 
+/// Most-recently-reviewed card. Used by the Cmd+K empty state to offer
+/// a "Zuletzt geübt" shortcut. Returns a 1-element JSON array matching
+/// the CardSearchResult shape (or [] if no reviews exist).
+export fn hanzi_get_last_reviewed_card() ?[*]const u8 {
+    const db = &(global_db orelse return null);
+    const json = db.getLastReviewedCard(&json_buf) orelse return null;
+    return makeLengthPrefixed(json);
+}
+
 /// DevTools SQL panel — run arbitrary SQL and return JSON results.
 /// Returns length-prefixed JSON `{columns, rows, count, truncated}`.
 /// FBA caveat: burns ~2MB per call (scratch + length-prefix copy) until the

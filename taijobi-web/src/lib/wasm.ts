@@ -82,6 +82,7 @@ interface WasmExports {
 	hanzi_update_word: (id: number, idLen: number, trans: number, transLen: number) => number;
 	hanzi_lookup: (query: number, len: number) => number;
 	hanzi_search_cards: (query: number, len: number, limit: number) => number;
+	hanzi_get_last_reviewed_card: () => number;
 	hanzi_query: (sql: number, len: number) => number;
 	hanzi_parse_kindle: (data: number, len: number) => number;
 	hanzi_bulk_add_lexicon: (data: number, len: number) => number;
@@ -645,6 +646,7 @@ export interface CardSearchResult {
 	translation: string | null;
 	source_type: string;
 	pack_id: string | null;
+	context: string | null;
 }
 
 export function searchCards(query: string, limit = 20): CardSearchResult[] {
@@ -662,6 +664,23 @@ export function searchCards(query: string, limit = 20): CardSearchResult[] {
 		} catch (e) {
 			console.error('[taijobi] Failed to parse searchCards JSON', e, json.slice(0, 200));
 			return [];
+		}
+	});
+}
+
+/** Most recently reviewed card, or null if there are no reviews yet. */
+export function getLastReviewedCard(): CardSearchResult | null {
+	return timed('getLastReviewedCard', () => {
+		if (!wasm || typeof wasm.hanzi_get_last_reviewed_card !== 'function') return null;
+		const resultPtr = wasm.hanzi_get_last_reviewed_card();
+		if (resultPtr === 0) return null;
+		const json = readLengthPrefixedString(resultPtr);
+		try {
+			const arr = JSON.parse(json) as CardSearchResult[];
+			return arr[0] ?? null;
+		} catch (e) {
+			console.error('[taijobi] Failed to parse getLastReviewedCard JSON', e, json.slice(0, 200));
+			return null;
 		}
 	});
 }

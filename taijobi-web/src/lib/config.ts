@@ -33,6 +33,7 @@ export const LS_SEARCH_HISTORY = 'taijobi_search_history';
 export const LS_FEATURES = 'taijobi_features';
 export const LS_SQL_HISTORY = 'taijobi_sql_history';
 export const LS_DEVTOOLS = 'taijobi_devtools';
+export const LS_RECENT_CHARS = 'taijobi_recent_chars';
 
 // --- SessionStorage keys ---
 export const SS_DRILL_SESSION = 'taijobi_drill_session';

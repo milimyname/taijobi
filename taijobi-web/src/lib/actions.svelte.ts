@@ -174,8 +174,8 @@ export function getActions(): PaletteAction[] {
 			label: 'Wörterbücher installieren',
 			icon: 'download',
 			group: 'Daten',
-			keywords: ['dictionary', 'install'],
-			handler: () => goto('/settings')
+			keywords: ['dictionary', 'install', 'wörterbuch', 'pakete'],
+			handler: () => goto('/packs?kind=dictionary')
 		},
 
 		// Theme

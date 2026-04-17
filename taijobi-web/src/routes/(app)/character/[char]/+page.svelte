@@ -19,8 +19,14 @@
 	import { downloadAndLoad } from '$lib/dictionary-data';
 	import { data } from '$lib/data.svelte';
 	import { toastStore } from '$lib/toast.svelte';
+	import { recentCharsStore } from '$lib/recent-chars.svelte';
 
 	let char = $derived(decodeURIComponent(page.params.char ?? ''));
+
+	// Track visits for the ⌘K "Kürzlich" section.
+	$effect(() => {
+		if (char) recentCharsStore.visit(char);
+	});
 	let decompData: DecompResult | null = $state(null);
 	let strokeData: StrokeData | null = $state(null);
 	let relatedWords: LexiconEntry[] = $state([]);

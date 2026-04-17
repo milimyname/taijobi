@@ -11,6 +11,8 @@
 	import { speak } from '$lib/speak';
 	import { data } from '$lib/data.svelte';
 	import { toastStore } from '$lib/toast.svelte';
+	import { onMount } from 'svelte';
+	import { page } from '$app/state';
 
 	type UnifiedResult = {
 		type: 'cedict';
@@ -37,6 +39,16 @@
 	);
 
 	let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+
+	onMount(() => {
+		// Pre-fill the search from `?q=...` — used by ⌘K → Wörterbuch hits
+		// to deep-link into the lookup UI with the query already active.
+		const q = page.url.searchParams.get('q');
+		if (q) {
+			query = q;
+			handleInput();
+		}
+	});
 
 	function hasChinese(text: string): boolean {
 		return [...text].some((ch) => {

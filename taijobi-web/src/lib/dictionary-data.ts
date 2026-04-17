@@ -344,7 +344,8 @@ export async function uninstallDictionary(kind: 'zh' | 'en' | 'de'): Promise<voi
 	else unloadDedict();
 
 	if (!opfsAvailable()) return;
-	const files = kind === 'zh' ? CHINESE_FILES.map((f) => f.key) : [kind === 'en' ? 'endict' : 'dedict'];
+	const files =
+		kind === 'zh' ? CHINESE_FILES.map((f) => f.key) : [kind === 'en' ? 'endict' : 'dedict'];
 	try {
 		const root = await navigator.storage.getDirectory();
 		const dir = await root.getDirectoryHandle(OPFS_DIR);

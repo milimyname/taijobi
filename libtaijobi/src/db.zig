@@ -404,7 +404,7 @@ pub const Db = struct {
 
         var stmt: ?*sqlite.sqlite3_stmt = null;
         const sql =
-            \\SELECT c.id, c.word, c.language, c.pinyin, c.translation, c.source_type, c.pack_id
+            \\SELECT c.id, c.word, c.language, c.pinyin, c.translation, c.source_type, c.pack_id, c.context
             \\FROM cards c
             \\WHERE COALESCE(c.deleted, 0) = 0
             \\  AND (c.word LIKE ?1 OR c.translation LIKE ?1 OR c.pinyin LIKE ?1 OR c.context LIKE ?1)
@@ -467,6 +467,90 @@ pub const Db = struct {
             if (sqlite.sqlite3_column_text(stmt.?, 6)) |pk| {
                 const pklen: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 6));
                 w.writeJsonString(pk[0..pklen]);
+            } else {
+                w.writeNull();
+            }
+            w.writeByte(',');
+            w.writeKey("context");
+            if (sqlite.sqlite3_column_text(stmt.?, 7)) |ctx| {
+                const ctxlen: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 7));
+                w.writeJsonString(ctx[0..ctxlen]);
+            } else {
+                w.writeNull();
+            }
+            w.writeByte('}');
+        }
+        w.writeByte(']');
+        return w.written();
+    }
+
+    /// Return the most recently reviewed card as a single JSON object,
+    /// or an empty array `[]` if no reviews exist. Returning an array
+    /// keeps the result shape uniform with searchCards — callers treat
+    /// it like "the 1-item result of a search". Null-safe pinyin /
+    /// translation / pack_id / context fields to match CardSearchResult.
+    pub fn getLastReviewedCard(self: *Db, buf: []u8) ?[]const u8 {
+        var stmt: ?*sqlite.sqlite3_stmt = null;
+        const sql =
+            \\SELECT c.id, c.word, c.language, c.pinyin, c.translation, c.source_type, c.pack_id, c.context
+            \\FROM cards c
+            \\JOIN review_log rl ON rl.card_id = c.id
+            \\WHERE COALESCE(c.deleted, 0) = 0
+            \\ORDER BY rl.review_date DESC
+            \\LIMIT 1
+        ;
+        if (sqlite.sqlite3_prepare_v2(self.handle, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK) return null;
+        defer _ = sqlite.sqlite3_finalize(stmt.?);
+
+        var w = JsonWriter.init(buf);
+        w.writeByte('[');
+        if (sqlite.sqlite3_step(stmt.?) == sqlite.SQLITE_ROW) {
+            const id = colText(stmt.?, 0);
+            const word = colText(stmt.?, 1);
+            const language = colText(stmt.?, 2);
+            const source = colText(stmt.?, 5);
+
+            w.writeByte('{');
+            w.writeKey("id");
+            w.writeJsonString(id);
+            w.writeByte(',');
+            w.writeKey("word");
+            w.writeJsonString(word);
+            w.writeByte(',');
+            w.writeKey("language");
+            w.writeJsonString(language);
+            w.writeByte(',');
+            w.writeKey("pinyin");
+            if (sqlite.sqlite3_column_text(stmt.?, 3)) |p| {
+                const plen: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 3));
+                w.writeJsonString(p[0..plen]);
+            } else {
+                w.writeNull();
+            }
+            w.writeByte(',');
+            w.writeKey("translation");
+            if (sqlite.sqlite3_column_text(stmt.?, 4)) |t| {
+                const tlen: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 4));
+                w.writeJsonString(t[0..tlen]);
+            } else {
+                w.writeNull();
+            }
+            w.writeByte(',');
+            w.writeKey("source_type");
+            w.writeJsonString(source);
+            w.writeByte(',');
+            w.writeKey("pack_id");
+            if (sqlite.sqlite3_column_text(stmt.?, 6)) |pk| {
+                const pklen: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 6));
+                w.writeJsonString(pk[0..pklen]);
+            } else {
+                w.writeNull();
+            }
+            w.writeByte(',');
+            w.writeKey("context");
+            if (sqlite.sqlite3_column_text(stmt.?, 7)) |ctx| {
+                const ctxlen: usize = @intCast(sqlite.sqlite3_column_bytes(stmt.?, 7));
+                w.writeJsonString(ctx[0..ctxlen]);
             } else {
                 w.writeNull();
             }

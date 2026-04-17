@@ -21,25 +21,19 @@
 		exportCsv,
 		type Pack,
 	} from '$lib/wasm';
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
+	import { page } from '$app/state';
 	import { toastStore } from '$lib/toast.svelte';
 	import { data } from '$lib/data.svelte';
 	import { downloadStore, type DownloadKey } from '$lib/download-state.svelte';
 	import { uninstallDictionary } from '$lib/dictionary-data';
-
-	type CatalogKind = 'content' | 'dictionary';
-	type CatalogTag = 'official' | 'community' | 'personal' | string;
-
-	interface CatalogEntry {
-		id: string;
-		kind: CatalogKind;
-		tag: CatalogTag;
-		name: string;
-		language_pair: string;
-		description: string;
-		word_count?: number;
-		size_mb?: number;
-	}
+	import {
+		catalogStore,
+		tagLabel,
+		tagBadgeClass,
+		type CatalogEntry,
+		type CatalogKind
+	} from '$lib/catalog-store.svelte';
 
 	interface CsvPreview {
 		filename: string;
@@ -50,86 +44,38 @@
 	}
 
 	let installed: Pack[] = $derived(data.packs());
-	let catalog: CatalogEntry[] = $state([]);
+	let catalog = $derived(catalogStore.entries);
 	let loading = $state('');
 	let csvPreview: CsvPreview | null = $state(null);
 	let importing = $state(false);
 	let dragging = $state(false);
 	let searchQuery = $state('');
 	let kindFilter = $state<'all' | CatalogKind>('all');
+	let highlightedId = $state<string | null>(null);
 
 	let zhLoaded = $derived(data.chineseDataLoaded());
 	let enLoaded = $derived(data.endictLoaded());
 	let deLoaded = $derived(data.dedictLoaded());
 
-	// Built-in dictionaries — defined in-code so they appear even if
-	// catalog.json is stale (service-worker cache serving pre-refactor JSON
-	// that doesn't list dict-* entries). These merge with catalog.json on
-	// load; catalog-version wins if the id matches.
-	const BUILTIN_DICTIONARIES: CatalogEntry[] = [
-		{
-			id: 'dict-zh',
-			kind: 'dictionary',
-			tag: 'official',
-			name: 'Chinesisches Wörterbuch',
-			language_pair: 'zh',
-			size_mb: 8,
-			description: 'CC-CEDICT, Strichfolge und Zeichenzerlegung',
-		},
-		{
-			id: 'dict-en',
-			kind: 'dictionary',
-			tag: 'official',
-			name: 'Englisches Wörterbuch',
-			language_pair: 'en',
-			size_mb: 7,
-			description: 'Wiktionary-Definitionen (Englisch)',
-		},
-		{
-			id: 'dict-de',
-			kind: 'dictionary',
-			tag: 'official',
-			name: 'Deutsches Wörterbuch',
-			language_pair: 'de',
-			size_mb: 2,
-			description: 'Wiktionary-Definitionen (Deutsch)',
-		},
-	];
-
-	// Normalize catalog entries — defends against stale service-worker cache
-	// serving pre-refactor catalog.json that lacks kind/tag fields. Any entry
-	// without kind is treated as a content pack, any without tag as official.
-	function normalizeEntry(raw: Partial<CatalogEntry> & { id: string; name: string }): CatalogEntry {
-		return {
-			id: raw.id,
-			kind: raw.kind ?? 'content',
-			tag: raw.tag ?? 'official',
-			name: raw.name,
-			language_pair: raw.language_pair ?? '',
-			description: raw.description ?? '',
-			word_count: raw.word_count,
-			size_mb: raw.size_mb,
-		};
-	}
-
 	onMount(async () => {
-		// Seed with built-in dictionaries so the UI has them even if the
-		// catalog fetch fails or serves a stale payload.
-		catalog = [...BUILTIN_DICTIONARIES];
-		try {
-			const res = await fetch('/packs/catalog.json', { cache: 'no-cache' });
-			const raw = (await res.json()) as Partial<CatalogEntry>[];
-			const fromCatalog = raw
-				.filter((e): e is Partial<CatalogEntry> & { id: string; name: string } =>
-					typeof e.id === 'string' && typeof e.name === 'string',
-				)
-				.map(normalizeEntry);
-			// Merge: catalog entries override built-ins by id.
-			const catalogIds = new Set(fromCatalog.map((e) => e.id));
-			const missingBuiltins = BUILTIN_DICTIONARIES.filter((b) => !catalogIds.has(b.id));
-			catalog = [...missingBuiltins, ...fromCatalog];
-		} catch {
-			console.error('Failed to load pack catalog');
+		// Honor `?kind=dictionary` or `?kind=content` deep-link from ⌘K /
+		// other entry points — preselects the filter chip.
+		const kindParam = page.url.searchParams.get('kind');
+		if (kindParam === 'dictionary' || kindParam === 'content') {
+			kindFilter = kindParam;
+		}
+
+		await catalogStore.ensureLoaded();
+		// Honor ⌘K deep-link `#pack-{id}` — scroll to + briefly highlight
+		// the target row once rendered.
+		await tick();
+		const hash = location.hash;
+		if (hash.startsWith('#pack-')) {
+			const id = decodeURIComponent(hash.slice('#pack-'.length));
+			highlightedId = id;
+			const el = document.getElementById(`pack-${id}`);
+			if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+			setTimeout(() => (highlightedId = null), 1500);
 		}
 	});
 
@@ -143,21 +89,6 @@
 	function isInstalled(entry: CatalogEntry): boolean {
 		if (entry.kind === 'dictionary') return isDictInstalled(entry.id);
 		return installed.some((p) => p.id === entry.id);
-	}
-
-	function tagLabel(tag: CatalogTag): string {
-		if (tag === 'official') return 'Offiziell';
-		if (tag === 'community') return 'Community';
-		if (tag === 'personal') return 'Persönlich';
-		return tag;
-	}
-
-	function tagBadgeClass(tag: CatalogTag): string {
-		if (tag === 'official')
-			return 'bg-primary/10 text-primary dark:bg-primary/20';
-		if (tag === 'community')
-			return 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300';
-		return 'bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-300';
 	}
 
 	// ----- filtering + grouping -----
@@ -410,7 +341,10 @@
 					{#each group.entries as entry (entry.id)}
 						{@const pack = installed.find((p) => p.id === entry.id)}
 						<div
-							class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm dark:border-white/5 dark:bg-white/5"
+							id="pack-{entry.id}"
+							class="rounded-2xl border bg-white p-4 shadow-sm transition-colors dark:bg-white/5 {highlightedId === entry.id
+								? 'border-primary ring-2 ring-primary/30'
+								: 'border-slate-100 dark:border-white/5'}"
 						>
 							<div class="mb-3 flex items-start gap-4">
 								<div class="flex size-16 shrink-0 items-center justify-center rounded-lg bg-primary/10">
@@ -485,7 +419,10 @@
 						{@const isDict = entry.kind === 'dictionary'}
 						{@const downloadingThis = isDict && downloadStore.active === entry.language_pair}
 						<div
-							class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm dark:border-white/5 dark:bg-white/5"
+							id="pack-{entry.id}"
+							class="rounded-2xl border bg-white p-4 shadow-sm transition-colors dark:bg-white/5 {highlightedId === entry.id
+								? 'border-primary ring-2 ring-primary/30'
+								: 'border-slate-100 dark:border-white/5'}"
 						>
 							<div class="mb-3 flex items-start gap-4">
 								<div class="flex size-16 shrink-0 items-center justify-center rounded-lg bg-primary/5">

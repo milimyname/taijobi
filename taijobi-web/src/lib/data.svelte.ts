@@ -18,10 +18,12 @@ import {
 	getVocabulary,
 	getPackProgress,
 	getStats,
+	getLastReviewedCard,
 	isChineseDataLoaded,
 	isEndictLoaded,
 	isDedictLoaded,
 	type Card,
+	type CardSearchResult,
 	type ReadCard,
 	type LexiconEntry,
 	type DrillStats,
@@ -112,6 +114,11 @@ class DataStore {
 	stats(days: number = 30): StatsData {
 		this.#v;
 		return getStats(days);
+	}
+
+	lastReviewedCard(): CardSearchResult | null {
+		this.#v;
+		return getLastReviewedCard();
 	}
 
 	chineseDataLoaded(): boolean {
