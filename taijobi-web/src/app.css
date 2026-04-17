@@ -20,7 +20,9 @@ html.dark body {
    effective size stays at 16px on touch devices — the viewport stays put
    when the keyboard opens. Desktop unaffected. */
 @media (hover: none) and (pointer: coarse) {
-	input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']):not([type='color']),
+	input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']):not(
+			[type='color']
+		),
 	textarea,
 	select {
 		font-size: 16px !important;
