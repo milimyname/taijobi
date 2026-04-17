@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.6.2 (2026-04-17)
+
+- docs: add per-platform notification troubleshooting FAQ
+- fix(sync): ECDH public key property + push-cron error logging
+- docs: Phase 6.6 streak banner + Web Push — CLAUDE.md, decisions, phases
+- feat(sync): PushSubs DO + VAPID push delivery + cron handler (Phase 6.6 commit 4)
+- feat: push notification settings toggle + heartbeat wiring (Phase 6.6 commit 3)
+- feat: VAPID public key + SW push/click handlers + push store (Phase 6.6 commit 2)
+- feat: streak-in-danger banner on /home (Phase 6.6 commit 1)
+
 ## v0.6.1 (2026-04-16)
 
 - fix(sync): use new_sqlite_classes for McpSession migration
