@@ -376,7 +376,7 @@ pub fn getLessons(db: *sqlite.sqlite3, pack_id: []const u8, buf: []u8) ?[]const 
 }
 
 /// Get vocabulary for a lesson as JSON array.
-pub fn getVocabulary(db: *sqlite.sqlite3, lesson_id: []const u8, buf: []u8) ?[]const u8 {
+pub fn getVocabulary(db: *sqlite.sqlite3, lesson_id: []const u8, offset: u32, limit: u32, buf: []u8) ?[]const u8 {
     var stmt: ?*sqlite.sqlite3_stmt = null;
     const sql =
         \\SELECT c.id, c.word, c.pinyin, c.translation,
@@ -385,12 +385,14 @@ pub fn getVocabulary(db: *sqlite.sqlite3, lesson_id: []const u8, buf: []u8) ?[]c
         \\LEFT JOIN fsrs_state f ON f.card_id = c.id
         \\WHERE c.lesson_id = ? AND COALESCE(c.deleted, 0) = 0
         \\ORDER BY c.created_at
-        \\LIMIT 200
+        \\LIMIT ?2 OFFSET ?3
     ;
     if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK)
         return null;
     defer _ = sqlite.sqlite3_finalize(stmt.?);
     bindText(stmt.?, 1, lesson_id);
+    _ = sqlite.sqlite3_bind_int(stmt.?, 2, @intCast(limit));
+    _ = sqlite.sqlite3_bind_int(stmt.?, 3, @intCast(offset));
 
     var w = JsonWriter.init(buf);
     w.writeByte('[');
@@ -579,7 +581,7 @@ test "install and query pack" {
     try std.testing.expect(std.mem.indexOf(u8, lessons_json, "Lesson 1") != null);
 
     // Check vocabulary
-    const vocab_json = getVocabulary(db.handle, "test-l1", &buf) orelse return error.TestUnexpectedResult;
+    const vocab_json = getVocabulary(db.handle, "test-l1", 0, 200, &buf) orelse return error.TestUnexpectedResult;
     try std.testing.expect(std.mem.indexOf(u8, vocab_json, "nǐ hǎo") != null);
 
     // Check progress

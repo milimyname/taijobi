@@ -515,10 +515,11 @@ export fn hanzi_get_lessons(pack_id_ptr: [*]const u8, pack_id_len: usize) ?[*]co
     return makeLengthPrefixed(json);
 }
 
-export fn hanzi_get_vocabulary(lesson_id_ptr: [*]const u8, lesson_id_len: usize) ?[*]const u8 {
+export fn hanzi_get_vocabulary(lesson_id_ptr: [*]const u8, lesson_id_len: usize, offset: u32, limit: u32) ?[*]const u8 {
     const db = &(global_db orelse return null);
     const lesson_id = lesson_id_ptr[0..lesson_id_len];
-    const json = curriculum.getVocabulary(db.handle, lesson_id, &json_buf) orelse return null;
+    const effective_limit: u32 = if (limit == 0 or limit > 500) 200 else limit;
+    const json = curriculum.getVocabulary(db.handle, lesson_id, offset, effective_limit, &json_buf) orelse return null;
     return makeLengthPrefixed(json);
 }
 
@@ -580,6 +581,14 @@ export fn hanzi_get_unread_count(filter_ptr: [*]const u8, filter_len: usize) i32
 export fn hanzi_decompose(char_ptr: [*]const u8, char_len: usize) ?[*]const u8 {
     const query = char_ptr[0..char_len];
     const json = decompose.decomposeToJson(query, &json_buf) orelse return null;
+    return makeLengthPrefixed(json);
+}
+
+/// List every character in the loaded decomp.bin as compact JSON
+/// `[{c, p}]`. ~9500 entries, ~300KB payload. Fuels the /characters
+/// "Alle Zeichen" browse grid when the Chinese dict is installed.
+export fn hanzi_list_decomp_chars() ?[*]const u8 {
+    const json = decompose.listChars(&json_buf) orelse return null;
     return makeLengthPrefixed(json);
 }
 

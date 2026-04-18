@@ -28,7 +28,7 @@ export const BUILTIN_DICTIONARIES: CatalogEntry[] = [
 		tag: 'official',
 		name: 'Chinesisches Wörterbuch',
 		language_pair: 'zh',
-		size_mb: 8,
+		size_mb: 19,
 		description: 'CC-CEDICT, Strichfolge und Zeichenzerlegung'
 	},
 	{
@@ -37,7 +37,7 @@ export const BUILTIN_DICTIONARIES: CatalogEntry[] = [
 		tag: 'official',
 		name: 'Englisches Wörterbuch',
 		language_pair: 'en',
-		size_mb: 7,
+		size_mb: 19,
 		description: 'Wiktionary-Definitionen (Englisch)'
 	},
 	{
@@ -46,7 +46,7 @@ export const BUILTIN_DICTIONARIES: CatalogEntry[] = [
 		tag: 'official',
 		name: 'Deutsches Wörterbuch',
 		language_pair: 'de',
-		size_mb: 2,
+		size_mb: 5,
 		description: 'Wiktionary-Definitionen (Deutsch)'
 	}
 ];

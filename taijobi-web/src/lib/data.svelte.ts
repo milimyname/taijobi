@@ -101,9 +101,9 @@ class DataStore {
 		return getLessons(packId);
 	}
 
-	vocabulary(lessonId: string): VocabEntry[] {
+	vocabulary(lessonId: string, offset = 0, limit = 200): VocabEntry[] {
 		this.#v;
-		return getVocabulary(lessonId);
+		return getVocabulary(lessonId, offset, limit);
 	}
 
 	packProgress(packId: string): PackProgress {

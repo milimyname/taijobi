@@ -442,7 +442,7 @@
 									<p class="text-sm text-slate-500 dark:text-slate-400">{entry.description}</p>
 									<p class="text-xs text-slate-400 dark:text-slate-500">
 										{#if isDict}
-											~{entry.size_mb} MB komprimiert
+											~{entry.size_mb} MB
 										{:else}
 											{entry.word_count ?? 0} W&ouml;rter
 										{/if}

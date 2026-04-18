@@ -93,9 +93,10 @@ interface WasmExports {
 	hanzi_get_packs: () => number;
 	hanzi_remove_pack: (id: number, len: number) => number;
 	hanzi_get_lessons: (packId: number, len: number) => number;
-	hanzi_get_vocabulary: (lessonId: number, len: number) => number;
+	hanzi_get_vocabulary: (lessonId: number, len: number, offset: number, limit: number) => number;
 	hanzi_get_progress: (packId: number, len: number) => number;
 	hanzi_decompose: (ch: number, len: number) => number;
+	hanzi_list_decomp_chars: () => number;
 	hanzi_get_strokes: (ch: number, len: number) => number;
 	hanzi_restore_pack: (id: number, len: number) => number;
 	hanzi_mark_read: (id: number, len: number) => number;
@@ -999,12 +1000,12 @@ export function getLessons(packId: string): Lesson[] {
 	}
 }
 
-export function getVocabulary(lessonId: string): VocabEntry[] {
+export function getVocabulary(lessonId: string, offset = 0, limit = 200): VocabEntry[] {
 	if (!wasm) return [];
 	wasm.hanzi_reset_alloc();
 	const encoded = new TextEncoder().encode(lessonId);
 	const ptr = writeBytes(encoded);
-	const resultPtr = wasm.hanzi_get_vocabulary(ptr, encoded.length);
+	const resultPtr = wasm.hanzi_get_vocabulary(ptr, encoded.length, offset, limit);
 	if (resultPtr === 0) return [];
 	const json = readLengthPrefixedString(resultPtr);
 	try {
@@ -1067,6 +1068,26 @@ export function decompose(char: string): DecompResult | null {
 		return JSON.parse(json);
 	} catch {
 		return null;
+	}
+}
+
+export interface DecompCharEntry {
+	c: string;
+	p: string;
+}
+
+/** List every character in decomp.bin as compact {c, p} entries. Returns
+ *  an empty array when the Chinese dictionary isn't installed. */
+export function listDecompChars(): DecompCharEntry[] {
+	if (!wasm || typeof wasm.hanzi_list_decomp_chars !== 'function') return [];
+	const resultPtr = wasm.hanzi_list_decomp_chars();
+	if (resultPtr === 0) return [];
+	const json = readLengthPrefixedString(resultPtr);
+	try {
+		return JSON.parse(json);
+	} catch (e) {
+		console.error('[taijobi] Failed to parse listDecompChars JSON', e, json.slice(0, 200));
+		return [];
 	}
 }
 

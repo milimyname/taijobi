@@ -16,11 +16,15 @@
 	import { page } from '$app/state';
 	import { tick } from 'svelte';
 
+	const PAGE_SIZE = 200;
+
 	let packId = $derived(page.params.packId ?? '');
 	let lessons: Lesson[] = $state([]);
 	let progress = $state({ total: 0, reviewed: 0, mastered: 0 });
 	let expandedLesson = $state<string | null>(null);
 	let vocabulary: VocabEntry[] = $state([]);
+	let loadingMore = $state(false);
+	let sentinel = $state<HTMLElement | undefined>();
 	let packName = $state('');
 	let isChinese = $state(false);
 	let isArabic = $state(false);
@@ -28,6 +32,22 @@
 	let highlightedCardId = $state<string | null>(null);
 	let focusedCard = $state<CardSearchResult | null>(null);
 	let deepLinkHandled = $state(false);
+
+	let expandedLessonTotal = $derived(
+		expandedLesson ? (lessons.find((l) => l.id === expandedLesson)?.total ?? 0) : 0
+	);
+	let hasMore = $derived(expandedLesson !== null && vocabulary.length < expandedLessonTotal);
+
+	function loadMore(): void {
+		if (!expandedLesson || loadingMore || !hasMore) return;
+		loadingMore = true;
+		try {
+			const next = getVocabulary(expandedLesson, vocabulary.length, PAGE_SIZE);
+			if (next.length > 0) vocabulary = [...vocabulary, ...next];
+		} finally {
+			loadingMore = false;
+		}
+	}
 
 	function refresh() {
 		if (!packId) return;
@@ -60,7 +80,7 @@
 		const lesson = lessons.find((l) => l.id === lessonParam);
 		if (!lesson) return;
 		expandedLesson = lessonParam;
-		vocabulary = getVocabulary(lessonParam);
+		vocabulary = getVocabulary(lessonParam, 0, PAGE_SIZE);
 		if (cardParam) {
 			highlightedCardId = cardParam;
 			void tick().then(() => {
@@ -87,9 +107,24 @@
 			vocabulary = [];
 		} else {
 			expandedLesson = lessonId;
-			vocabulary = getVocabulary(lessonId);
+			vocabulary = getVocabulary(lessonId, 0, PAGE_SIZE);
 		}
 	}
+
+	// IntersectionObserver on the bottom sentinel — bumps the vocabulary
+	// page as the user scrolls. Re-attaches when the expanded lesson or
+	// sentinel element changes.
+	$effect(() => {
+		if (!sentinel || !hasMore) return;
+		const io = new IntersectionObserver(
+			(entries) => {
+				if (entries.some((e) => e.isIntersecting)) loadMore();
+			},
+			{ rootMargin: '400px 0px' }
+		);
+		io.observe(sentinel);
+		return () => io.disconnect();
+	});
 
 	function progressPercent(mastered: number, total: number): number {
 		if (total === 0) return 0;
@@ -249,9 +284,21 @@
 						</table>
 					</div>
 
-					{#if vocabulary.length >= 200}
+					{#if hasMore}
+						<div
+							bind:this={sentinel}
+							class="mt-3 flex items-center justify-center gap-2 py-4 text-xs text-slate-400 dark:text-slate-500"
+						>
+							{#if loadingMore}
+								<span class="size-1.5 animate-pulse rounded-full bg-primary"></span>
+								Lädt weitere Wörter…
+							{:else}
+								{vocabulary.length} / {lesson.total}
+							{/if}
+						</div>
+					{:else if vocabulary.length >= PAGE_SIZE}
 						<p class="mt-2 text-center text-xs text-slate-400 dark:text-slate-500">
-							Erste 200 von {lesson.total} Wörtern
+							Alle {lesson.total} Wörter geladen
 						</p>
 					{/if}
 

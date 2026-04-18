@@ -101,6 +101,32 @@ fn getCharacter(count: u32, index: u32) []const u8 {
     return entry.character;
 }
 
+/// Emit a compact `[{c, p}]` JSON array listing every character in the
+/// loaded decomp.bin. Used by /characters "Alle Zeichen" to give users
+/// a browsable ~9.5k-entry grid after installing the Chinese dict.
+/// Definition is omitted — shows on click via /character/{char}.
+pub fn listChars(buf: []u8) ?[]const u8 {
+    const count = getCount();
+    var w = JsonWriter.init(buf);
+    w.writeByte('[');
+    var i: u32 = 0;
+    var first = true;
+    while (i < count) : (i += 1) {
+        const entry = readEntry(count, i) orelse break;
+        if (!first) w.writeByte(',');
+        first = false;
+        w.writeByte('{');
+        w.writeKey("c");
+        w.writeJsonString(entry.character);
+        w.writeByte(',');
+        w.writeKey("p");
+        w.writeJsonString(entry.pinyin);
+        w.writeByte('}');
+    }
+    w.writeByte(']');
+    return w.written();
+}
+
 /// Binary search for exact match by character.
 pub fn lookup(query: []const u8) ?DecompEntry {
     const count = getCount();

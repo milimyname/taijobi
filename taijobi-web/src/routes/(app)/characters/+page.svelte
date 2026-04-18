@@ -1,9 +1,18 @@
 <script lang="ts">
 	import Search from '$lib/icons/Search.svelte';
 	import Translate from '$lib/icons/Translate.svelte';
-	import { getLexicon, getPacks, getLessons, getVocabulary, type VocabEntry, type LexiconEntry } from '$lib/wasm';
+	import {
+		getLexicon,
+		getPacks,
+		getLessons,
+		getVocabulary,
+		listDecompChars
+	} from '$lib/wasm';
+	import { data } from '$lib/data.svelte';
 
-	let filter = $state<'all' | 'lexicon' | string>('all');
+	type FilterKey = 'all' | 'lexicon' | 'decomp' | string;
+
+	let filter = $state<FilterKey>('all');
 	let search = $state('');
 
 	interface CharInfo {
@@ -13,24 +22,18 @@
 		source: string;
 	}
 
-	// Collect all unique Chinese characters from lexicon + packs
-	function collectCharacters(): CharInfo[] {
+	// Lexicon + pack characters — the user's content.
+	function collectUserChars(): CharInfo[] {
 		const seen = new Map<string, CharInfo>();
 
-		// From lexicon
-		const lexicon = getLexicon();
-		for (const entry of lexicon) {
+		for (const entry of getLexicon()) {
 			if (entry.language !== 'zh') continue;
 			addChars(seen, entry.word, entry.pinyin, entry.translation, 'lexicon');
 		}
 
-		// From installed packs
-		const packs = getPacks();
-		for (const pack of packs) {
-			const lessons = getLessons(pack.id);
-			for (const lesson of lessons) {
-				const vocab = getVocabulary(lesson.id);
-				for (const word of vocab) {
+		for (const pack of getPacks()) {
+			for (const lesson of getLessons(pack.id)) {
+				for (const word of getVocabulary(lesson.id)) {
 					addChars(seen, word.word, word.pinyin, word.translation, pack.id);
 				}
 			}
@@ -44,7 +47,7 @@
 		word: string,
 		pinyin: string | null,
 		translation: string | null,
-		source: string,
+		source: string
 	) {
 		for (const ch of word) {
 			const code = ch.codePointAt(0) ?? 0;
@@ -56,17 +59,41 @@
 		}
 	}
 
-	let allChars = $state<CharInfo[]>([]);
+	let userChars = $state<CharInfo[]>([]);
+	let decompChars = $state<CharInfo[]>([]);
 
+	// Rebuild user chars on every data change (bump-driven reactivity).
 	$effect(() => {
-		allChars = collectCharacters();
+		data.version();
+		userChars = collectUserChars();
 	});
 
-	let filtered = $derived.by(() => {
+	let chineseDataLoaded = $derived(data.chineseDataLoaded());
+
+	// Lazy-load the ~9500-char decomp set only when the user picks that filter
+	// (or searches for something while the decomp set is a plausible match).
+	// The JSON parse for 9500 entries runs on the main thread; keep it off the
+	// dashboard by default.
+	$effect(() => {
+		if (filter !== 'decomp') return;
+		if (!chineseDataLoaded) return;
+		if (decompChars.length > 0) return;
+		const raw = listDecompChars();
+		decompChars = raw.map((e) => ({
+			char: e.c,
+			pinyin: e.p || null,
+			translation: null,
+			source: 'decomp'
+		}));
+	});
+
+	const allChars = $derived(filter === 'decomp' ? decompChars : userChars);
+
+	const filtered = $derived.by(() => {
 		let chars = allChars;
 		if (filter === 'lexicon') {
 			chars = chars.filter((c) => c.source === 'lexicon');
-		} else if (filter !== 'all') {
+		} else if (filter !== 'all' && filter !== 'decomp') {
 			chars = chars.filter((c) => c.source === filter);
 		}
 		if (search.trim()) {
@@ -75,13 +102,13 @@
 				(c) =>
 					c.char.includes(q) ||
 					(c.pinyin && c.pinyin.toLowerCase().includes(q)) ||
-					(c.translation && c.translation.toLowerCase().includes(q)),
+					(c.translation && c.translation.toLowerCase().includes(q))
 			);
 		}
 		return chars;
 	});
 
-	let packs = $derived(getPacks());
+	const packs = $derived(data.packs());
 </script>
 
 <!-- Search -->
@@ -100,33 +127,47 @@
 </section>
 
 <!-- Filter Chips -->
-<section class="mt-3 flex gap-2 overflow-x-auto no-scrollbar">
+<section class="no-scrollbar mt-3 flex gap-2 overflow-x-auto">
 	<button
 		onclick={() => (filter = 'all')}
-		class="flex h-9 shrink-0 items-center rounded-full px-5 text-sm font-semibold transition-colors {filter === 'all'
+		class="flex h-9 shrink-0 items-center rounded-full px-5 text-sm font-semibold transition-colors {filter ===
+		'all'
 			? 'bg-primary text-white'
-			: 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300'}"
+			: 'bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-300'}"
 	>
-		Alle ({allChars.length})
+		Alle ({userChars.length})
 	</button>
 	<button
 		onclick={() => (filter = 'lexicon')}
-		class="flex h-9 shrink-0 items-center rounded-full px-5 text-sm font-medium transition-colors {filter === 'lexicon'
+		class="flex h-9 shrink-0 items-center rounded-full px-5 text-sm font-medium transition-colors {filter ===
+		'lexicon'
 			? 'bg-primary text-white'
-			: 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300'}"
+			: 'bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-300'}"
 	>
 		Lexikon
 	</button>
 	{#each packs as pack (pack.id)}
 		<button
 			onclick={() => (filter = pack.id)}
-			class="flex h-9 shrink-0 items-center rounded-full px-5 text-sm font-medium transition-colors {filter === pack.id
+			class="flex h-9 shrink-0 items-center rounded-full px-5 text-sm font-medium transition-colors {filter ===
+			pack.id
 				? 'bg-primary text-white'
-				: 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300'}"
+				: 'bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-300'}"
 		>
 			{pack.name}
 		</button>
 	{/each}
+	{#if chineseDataLoaded}
+		<button
+			onclick={() => (filter = 'decomp')}
+			class="flex h-9 shrink-0 items-center rounded-full px-5 text-sm font-medium transition-colors {filter ===
+			'decomp'
+				? 'bg-primary text-white'
+				: 'bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-300'}"
+		>
+			Alle Zeichen
+		</button>
+	{/if}
 </section>
 
 <!-- Character Grid -->
@@ -135,26 +176,30 @@
 		{filtered.length} Zeichen
 	</h3>
 	{#if filtered.length === 0}
-		<div class="rounded-2xl border border-slate-100 dark:border-white/5 bg-white dark:bg-white/5 p-8 text-center shadow-sm">
+		<div
+			class="rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-white/5"
+		>
 			<Translate class="mb-2 text-[32px] text-slate-300 dark:text-slate-500" />
-			{#if allChars.length === 0}
+			{#if filter === 'decomp'}
+				<p class="text-sm text-slate-500 dark:text-slate-400">Lädt Zeichen-Datenbank…</p>
+			{:else if allChars.length === 0}
 				<p class="text-sm font-medium text-slate-700 dark:text-slate-200">Noch keine Zeichen.</p>
 				<p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
-					Diese Seite zeigt Zeichen aus <b>Lehrbuch-Paketen</b> und deinem <b>Lexikon</b>.
-					Das Chinesisch-Wörterbuch (CEDICT) liefert nur Definitionen — keine browsbare Zeichenliste.
+					Diese Seite zeigt Zeichen aus <b>Lehrbuch-Paketen</b> und deinem <b>Lexikon</b>. Für die
+					komplette Zeichen-Datenbank (9.500) installiere das chinesische Wörterbuch.
 				</p>
 				<div class="mt-4 flex flex-col items-center gap-2 sm:flex-row sm:justify-center">
 					<a
-						href="/packs"
+						href="/packs?kind=dictionary"
 						class="inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-primary/90"
 					>
-						HSK-Paket installieren
+						Wörterbuch installieren
 					</a>
 					<a
-						href="/lexicon"
+						href="/packs"
 						class="inline-flex items-center justify-center rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-white/10"
 					>
-						Wort zum Lexikon hinzufügen
+						HSK-Paket installieren
 					</a>
 				</div>
 			{:else}
@@ -166,9 +211,13 @@
 			{#each filtered as info (info.char)}
 				<a
 					href="/character/{encodeURIComponent(info.char)}"
-					class="flex flex-col items-center rounded-xl border border-slate-100 dark:border-white/5 bg-white dark:bg-white/5 p-3 shadow-sm transition-colors hover:border-primary/20 hover:bg-primary/5"
+					style="content-visibility: auto; contain-intrinsic-size: 4rem 4rem;"
+					class="flex flex-col items-center rounded-xl border border-slate-100 bg-white p-3 shadow-sm transition-colors hover:border-primary/20 hover:bg-primary/5 dark:border-white/5 dark:bg-white/5"
 				>
 					<span class="chinese-char text-3xl text-slate-900 dark:text-slate-100">{info.char}</span>
+					{#if info.pinyin}
+						<span class="mt-1 text-[10px] text-primary/70">{info.pinyin}</span>
+					{/if}
 				</a>
 			{/each}
 		</div>
