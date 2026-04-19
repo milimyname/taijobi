@@ -22,7 +22,12 @@ export interface ToolDefinition {
  * Tools that mutate state — the session pushes the resulting encrypted
  * changes back to SyncRoom via state.waitUntil after the handler runs.
  */
-export const WRITE_TOOL_NAMES = new Set(["add_word", "import_kindle_clippings", "review_card"]);
+export const WRITE_TOOL_NAMES = new Set([
+  "add_word",
+  "import_kindle_clippings",
+  "review_card",
+  "install_pack",
+]);
 
 /** Stringify a tool result as compact JSON for the MCP text response. */
 function ok<T>(value: T): { text: string } {
@@ -186,6 +191,117 @@ export function getToolDefinitions(): ToolDefinition[] {
         if (rating < 1 || rating > 4) throw new Error("rating must be 1..4");
         wasm.reviewCard(id, rating);
         return ok({ reviewed: id, rating });
+      },
+    },
+
+    {
+      name: "install_pack",
+      description:
+        "Install a content pack into the user's library. Use this when the user wants to turn structured vocabulary (e.g. OCR'd from a textbook photo, extracted from a PDF, or pasted as a list) into a proper pack — NOT individual lexicon entries. Common case: pass `vocabulary` directly (one lesson). Multi-lesson case (e.g. a whole textbook): pass `lessons` with an array. Creates SQLite pack + lessons + cards in one transaction. Per-card language is auto-detected from the word's script, so Chinese / Arabic / German / English packs all tag correctly. The pack appears in /packs under 'Eigene' (tag='personal') and syncs privately to the user's other devices via their sync key.",
+      schema: {
+        name: z
+          .string()
+          .min(1)
+          .max(120)
+          .describe("Human-readable pack name shown in /packs (e.g. 'Long neu Kapitel 3')"),
+        vocabulary: z
+          .array(
+            z.object({
+              word: z.string().min(1).describe("The word / character / phrase"),
+              pinyin: z.string().optional().describe("Pinyin (for Chinese)"),
+              translation: z.string().optional().describe("Translation / gloss"),
+            }),
+          )
+          .optional()
+          .describe(
+            "Flat vocabulary list for a single-lesson pack. Use this for the common case (a chapter, an image, a quick list). Mutually exclusive with `lessons`.",
+          ),
+        lessons: z
+          .array(
+            z.object({
+              title: z.string().optional().describe("Lesson title"),
+              vocabulary: z
+                .array(
+                  z.object({
+                    word: z.string().min(1),
+                    pinyin: z.string().optional(),
+                    translation: z.string().optional(),
+                  }),
+                )
+                .min(1),
+            }),
+          )
+          .optional()
+          .describe(
+            "Multi-lesson pack structure. Only use when the user's content is naturally sub-divided (e.g. a whole textbook with multiple chapters). Otherwise use `vocabulary`.",
+          ),
+        id: z
+          .string()
+          .optional()
+          .describe("Optional stable pack id. Auto-generated from timestamp if omitted."),
+        language_pair: z
+          .string()
+          .optional()
+          .describe(
+            "Optional metadata hint (e.g. 'zh-en', 'ar-en'). Per-card language is auto-detected regardless.",
+          ),
+      },
+      handler: (args, wasm) => {
+        const name = String(args.name ?? "").trim();
+        if (!name) throw new Error("name is empty");
+
+        const packId = String(args.id ?? "").trim() || `mcp-${Date.now()}`;
+        const languagePair =
+          typeof args.language_pair === "string" && args.language_pair.length > 0
+            ? args.language_pair
+            : "zh-de";
+
+        type VocabItem = { word: string; pinyin: string | undefined; translation: string | undefined };
+        function normalizeVocab(raw: unknown): VocabItem[] {
+          const out: VocabItem[] = [];
+          if (!Array.isArray(raw)) return out;
+          for (const v of raw) {
+            const rv = v as { word?: unknown; pinyin?: unknown; translation?: unknown };
+            const word = typeof rv.word === "string" ? rv.word.trim() : "";
+            if (!word) continue;
+            out.push({
+              word,
+              pinyin: typeof rv.pinyin === "string" ? rv.pinyin : undefined,
+              translation: typeof rv.translation === "string" ? rv.translation : undefined,
+            });
+          }
+          return out;
+        }
+
+        // Normalize either shape into lessons[].vocabulary[]
+        const rawLessons = Array.isArray(args.lessons) ? args.lessons : null;
+        const flatVocab = normalizeVocab(args.vocabulary);
+
+        let lessons: { id: string; title: string | undefined; sort_order: number; vocabulary: VocabItem[] }[];
+        if (rawLessons && rawLessons.length > 0) {
+          lessons = rawLessons.map((l, idx) => {
+            const rl = l as { title?: unknown; vocabulary?: unknown };
+            return {
+              id: `${packId}-l${idx + 1}`,
+              title: typeof rl.title === "string" ? rl.title : undefined,
+              sort_order: idx + 1,
+              vocabulary: normalizeVocab(rl.vocabulary),
+            };
+          });
+        } else if (flatVocab.length > 0) {
+          lessons = [
+            { id: `${packId}-l1`, title: name, sort_order: 1, vocabulary: flatVocab },
+          ];
+        } else {
+          throw new Error("provide either `vocabulary` or `lessons`");
+        }
+
+        const wordCount = lessons.reduce((n, l) => n + l.vocabulary.length, 0);
+        if (wordCount === 0) throw new Error("no vocabulary entries");
+
+        const pack = { id: packId, name, version: 1, language_pair: languagePair, lessons };
+        wasm.installPack(JSON.stringify(pack));
+        return ok({ pack_id: packId, name, word_count: wordCount, lessons: lessons.length });
       },
     },
   ];

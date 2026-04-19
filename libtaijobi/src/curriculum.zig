@@ -23,6 +23,7 @@ const std = @import("std");
 const builtin = @import("builtin");
 const sqlite = @import("sqlite_c.zig");
 const types = @import("types.zig");
+const lang = @import("lang.zig");
 
 const JsonWriter = types.JsonWriter;
 
@@ -212,6 +213,13 @@ pub fn installPack(db: *sqlite.sqlite3, json: []const u8, now_ms: i64) Curriculu
             const pinyin = jsonStringValue(vocab, "pinyin");
             const translation = jsonStringValue(vocab, "translation");
 
+            // Detect language from the word's script so Arabic / Japanese /
+            // German packs don't silently tag every card as Chinese (which
+            // would break per-language filtering + pick the wrong TTS voice).
+            // Pack-level `language_pair` from the JSON header still wins for
+            // the pack row — author's declaration is authoritative there.
+            const lang_code = lang.detect(word).code();
+
             // Generate card ID: pack_id + "_" + word hash
             var id_buf: [64]u8 = undefined;
             const card_id = makeCardId(pack_id, word, &id_buf);
@@ -221,19 +229,20 @@ pub fn installPack(db: *sqlite.sqlite3, json: []const u8, now_ms: i64) Curriculu
                 var stmt: ?*sqlite.sqlite3_stmt = null;
                 const sql =
                     \\INSERT OR IGNORE INTO cards(id, word, language, pinyin, translation, source_type, pack_id, lesson_id, created_at, updated_at)
-                    \\VALUES(?, ?, 'zh', ?, ?, 'pack', ?, ?, ?, ?)
+                    \\VALUES(?, ?, ?, ?, ?, 'pack', ?, ?, ?, ?)
                 ;
                 if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK)
                     return error.PrepareFailed;
                 defer _ = sqlite.sqlite3_finalize(stmt.?);
                 bindText(stmt.?, 1, card_id);
                 bindText(stmt.?, 2, word);
-                if (pinyin) |p| bindText(stmt.?, 3, p) else _ = sqlite.sqlite3_bind_null(stmt.?, 3);
-                if (translation) |t| bindText(stmt.?, 4, t) else _ = sqlite.sqlite3_bind_null(stmt.?, 4);
-                bindText(stmt.?, 5, pack_id);
-                bindText(stmt.?, 6, lesson_id);
-                _ = sqlite.sqlite3_bind_int64(stmt.?, 7, now_ms);
+                bindText(stmt.?, 3, lang_code);
+                if (pinyin) |p| bindText(stmt.?, 4, p) else _ = sqlite.sqlite3_bind_null(stmt.?, 4);
+                if (translation) |t| bindText(stmt.?, 5, t) else _ = sqlite.sqlite3_bind_null(stmt.?, 5);
+                bindText(stmt.?, 6, pack_id);
+                bindText(stmt.?, 7, lesson_id);
                 _ = sqlite.sqlite3_bind_int64(stmt.?, 8, now_ms);
+                _ = sqlite.sqlite3_bind_int64(stmt.?, 9, now_ms);
                 if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_DONE) return error.StepFailed;
             }
             word_count += 1;

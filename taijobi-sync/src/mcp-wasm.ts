@@ -91,6 +91,7 @@ interface WasmExports {
   hanzi_review_card: (id: number, idLen: number, rating: number) => number;
   hanzi_parse_kindle: (data: number, len: number) => number;
   hanzi_bulk_add_lexicon: (data: number, len: number) => number;
+  hanzi_install_pack: (json: number, len: number) => number;
 
   // Sync
   hanzi_get_changes: (sinceTs: bigint) => number;
@@ -274,6 +275,21 @@ export class WasmInstance {
     const ptr = this.writeBytes(encoded);
     const rc = this.wasm.hanzi_review_card(ptr, encoded.length, rating);
     if (rc !== 0) throw new Error(this.getLastError("reviewCard failed"));
+  }
+
+  /**
+   * Install a content pack from its JSON body. Inserts pack + lessons +
+   * cards in a single SQLite transaction. Per-card language is detected
+   * from the word's script (post Phase 5.0 fix), so Chinese / Arabic /
+   * German packs all tag their cards correctly. Returns rc — 0 on
+   * success, non-zero on parse error.
+   */
+  installPack(packJson: string): void {
+    this.wasm.hanzi_reset_alloc();
+    const encoded = new TextEncoder().encode(packJson);
+    const ptr = this.writeBytes(encoded);
+    const rc = this.wasm.hanzi_install_pack(ptr, encoded.length);
+    if (rc !== 0) throw new Error(this.getLastError("installPack failed"));
   }
 
   parseKindle(raw: string): KindleClipping[] {

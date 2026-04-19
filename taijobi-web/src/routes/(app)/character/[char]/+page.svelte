@@ -197,30 +197,32 @@
 		</h3>
 		<div class="rounded-2xl border border-slate-100 dark:border-white/5 bg-white dark:bg-white/5 p-4 shadow-sm">
 			<div class="mx-auto flex max-w-[200px] items-center justify-center">
-				<svg viewBox={strokeViewBox()} class="h-[200px] w-[200px]">
-					<!-- Crosshair guides -->
-					<line x1="512" y1="0" x2="512" y2="1024" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="8,8" />
-					<line x1="0" y1="512" x2="1024" y2="512" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="8,8" />
-					<line x1="0" y1="0" x2="1024" y2="1024" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="8,8" />
-					<line x1="1024" y1="0" x2="0" y2="1024" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="8,8" />
+				<svg viewBox={strokeViewBox()} class="stroke-canvas h-[200px] w-[200px]">
+					<!-- Crosshair guides — theme-aware via `guide` class → currentColor -->
+					<g class="guide text-slate-200 dark:text-white/10" stroke="currentColor">
+						<line x1="512" y1="0" x2="512" y2="1024" stroke-width="1" stroke-dasharray="8,8" />
+						<line x1="0" y1="512" x2="1024" y2="512" stroke-width="1" stroke-dasharray="8,8" />
+						<line x1="0" y1="0" x2="1024" y2="1024" stroke-width="0.5" stroke-dasharray="8,8" />
+						<line x1="1024" y1="0" x2="0" y2="1024" stroke-width="0.5" stroke-dasharray="8,8" />
+						<rect x="2" y="2" width="1020" height="1020" fill="none" stroke-width="2" stroke-dasharray="8,8" rx="4" />
+					</g>
 
-					<!-- Border -->
-					<rect x="2" y="2" width="1020" height="1020" fill="none" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="8,8" rx="4" />
-
-					<!-- Strokes (flipped: Make Me a Hanzi uses Y-up, SVG uses Y-down) -->
+					<!-- Strokes (flipped: Make Me a Hanzi uses Y-up, SVG uses Y-down).
+						 fill="currentColor" → pick up `stroke-*` classes so dark mode
+						 uses the brighter accent instead of dark jade on dark bg. -->
 					<g transform="scale(1,-1) translate(0,-1024)">
 						{#each strokeData.strokes as stroke, i}
 							<path
 								d={stroke}
-								fill={animating
-									? i < animationFrame
-										? '#195c37'
-										: i === animationFrame
-											? '#52b788'
-											: '#e2e8f0'
-									: '#195c37'}
+								fill="currentColor"
 								stroke="none"
-								class="transition-all duration-300"
+								class="transition-all duration-300 {animating
+									? i < animationFrame
+										? 'text-primary dark:text-accent'
+										: i === animationFrame
+											? 'text-accent'
+											: 'text-slate-200 dark:text-white/10'
+									: 'text-primary dark:text-accent'}"
 							/>
 						{/each}
 					</g>
