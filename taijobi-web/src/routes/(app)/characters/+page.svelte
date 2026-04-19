@@ -216,7 +216,7 @@
 				>
 					<span class="chinese-char text-3xl text-slate-900 dark:text-slate-100">{info.char}</span>
 					{#if info.pinyin}
-						<span class="mt-1 text-[10px] text-primary/70">{info.pinyin}</span>
+						<span class="mt-1 text-[10px] text-primary/70 dark:text-accent">{info.pinyin}</span>
 					{/if}
 				</a>
 			{/each}

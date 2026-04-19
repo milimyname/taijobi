@@ -107,7 +107,7 @@
 					{char}
 				</h1>
 				{#if decompData}
-					<p class="mt-2 text-lg font-medium text-primary">{decompData.pinyin}</p>
+					<p class="mt-2 text-lg font-medium text-primary dark:text-accent">{decompData.pinyin}</p>
 					<p class="mt-1 text-sm text-slate-600 dark:text-slate-300">{decompData.definition}</p>
 				{/if}
 			</div>
@@ -166,10 +166,10 @@
 					href="/character/{encodeURIComponent(comp.char)}"
 					class="flex min-w-[80px] flex-col items-center rounded-xl border border-slate-100 dark:border-white/5 bg-white dark:bg-white/5 p-3 shadow-sm transition-colors hover:border-primary/20 hover:bg-primary/5"
 				>
-					<span class="chinese-char text-2xl {comp.type === 'radical' ? 'text-primary' : 'text-slate-900 dark:text-slate-100'}">
+					<span class="chinese-char text-2xl {comp.type === 'radical' ? 'text-primary dark:text-accent' : 'text-slate-900 dark:text-slate-100'}">
 						{comp.char}
 					</span>
-					<span class="mt-1 text-[10px] font-bold uppercase tracking-wider {comp.type === 'radical' ? 'text-primary' : 'text-slate-400 dark:text-slate-500'}">
+					<span class="mt-1 text-[10px] font-bold uppercase tracking-wider {comp.type === 'radical' ? 'text-primary dark:text-accent' : 'text-slate-400 dark:text-slate-500'}">
 						{componentLabel(comp.type)}
 					</span>
 					{#if comp.definition}
@@ -252,9 +252,9 @@
 			{#each relatedWords as word (word.id)}
 				<div class="flex items-center justify-between rounded-xl border border-slate-100 dark:border-white/5 bg-white dark:bg-white/5 px-4 py-3 shadow-sm">
 					<div>
-						<span class="chinese-char text-lg font-medium">{word.word}</span>
+						<span class="chinese-char text-lg font-medium text-slate-900 dark:text-slate-100">{word.word}</span>
 						{#if word.pinyin}
-							<span class="ml-2 text-sm text-primary/80">{word.pinyin}</span>
+							<span class="ml-2 text-sm text-primary/80 dark:text-accent">{word.pinyin}</span>
 						{/if}
 						{#if word.translation}
 							<span class="ml-2 text-sm text-slate-500 dark:text-slate-400">{word.translation}</span>
