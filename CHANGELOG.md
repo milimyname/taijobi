@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.6.11 (2026-04-19)
+
+- docs: CLAUDE.md + dark-mode contrast on /characters + /character
+
 ## v0.6.10 (2026-04-18)
 
 - feat: infinite scroll in lessons + "Alle Zeichen" filter + honest size_mb
