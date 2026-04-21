@@ -55,7 +55,7 @@
   let lastY = 0;
   let lastTime = 0;
   let velocity = 0;
-  let isDraggingSheet = false;
+  let isDraggingSheet = $state(false);
   // iOS share-sheet semantics: one gesture has one intent. If the content
   // was scrolled when the finger touched down, the whole gesture is a
   // content-scroll — the sheet doesn't grab the drag even if scrollTop
