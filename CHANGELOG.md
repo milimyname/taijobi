@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.6.12 (2026-04-21)
+
+- fix: update isDraggingSheet to reactive state management.
+- feat: install_pack MCP tool + per-card language in curriculum + stroke theme
+
 ## v0.6.11 (2026-04-19)
 
 - docs: CLAUDE.md + dark-mode contrast on /characters + /character
