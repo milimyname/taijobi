@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.6.16 (2026-04-24)
+
+- fix: MCP write tools silently skipping sync-push
+
 ## v0.6.15 (2026-04-24)
 
 - refactor: install_pack takes a single pack_json string, uses shared validator
