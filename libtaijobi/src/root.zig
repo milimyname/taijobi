@@ -498,6 +498,28 @@ export fn hanzi_get_packs() ?[*]const u8 {
     return makeLengthPrefixed(json);
 }
 
+export fn hanzi_add_lesson_to_pack(
+    pack_id_ptr: [*]const u8,
+    pack_id_len: usize,
+    lesson_json_ptr: [*]const u8,
+    lesson_json_len: usize,
+) i32 {
+    const db = &(global_db orelse return -1);
+    const pack_id = pack_id_ptr[0..pack_id_len];
+    const lesson_json = lesson_json_ptr[0..lesson_json_len];
+    curriculum.addLessonToPack(db.handle, pack_id, lesson_json, now()) catch |err| {
+        const msg = switch (err) {
+            error.InvalidJson => "invalid lesson JSON",
+            error.PrepareFailed => "SQL prepare failed",
+            error.StepFailed => "SQL step failed",
+            error.PackNotFound => "pack not found",
+        };
+        setError(msg);
+        return -1;
+    };
+    return 0;
+}
+
 export fn hanzi_remove_pack(id_ptr: [*]const u8, id_len: usize) i32 {
     const db = &(global_db orelse return -1);
     const pack_id = id_ptr[0..id_len];

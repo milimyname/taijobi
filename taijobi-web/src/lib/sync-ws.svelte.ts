@@ -7,8 +7,16 @@
  * On every (re)connect, triggers an HTTP pull to catch up on missed changes.
  */
 
-import { applyChanges, opfsSave, deriveEncryptionKey, decryptRows, type SyncRow } from './wasm';
+import {
+	applyChanges,
+	opfsSave,
+	deriveEncryptionKey,
+	decryptRows,
+	getPacks,
+	type SyncRow
+} from './wasm';
 import { data } from './data.svelte';
+import { toastStore } from './toast.svelte';
 import { SYNC_API_URL, LS_SYNC_KEY } from './config';
 
 interface WSMessage {
@@ -73,10 +81,15 @@ class SyncWS {
 						console.error('[taijobi-sync] WS decrypt failed:', decryptErr);
 						return;
 					}
+					// Snapshot pack ids *before* apply so we can tell which are new.
+					const packIdsBefore = new Set(getPacks().map((p) => p.id));
 					const applied = applyChanges(rows);
 					console.log(`[taijobi-sync] WS: applied ${applied} of ${msg.rows.length} changes`);
 					opfsSave();
-					if (applied > 0) data.bump();
+					if (applied > 0) {
+						data.bump();
+						showSyncToast(rows, packIdsBefore);
+					}
 				}
 
 				if (msg.type === 'ping') {
@@ -115,3 +128,31 @@ class SyncWS {
 }
 
 export const syncWS = new SyncWS();
+
+/**
+ * Prefer a specific message for new-pack arrivals (from MCP `install_pack`
+ * or a second device installing a pack) over a generic row count — "Neues
+ * Paket: Geld, Zimmer & Bank" is a lot more actionable than "8 Änderungen
+ * synchronisiert". Card-only changes (review state from another device)
+ * stay generic. Suppressed entirely for review_log noise.
+ */
+function showSyncToast(rows: SyncRow[], packIdsBefore: Set<string>): void {
+	const newPacks = rows.filter((r) => r.table === 'packs' && !packIdsBefore.has(r.id));
+	if (newPacks.length > 0) {
+		for (const row of newPacks) {
+			const name =
+				(typeof row.data === 'object' && row.data !== null
+					? ((row.data as Record<string, unknown>).name as string | undefined)
+					: undefined) ?? row.id;
+			toastStore.show(`Neues Paket: ${name}`);
+		}
+		return;
+	}
+
+	// Card/lesson updates from another device — show a summary unless they're
+	// all review_log (which is just review-state noise, not a content change).
+	const meaningful = rows.filter((r) => r.table !== 'review_log');
+	if (meaningful.length > 0) {
+		toastStore.show(`${meaningful.length} Änderungen synchronisiert`);
+	}
+}

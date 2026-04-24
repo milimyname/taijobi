@@ -264,6 +264,116 @@ pub fn installPack(db: *sqlite.sqlite3, json: []const u8, now_ms: i64) Curriculu
     execSql(db, "COMMIT") catch return error.StepFailed;
 }
 
+/// Append (or upsert) a single lesson + its vocabulary into an existing pack.
+///
+/// Non-destructive sibling of `installPack`: does NOT hard-delete the pack
+/// first, so earlier lessons and their review state stay intact. Intended for
+/// the flow where Claude added a pack, then the user remembers a block of
+/// words that belongs in the same pack — calling installPack again would wipe
+/// the pack, FSRS state included.
+///
+/// Behavior:
+///   - pack_id must reference an existing, non-deleted pack → else PackNotFound.
+///   - Lesson is INSERT OR REPLACE (updating title / sort_order is fine).
+///   - Cards are INSERT OR IGNORE (existing cards with the same id are left
+///     alone, so scheduler state is preserved).
+///   - packs.word_count is recomputed from the current cards table.
+pub fn addLessonToPack(
+    db: *sqlite.sqlite3,
+    pack_id: []const u8,
+    lesson_json: []const u8,
+    now_ms: i64,
+) CurriculumError!void {
+    // Verify the pack exists and isn't soft-deleted
+    {
+        var stmt: ?*sqlite.sqlite3_stmt = null;
+        const sql = "SELECT 1 FROM packs WHERE id = ? AND COALESCE(deleted, 0) = 0";
+        if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK)
+            return error.PrepareFailed;
+        defer _ = sqlite.sqlite3_finalize(stmt.?);
+        bindText(stmt.?, 1, pack_id);
+        if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_ROW) return error.PackNotFound;
+    }
+
+    const lesson_id = jsonStringValue(lesson_json, "id") orelse return error.InvalidJson;
+    const lesson_title = jsonStringValue(lesson_json, "title");
+    const sort_order = jsonIntValue(lesson_json, "sort_order") orelse 0;
+
+    execSql(db, "BEGIN TRANSACTION") catch return error.StepFailed;
+    errdefer _ = execSql(db, "ROLLBACK") catch {};
+
+    // Upsert lesson
+    {
+        var stmt: ?*sqlite.sqlite3_stmt = null;
+        const sql = "INSERT OR REPLACE INTO lessons(id, pack_id, title, sort_order, updated_at) VALUES(?,?,?,?,?)";
+        if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK)
+            return error.PrepareFailed;
+        defer _ = sqlite.sqlite3_finalize(stmt.?);
+        bindText(stmt.?, 1, lesson_id);
+        bindText(stmt.?, 2, pack_id);
+        if (lesson_title) |t| bindText(stmt.?, 3, t) else _ = sqlite.sqlite3_bind_null(stmt.?, 3);
+        _ = sqlite.sqlite3_bind_int64(stmt.?, 4, sort_order);
+        _ = sqlite.sqlite3_bind_int64(stmt.?, 5, now_ms);
+        if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_DONE) return error.StepFailed;
+    }
+
+    // Insert cards (OR IGNORE preserves existing FSRS state)
+    if (jsonArrayValue(lesson_json, "vocabulary")) |vocab_arr| {
+        var vocab_pos: usize = 0;
+        while (nextObject(vocab_arr, vocab_pos)) |vocab_result| {
+            const vocab = vocab_result.obj;
+            vocab_pos = vocab_result.end;
+
+            const word = jsonStringValue(vocab, "word") orelse continue;
+            const pinyin = jsonStringValue(vocab, "pinyin");
+            const translation = jsonStringValue(vocab, "translation");
+            const lang_code = lang.detect(word).code();
+
+            var id_buf: [64]u8 = undefined;
+            const card_id = makeCardId(pack_id, word, &id_buf);
+
+            var stmt: ?*sqlite.sqlite3_stmt = null;
+            const sql =
+                \\INSERT OR IGNORE INTO cards(id, word, language, pinyin, translation, source_type, pack_id, lesson_id, created_at, updated_at)
+                \\VALUES(?, ?, ?, ?, ?, 'pack', ?, ?, ?, ?)
+            ;
+            if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK)
+                return error.PrepareFailed;
+            defer _ = sqlite.sqlite3_finalize(stmt.?);
+            bindText(stmt.?, 1, card_id);
+            bindText(stmt.?, 2, word);
+            bindText(stmt.?, 3, lang_code);
+            if (pinyin) |p| bindText(stmt.?, 4, p) else _ = sqlite.sqlite3_bind_null(stmt.?, 4);
+            if (translation) |t| bindText(stmt.?, 5, t) else _ = sqlite.sqlite3_bind_null(stmt.?, 5);
+            bindText(stmt.?, 6, pack_id);
+            bindText(stmt.?, 7, lesson_id);
+            _ = sqlite.sqlite3_bind_int64(stmt.?, 8, now_ms);
+            _ = sqlite.sqlite3_bind_int64(stmt.?, 9, now_ms);
+            if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_DONE) return error.StepFailed;
+        }
+    }
+
+    // Recompute pack word_count from current cards
+    {
+        var stmt: ?*sqlite.sqlite3_stmt = null;
+        const sql =
+            \\UPDATE packs
+            \\SET word_count = (SELECT COUNT(*) FROM cards WHERE pack_id = ? AND COALESCE(deleted, 0) = 0),
+            \\    updated_at = ?
+            \\WHERE id = ?
+        ;
+        if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK)
+            return error.PrepareFailed;
+        defer _ = sqlite.sqlite3_finalize(stmt.?);
+        bindText(stmt.?, 1, pack_id);
+        _ = sqlite.sqlite3_bind_int64(stmt.?, 2, now_ms);
+        bindText(stmt.?, 3, pack_id);
+        if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_DONE) return error.StepFailed;
+    }
+
+    execSql(db, "COMMIT") catch return error.StepFailed;
+}
+
 /// Soft-delete a pack and its cards (sets deleted=1, updated_at=now).
 pub fn removePack(db: *sqlite.sqlite3, pack_id: []const u8, now_ms: i64) CurriculumError!void {
     // Soft-delete cards belonging to this pack

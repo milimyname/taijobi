@@ -92,6 +92,13 @@ interface WasmExports {
   hanzi_parse_kindle: (data: number, len: number) => number;
   hanzi_bulk_add_lexicon: (data: number, len: number) => number;
   hanzi_install_pack: (json: number, len: number) => number;
+  hanzi_get_packs: () => number;
+  hanzi_add_lesson_to_pack: (
+    packId: number,
+    packIdLen: number,
+    lessonJson: number,
+    lessonJsonLen: number,
+  ) => number;
 
   // Sync
   hanzi_get_changes: (sinceTs: bigint) => number;
@@ -290,6 +297,41 @@ export class WasmInstance {
     const ptr = this.writeBytes(encoded);
     const rc = this.wasm.hanzi_install_pack(ptr, encoded.length);
     if (rc !== 0) throw new Error(this.getLastError("installPack failed"));
+  }
+
+  /**
+   * Non-destructive append of a lesson + vocabulary into an existing pack.
+   * Preserves FSRS state on existing cards (INSERT OR IGNORE). Throws
+   * "pack not found" if pack_id is missing or soft-deleted.
+   */
+  addLessonToPack(packId: string, lessonJson: string): void {
+    this.wasm.hanzi_reset_alloc();
+    const packEnc = new TextEncoder().encode(packId);
+    const lessonEnc = new TextEncoder().encode(lessonJson);
+    const packPtr = this.writeBytes(packEnc);
+    const lessonPtr = this.writeBytes(lessonEnc);
+    const rc = this.wasm.hanzi_add_lesson_to_pack(
+      packPtr,
+      packEnc.length,
+      lessonPtr,
+      lessonEnc.length,
+    );
+    if (rc !== 0) throw new Error(this.getLastError("addLessonToPack failed"));
+  }
+
+  /** List installed packs (id, name, version, language_pair, word_count). */
+  getPacks(): Array<{
+    id: string;
+    name: string;
+    version: number;
+    language_pair: string;
+    word_count: number;
+  }> {
+    this.wasm.hanzi_reset_alloc();
+    const ptr = this.wasm.hanzi_get_packs();
+    if (ptr === 0) throw new Error(this.getLastError("getPacks failed"));
+    const json = this.readLengthPrefixedString(ptr);
+    return JSON.parse(json);
   }
 
   parseKindle(raw: string): KindleClipping[] {

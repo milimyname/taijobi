@@ -28,6 +28,7 @@ export const WRITE_TOOL_NAMES = new Set([
   "import_kindle_clippings",
   "review_card",
   "install_pack",
+  "add_lesson_to_pack",
 ]);
 
 /** Stringify a tool result as compact JSON for the MCP text response. */
@@ -98,6 +99,17 @@ export function getToolDefinitions(): ToolDefinition[] {
       handler: (_args, wasm) => {
         const entries = wasm.getLexicon();
         return ok({ entries, count: entries.length });
+      },
+    },
+
+    {
+      name: "list_packs",
+      description:
+        "List all installed content packs in the user's library (id, name, language_pair, word_count). ALWAYS call this before install_pack or add_lesson_to_pack so you can find the right existing pack instead of creating a duplicate one. If the user says something like 'I forgot these words for the Geld pack', look up the pack id here and use add_lesson_to_pack.",
+      schema: {},
+      handler: (_args, wasm) => {
+        const packs = wasm.getPacks();
+        return ok({ packs, count: packs.length });
       },
     },
 
@@ -214,6 +226,57 @@ export function getToolDefinitions(): ToolDefinition[] {
           name: pack.name,
           word_count: wordCount,
           lessons: pack.lessons.length,
+        });
+      },
+    },
+
+    {
+      name: "add_lesson_to_pack",
+      description:
+        'Append a single lesson (with its vocabulary) to an EXISTING pack — non-destructively. Use this when the user mentions they forgot some words that belong in a pack you (or they) already created; creating a new pack in that case leaves duplicate entries in /packs. Always call list_packs first to find the correct pack_id.\nInput: pack_id + lesson_json (a single lesson object). Example:\n{"pack_id":"chinesisch-geld-zimmer","lesson_json":"{\\"id\\":\\"chinesisch-geld-zimmer-l4\\",\\"title\\":\\"Bank\\",\\"sort_order\\":4,\\"vocabulary\\":[{\\"word\\":\\"银行\\",\\"pinyin\\":\\"yínháng\\",\\"translation\\":\\"Bank\\"}]}"}\nRules: lesson_id must match ^[a-z0-9][a-z0-9-]*$ and must be unique within the pack (upsert — re-using an existing lesson_id just updates its metadata and merges new vocab). Existing cards keep their FSRS/review state. Partial packs are fine; translation is optional.',
+      schema: {
+        pack_id: z
+          .string()
+          .min(1)
+          .describe("Id of an existing pack (from list_packs)"),
+        lesson_json: z
+          .string()
+          .min(1)
+          .describe(
+            "Single lesson JSON: {id, title?, sort_order, vocabulary: [{word, pinyin?, translation?}]}",
+          ),
+      },
+      handler: (args, wasm) => {
+        const packId = String(args.pack_id ?? "").trim();
+        const raw = String(args.lesson_json ?? "").trim();
+        if (!packId) throw new Error("pack_id is empty");
+        if (!raw) throw new Error("lesson_json is empty");
+
+        let parsed: unknown;
+        try {
+          parsed = JSON.parse(raw);
+        } catch (err) {
+          throw new Error(`lesson_json: invalid JSON — ${(err as Error).message}`);
+        }
+
+        // Shape check — keep it shallow; Zig re-parses for insertion and
+        // returns "invalid lesson JSON" on semantic problems.
+        if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+          throw new Error("lesson_json must be an object");
+        }
+        const lesson = parsed as Record<string, unknown>;
+        if (typeof lesson.id !== "string" || !/^[a-z0-9][a-z0-9-]*$/.test(lesson.id)) {
+          throw new Error("lesson.id must match ^[a-z0-9][a-z0-9-]*$");
+        }
+        if (!Array.isArray(lesson.vocabulary) || lesson.vocabulary.length === 0) {
+          throw new Error("lesson.vocabulary must be a non-empty array");
+        }
+
+        wasm.addLessonToPack(packId, JSON.stringify(lesson));
+        return ok({
+          pack_id: packId,
+          lesson_id: lesson.id,
+          added: (lesson.vocabulary as unknown[]).length,
         });
       },
     },
