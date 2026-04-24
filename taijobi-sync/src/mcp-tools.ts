@@ -44,10 +44,7 @@ export function getToolDefinitions(): ToolDefinition[] {
       description:
         "Return the number of cards currently due for review. Optionally filter by pack id (e.g. 'hsk3') or 'lexicon' for personal words only.",
       schema: {
-        filter: z
-          .string()
-          .optional()
-          .describe("Pack id, 'lexicon', or omit for all cards"),
+        filter: z.string().optional().describe("Pack id, 'lexicon', or omit for all cards"),
       },
       handler: (args, wasm) => {
         const filter = typeof args.filter === "string" ? args.filter : null;
@@ -67,10 +64,7 @@ export function getToolDefinitions(): ToolDefinition[] {
           .max(200)
           .optional()
           .describe("Max number of cards to return (default 20)"),
-        filter: z
-          .string()
-          .optional()
-          .describe("Pack id, 'lexicon', or omit for all cards"),
+        filter: z.string().optional().describe("Pack id, 'lexicon', or omit for all cards"),
       },
       handler: (args, wasm) => {
         const limit = typeof args.limit === "number" ? args.limit : 20;
@@ -86,13 +80,7 @@ export function getToolDefinitions(): ToolDefinition[] {
         "Search cards in the user's library by word, pinyin, or translation. Returns matching cards with metadata. Use when the user asks 'do I have X?' or wants to look up a specific word they've studied.",
       schema: {
         query: z.string().min(1).describe("Search query (word / pinyin / translation)"),
-        limit: z
-          .number()
-          .int()
-          .min(1)
-          .max(100)
-          .optional()
-          .describe("Max results (default 20)"),
+        limit: z.number().int().min(1).max(100).optional().describe("Max results (default 20)"),
       },
       handler: (args, wasm) => {
         const query = String(args.query ?? "");
@@ -198,7 +186,7 @@ export function getToolDefinitions(): ToolDefinition[] {
     {
       name: "install_pack",
       description:
-        "Install a content pack into the user's library. Use this when the user wants to turn structured vocabulary (e.g. OCR'd from a textbook photo, extracted from a PDF, or pasted as a list) into a proper pack — NOT individual lexicon entries. Common case: pass `vocabulary` directly (one lesson). Multi-lesson case (e.g. a whole textbook): pass `lessons` with an array. Creates SQLite pack + lessons + cards in one transaction. Per-card language is auto-detected from the word's script, so Chinese / Arabic / German / English packs all tag correctly. The pack appears in /packs under 'Eigene' (tag='personal') and syncs privately to the user's other devices via their sync key.",
+        "Install a content pack into the user's library. Use this when the user wants to turn structured vocabulary (e.g. OCR'd from a textbook photo, extracted from a PDF, or pasted as a list) into a proper pack — NOT individual lexicon entries. Common case: pass `vocabulary` as a real JSON array (one lesson). Multi-lesson case (e.g. a whole textbook): pass `lessons` as a real JSON array. Do NOT stringify the arrays — pass them as native JSON arrays in the tool call. Creates SQLite pack + lessons + cards in one transaction. Per-card language is auto-detected from the word's script, so Chinese / Arabic / German / English packs all tag correctly. The pack appears in /packs under 'Eigene' (tag='personal') and syncs privately to the user's other devices via their sync key.",
       schema: {
         name: z
           .string()
@@ -267,10 +255,38 @@ export function getToolDefinitions(): ToolDefinition[] {
           );
         }
 
-        type VocabItem = { word: string; pinyin: string | undefined; translation: string | undefined };
-        function normalizeVocab(raw: unknown): VocabItem[] {
+        type VocabItem = {
+          word: string;
+          pinyin: string | undefined;
+          translation: string | undefined;
+        };
+
+        // LLM clients in the wild sometimes JSON-stringify nested array args
+        // instead of passing them as real arrays. Accept both shapes so Claude
+        // doesn't need to thread the needle.
+        function coerceArray(raw: unknown, field: string): unknown[] {
+          if (raw === undefined || raw === null) return [];
+          if (Array.isArray(raw)) return raw;
+          if (typeof raw === "string") {
+            const trimmed = raw.trim();
+            if (trimmed.length === 0) return [];
+            try {
+              const parsed = JSON.parse(trimmed);
+              if (!Array.isArray(parsed)) {
+                throw new Error(`${field}: JSON payload must be an array, got ${typeof parsed}`);
+              }
+              return parsed;
+            } catch (err) {
+              throw new Error(
+                `${field}: string is not a valid JSON array — ${(err as Error).message}`,
+              );
+            }
+          }
+          throw new Error(`${field}: expected array, got ${typeof raw}`);
+        }
+
+        function normalizeVocab(raw: unknown[]): VocabItem[] {
           const out: VocabItem[] = [];
-          if (!Array.isArray(raw)) return out;
           for (const v of raw) {
             const rv = v as { word?: unknown; pinyin?: unknown; translation?: unknown };
             const word = typeof rv.word === "string" ? rv.word.trim() : "";
@@ -285,24 +301,34 @@ export function getToolDefinitions(): ToolDefinition[] {
         }
 
         // Normalize either shape into lessons[].vocabulary[]
-        const rawLessons = Array.isArray(args.lessons) ? args.lessons : null;
-        const flatVocab = normalizeVocab(args.vocabulary);
+        const rawLessons = coerceArray(args.lessons, "lessons");
+        const flatVocab = normalizeVocab(coerceArray(args.vocabulary, "vocabulary"));
 
-        let lessons: { id: string; title: string | undefined; sort_order: number; vocabulary: VocabItem[] }[];
-        if (rawLessons && rawLessons.length > 0) {
+        let lessons: {
+          id: string;
+          title: string | undefined;
+          sort_order: number;
+          vocabulary: VocabItem[];
+        }[];
+        if (rawLessons.length > 0) {
           lessons = rawLessons.map((l, idx) => {
-            const rl = l as { title?: unknown; vocabulary?: unknown };
+            const rl = l as { title?: unknown; name?: unknown; vocabulary?: unknown };
+            // Accept `name` as alias for `title` — Claude occasionally mixes them up.
+            const title =
+              typeof rl.title === "string"
+                ? rl.title
+                : typeof rl.name === "string"
+                  ? rl.name
+                  : undefined;
             return {
               id: `${packId}-l${idx + 1}`,
-              title: typeof rl.title === "string" ? rl.title : undefined,
+              title,
               sort_order: idx + 1,
-              vocabulary: normalizeVocab(rl.vocabulary),
+              vocabulary: normalizeVocab(coerceArray(rl.vocabulary, `lessons[${idx}].vocabulary`)),
             };
           });
         } else if (flatVocab.length > 0) {
-          lessons = [
-            { id: `${packId}-l1`, title: name, sort_order: 1, vocabulary: flatVocab },
-          ];
+          lessons = [{ id: `${packId}-l1`, title: name, sort_order: 1, vocabulary: flatVocab }];
         } else {
           throw new Error("provide either `vocabulary` or `lessons`");
         }
