@@ -23,8 +23,12 @@ const apkg_mod = @import("apkg.zig");
 const kindle = @import("kindle.zig");
 const wiktdict = @import("wiktdict.zig");
 
-// --- Fixed buffer allocator (64MB) ---
-const FBA_SIZE = 64 * 1024 * 1024;
+// --- Fixed buffer allocator ---
+// Web build: 64MB covers dictionary compilation + pack-install JSON bodies
+// (HSK 6 with ~15k cards + sentences runs to a few MB).
+// MCP build: tool responses are small (search results, lexicon lists, Kindle
+// bulk-add). 8MB is plenty and keeps the WASM within the 128MB Worker cap.
+const FBA_SIZE = if (MCP_BUILD) 8 * 1024 * 1024 else 64 * 1024 * 1024;
 var fba_backing: [FBA_SIZE]u8 = undefined;
 var fba = std.heap.FixedBufferAllocator.init(&fba_backing);
 

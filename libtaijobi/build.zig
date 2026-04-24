@@ -50,13 +50,26 @@ pub fn build(b: *std.Build) void {
         .file = b.path("vendor/sqlite3.c"),
         .flags = wasm_sqlite_flags,
     });
+    // VFS static buffers (mem_storage[MAX_MEM_FILES][MAX_FILE_SIZE]) dominate
+    // the WASM's initial linear memory. Web needs 4×32MB for dictionary DBs;
+    // MCP fits in Cloudflare's 128MB Worker cap with 2×16MB.
+    const vfs_flags: []const []const u8 = if (mcp)
+        &.{ "-DMAX_FILE_SIZE=(16*1024*1024)", "-DMAX_MEM_FILES=2" }
+    else
+        &.{"-DMAX_FILE_SIZE=(32*1024*1024)"};
     wasm_mod.addCSourceFile(.{
         .file = b.path("vendor/wasm_vfs.c"),
-        .flags = &.{"-DMAX_FILE_SIZE=(32*1024*1024)"},
+        .flags = vfs_flags,
     });
+    // libc heap: web loads dictionaries and SQLite result buffers through it;
+    // MCP handlers are small so 4MB is plenty.
+    const libc_flags: []const []const u8 = if (mcp)
+        &.{"-DHEAP_SIZE=(4*1024*1024)"}
+    else
+        &.{"-DHEAP_SIZE=(16*1024*1024)"};
     wasm_mod.addCSourceFile(.{
         .file = b.path("vendor/libc_shim.c"),
-        .flags = &.{"-DHEAP_SIZE=(16*1024*1024)"},
+        .flags = libc_flags,
     });
     wasm_mod.addIncludePath(b.path("vendor"));
     wasm_mod.addSystemIncludePath(b.path("vendor/libc"));
@@ -68,7 +81,10 @@ pub fn build(b: *std.Build) void {
     wasm_exe.entry = .disabled;
     wasm_exe.rdynamic = true;
     wasm_exe.stack_size = 1 * 1024 * 1024;
-    wasm_exe.max_memory = 512 * 1024 * 1024;
+    // V8 on Cloudflare Workers reserves max_memory upfront at
+    // WebAssembly.instantiate(). 512MB > 128MB Worker cap → OOM.
+    // MCP budget: persist 16MB + vfs 32MB + heap 4MB + stack 1MB ≈ 53MB.
+    wasm_exe.max_memory = if (mcp) 64 * 1024 * 1024 else 512 * 1024 * 1024;
 
     // Install to zig-out/lib/ — use scripts/build-wasm.sh to copy to taijobi-web
     b.installArtifact(wasm_exe);

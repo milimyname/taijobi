@@ -16,7 +16,9 @@
 
 /* ===== In-memory file implementation ===== */
 
+#ifndef MAX_MEM_FILES
 #define MAX_MEM_FILES 4
+#endif
 #ifndef MAX_FILE_SIZE
 #define MAX_FILE_SIZE (8 * 1024 * 1024)  /* 8 MB max DB size per file */
 #endif
