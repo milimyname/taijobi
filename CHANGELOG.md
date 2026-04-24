@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.6.14 (2026-04-24)
+
+- fix: shrink MCP WASM memory footprint to fit Cloudflare Worker 128MB cap
+
 ## v0.6.13 (2026-04-24)
 
 - feat: phase 6.3 community packs pipeline + shared validator + /packs export
