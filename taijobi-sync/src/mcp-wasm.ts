@@ -336,7 +336,10 @@ export class WasmInstance {
   getChanges(sinceTs: number): SyncRow[] {
     this.wasm.hanzi_reset_alloc();
     const ptr = this.wasm.hanzi_get_changes(BigInt(sinceTs));
-    if (ptr === 0) return [];
+    // ptr === 0 is always an error (0-row pushes still return a pointer to
+    // `{"rows":[]}`). Swallowing it as `[]` turned every write tool's
+    // background sync-push into a silent no-op when FBA alloc failed.
+    if (ptr === 0) throw new Error(this.getLastError("hanzi_get_changes failed"));
     const json = this.readLengthPrefixedString(ptr);
     const result = JSON.parse(json) as { rows: SyncRow[] };
     return result.rows;

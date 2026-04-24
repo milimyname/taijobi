@@ -26,9 +26,11 @@ const wiktdict = @import("wiktdict.zig");
 // --- Fixed buffer allocator ---
 // Web build: 64MB covers dictionary compilation + pack-install JSON bodies
 // (HSK 6 with ~15k cards + sentences runs to a few MB).
-// MCP build: tool responses are small (search results, lexicon lists, Kindle
-// bulk-add). 8MB is plenty and keeps the WASM within the 128MB Worker cap.
-const FBA_SIZE = if (MCP_BUILD) 8 * 1024 * 1024 else 64 * 1024 * 1024;
+// MCP build: 16MB is the floor — `hanzi_get_changes` asks for an 8MB+4
+// scratch buffer to serialize the sync push, and 8MB FBA couldn't satisfy
+// it, so every write tool's background `pushToSync` was silently failing
+// (MCP response succeeded but SyncRoom never received the rows).
+const FBA_SIZE = if (MCP_BUILD) 16 * 1024 * 1024 else 64 * 1024 * 1024;
 var fba_backing: [FBA_SIZE]u8 = undefined;
 var fba = std.heap.FixedBufferAllocator.init(&fba_backing);
 

@@ -1280,7 +1280,10 @@ export function getChanges(sinceTs: number): SyncRow[] {
 	if (!wasm) return [];
 	wasm.hanzi_reset_alloc();
 	const ptr = wasm.hanzi_get_changes(BigInt(sinceTs));
-	if (ptr === 0) return [];
+	// ptr === 0 is always an error — a zero-row push still returns a pointer to
+	// `{"rows":[]}`. Returning `[]` here would silence FBA-alloc failures and
+	// make pushes disappear (see MCP regression at root.zig:689).
+	if (ptr === 0) throw new Error(getLastError('hanzi_get_changes failed'));
 	const json = readLengthPrefixedString(ptr);
 	try {
 		const result = JSON.parse(json) as { rows: SyncRow[] };
