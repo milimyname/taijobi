@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.6.15 (2026-04-24)
+
+- refactor: install_pack takes a single pack_json string, uses shared validator
+- fix: install_pack accepts string-encoded arrays + lesson "name" alias
+
 ## v0.6.14 (2026-04-24)
 
 - fix: shrink MCP WASM memory footprint to fit Cloudflare Worker 128MB cap
