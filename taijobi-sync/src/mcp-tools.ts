@@ -9,7 +9,7 @@
  */
 
 import { z } from "zod";
-import { ID_REGEX, LANG_REGEX } from "../../packs/validator";
+import { validatePackLenient } from "../../packs/validator";
 import type { WasmInstance } from "./mcp-wasm";
 
 export interface ToolDefinition {
@@ -186,159 +186,35 @@ export function getToolDefinitions(): ToolDefinition[] {
     {
       name: "install_pack",
       description:
-        "Install a content pack into the user's library. Use this when the user wants to turn structured vocabulary (e.g. OCR'd from a textbook photo, extracted from a PDF, or pasted as a list) into a proper pack — NOT individual lexicon entries. Common case: pass `vocabulary` as a real JSON array (one lesson). Multi-lesson case (e.g. a whole textbook): pass `lessons` as a real JSON array. Do NOT stringify the arrays — pass them as native JSON arrays in the tool call. Creates SQLite pack + lessons + cards in one transaction. Per-card language is auto-detected from the word's script, so Chinese / Arabic / German / English packs all tag correctly. The pack appears in /packs under 'Eigene' (tag='personal') and syncs privately to the user's other devices via their sync key.",
+        'Install a content pack into the user\'s library. Use for structured vocabulary (OCR from a textbook, PDF chapter, pasted list) — NOT for single words (use add_word). Input is a single JSON string matching the shape of packs/official/hsk-1.json. Example:\n{"id":"mein-pack","name":"Kapitel 3","version":1,"language_pair":"zh-de","lessons":[{"id":"mein-pack-l1","title":"Geld & Zahlen","sort_order":1,"vocabulary":[{"word":"人民币","pinyin":"Rénmínbì","translation":"RMB"}]}]}\nRules: `id` and every `lessons[].id` match ^[a-z0-9][a-z0-9-]*$. `language_pair` like "zh-de" / "ar-en". `translation` is optional — partial packs are fine (words can be filled in later). Per-card language auto-detected from the word\'s script. Appears in /packs under \'Eigene\' (tag=personal) and syncs privately to the user\'s other devices.',
       schema: {
-        name: z
+        pack_json: z
           .string()
           .min(1)
-          .max(120)
-          .describe("Human-readable pack name shown in /packs (e.g. 'Long neu Kapitel 3')"),
-        vocabulary: z
-          .array(
-            z.object({
-              word: z.string().min(1).describe("The word / character / phrase"),
-              pinyin: z.string().optional().describe("Pinyin (for Chinese)"),
-              translation: z.string().optional().describe("Translation / gloss"),
-            }),
-          )
-          .optional()
           .describe(
-            "Flat vocabulary list for a single-lesson pack. Use this for the common case (a chapter, an image, a quick list). Mutually exclusive with `lessons`.",
-          ),
-        lessons: z
-          .array(
-            z.object({
-              title: z.string().optional().describe("Lesson title"),
-              vocabulary: z
-                .array(
-                  z.object({
-                    word: z.string().min(1),
-                    pinyin: z.string().optional(),
-                    translation: z.string().optional(),
-                  }),
-                )
-                .min(1),
-            }),
-          )
-          .optional()
-          .describe(
-            "Multi-lesson pack structure. Only use when the user's content is naturally sub-divided (e.g. a whole textbook with multiple chapters). Otherwise use `vocabulary`.",
-          ),
-        id: z
-          .string()
-          .optional()
-          .describe("Optional stable pack id. Auto-generated from timestamp if omitted."),
-        language_pair: z
-          .string()
-          .optional()
-          .describe(
-            "Optional metadata hint (e.g. 'zh-en', 'ar-en'). Per-card language is auto-detected regardless.",
+            "Full pack JSON as a single string. Must match packs/official/hsk-1.json structure — see the example in the tool description.",
           ),
       },
       handler: (args, wasm) => {
-        const name = String(args.name ?? "").trim();
-        if (!name) throw new Error("name is empty");
+        const raw = String(args.pack_json ?? "").trim();
+        if (!raw) throw new Error("pack_json is empty");
 
-        const packId = String(args.id ?? "").trim() || `mcp-${Date.now()}`;
-        if (!ID_REGEX.test(packId)) {
-          throw new Error(
-            `id must match ${ID_REGEX.source} (lowercase letters, digits, dashes; got "${packId}")`,
-          );
-        }
-        const languagePair =
-          typeof args.language_pair === "string" && args.language_pair.length > 0
-            ? args.language_pair
-            : "zh-de";
-        if (!LANG_REGEX.test(languagePair)) {
-          throw new Error(
-            `language_pair must match ${LANG_REGEX.source} (e.g. "zh-en", "de"; got "${languagePair}")`,
-          );
+        let parsed: unknown;
+        try {
+          parsed = JSON.parse(raw);
+        } catch (err) {
+          throw new Error(`pack_json: invalid JSON — ${(err as Error).message}`);
         }
 
-        type VocabItem = {
-          word: string;
-          pinyin: string | undefined;
-          translation: string | undefined;
-        };
-
-        // LLM clients in the wild sometimes JSON-stringify nested array args
-        // instead of passing them as real arrays. Accept both shapes so Claude
-        // doesn't need to thread the needle.
-        function coerceArray(raw: unknown, field: string): unknown[] {
-          if (raw === undefined || raw === null) return [];
-          if (Array.isArray(raw)) return raw;
-          if (typeof raw === "string") {
-            const trimmed = raw.trim();
-            if (trimmed.length === 0) return [];
-            try {
-              const parsed = JSON.parse(trimmed);
-              if (!Array.isArray(parsed)) {
-                throw new Error(`${field}: JSON payload must be an array, got ${typeof parsed}`);
-              }
-              return parsed;
-            } catch (err) {
-              throw new Error(
-                `${field}: string is not a valid JSON array — ${(err as Error).message}`,
-              );
-            }
-          }
-          throw new Error(`${field}: expected array, got ${typeof raw}`);
-        }
-
-        function normalizeVocab(raw: unknown[]): VocabItem[] {
-          const out: VocabItem[] = [];
-          for (const v of raw) {
-            const rv = v as { word?: unknown; pinyin?: unknown; translation?: unknown };
-            const word = typeof rv.word === "string" ? rv.word.trim() : "";
-            if (!word) continue;
-            out.push({
-              word,
-              pinyin: typeof rv.pinyin === "string" ? rv.pinyin : undefined,
-              translation: typeof rv.translation === "string" ? rv.translation : undefined,
-            });
-          }
-          return out;
-        }
-
-        // Normalize either shape into lessons[].vocabulary[]
-        const rawLessons = coerceArray(args.lessons, "lessons");
-        const flatVocab = normalizeVocab(coerceArray(args.vocabulary, "vocabulary"));
-
-        let lessons: {
-          id: string;
-          title: string | undefined;
-          sort_order: number;
-          vocabulary: VocabItem[];
-        }[];
-        if (rawLessons.length > 0) {
-          lessons = rawLessons.map((l, idx) => {
-            const rl = l as { title?: unknown; name?: unknown; vocabulary?: unknown };
-            // Accept `name` as alias for `title` — Claude occasionally mixes them up.
-            const title =
-              typeof rl.title === "string"
-                ? rl.title
-                : typeof rl.name === "string"
-                  ? rl.name
-                  : undefined;
-            return {
-              id: `${packId}-l${idx + 1}`,
-              title,
-              sort_order: idx + 1,
-              vocabulary: normalizeVocab(coerceArray(rl.vocabulary, `lessons[${idx}].vocabulary`)),
-            };
-          });
-        } else if (flatVocab.length > 0) {
-          lessons = [{ id: `${packId}-l1`, title: name, sort_order: 1, vocabulary: flatVocab }];
-        } else {
-          throw new Error("provide either `vocabulary` or `lessons`");
-        }
-
-        const wordCount = lessons.reduce((n, l) => n + l.vocabulary.length, 0);
-        if (wordCount === 0) throw new Error("no vocabulary entries");
-
-        const pack = { id: packId, name, version: 1, language_pair: languagePair, lessons };
+        const pack = validatePackLenient(parsed);
         wasm.installPack(JSON.stringify(pack));
-        return ok({ pack_id: packId, name, word_count: wordCount, lessons: lessons.length });
+        const wordCount = pack.lessons.reduce((n, l) => n + l.vocabulary.length, 0);
+        return ok({
+          pack_id: pack.id,
+          name: pack.name,
+          word_count: wordCount,
+          lessons: pack.lessons.length,
+        });
       },
     },
   ];
