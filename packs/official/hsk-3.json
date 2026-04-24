@@ -1,0 +1,1587 @@
+{
+	"id": "hsk-3",
+	"name": "HSK 3",
+	"version": 1,
+	"language_pair": "zh-en",
+	"lessons": [
+		{
+			"id": "hsk-3-01",
+			"title": "HSK 3 - Teil 1",
+			"sort_order": 1,
+			"vocabulary": [
+				{
+					"word": "阿姨",
+					"pinyin": "ā yí",
+					"translation": "maternal aunt; step-mother; childcare worker; nursemaid; woman of similar age to one's parents (term of address used by child)"
+				},
+				{
+					"word": "啊",
+					"pinyin": "ā",
+					"translation": "interjection of surprise; Ah!; Oh!"
+				},
+				{
+					"word": "矮",
+					"pinyin": "ǎi",
+					"translation": "low; short (in length)"
+				},
+				{
+					"word": "爱好",
+					"pinyin": "ài hào",
+					"translation": "to like; to be fond of; to take pleasure in; to be keen on; interest; hobby"
+				},
+				{
+					"word": "安静",
+					"pinyin": "ān jìng",
+					"translation": "quiet; peaceful; calm"
+				},
+				{
+					"word": "把",
+					"pinyin": "bǎ",
+					"translation": "to hold; to grasp; to hold a baby in position to help it urinate or defecate; handlebar; classifier: handful, bundle, bunch; classifier for things with handles; (used to put the object before the verb: 把 + {noun} + {verb})"
+				},
+				{
+					"word": "班",
+					"pinyin": "Bān",
+					"translation": "surname Ban"
+				},
+				{
+					"word": "搬",
+					"pinyin": "bān",
+					"translation": "to move (i.e. relocate oneself); to move (sth relatively heavy or bulky); to shift; to copy indiscriminately"
+				},
+				{
+					"word": "办法",
+					"pinyin": "bàn fǎ",
+					"translation": "means; method; way (of doing sth)"
+				},
+				{
+					"word": "办公室",
+					"pinyin": "bàn gōng shì",
+					"translation": "office; business premises; bureau"
+				},
+				{
+					"word": "半",
+					"pinyin": "bàn",
+					"translation": "half; semi-; incomplete; (after a number) and a half"
+				},
+				{
+					"word": "帮忙",
+					"pinyin": "bāng máng",
+					"translation": "to help; to lend a hand; to do a favor; to do a good turn"
+				},
+				{
+					"word": "包",
+					"pinyin": "Bāo",
+					"translation": "surname Bao"
+				},
+				{
+					"word": "饱",
+					"pinyin": "bǎo",
+					"translation": "to eat till full; satisfied"
+				},
+				{
+					"word": "北方",
+					"pinyin": "běi fāng",
+					"translation": "north; the northern part a country; China north of the Yellow River"
+				},
+				{
+					"word": "被",
+					"pinyin": "bèi",
+					"translation": "quilt; to cover (with); (literary) to suffer (a misfortune); used to indicate passive voice (placed before the doer of the action like \"by\" in English passive-voice sentences, or, if the doer is not mentioned, before the verb); (since c. 2009) (sarcastic or jocular) used to indicate that the following word should be regarded as being in air quotes (as in 被旅游 to \"go on a trip\", for example)"
+				},
+				{
+					"word": "鼻子",
+					"pinyin": "bí zi",
+					"translation": "nose"
+				},
+				{
+					"word": "比较",
+					"pinyin": "bǐ jiào",
+					"translation": "to compare; to contrast; comparatively; relatively; quite; comparison"
+				},
+				{
+					"word": "比赛",
+					"pinyin": "bǐ sài",
+					"translation": "competition (sports etc); match; to compete"
+				},
+				{
+					"word": "必须",
+					"pinyin": "bì xū",
+					"translation": "to have to; must; compulsory; necessarily"
+				},
+				{
+					"word": "变化",
+					"pinyin": "biàn huà",
+					"translation": "(intransitive) to change; to vary; change; variation"
+				},
+				{
+					"word": "表示",
+					"pinyin": "biǎo shì",
+					"translation": "to express; to show; to say; to state; to indicate; to mean"
+				},
+				{
+					"word": "表演",
+					"pinyin": "biǎo yǎn",
+					"translation": "play; show; performance; exhibition; to perform; to act; to demonstrate"
+				},
+				{
+					"word": "别人",
+					"pinyin": "bié ren",
+					"translation": "other people; others; other person"
+				},
+				{
+					"word": "宾馆",
+					"pinyin": "bīn guǎn",
+					"translation": "guesthouse; lodge; hotel"
+				}
+			]
+		},
+		{
+			"id": "hsk-3-02",
+			"title": "HSK 3 - Teil 2",
+			"sort_order": 2,
+			"vocabulary": [
+				{
+					"word": "冰箱",
+					"pinyin": "bīng xiāng",
+					"translation": "icebox; freezer cabinet; refrigerator"
+				},
+				{
+					"word": "才",
+					"pinyin": "cái",
+					"translation": "ability; talent; sb of a certain type; a capable individual; then and only then; just now; (before an expression of quantity) only"
+				},
+				{
+					"word": "菜单",
+					"pinyin": "cài dān",
+					"translation": "menu"
+				},
+				{
+					"word": "参加",
+					"pinyin": "cān jiā",
+					"translation": "to participate; to take part; to join"
+				},
+				{
+					"word": "草",
+					"pinyin": "cǎo",
+					"translation": "variant of 草"
+				},
+				{
+					"word": "层",
+					"pinyin": "céng",
+					"translation": "to pile on top of one another; layer; stratum; floor (of a building); story; (math.) sheaf; classifier for layers"
+				},
+				{
+					"word": "差",
+					"pinyin": "chā",
+					"translation": "difference; discrepancy; (math.) difference (amount remaining after a subtraction); (literary) a little; somewhat; slightly"
+				},
+				{
+					"word": "超市",
+					"pinyin": "chāo shì",
+					"translation": "supermarket (abbr. for 超级市场)"
+				},
+				{
+					"word": "衬衫",
+					"pinyin": "chèn shān",
+					"translation": "shirt; blouse"
+				},
+				{
+					"word": "成绩",
+					"pinyin": "chéng jì",
+					"translation": "achievement; performance records; grades"
+				},
+				{
+					"word": "城市",
+					"pinyin": "chéng shì",
+					"translation": "city; town"
+				},
+				{
+					"word": "迟到",
+					"pinyin": "chí dào",
+					"translation": "to arrive late"
+				},
+				{
+					"word": "出现",
+					"pinyin": "chū xiàn",
+					"translation": "to appear; to arise; to emerge; to show up"
+				},
+				{
+					"word": "除了",
+					"pinyin": "chú le",
+					"translation": "besides; apart from (... also...); in addition to; except (for)"
+				},
+				{
+					"word": "厨房",
+					"pinyin": "chú fáng",
+					"translation": "kitchen"
+				},
+				{
+					"word": "春",
+					"pinyin": "chūn",
+					"translation": "old variant of 春"
+				},
+				{
+					"word": "词语",
+					"pinyin": "cí yǔ",
+					"translation": "word (general term including monosyllables through to short phrases); term (e.g. technical term); expression"
+				},
+				{
+					"word": "聪明",
+					"pinyin": "cōng ming",
+					"translation": "intelligent; clever; bright; smart; acute (of sight and hearing)"
+				},
+				{
+					"word": "打扫",
+					"pinyin": "dǎ sǎo",
+					"translation": "to clean; to sweep"
+				},
+				{
+					"word": "打算",
+					"pinyin": "dǎ suàn",
+					"translation": "to plan; to intend; to calculate; plan; intention; calculation"
+				},
+				{
+					"word": "带",
+					"pinyin": "dài",
+					"translation": "band; belt; girdle; ribbon; tire; area; zone; region; to wear; to carry; to take along; to bear (i.e. to have); to lead; to bring; to look after; to raise"
+				},
+				{
+					"word": "担心",
+					"pinyin": "dān xīn",
+					"translation": "anxious; worried; uneasy; to worry; to be anxious"
+				},
+				{
+					"word": "蛋糕",
+					"pinyin": "dàn gāo",
+					"translation": "cake"
+				},
+				{
+					"word": "当然",
+					"pinyin": "dāng rán",
+					"translation": "only natural; as it should be; certainly; of course; without doubt"
+				},
+				{
+					"word": "地",
+					"pinyin": "de",
+					"translation": "-ly; structural particle: used before a verb or adjective, linking it to preceding modifying adverbial adjunct"
+				}
+			]
+		},
+		{
+			"id": "hsk-3-03",
+			"title": "HSK 3 - Teil 3",
+			"sort_order": 3,
+			"vocabulary": [
+				{
+					"word": "地方",
+					"pinyin": "dì fāng",
+					"translation": "region; regional (away from the central administration); local"
+				},
+				{
+					"word": "地铁",
+					"pinyin": "dì tiě",
+					"translation": "underground railway; subway; subway train"
+				},
+				{
+					"word": "地图",
+					"pinyin": "dì tú",
+					"translation": "map"
+				},
+				{
+					"word": "灯",
+					"pinyin": "dēng",
+					"translation": "lamp; light; lantern"
+				},
+				{
+					"word": "低",
+					"pinyin": "dī",
+					"translation": "low; beneath; to lower (one's head); to let droop; to hang down; to incline"
+				},
+				{
+					"word": "电梯",
+					"pinyin": "diàn tī",
+					"translation": "elevator; escalator"
+				},
+				{
+					"word": "电子",
+					"pinyin": "diàn zǐ",
+					"translation": "electronic; electron (particle physics)"
+				},
+				{
+					"word": "东",
+					"pinyin": "Dōng",
+					"translation": "surname Dong"
+				},
+				{
+					"word": "冬",
+					"pinyin": "dōng",
+					"translation": "winter"
+				},
+				{
+					"word": "动物",
+					"pinyin": "dòng wù",
+					"translation": "animal"
+				},
+				{
+					"word": "短",
+					"pinyin": "duǎn",
+					"translation": "short; brief; to lack; weak point; fault"
+				},
+				{
+					"word": "段",
+					"pinyin": "Duàn",
+					"translation": "surname Duan"
+				},
+				{
+					"word": "锻炼",
+					"pinyin": "duàn liàn",
+					"translation": "to toughen; to temper; to engage in physical exercise; to work out; (fig.) to develop one's skills; to train oneself"
+				},
+				{
+					"word": "多么",
+					"pinyin": "duō me",
+					"translation": "how (wonderful etc); what (a great idea etc); however (difficult it may be etc); (in interrogative sentences) how (much etc); to what extent"
+				},
+				{
+					"word": "饿",
+					"pinyin": "è",
+					"translation": "to be hungry; hungry; to starve (sb)"
+				},
+				{
+					"word": "而且",
+					"pinyin": "ér qiě",
+					"translation": "(not only ...) but also; moreover; in addition; furthermore"
+				},
+				{
+					"word": "耳朵",
+					"pinyin": "ěr duo",
+					"translation": "ear; handle (on a cup)"
+				},
+				{
+					"word": "发烧",
+					"pinyin": "fā shāo",
+					"translation": "to have a high temperature (from illness); to have a fever"
+				},
+				{
+					"word": "发现",
+					"pinyin": "fā xiàn",
+					"translation": "to notice; to become aware of; to discover; to find; to detect; a discovery"
+				},
+				{
+					"word": "方便",
+					"pinyin": "fāng biàn",
+					"translation": "convenient; suitable; to facilitate; to make things easy; having money to spare; (euphemism) to relieve oneself"
+				},
+				{
+					"word": "放",
+					"pinyin": "fàng",
+					"translation": "to put; to place; to release; to free; to let go; to let out; to set off (fireworks)"
+				},
+				{
+					"word": "放心",
+					"pinyin": "fàng xīn",
+					"translation": "to feel relieved; to feel reassured; to be at ease"
+				},
+				{
+					"word": "分",
+					"pinyin": "fēn",
+					"translation": "to divide; to separate; to distribute; to allocate; to distinguish (good and bad); (bound form) branch of (an organization); sub- (as in 局); fraction; one tenth (of certain units); unit of length equivalent to 0.33 cm; minute (unit of time); minute (angular measurement unit); a point (in sports or games); 0.01 yuan (unit of money)"
+				},
+				{
+					"word": "附近",
+					"pinyin": "fù jìn",
+					"translation": "nearby; neighboring; (in the) vicinity (of); neighborhood"
+				},
+				{
+					"word": "复习",
+					"pinyin": "fù xí",
+					"translation": "to review; revision"
+				}
+			]
+		},
+		{
+			"id": "hsk-3-04",
+			"title": "HSK 3 - Teil 4",
+			"sort_order": 4,
+			"vocabulary": [
+				{
+					"word": "敢",
+					"pinyin": "gǎn",
+					"translation": "to dare; daring; (polite) may I venture"
+				},
+				{
+					"word": "感冒",
+					"pinyin": "gǎn mào",
+					"translation": "to catch cold; (common) cold; (coll.) to be interested in (often used in the negative); (Tw) to detest; can't stand"
+				},
+				{
+					"word": "干净",
+					"pinyin": "gān jìng",
+					"translation": "clean; neat"
+				},
+				{
+					"word": "刚才",
+					"pinyin": "gāng cái",
+					"translation": "just now; a moment ago"
+				},
+				{
+					"word": "根据",
+					"pinyin": "gēn jù",
+					"translation": "according to; based on; basis; foundation"
+				},
+				{
+					"word": "跟",
+					"pinyin": "gēn",
+					"translation": "heel; to follow closely; to go with; (of a woman) to marry sb; with; compared with; to; towards; and (joining two nouns)"
+				},
+				{
+					"word": "更",
+					"pinyin": "gēng",
+					"translation": "to change or replace; to experience; one of the five two-hour periods into which the night was formerly divided; watch (e.g. of a sentry or guard)"
+				},
+				{
+					"word": "公园",
+					"pinyin": "gōng yuán",
+					"translation": "park (for public recreation)"
+				},
+				{
+					"word": "故事",
+					"pinyin": "gù shì",
+					"translation": "old practice"
+				},
+				{
+					"word": "刮",
+					"pinyin": "guā",
+					"translation": "to scrape; to blow; to shave; to plunder; to extort"
+				},
+				{
+					"word": "关",
+					"pinyin": "Guān",
+					"translation": "surname Guan"
+				},
+				{
+					"word": "关系",
+					"pinyin": "guān xi",
+					"translation": "relation; relationship; to concern; to affect; to have to do with; guanxi"
+				},
+				{
+					"word": "关心",
+					"pinyin": "guān xīn",
+					"translation": "to be concerned about; to care about"
+				},
+				{
+					"word": "关于",
+					"pinyin": "guān yú",
+					"translation": "pertaining to; concerning; with regard to; about; a matter of"
+				},
+				{
+					"word": "国家",
+					"pinyin": "guó jiā",
+					"translation": "country; nation; state"
+				},
+				{
+					"word": "果汁",
+					"pinyin": "guǒ zhī",
+					"translation": "fruit juice"
+				},
+				{
+					"word": "过去",
+					"pinyin": "guò qù",
+					"translation": "(in the) past; former; previous; to go over; to pass by"
+				},
+				{
+					"word": "还是",
+					"pinyin": "hái shi",
+					"translation": "still (as before); had better; unexpectedly; or"
+				},
+				{
+					"word": "害怕",
+					"pinyin": "hài pà",
+					"translation": "to be afraid; to be scared"
+				},
+				{
+					"word": "河",
+					"pinyin": "hé",
+					"translation": "river"
+				},
+				{
+					"word": "黑板",
+					"pinyin": "hēi bǎn",
+					"translation": "blackboard"
+				},
+				{
+					"word": "护照",
+					"pinyin": "hù zhào",
+					"translation": "passport"
+				},
+				{
+					"word": "花",
+					"pinyin": "Huā",
+					"translation": "surname Hua"
+				},
+				{
+					"word": "花园",
+					"pinyin": "huā yuán",
+					"translation": "garden"
+				},
+				{
+					"word": "画",
+					"pinyin": "huà",
+					"translation": "to draw; to paint; picture; painting; to draw (a line) (variant of 划); stroke of a Chinese character (variant of 划); (calligraphy) horizontal stroke (variant of 划)"
+				}
+			]
+		},
+		{
+			"id": "hsk-3-05",
+			"title": "HSK 3 - Teil 5",
+			"sort_order": 5,
+			"vocabulary": [
+				{
+					"word": "坏",
+					"pinyin": "huài",
+					"translation": "bad; spoiled; broken; to break down; (suffix) to the utmost"
+				},
+				{
+					"word": "环境",
+					"pinyin": "huán jìng",
+					"translation": "environment; circumstances; surroundings; ambient"
+				},
+				{
+					"word": "换",
+					"pinyin": "huàn",
+					"translation": "to exchange; to change (clothes etc); to substitute; to switch; to convert (currency)"
+				},
+				{
+					"word": "黄",
+					"pinyin": "Huáng",
+					"translation": "surname Huang or Hwang"
+				},
+				{
+					"word": "会议",
+					"pinyin": "huì yì",
+					"translation": "meeting; conference"
+				},
+				{
+					"word": "或者",
+					"pinyin": "huò zhě",
+					"translation": "or; possibly; maybe; perhaps"
+				},
+				{
+					"word": "机会",
+					"pinyin": "jī huì",
+					"translation": "opportunity; chance; occasion"
+				},
+				{
+					"word": "极",
+					"pinyin": "jí",
+					"translation": "extremely; pole (geography, physics); utmost; top"
+				},
+				{
+					"word": "几乎",
+					"pinyin": "jī hū",
+					"translation": "almost; nearly; practically"
+				},
+				{
+					"word": "记得",
+					"pinyin": "jì de",
+					"translation": "to remember"
+				},
+				{
+					"word": "季节",
+					"pinyin": "jì jié",
+					"translation": "time; season; period"
+				},
+				{
+					"word": "检查",
+					"pinyin": "jiǎn chá",
+					"translation": "inspection; to examine; to inspect"
+				},
+				{
+					"word": "简单",
+					"pinyin": "jiǎn dān",
+					"translation": "simple; not complicated"
+				},
+				{
+					"word": "见面",
+					"pinyin": "jiàn miàn",
+					"translation": "to meet; to see each other"
+				},
+				{
+					"word": "健康",
+					"pinyin": "jiàn kāng",
+					"translation": "health; healthy"
+				},
+				{
+					"word": "讲",
+					"pinyin": "jiǎng",
+					"translation": "to speak; to explain; to negotiate; to emphasize; to be particular about; as far as sth is concerned; speech; lecture"
+				},
+				{
+					"word": "角",
+					"pinyin": "Jué",
+					"translation": "surname Jue"
+				},
+				{
+					"word": "脚",
+					"pinyin": "jiǎo",
+					"translation": "foot; leg (of an animal or an object); base (of an object); classifier for kicks"
+				},
+				{
+					"word": "教",
+					"pinyin": "Jiào",
+					"translation": "surname Jiao"
+				},
+				{
+					"word": "接",
+					"pinyin": "jiē",
+					"translation": "to receive; to answer (the phone); to meet or welcome sb; to connect; to catch; to join; to extend; to take one's turn on duty; to take over for sb"
+				},
+				{
+					"word": "街道",
+					"pinyin": "jiē dào",
+					"translation": "street; subdistrict; residential district"
+				},
+				{
+					"word": "节目",
+					"pinyin": "jié mù",
+					"translation": "program; item (on a program)"
+				},
+				{
+					"word": "节日",
+					"pinyin": "jié rì",
+					"translation": "holiday; festival"
+				},
+				{
+					"word": "结婚",
+					"pinyin": "jié hūn",
+					"translation": "to marry; to get married"
+				},
+				{
+					"word": "结束",
+					"pinyin": "jié shù",
+					"translation": "termination; to finish; to end; to conclude; to close"
+				}
+			]
+		},
+		{
+			"id": "hsk-3-06",
+			"title": "HSK 3 - Teil 6",
+			"sort_order": 6,
+			"vocabulary": [
+				{
+					"word": "解决",
+					"pinyin": "jiě jué",
+					"translation": "to solve; to resolve; to settle (a problem); to eliminate; to wipe out (an enemy, bandits etc)"
+				},
+				{
+					"word": "借",
+					"pinyin": "jiè",
+					"translation": "to lend; to borrow; by means of; to take (an opportunity)"
+				},
+				{
+					"word": "经常",
+					"pinyin": "jīng cháng",
+					"translation": "frequently; constantly; regularly; often; day-to-day; everyday; daily"
+				},
+				{
+					"word": "经过",
+					"pinyin": "jīng guò",
+					"translation": "to pass; to go through; process; course"
+				},
+				{
+					"word": "经理",
+					"pinyin": "jīng lǐ",
+					"translation": "manager; director"
+				},
+				{
+					"word": "久",
+					"pinyin": "jiǔ",
+					"translation": "(long) time; (long) duration of time"
+				},
+				{
+					"word": "旧",
+					"pinyin": "jiù",
+					"translation": "old; opposite: new 新; former; worn (with age)"
+				},
+				{
+					"word": "举行",
+					"pinyin": "jǔ xíng",
+					"translation": "to hold (a meeting, ceremony etc)"
+				},
+				{
+					"word": "句子",
+					"pinyin": "jù zi",
+					"translation": "sentence"
+				},
+				{
+					"word": "决定",
+					"pinyin": "jué dìng",
+					"translation": "to decide (to do something); to resolve; decision; certainly"
+				},
+				{
+					"word": "可爱",
+					"pinyin": "kě ài",
+					"translation": "adorable; cute; lovely"
+				},
+				{
+					"word": "渴",
+					"pinyin": "kě",
+					"translation": "thirsty"
+				},
+				{
+					"word": "刻",
+					"pinyin": "kè",
+					"translation": "quarter (hour); moment; to carve; to engrave; to cut; oppressive; classifier for short time intervals"
+				},
+				{
+					"word": "客人",
+					"pinyin": "kè rén",
+					"translation": "visitor; guest; customer; client"
+				},
+				{
+					"word": "空调",
+					"pinyin": "kōng tiáo",
+					"translation": "air conditioning; air conditioner (including units that have a heating mode)"
+				},
+				{
+					"word": "口",
+					"pinyin": "kǒu",
+					"translation": "mouth; classifier for things with mouths (people, domestic animals, cannons, wells etc); classifier for bites or mouthfuls"
+				},
+				{
+					"word": "哭",
+					"pinyin": "kū",
+					"translation": "to cry; to weep"
+				},
+				{
+					"word": "裤子",
+					"pinyin": "kù zi",
+					"translation": "variant of 裤子, trousers; pants"
+				},
+				{
+					"word": "筷子",
+					"pinyin": "kuài zi",
+					"translation": "chopsticks"
+				},
+				{
+					"word": "蓝",
+					"pinyin": "Lán",
+					"translation": "surname Lan"
+				},
+				{
+					"word": "老",
+					"pinyin": "lǎo",
+					"translation": "prefix used before the surname of a person or a numeral indicating the order of birth of the children in a family or to indicate affection or familiarity; old (of people); venerable (person); experienced; of long standing; always; all the time; of the past; very; outdated; (of meat etc) tough"
+				},
+				{
+					"word": "了解",
+					"pinyin": "liǎo jiě",
+					"translation": "to understand; to realize; to find out"
+				},
+				{
+					"word": "离开",
+					"pinyin": "lí kāi",
+					"translation": "to depart; to leave"
+				},
+				{
+					"word": "礼物",
+					"pinyin": "lǐ wù",
+					"translation": "gift; present"
+				},
+				{
+					"word": "历史",
+					"pinyin": "lì shǐ",
+					"translation": "history"
+				}
+			]
+		},
+		{
+			"id": "hsk-3-07",
+			"title": "HSK 3 - Teil 7",
+			"sort_order": 7,
+			"vocabulary": [
+				{
+					"word": "脸",
+					"pinyin": "liǎn",
+					"translation": "face"
+				},
+				{
+					"word": "练习",
+					"pinyin": "liàn xí",
+					"translation": "to practice; exercise; drill; practice"
+				},
+				{
+					"word": "辆",
+					"pinyin": "liàng",
+					"translation": "classifier for vehicles"
+				},
+				{
+					"word": "邻居",
+					"pinyin": "lín jū",
+					"translation": "neighbor; next door"
+				},
+				{
+					"word": "楼",
+					"pinyin": "Lóu",
+					"translation": "surname Lou"
+				},
+				{
+					"word": "绿",
+					"pinyin": "lǜ",
+					"translation": "green; (slang) (derived from 绿帽子) to cheat on (one's spouse or boyfriend or girlfriend)"
+				},
+				{
+					"word": "马",
+					"pinyin": "Mǎ",
+					"translation": "surname Ma; abbr. for Malaysia 马来西亚"
+				},
+				{
+					"word": "马上",
+					"pinyin": "mǎ shàng",
+					"translation": "at once; right away; immediately; on horseback (i.e. by military force)"
+				},
+				{
+					"word": "满意",
+					"pinyin": "mǎn yì",
+					"translation": "satisfied; pleased; to one's satisfaction"
+				},
+				{
+					"word": "帽子",
+					"pinyin": "mào zi",
+					"translation": "hat; cap; (fig.) label; bad name"
+				},
+				{
+					"word": "米",
+					"pinyin": "Mǐ",
+					"translation": "surname Mi"
+				},
+				{
+					"word": "面包",
+					"pinyin": "miàn bāo",
+					"translation": "bread"
+				},
+				{
+					"word": "面条",
+					"pinyin": "miàn tiáo",
+					"translation": "noodles"
+				},
+				{
+					"word": "明白",
+					"pinyin": "míng bai",
+					"translation": "clear; obvious; unequivocal; to understand; to realize"
+				},
+				{
+					"word": "拿",
+					"pinyin": "ná",
+					"translation": "old variant of 拿"
+				},
+				{
+					"word": "奶奶",
+					"pinyin": "nǎi nai",
+					"translation": "(informal) grandma (paternal grandmother); (respectful) mistress of the house; (coll.) boobies; breasts"
+				},
+				{
+					"word": "南",
+					"pinyin": "Nán",
+					"translation": "surname Nan"
+				},
+				{
+					"word": "难",
+					"pinyin": "nán",
+					"translation": "difficult (to...); problem; difficulty; difficult; not good"
+				},
+				{
+					"word": "难过",
+					"pinyin": "nán guò",
+					"translation": "to feel sad; to feel unwell; (of life) to be difficult"
+				},
+				{
+					"word": "年级",
+					"pinyin": "nián jí",
+					"translation": "grade; year (in school, college etc)"
+				},
+				{
+					"word": "年轻",
+					"pinyin": "nián qīng",
+					"translation": "young"
+				},
+				{
+					"word": "鸟",
+					"pinyin": "diǎo",
+					"translation": "variant of 屌; penis"
+				},
+				{
+					"word": "努力",
+					"pinyin": "nǔ lì",
+					"translation": "to make an effort; to try hard; to strive; hard-working; conscientious"
+				},
+				{
+					"word": "爬山",
+					"pinyin": "pá shān",
+					"translation": "to climb a mountain; to mountaineer; hiking; mountaineering"
+				},
+				{
+					"word": "盘子",
+					"pinyin": "pán zi",
+					"translation": "tray; plate; dish"
+				}
+			]
+		},
+		{
+			"id": "hsk-3-08",
+			"title": "HSK 3 - Teil 8",
+			"sort_order": 8,
+			"vocabulary": [
+				{
+					"word": "胖",
+					"pinyin": "pán",
+					"translation": "healthy; at ease"
+				},
+				{
+					"word": "啤酒",
+					"pinyin": "pí jiǔ",
+					"translation": "beer (loanword)"
+				},
+				{
+					"word": "葡萄",
+					"pinyin": "pú tao",
+					"translation": "grape"
+				},
+				{
+					"word": "普通话",
+					"pinyin": "pǔ tōng huà",
+					"translation": "Mandarin (common language); Putonghua (common speech of the Chinese language); ordinary speech"
+				},
+				{
+					"word": "其实",
+					"pinyin": "qí shí",
+					"translation": "actually; in fact; really"
+				},
+				{
+					"word": "其他",
+					"pinyin": "qí tā",
+					"translation": "other; (sth or sb) else; the rest"
+				},
+				{
+					"word": "奇怪",
+					"pinyin": "qí guài",
+					"translation": "strange; odd; to marvel; to be baffled"
+				},
+				{
+					"word": "骑",
+					"pinyin": "jì",
+					"translation": "(Tw) saddle horse; mounted soldier"
+				},
+				{
+					"word": "铅笔",
+					"pinyin": "qiān bǐ",
+					"translation": "(lead) pencil"
+				},
+				{
+					"word": "清楚",
+					"pinyin": "qīng chu",
+					"translation": "clear; distinct; to understand thoroughly; to be clear about"
+				},
+				{
+					"word": "秋",
+					"pinyin": "Qiū",
+					"translation": "surname Qiu"
+				},
+				{
+					"word": "裙子",
+					"pinyin": "qún zi",
+					"translation": "skirt"
+				},
+				{
+					"word": "然后",
+					"pinyin": "rán hòu",
+					"translation": "then; after that; afterwards"
+				},
+				{
+					"word": "热情",
+					"pinyin": "rè qíng",
+					"translation": "cordial; enthusiastic; passion; passionate; passionately"
+				},
+				{
+					"word": "认为",
+					"pinyin": "rèn wéi",
+					"translation": "to believe; to think; to consider; to feel"
+				},
+				{
+					"word": "认真",
+					"pinyin": "rèn zhēn",
+					"translation": "conscientious; earnest; serious; to take seriously; to take to heart"
+				},
+				{
+					"word": "容易",
+					"pinyin": "róng yì",
+					"translation": "easy; straightforward; likely; liable to; apt to"
+				},
+				{
+					"word": "如果",
+					"pinyin": "rú guǒ",
+					"translation": "if; in case; in the event that"
+				},
+				{
+					"word": "伞",
+					"pinyin": "sǎn",
+					"translation": "umbrella; parasol"
+				},
+				{
+					"word": "上网",
+					"pinyin": "shàng wǎng",
+					"translation": "to go online; to connect to the Internet; (of a document etc) to be uploaded to the Internet; (tennis, volleyball etc) to move in close to the net"
+				},
+				{
+					"word": "生气",
+					"pinyin": "shēng qì",
+					"translation": "to get angry; to take offense; angry; vitality; liveliness"
+				},
+				{
+					"word": "声音",
+					"pinyin": "shēng yīn",
+					"translation": "voice; sound"
+				},
+				{
+					"word": "使",
+					"pinyin": "shǐ",
+					"translation": "to make; to cause; to enable; to use; to employ; to send; to instruct sb to do sth; envoy; messenger"
+				},
+				{
+					"word": "世界",
+					"pinyin": "shì jiè",
+					"translation": "world"
+				},
+				{
+					"word": "瘦",
+					"pinyin": "shòu",
+					"translation": "thin; to lose weight; (of clothing) tight; (of meat) lean; (of land) unproductive"
+				}
+			]
+		},
+		{
+			"id": "hsk-3-09",
+			"title": "HSK 3 - Teil 9",
+			"sort_order": 9,
+			"vocabulary": [
+				{
+					"word": "叔叔",
+					"pinyin": "shū shu",
+					"translation": "father's younger brother; uncle; Taiwan pr. [shú shu]"
+				},
+				{
+					"word": "舒服",
+					"pinyin": "shū fu",
+					"translation": "comfortable; feeling well"
+				},
+				{
+					"word": "树",
+					"pinyin": "shù",
+					"translation": "tree; to cultivate; to set up"
+				},
+				{
+					"word": "数学",
+					"pinyin": "shù xué",
+					"translation": "mathematics; mathematical"
+				},
+				{
+					"word": "刷",
+					"pinyin": "shuā",
+					"translation": "to brush; to paint; to daub; to paste up; to skip class (of students); to fire from a job"
+				},
+				{
+					"word": "双",
+					"pinyin": "Shuāng",
+					"translation": "surname Shuang"
+				},
+				{
+					"word": "水平",
+					"pinyin": "shuǐ píng",
+					"translation": "level (of achievement etc); standard; horizontal"
+				},
+				{
+					"word": "司机",
+					"pinyin": "sī jī",
+					"translation": "chauffeur; driver"
+				},
+				{
+					"word": "虽然",
+					"pinyin": "suī rán",
+					"translation": "although; even though (often used correlatively with 是 or 是 etc)"
+				},
+				{
+					"word": "太阳",
+					"pinyin": "tài yang",
+					"translation": "sun; abbr. for 太阳穴"
+				},
+				{
+					"word": "糖",
+					"pinyin": "táng",
+					"translation": "sugar; sweets; candy"
+				},
+				{
+					"word": "特别",
+					"pinyin": "tè bié",
+					"translation": "unusual; special; very; especially; particularly; expressly; for a specific purpose; (often followed by 是) in particular"
+				},
+				{
+					"word": "疼",
+					"pinyin": "téng",
+					"translation": "(it) hurts; sore; to love dearly"
+				},
+				{
+					"word": "提高",
+					"pinyin": "tí gāo",
+					"translation": "to raise; to increase; to improve"
+				},
+				{
+					"word": "体育",
+					"pinyin": "tǐ yù",
+					"translation": "sports; physical education"
+				},
+				{
+					"word": "甜",
+					"pinyin": "tián",
+					"translation": "sweet"
+				},
+				{
+					"word": "条",
+					"pinyin": "tiáo",
+					"translation": "strip; item; article; clause (of law or treaty); classifier for long thin things (ribbon, river, road, trousers etc)"
+				},
+				{
+					"word": "同事",
+					"pinyin": "tóng shì",
+					"translation": "colleague; co-worker"
+				},
+				{
+					"word": "同意",
+					"pinyin": "tóng yì",
+					"translation": "to agree; to consent; to approve"
+				},
+				{
+					"word": "头发",
+					"pinyin": "tóu fa",
+					"translation": "hair (on the head)"
+				},
+				{
+					"word": "突然",
+					"pinyin": "tū rán",
+					"translation": "sudden; abrupt; unexpected"
+				},
+				{
+					"word": "图书馆",
+					"pinyin": "tú shū guǎn",
+					"translation": "library"
+				},
+				{
+					"word": "腿",
+					"pinyin": "tuǐ",
+					"translation": "leg"
+				},
+				{
+					"word": "完成",
+					"pinyin": "wán chéng",
+					"translation": "to complete; to accomplish"
+				},
+				{
+					"word": "碗",
+					"pinyin": "wǎn",
+					"translation": "variant of 碗"
+				}
+			]
+		},
+		{
+			"id": "hsk-3-10",
+			"title": "HSK 3 - Teil 10",
+			"sort_order": 10,
+			"vocabulary": [
+				{
+					"word": "万",
+					"pinyin": "mò",
+					"translation": "used in 俟"
+				},
+				{
+					"word": "忘记",
+					"pinyin": "wàng jì",
+					"translation": "to forget"
+				},
+				{
+					"word": "为了",
+					"pinyin": "wèi le",
+					"translation": "for; for the purpose of; in order to"
+				},
+				{
+					"word": "为什么",
+					"pinyin": "wèi shén me",
+					"translation": "why?; for what reason?"
+				},
+				{
+					"word": "位",
+					"pinyin": "wèi",
+					"translation": "position; location; place; seat; classifier for people (honorific); classifier for binary bits (e.g. 十六位 16-bit or 2 bytes); (physics) potential"
+				},
+				{
+					"word": "文化",
+					"pinyin": "wén huà",
+					"translation": "culture; civilization; cultural"
+				},
+				{
+					"word": "习惯",
+					"pinyin": "xí guàn",
+					"translation": "habit; custom; usual practice; to be used to"
+				},
+				{
+					"word": "洗手间",
+					"pinyin": "xǐ shǒu jiān",
+					"translation": "toilet; lavatory; washroom"
+				},
+				{
+					"word": "洗澡",
+					"pinyin": "xǐ zǎo",
+					"translation": "to bathe; to take a shower"
+				},
+				{
+					"word": "西",
+					"pinyin": "Xī",
+					"translation": "the West; abbr. for Spain 牙; Spanish"
+				},
+				{
+					"word": "夏",
+					"pinyin": "Xià",
+					"translation": "the Xia or Hsia dynasty c. 2000 BC; Xia of the Sixteen Kingdoms (407-432); surname Xia"
+				},
+				{
+					"word": "先",
+					"pinyin": "xiān",
+					"translation": "early; prior; former; in advance; first"
+				},
+				{
+					"word": "相同",
+					"pinyin": "xiāng tóng",
+					"translation": "identical; same"
+				},
+				{
+					"word": "相信",
+					"pinyin": "xiāng xìn",
+					"translation": "to be convinced (that sth is true); to believe; to accept sth as true"
+				},
+				{
+					"word": "香蕉",
+					"pinyin": "xiāng jiāo",
+					"translation": "banana"
+				},
+				{
+					"word": "像",
+					"pinyin": "xiàng",
+					"translation": "to resemble; to be like; to look as if; such as; appearance; image; portrait; image under a mapping (math.)"
+				},
+				{
+					"word": "小心",
+					"pinyin": "xiǎo xīn",
+					"translation": "to be careful; to take care"
+				},
+				{
+					"word": "校长",
+					"pinyin": "xiào zhǎng",
+					"translation": "(college, university) president; headmaster"
+				},
+				{
+					"word": "鞋",
+					"pinyin": "xié",
+					"translation": "shoe"
+				},
+				{
+					"word": "新闻",
+					"pinyin": "xīn wén",
+					"translation": "news"
+				},
+				{
+					"word": "新鲜",
+					"pinyin": "xīn xiān",
+					"translation": "fresh (experience, food etc); freshness; novel; uncommon"
+				},
+				{
+					"word": "信",
+					"pinyin": "xìn",
+					"translation": "letter; mail; to trust; to believe; to profess faith in; truthful; confidence; trust; at will; at random"
+				},
+				{
+					"word": "行李箱",
+					"pinyin": "xíng li xiāng",
+					"translation": "suitcase; baggage compartment; overhead bin; (car) trunk; boot"
+				},
+				{
+					"word": "兴趣",
+					"pinyin": "xìng qù",
+					"translation": "interest (desire to know about sth); interest (thing in which one is interested); hobby"
+				},
+				{
+					"word": "熊猫",
+					"pinyin": "xióng māo",
+					"translation": "panda"
+				}
+			]
+		},
+		{
+			"id": "hsk-3-11",
+			"title": "HSK 3 - Teil 11",
+			"sort_order": 11,
+			"vocabulary": [
+				{
+					"word": "需要",
+					"pinyin": "xū yào",
+					"translation": "to need; to want; to demand; to require; needs"
+				},
+				{
+					"word": "选择",
+					"pinyin": "xuǎn zé",
+					"translation": "to select; to pick; choice; option; alternative"
+				},
+				{
+					"word": "眼镜",
+					"pinyin": "yǎn jìng",
+					"translation": "spectacles; eyeglasses"
+				},
+				{
+					"word": "要求",
+					"pinyin": "yāo qiú",
+					"translation": "to request; to require; requirement; to stake a claim; to ask; to demand"
+				},
+				{
+					"word": "爷爷",
+					"pinyin": "yé ye",
+					"translation": "(coll.) father's father; paternal grandfather"
+				},
+				{
+					"word": "一般",
+					"pinyin": "yī bān",
+					"translation": "same; ordinary; so-so; common; general; generally; in general"
+				},
+				{
+					"word": "一边",
+					"pinyin": "yī biān",
+					"translation": "one side; either side; on the one hand; on the other hand; doing while"
+				},
+				{
+					"word": "一定",
+					"pinyin": "yī dìng",
+					"translation": "surely; certainly; necessarily; fixed; a certain (extent etc); given; particular; must"
+				},
+				{
+					"word": "一共",
+					"pinyin": "yī gòng",
+					"translation": "altogether"
+				},
+				{
+					"word": "一会儿",
+					"pinyin": "yī huì r",
+					"translation": "a moment; a while; in a moment; now...now...; also pr. [yī huǐ r]"
+				},
+				{
+					"word": "一样",
+					"pinyin": "yī yàng",
+					"translation": "same; like; equal to; the same as; just like"
+				},
+				{
+					"word": "一直",
+					"pinyin": "yī zhí",
+					"translation": "straight (in a straight line); continuously; always; all the way through"
+				},
+				{
+					"word": "以后",
+					"pinyin": "yǐ hòu",
+					"translation": "after; later; afterwards; following; later on; in the future"
+				},
+				{
+					"word": "以前",
+					"pinyin": "yǐ qián",
+					"translation": "before; formerly; previous; ago"
+				},
+				{
+					"word": "以为",
+					"pinyin": "yǐ wéi",
+					"translation": "to think (i.e. to take it to be true that ...) (Usually there is an implication that the notion is mistaken – except when expressing one's own current opinion.)"
+				},
+				{
+					"word": "音乐",
+					"pinyin": "yīn yuè",
+					"translation": "music"
+				},
+				{
+					"word": "银行",
+					"pinyin": "yín háng",
+					"translation": "bank"
+				},
+				{
+					"word": "应该",
+					"pinyin": "yīng gāi",
+					"translation": "ought to; should; must"
+				},
+				{
+					"word": "影响",
+					"pinyin": "yǐng xiǎng",
+					"translation": "influence; effect; to influence; to affect (usually adversely); to disturb"
+				},
+				{
+					"word": "用",
+					"pinyin": "yòng",
+					"translation": "to use; to employ; to have to; to eat or drink; expense or outlay; usefulness; hence; therefore"
+				},
+				{
+					"word": "游戏",
+					"pinyin": "yóu xì",
+					"translation": "game; to play"
+				},
+				{
+					"word": "有名",
+					"pinyin": "yǒu míng",
+					"translation": "famous; well-known"
+				},
+				{
+					"word": "又",
+					"pinyin": "yòu",
+					"translation": "(once) again; also; both... and...; and yet; (used for emphasis) anyway"
+				},
+				{
+					"word": "遇到",
+					"pinyin": "yù dào",
+					"translation": "to meet; to run into; to come across"
+				},
+				{
+					"word": "愿意",
+					"pinyin": "yuàn yì",
+					"translation": "to wish; to want; ready; willing (to do sth)"
+				}
+			]
+		},
+		{
+			"id": "hsk-3-12",
+			"title": "HSK 3 - Teil 12",
+			"sort_order": 12,
+			"vocabulary": [
+				{
+					"word": "月亮",
+					"pinyin": "yuè liang",
+					"translation": "the moon"
+				},
+				{
+					"word": "越",
+					"pinyin": "Yuè",
+					"translation": "generic word for peoples or states of south China or south Asia at different historical periods; abbr. for Vietnam 越南"
+				},
+				{
+					"word": "云",
+					"pinyin": "yún",
+					"translation": "(classical) to say"
+				},
+				{
+					"word": "站",
+					"pinyin": "zhàn",
+					"translation": "station; to stand; to halt; to stop; branch of a company or organization; website"
+				},
+				{
+					"word": "照顾",
+					"pinyin": "zhào gu",
+					"translation": "to take care of; to show consideration; to attend to; to look after"
+				},
+				{
+					"word": "照片",
+					"pinyin": "zhào piàn",
+					"translation": "photograph; picture"
+				},
+				{
+					"word": "照相机",
+					"pinyin": "zhào xiàng jī",
+					"translation": "camera"
+				},
+				{
+					"word": "着急",
+					"pinyin": "zháo jí",
+					"translation": "to worry; to feel anxious; to feel a sense of urgency; to be in a hurry; Taiwan pr. [zhāo jí]"
+				},
+				{
+					"word": "只",
+					"pinyin": "zhǐ",
+					"translation": "only; merely; just; but"
+				},
+				{
+					"word": "只",
+					"pinyin": "zhǐ",
+					"translation": "only; merely; just; but"
+				},
+				{
+					"word": "中间",
+					"pinyin": "zhōng jiān",
+					"translation": "the middle; the inside; in the middle; within; between; among; during; in the meantime"
+				},
+				{
+					"word": "终于",
+					"pinyin": "zhōng yú",
+					"translation": "at last; in the end; finally; eventually"
+				},
+				{
+					"word": "种",
+					"pinyin": "zhǒng",
+					"translation": "seed; species; kind; type; classifier for types, kinds, sorts"
+				},
+				{
+					"word": "重要",
+					"pinyin": "zhòng yào",
+					"translation": "important; significant; major"
+				},
+				{
+					"word": "周末",
+					"pinyin": "zhōu mò",
+					"translation": "weekend"
+				},
+				{
+					"word": "主要",
+					"pinyin": "zhǔ yào",
+					"translation": "main; principal; major; primary"
+				},
+				{
+					"word": "注意",
+					"pinyin": "zhù yì",
+					"translation": "to take note of; to pay attention to"
+				},
+				{
+					"word": "祝",
+					"pinyin": "Zhù",
+					"translation": "surname Zhu"
+				},
+				{
+					"word": "字典",
+					"pinyin": "zì diǎn",
+					"translation": "Chinese character dictionary (containing entries for single characters, contrasted with a 词典, which has entries for words of one or more characters); (coll.) dictionary"
+				},
+				{
+					"word": "自己",
+					"pinyin": "zì jǐ",
+					"translation": "oneself; one's own"
+				},
+				{
+					"word": "总是",
+					"pinyin": "zǒng shì",
+					"translation": "always"
+				},
+				{
+					"word": "最近",
+					"pinyin": "zuì jìn",
+					"translation": "recently; soon; nearest"
+				},
+				{
+					"word": "作业",
+					"pinyin": "zuò yè",
+					"translation": "school assignment; homework; work; task; operation; to operate"
+				},
+				{
+					"word": "作用",
+					"pinyin": "zuò yòng",
+					"translation": "to act on; to affect; action; function; activity; impact; result; effect; purpose; intent; (suffix) -ation, -tion etc, as in 用, inhibition"
+				}
+			]
+		}
+	]
+}

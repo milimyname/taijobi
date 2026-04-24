@@ -1,0 +1,47 @@
+{
+	"id": "long-neu-l5",
+	"name": "Lóng neu L5",
+	"version": 1,
+	"language_pair": "zh-de",
+	"lessons": [
+		{
+			"id": "long-neu-l5-01",
+			"title": "Konjunktionen & Zeitadverbien",
+			"sort_order": 1,
+			"vocabulary": [
+				{ "word": "过", "pinyin": "guò", "translation": "verbringen, (Zeitdauer)" },
+				{ "word": "已经", "pinyin": "yǐjīng", "translation": "bereits, schon" },
+				{ "word": "虽然", "pinyin": "suīrán", "translation": "obwohl" },
+				{ "word": "但是", "pinyin": "dànshì", "translation": "aber, jedoch" },
+				{ "word": "经常", "pinyin": "jīngcháng", "translation": "oft, häufig" },
+				{ "word": "一边", "pinyin": "yìbiān", "translation": "gleichzeitig, währenddessen" },
+				{ "word": "然后", "pinyin": "ránhòu", "translation": "danach, dann" },
+				{ "word": "以前", "pinyin": "yǐqián", "translation": "früher, vorher" },
+				{ "word": "以后", "pinyin": "yǐhòu", "translation": "später, danach" },
+				{ "word": "最近", "pinyin": "zuìjìn", "translation": "in letzter Zeit, kürzlich" },
+				{ "word": "突然", "pinyin": "tūrán", "translation": "plötzlich" },
+				{ "word": "一直", "pinyin": "yìzhí", "translation": "immer, ständig" }
+			]
+		},
+		{
+			"id": "long-neu-l5-02",
+			"title": "Modalverben & Reihenfolge",
+			"sort_order": 2,
+			"vocabulary": [
+				{ "word": "可能", "pinyin": "kěnéng", "translation": "möglich, vielleicht" },
+				{ "word": "应该", "pinyin": "yīnggāi", "translation": "sollen, sollte" },
+				{ "word": "必须", "pinyin": "bìxū", "translation": "müssen, unbedingt" },
+				{ "word": "只要", "pinyin": "zhǐyào", "translation": "solange, wenn nur" },
+				{ "word": "不管", "pinyin": "bùguǎn", "translation": "egal ob, ungeachtet" },
+				{ "word": "如果", "pinyin": "rúguǒ", "translation": "wenn, falls" },
+				{ "word": "因为", "pinyin": "yīnwèi", "translation": "weil, da" },
+				{ "word": "所以", "pinyin": "suǒyǐ", "translation": "deshalb, daher" },
+				{ "word": "首先", "pinyin": "shǒuxiān", "translation": "zuerst, zunächst" },
+				{ "word": "接着", "pinyin": "jiēzhe", "translation": "anschließend, dann" },
+				{ "word": "最后", "pinyin": "zuìhòu", "translation": "zum Schluss, zuletzt" },
+				{ "word": "其实", "pinyin": "qíshí", "translation": "eigentlich, tatsächlich" },
+				{ "word": "特别", "pinyin": "tèbié", "translation": "besonders, besondere" }
+			]
+		}
+	]
+}

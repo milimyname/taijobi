@@ -27,6 +27,7 @@
 	import { data } from '$lib/data.svelte';
 	import { downloadStore, type DownloadKey } from '$lib/download-state.svelte';
 	import { uninstallDictionary } from '$lib/dictionary-data';
+	import { exportPackAsJson, downloadPackJson } from '$lib/pack-export';
 	import {
 		catalogStore,
 		tagLabel,
@@ -173,6 +174,18 @@
 		} finally {
 			loading = '';
 		}
+	}
+
+	function handleExportPack(entry: CatalogEntry) {
+		const result = exportPackAsJson(entry.id);
+		if (!result.ok) {
+			toastStore.show(`Export fehlgeschlagen: ${result.error}`);
+			return;
+		}
+		downloadPackJson(result);
+		toastStore.show(
+			`${result.filename} heruntergeladen (${result.wordCount} Wörter) — öffne eine PR in packs/community/`,
+		);
 	}
 
 	async function handleRemove(entry: CatalogEntry) {
@@ -373,17 +386,29 @@
 								</div>
 							</div>
 							{#if entry.kind === 'content'}
-								<div class="flex justify-between">
+								<div class="flex items-center justify-between gap-2">
 									<a href="/lessons/{entry.id}" class="text-sm font-medium text-primary">
 										Lektionen anzeigen &rarr;
 									</a>
-									<button
-										onclick={() => handleRemove(entry)}
-										class="flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10"
-									>
-										<Delete class="text-sm" />
-										Entfernen
-									</button>
+									<div class="flex items-center gap-1">
+										{#if entry.tag === 'personal'}
+											<button
+												onclick={() => handleExportPack(entry)}
+												title="Als Community-Pack JSON exportieren (für PR nach packs/community/)"
+												class="flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium text-primary transition-colors hover:bg-primary/10 dark:text-accent dark:hover:bg-accent/10"
+											>
+												<Upload class="text-sm" />
+												Exportieren
+											</button>
+										{/if}
+										<button
+											onclick={() => handleRemove(entry)}
+											class="flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10"
+										>
+											<Delete class="text-sm" />
+											Entfernen
+										</button>
+									</div>
 								</div>
 							{:else}
 								<div class="flex justify-end">

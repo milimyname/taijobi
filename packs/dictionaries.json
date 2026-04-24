@@ -1,0 +1,29 @@
+[
+	{
+		"id": "dict-zh",
+		"kind": "dictionary",
+		"tag": "official",
+		"name": "Chinesisches Wörterbuch",
+		"language_pair": "zh",
+		"size_mb": 19,
+		"description": "CC-CEDICT, Strichfolge und Zeichenzerlegung"
+	},
+	{
+		"id": "dict-en",
+		"kind": "dictionary",
+		"tag": "official",
+		"name": "Englisches Wörterbuch",
+		"language_pair": "en",
+		"size_mb": 19,
+		"description": "Wiktionary-Definitionen (Englisch)"
+	},
+	{
+		"id": "dict-de",
+		"kind": "dictionary",
+		"tag": "official",
+		"name": "Deutsches Wörterbuch",
+		"language_pair": "de",
+		"size_mb": 5,
+		"description": "Wiktionary-Definitionen (Deutsch)"
+	}
+]

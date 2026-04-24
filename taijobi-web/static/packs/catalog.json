@@ -27,22 +27,13 @@
 		"description": "Wiktionary-Definitionen (Deutsch)"
 	},
 	{
-		"id": "long-neu-l5",
-		"kind": "content",
-		"tag": "official",
-		"name": "Lóng neu L5",
-		"language_pair": "zh-de",
-		"word_count": 25,
-		"description": "Konjunktionen, Zeitadverbien & Modalverben"
-	},
-	{
 		"id": "hsk-1",
 		"kind": "content",
 		"tag": "official",
 		"name": "HSK 1",
 		"language_pair": "zh-en",
 		"word_count": 150,
-		"description": "Basic Chinese vocabulary (beginner)"
+		"description": ""
 	},
 	{
 		"id": "hsk-2",
@@ -51,7 +42,7 @@
 		"name": "HSK 2",
 		"language_pair": "zh-en",
 		"word_count": 150,
-		"description": "Elementary Chinese vocabulary"
+		"description": ""
 	},
 	{
 		"id": "hsk-3",
@@ -60,7 +51,7 @@
 		"name": "HSK 3",
 		"language_pair": "zh-en",
 		"word_count": 299,
-		"description": "Intermediate Chinese vocabulary"
+		"description": ""
 	},
 	{
 		"id": "hsk-4",
@@ -69,7 +60,7 @@
 		"name": "HSK 4",
 		"language_pair": "zh-en",
 		"word_count": 601,
-		"description": "Upper-intermediate Chinese vocabulary"
+		"description": ""
 	},
 	{
 		"id": "hsk-5",
@@ -78,7 +69,7 @@
 		"name": "HSK 5",
 		"language_pair": "zh-en",
 		"word_count": 1298,
-		"description": "Advanced Chinese vocabulary"
+		"description": ""
 	},
 	{
 		"id": "hsk-6",
@@ -87,6 +78,15 @@
 		"name": "HSK 6",
 		"language_pair": "zh-en",
 		"word_count": 2500,
-		"description": "Proficient Chinese vocabulary"
+		"description": ""
+	},
+	{
+		"id": "long-neu-l5",
+		"kind": "content",
+		"tag": "official",
+		"name": "Lóng neu L5",
+		"language_pair": "zh-de",
+		"word_count": 25,
+		"description": ""
 	}
 ]

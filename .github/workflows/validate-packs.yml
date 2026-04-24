@@ -1,0 +1,20 @@
+name: Validate packs
+
+on:
+  pull_request:
+    paths:
+      - 'packs/**'
+      - 'scripts/generate-catalog.ts'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Validate pack shapes + verify catalog is regenerated
+        run: bun scripts/generate-catalog.ts --check

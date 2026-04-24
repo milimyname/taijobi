@@ -1,0 +1,11 @@
+# Official content and pipeline — maintainer approval required.
+/packs/official/          @komiljonmaksudov
+/packs/dictionaries.json  @komiljonmaksudov
+/packs/schema.json        @komiljonmaksudov
+/packs/README.md          @komiljonmaksudov
+/scripts/generate-catalog.ts  @komiljonmaksudov
+/.github/workflows/validate-packs.yml  @komiljonmaksudov
+
+# Community packs — CI gates the shape; maintainer reviews for taste
+# but isn't auto-assigned, so contributors aren't blocked waiting.
+# /packs/community/ intentionally has no required owner.

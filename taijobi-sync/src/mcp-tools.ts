@@ -9,6 +9,7 @@
  */
 
 import { z } from "zod";
+import { ID_REGEX, LANG_REGEX } from "../../packs/validator";
 import type { WasmInstance } from "./mcp-wasm";
 
 export interface ToolDefinition {
@@ -251,10 +252,20 @@ export function getToolDefinitions(): ToolDefinition[] {
         if (!name) throw new Error("name is empty");
 
         const packId = String(args.id ?? "").trim() || `mcp-${Date.now()}`;
+        if (!ID_REGEX.test(packId)) {
+          throw new Error(
+            `id must match ${ID_REGEX.source} (lowercase letters, digits, dashes; got "${packId}")`,
+          );
+        }
         const languagePair =
           typeof args.language_pair === "string" && args.language_pair.length > 0
             ? args.language_pair
             : "zh-de";
+        if (!LANG_REGEX.test(languagePair)) {
+          throw new Error(
+            `language_pair must match ${LANG_REGEX.source} (e.g. "zh-en", "de"; got "${languagePair}")`,
+          );
+        }
 
         type VocabItem = { word: string; pinyin: string | undefined; translation: string | undefined };
         function normalizeVocab(raw: unknown): VocabItem[] {
