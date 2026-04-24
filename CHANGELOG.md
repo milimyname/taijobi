@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.6.17 (2026-04-24)
+
+- feat: list_packs + add_lesson_to_pack MCP tools + WS sync toast
+
 ## v0.6.16 (2026-04-24)
 
 - fix: MCP write tools silently skipping sync-push
