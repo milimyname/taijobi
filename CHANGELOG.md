@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.6.13 (2026-04-24)
+
+- feat: phase 6.3 community packs pipeline + shared validator + /packs export
+
 ## v0.6.12 (2026-04-21)
 
 - fix: update isDraggingSheet to reactive state management.
