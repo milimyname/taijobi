@@ -8,15 +8,13 @@
 
 import {
 	persistAlloc,
+	persistReset,
 	loadCedict,
 	loadDecomp,
 	loadStrokes,
 	loadEndict,
 	loadDedict,
-	isChineseDataLoaded,
-	unloadChinese,
-	unloadEndict,
-	unloadDedict
+	isChineseDataLoaded
 } from './wasm';
 
 type DataKey = 'cedict' | 'decomp' | 'strokes' | 'endict' | 'dedict';
@@ -330,33 +328,46 @@ export async function clearCache(): Promise<void> {
 }
 
 /**
- * Uninstall a dictionary bundle. Clears the WASM data slice reference so
- * `*_loaded()` returns false and the UI reflects removal, then deletes the
- * underlying .bin file(s) from OPFS so the next session starts clean.
+ * Uninstall a dictionary bundle in-place — no page reload required.
  *
- * The bytes in the WASM persistent allocator stay reserved until the next
- * page reload — the FBA is an arena without per-block free. Callers should
- * hint the user to reload if they want the memory back.
+ * The persistent allocator is an arena (no per-block free), so simply
+ * clearing the slice reference would leak the bytes until the WASM was
+ * re-instantiated. Instead we:
+ *   1. Delete the target dict's `.bin` from OPFS so it's permanently gone.
+ *   2. Reset the persist arena (wipes ALL dict references + reclaims bytes).
+ *   3. Re-load every other dict still cached in OPFS so the user keeps
+ *      using EN if they uninstalled DE, etc.
+ *
+ * Step 3 reads + parses the remaining dicts (typically a few hundred ms
+ * total — endict at 60 MB is the heaviest), but it stays in the same WASM
+ * instance so JS state, drill session, and scroll position are preserved.
+ * A subsequent reinstall hits a fresh arena and "just works".
  */
 export async function uninstallDictionary(kind: 'zh' | 'en' | 'de'): Promise<void> {
-	if (kind === 'zh') unloadChinese();
-	else if (kind === 'en') unloadEndict();
-	else unloadDedict();
-
-	if (!opfsAvailable()) return;
-	const files =
-		kind === 'zh' ? CHINESE_FILES.map((f) => f.key) : [kind === 'en' ? 'endict' : 'dedict'];
-	try {
-		const root = await navigator.storage.getDirectory();
-		const dir = await root.getDirectoryHandle(OPFS_DIR);
-		for (const key of files) {
-			try {
-				await dir.removeEntry(`${key}.bin`);
-			} catch {
-				// File didn't exist
+	// 1. Delete the target dict's OPFS file(s) first so we don't accidentally
+	//    re-load the very thing we're trying to remove in step 3.
+	if (opfsAvailable()) {
+		const files =
+			kind === 'zh' ? CHINESE_FILES.map((f) => f.key) : [kind === 'en' ? 'endict' : 'dedict'];
+		try {
+			const root = await navigator.storage.getDirectory();
+			const dir = await root.getDirectoryHandle(OPFS_DIR);
+			for (const key of files) {
+				try {
+					await dir.removeEntry(`${key}.bin`);
+				} catch {
+					// File didn't exist
+				}
 			}
+		} catch {
+			// OPFS dir missing — nothing to clean
 		}
-	} catch {
-		// OPFS dir missing — nothing to clean
 	}
+
+	// 2. Wipe slice references on the Zig side AND reset the persist FBA.
+	persistReset();
+
+	// 3. Re-feed remaining dicts from OPFS. loadCachedData() iterates
+	//    ALL_FILES — the just-deleted ones are skipped naturally.
+	await loadCachedData();
 }

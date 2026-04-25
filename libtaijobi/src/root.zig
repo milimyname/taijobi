@@ -894,6 +894,25 @@ export fn hanzi_unload_dedict() i32 {
     return 0;
 }
 
+/// Wipe all dictionary slice references AND reset the persistent FBA.
+///
+/// `hanzi_unload_*` only clears the data slice — the bytes stay reserved
+/// in the persist arena because FBA is an arena (no per-block free), so a
+/// follow-up install would hit "persistent alloc failed" until a page
+/// reload re-instantiated the WASM. This export is the in-place
+/// alternative: after calling it the persist arena is empty and the
+/// caller must re-feed any dictionaries it wants kept (read .bin from
+/// OPFS → persist_alloc → load_*).
+export fn hanzi_persist_reset() void {
+    cedict.unload();
+    decompose.unload();
+    strokes_mod.unload();
+    wiktdict.unloadEn();
+    wiktdict.unloadDe();
+    persist_fba.reset();
+    log("persist arena reset");
+}
+
 export fn hanzi_endict_loaded() i32 {
     return if (wiktdict.isEnLoaded()) @as(i32, 1) else 0;
 }

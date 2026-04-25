@@ -124,6 +124,7 @@ interface WasmExports {
 	hanzi_dedict_loaded: () => number;
 	hanzi_unload_endict: () => number;
 	hanzi_unload_dedict: () => number;
+	hanzi_persist_reset: () => void;
 	hanzi_lookup_word: (query: number, len: number) => number;
 	// Phase 4 — Sync
 	hanzi_get_changes: (sinceTs: bigint) => number;
@@ -638,6 +639,17 @@ export function unloadEndict(): void {
 export function unloadDedict(): void {
 	if (!wasm || typeof wasm.hanzi_unload_dedict !== 'function') return;
 	wasm.hanzi_unload_dedict();
+}
+
+/**
+ * Wipe ALL dictionary slice references and reset the persistent allocator
+ * so freed bytes are actually reclaimable. After calling this, the caller
+ * must re-load any dictionaries it wants kept (read .bin from OPFS →
+ * persistAlloc → load*). See `dictionary-data.ts:uninstallDictionary`.
+ */
+export function persistReset(): void {
+	if (!wasm || typeof wasm.hanzi_persist_reset !== 'function') return;
+	wasm.hanzi_persist_reset();
 }
 
 export interface CardSearchResult {

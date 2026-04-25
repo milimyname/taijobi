@@ -193,7 +193,7 @@
 			try {
 				await uninstallDictionary(entry.language_pair as DownloadKey);
 				data.bump();
-				toastStore.show(`${entry.name} entfernt — für vollständige Freigabe bitte neu laden`);
+				toastStore.show(`${entry.name} entfernt`);
 			} catch (e) {
 				toastStore.show(e instanceof Error ? e.message : 'Entfernen fehlgeschlagen');
 			}
