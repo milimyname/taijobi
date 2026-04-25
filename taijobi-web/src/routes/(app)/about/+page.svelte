@@ -102,6 +102,11 @@
 			a: 'FSRS (Free Spaced Repetition Scheduler) ist ein moderner Wiederholungs-Algorithmus, der vorhersagt, wann du eine Karte vergisst. Du bewertest jede Karte mit 1–4 (Nochmal, Schwer, Gut, Einfach), und der Algorithmus plant das nächste Review. Implementiert in reinem Zig — keine Rust-FFI, kein externer Dienst.',
 		},
 		{
+			id: 'faq-gemeistert',
+			q: 'Was bedeutet „gemeistert" auf der Lektionsseite?',
+			a: 'Eine Karte zählt als gemeistert, sobald FSRS ihre Stabilität auf mehr als 5 Tage geschätzt hat — also wenn der Algorithmus dir mindestens 5 Tage Pause bis zur nächsten Wiederholung gibt.\n\nFrisch gedrillte Karten haben nach einer „Gut"-Bewertung typisch 1–2 Tage Stabilität, der Zähler bleibt also direkt nach dem ersten Drill auf `0/N` — das ist Absicht, nicht ein Bug. Mit jeder weiteren korrekten Antwort verdoppelt sich die Stabilität ungefähr; nach etwa einer Woche regelmäßigem, richtigem Üben kippt eine Karte typischerweise auf gemeistert.\n\nDass eine geübte Karte direkt danach nicht mehr im Drill auftaucht ist normal — sie ist erst wieder fällig, wenn ihr nächster Review-Termin erreicht ist. Mit „Vorziehen" kannst du sie früher holen.',
+		},
+		{
 			id: 'faq-sicherheit',
 			q: 'Sind meine Daten sicher?',
 			a: 'Ja. Alle Karten, Reviews und Pakete liegen in einer lokalen SQLite-Datenbank im OPFS deines Browsers. Sync ist optional und Ende-zu-Ende verschlüsselt mit XChaCha20-Poly1305 — der Server sieht nur Chiffretext.',

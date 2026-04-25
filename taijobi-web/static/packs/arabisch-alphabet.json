@@ -10,7 +10,10 @@
 			"title": "alif bis ḫāʾ",
 			"sort_order": 1,
 			"vocabulary": [
-				{ "word": "ا", "translation": "alif — langer a-Laut oder Träger des Hamza (Glottisschlag)" },
+				{
+					"word": "ا",
+					"translation": "alif — langer a-Laut oder Träger des Hamza (Glottisschlag)"
+				},
 				{ "word": "ب", "translation": "bāʾ — b wie in „Buch“" },
 				{ "word": "ت", "translation": "tāʾ — t wie in „Tag“" },
 				{ "word": "ث", "translation": "ṯāʾ — stimmloses th wie in englisch „thin“" },
@@ -41,8 +44,14 @@
 				{ "word": "ض", "translation": "ḍād — emphatisches, dunkles d" },
 				{ "word": "ط", "translation": "ṭāʾ — emphatisches, dunkles t" },
 				{ "word": "ظ", "translation": "ẓāʾ — emphatisches, dunkles th/dh" },
-				{ "word": "ع", "translation": "ʿain — gepresster Pharyngal-Stimmlaut, kein deutsches Pendant" },
-				{ "word": "غ", "translation": "ġain — kehliges Reibe-r, ähnlich dem französischen r grasseyé" },
+				{
+					"word": "ع",
+					"translation": "ʿain — gepresster Pharyngal-Stimmlaut, kein deutsches Pendant"
+				},
+				{
+					"word": "غ",
+					"translation": "ġain — kehliges Reibe-r, ähnlich dem französischen r grasseyé"
+				},
 				{ "word": "ف", "translation": "fāʾ — f wie in „fünf“" },
 				{ "word": "ق", "translation": "qāf — tiefes, uvulares k weit hinten im Mund" }
 			]
