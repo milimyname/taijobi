@@ -13,6 +13,7 @@
 		type CardSearchResult
 	} from '$lib/wasm';
 	import { speak } from '$lib/speak';
+	import { data } from '$lib/data.svelte';
 	import { page } from '$app/state';
 	import { tick } from 'svelte';
 
@@ -37,6 +38,12 @@
 		expandedLesson ? (lessons.find((l) => l.id === expandedLesson)?.total ?? 0) : 0
 	);
 	let hasMore = $derived(expandedLesson !== null && vocabulary.length < expandedLessonTotal);
+
+	// Pack-scoped drill state — drives the bottom CTA. Drilled cards leave
+	// the due queue (next_review pushed to tomorrow+) so showing a flat
+	// "Drill starten" after every card has been reviewed is misleading.
+	let dueCount = $derived(packId ? data.dueCountFiltered(packId) : 0);
+	let upcomingCount = $derived(packId ? data.upcomingCards(packId, 200, 24).length : 0);
 
 	function loadMore(): void {
 		if (!expandedLesson || loadingMore || !hasMore) return;
@@ -302,14 +309,36 @@
 						</p>
 					{/if}
 
-					<!-- Drill button -->
-					<a
-						href="/drill"
-						class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90"
-					>
-						<PlayCircle />
-						Drill starten
-					</a>
+					<!-- Drill CTA — adapts to pack-scoped due/upcoming state -->
+					{#if dueCount > 0}
+						<a
+							href="/drill?pack={encodeURIComponent(packId)}"
+							class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90"
+						>
+							<PlayCircle />
+							Drill starten — {dueCount} fällig
+						</a>
+					{:else if upcomingCount > 0}
+						<a
+							href="/drill?pack={encodeURIComponent(packId)}"
+							class="mt-4 flex w-full flex-col items-center gap-1 rounded-xl border-2 border-primary/30 bg-primary/5 py-3 font-bold text-primary transition-colors hover:bg-primary/10"
+						>
+							<span class="flex items-center gap-2">
+								<PlayCircle />
+								Karten vorziehen
+							</span>
+							<span class="text-xs font-medium text-primary/70">
+								Heute alles wiederholt — {upcomingCount} {upcomingCount === 1 ? 'Karte' : 'Karten'} in den nächsten 24 Std
+							</span>
+						</a>
+					{:else}
+						<div
+							class="mt-4 flex w-full flex-col items-center gap-1 rounded-xl border border-slate-100 bg-slate-50 py-3 text-slate-500 dark:border-white/5 dark:bg-white/5 dark:text-slate-400"
+						>
+							<span class="font-bold">Alle Karten geübt 🎉</span>
+							<span class="text-xs">Nächste Wiederholung später — komm zurück, wenn FSRS sie fällig stellt.</span>
+						</div>
+					{/if}
 				</div>
 			{/if}
 		</div>
