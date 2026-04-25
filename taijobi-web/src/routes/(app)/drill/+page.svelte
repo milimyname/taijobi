@@ -184,6 +184,13 @@
 		console.log('[drill] init, urlFilter:', urlFilter, 'url:', page.url.pathname + page.url.search);
 		if (urlFilter) {
 			startDrill(urlFilter, urlFilter);
+			// /lessons/[packId] sends here for both "due" and "Karten
+			// vorziehen" CTAs. If nothing is due, fall through to
+			// pull-forward instead of dead-ending on an empty
+			// "Sitzung abgeschlossen" screen.
+			if (cards.length === 0) {
+				startUpcoming();
+			}
 		} else if (restoreSession()) {
 			console.log('[drill] restored session, phase:', phase, 'index:', index);
 		} else {
