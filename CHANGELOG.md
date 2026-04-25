@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.6.19 (2026-04-25)
+
+- fix: /characters empty state acknowledges installed dictionary
+
 ## v0.6.18 (2026-04-25)
 
 - fix: drill auto-pull-forward when ?pack= has no due cards
