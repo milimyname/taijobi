@@ -182,6 +182,26 @@
 			<Translate class="mx-auto mb-2 block text-[32px] text-slate-300 dark:text-slate-500" />
 			{#if filter === 'decomp'}
 				<p class="text-sm text-slate-500 dark:text-slate-400">Lädt Zeichen-Datenbank…</p>
+			{:else if allChars.length === 0 && chineseDataLoaded}
+				<p class="text-sm font-medium text-slate-700 dark:text-slate-200">Du hast noch keine eigenen Zeichen.</p>
+				<p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
+					Diese Ansicht zeigt nur Zeichen aus deinem <b>Lexikon</b> und installierten <b>Lehrbuch-Paketen</b>.
+					Das chinesische Wörterbuch ist installiert — wechsle zu <b>Alle Zeichen</b> für die volle 9.500-Zeichen-Datenbank.
+				</p>
+				<div class="mt-4 flex flex-col items-center gap-2 sm:flex-row sm:justify-center">
+					<button
+						onclick={() => (filter = 'decomp')}
+						class="inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-primary/90"
+					>
+						Alle Zeichen anzeigen
+					</button>
+					<a
+						href="/packs"
+						class="inline-flex items-center justify-center rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-white/10"
+					>
+						HSK-Paket installieren
+					</a>
+				</div>
 			{:else if allChars.length === 0}
 				<p class="text-sm font-medium text-slate-700 dark:text-slate-200">Noch keine Zeichen.</p>
 				<p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
