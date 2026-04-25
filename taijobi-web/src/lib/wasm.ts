@@ -79,6 +79,7 @@ interface WasmExports {
 	hanzi_review_card: (id: number, idLen: number, rating: number) => number;
 	hanzi_add_word: (word: number, len: number) => number;
 	hanzi_remove_word: (id: number, len: number) => number;
+	hanzi_restore_word: (id: number, len: number) => number;
 	hanzi_update_word: (id: number, idLen: number, trans: number, transLen: number) => number;
 	hanzi_lookup: (query: number, len: number) => number;
 	hanzi_search_cards: (query: number, len: number, limit: number) => number;
@@ -578,6 +579,20 @@ export async function removeWord(id: string): Promise<void> {
 	const rc = wasm.hanzi_remove_word(ptr, encoded.length);
 	if (rc !== 0) {
 		throw new Error(getLastError('removeWord failed'));
+	}
+	await opfsSave();
+	onMutateCb?.();
+	onDataChangedCb?.();
+}
+
+export async function restoreWord(id: string): Promise<void> {
+	if (!wasm) throw new Error('WASM not initialized');
+	wasm.hanzi_reset_alloc();
+	const encoded = new TextEncoder().encode(id);
+	const ptr = writeBytes(encoded);
+	const rc = wasm.hanzi_restore_word(ptr, encoded.length);
+	if (rc !== 0) {
+		throw new Error(getLastError('restoreWord failed'));
 	}
 	await opfsSave();
 	onMutateCb?.();

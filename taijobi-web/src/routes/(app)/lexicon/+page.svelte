@@ -10,12 +10,11 @@
 	import UploadFile from '$lib/icons/UploadFile.svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { addWord, removeWord, updateWord, type LexiconEntry, type AddWordResult } from '$lib/wasm';
+	import { addWord, removeWord, restoreWord, updateWord, type LexiconEntry } from '$lib/wasm';
 	import { data } from '$lib/data.svelte';
+	import { toastStore } from '$lib/toast.svelte';
 
 	let input = $state('');
-	let feedback: AddWordResult | null = $state(null);
-	let errorMsg = $state('');
 	let adding = $state(false);
 	let filter = $state('all');
 	let editingId = $state<string | null>(null);
@@ -31,17 +30,18 @@
 		const word = input.trim();
 		if (!word || adding) return;
 		adding = true;
-		errorMsg = '';
-		feedback = null;
 		try {
 			const result = await addWord(word);
-			feedback = result;
 			input = '';
-	
-			setTimeout(() => (feedback = null), 3000);
+			const tail = result.translation
+				? ` — ${result.translation}`
+				: result.pinyin
+					? ` — ${result.pinyin}`
+					: '';
+			toastStore.show(`«${result.word}» [${result.language}]${tail}`);
 		} catch (e) {
-			errorMsg = e instanceof Error ? e.message : 'Failed to add word';
-			setTimeout(() => (errorMsg = ''), 3000);
+			const msg = e instanceof Error ? e.message : 'Wort konnte nicht hinzugefügt werden';
+			toastStore.show(msg.includes('already') ? `«${word}» ist bereits im Lexikon` : msg);
 		} finally {
 			adding = false;
 		}
@@ -51,13 +51,15 @@
 		if (e.key === 'Enter') handleAdd();
 	}
 
-	async function handleRemove(id: string) {
+	async function handleRemove(entry: LexiconEntry) {
 		try {
-			await removeWord(id);
-	
+			await removeWord(entry.id);
+			toastStore.show(`«${entry.word}» entfernt`, async () => {
+				await restoreWord(entry.id);
+				toastStore.show(`«${entry.word}» wiederhergestellt`);
+			});
 		} catch (e) {
-			errorMsg = e instanceof Error ? e.message : 'Failed to remove';
-			setTimeout(() => (errorMsg = ''), 3000);
+			toastStore.show(e instanceof Error ? e.message : 'Entfernen fehlgeschlagen');
 		}
 	}
 
@@ -77,10 +79,8 @@
 			await updateWord(editingId, editTranslation);
 			editingId = null;
 			editTranslation = '';
-	
 		} catch (e) {
-			errorMsg = e instanceof Error ? e.message : 'Failed to update';
-			setTimeout(() => (errorMsg = ''), 3000);
+			toastStore.show(e instanceof Error ? e.message : 'Aktualisieren fehlgeschlagen');
 		}
 	}
 
@@ -207,27 +207,6 @@
 			<Add />
 		</button>
 	</div>
-
-	{#if feedback}
-		<div
-			class="mt-2 rounded-xl border border-primary/20 bg-primary/5 px-4 py-2.5 text-sm text-primary"
-		>
-			Hinzugef&uuml;gt: <strong>{feedback.word}</strong>
-			<span class="ml-1 text-xs opacity-70">[{feedback.language}]</span>
-			{#if feedback.pinyin}
-				<span class="ml-1 text-xs">&mdash; {feedback.pinyin}</span>
-			{/if}
-			{#if feedback.translation}
-				<span class="ml-1 text-xs opacity-70">({feedback.translation})</span>
-			{/if}
-		</div>
-	{/if}
-
-	{#if errorMsg}
-		<div class="mt-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300">
-			{errorMsg}
-		</div>
-	{/if}
 </section>
 
 <!-- Filter Chips -->
@@ -353,7 +332,7 @@
 										<Edit class="text-[18px]" />
 									</button>
 									<button
-										onclick={() => handleRemove(entry.id)}
+										onclick={() => handleRemove(entry)}
 										class="rounded-lg p-1.5 text-slate-300 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-slate-500 dark:hover:bg-red-950"
 										title="Entfernen"
 									>

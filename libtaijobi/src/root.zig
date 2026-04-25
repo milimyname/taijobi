@@ -354,6 +354,23 @@ export fn hanzi_remove_word(id_ptr: [*]const u8, id_len: usize) i32 {
     return 0;
 }
 
+export fn hanzi_restore_word(id_ptr: [*]const u8, id_len: usize) i32 {
+    const db = &(global_db orelse return -1);
+    const card_id = id_ptr[0..id_len];
+    lexicon.restoreWord(db.handle, card_id, now()) catch |err| {
+        const msg = switch (err) {
+            error.PrepareFailed => "SQL prepare failed",
+            error.StepFailed => "SQL step failed",
+            error.NotFound => "word not found",
+            error.WordEmpty => "word is empty",
+            error.AlreadyExists => "already exists",
+        };
+        setError(msg);
+        return -1;
+    };
+    return 0;
+}
+
 export fn hanzi_update_word(id_ptr: [*]const u8, id_len: usize, trans_ptr: [*]const u8, trans_len: usize) i32 {
     const db = &(global_db orelse return -1);
     const card_id = id_ptr[0..id_len];

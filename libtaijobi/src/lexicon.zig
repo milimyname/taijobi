@@ -170,6 +170,22 @@ pub fn removeWord(db: *sqlite.sqlite3, card_id: []const u8, now_ms: i64) Lexicon
     if (sqlite.sqlite3_changes(db) == 0) return error.NotFound;
 }
 
+/// Undo a soft-delete: flip deleted back to 0. Used by the lexicon
+/// "rückgängig" toast button so the user can recover a word they just
+/// removed without losing FSRS state. Idempotent — does nothing if the
+/// word is already live.
+pub fn restoreWord(db: *sqlite.sqlite3, card_id: []const u8, now_ms: i64) LexiconError!void {
+    var stmt: ?*sqlite.sqlite3_stmt = null;
+    const sql = "UPDATE cards SET deleted = 0, updated_at = ? WHERE id = ? AND source_type = 'lexicon' AND deleted = 1";
+    if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) != sqlite.SQLITE_OK) {
+        return error.PrepareFailed;
+    }
+    defer _ = sqlite.sqlite3_finalize(stmt.?);
+    _ = sqlite.sqlite3_bind_int64(stmt.?, 1, now_ms);
+    _ = sqlite.sqlite3_bind_text(stmt.?, 2, card_id.ptr, @intCast(card_id.len), sqlite.SQLITE_STATIC);
+    if (sqlite.sqlite3_step(stmt.?) != sqlite.SQLITE_DONE) return error.StepFailed;
+}
+
 /// Update a lexicon word's translation field.
 pub fn updateWord(db: *sqlite.sqlite3, card_id: []const u8, translation: []const u8, now_ms: i64) LexiconError!void {
     var stmt: ?*sqlite.sqlite3_stmt = null;
