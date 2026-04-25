@@ -72,13 +72,18 @@
 		await tick();
 		const hash = location.hash;
 		if (hash.startsWith('#pack-')) {
-			const id = decodeURIComponent(hash.slice('#pack-'.length));
-			highlightedId = id;
-			const el = document.getElementById(`pack-${id}`);
-			if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-			setTimeout(() => (highlightedId = null), 1500);
+			await flashPack(decodeURIComponent(hash.slice('#pack-'.length)));
 		}
 	});
+
+	/** Scroll to the pack row and briefly highlight it. */
+	async function flashPack(id: string): Promise<void> {
+		highlightedId = id;
+		await tick();
+		const el = document.getElementById(`pack-${id}`);
+		if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+		setTimeout(() => (highlightedId = null), 1500);
+	}
 
 	function isDictInstalled(id: string): boolean {
 		if (id === 'dict-zh') return zhLoaded;
@@ -243,8 +248,11 @@
 			reader.addEventListener('load', async () => {
 				importing = true;
 				try {
+					const beforeIds = new Set(data.packs().map((p) => p.id));
 					const count = await importApkg(reader.result as ArrayBuffer, name);
 					toastStore.show(`${count} Karten aus .apkg importiert`);
+					const newPack = data.packs().find((p) => !beforeIds.has(p.id));
+					if (newPack) await flashPack(newPack.id);
 				} catch (e) {
 					toastStore.show(e instanceof Error ? e.message : '.apkg import failed');
 				} finally {
@@ -280,9 +288,15 @@
 		if (!csvPreview) return;
 		importing = true;
 		try {
+			const beforeIds = new Set(data.packs().map((p) => p.id));
 			const count = await importCsv(csvPreview.text, csvPreview.filename);
 			toastStore.show(`${count} Karten importiert`);
 			csvPreview = null;
+			// Pack id is derived deterministically inside Zig (`csv-{fnv1a}` /
+			// `apkg-{fnv1a}`) but rather than mirror that hash, just diff the
+			// installed-pack set — the new entry is whatever wasn't there before.
+			const newPack = data.packs().find((p) => !beforeIds.has(p.id));
+			if (newPack) await flashPack(newPack.id);
 		} catch (e) {
 			toastStore.show(e instanceof Error ? e.message : 'Import failed');
 		} finally {
