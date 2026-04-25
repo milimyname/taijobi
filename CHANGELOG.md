@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.6.18 (2026-04-25)
+
+- fix: drill auto-pull-forward when ?pack= has no due cards
+- fix: center empty-state icons reliably (mx-auto block)
+- feat: state-aware drill CTA on /lessons/[packId]
+- fix: remove default browser focus outline on /dictionary search
+- fix: /dictionary stale when ⌘K re-navigates with new ?q=
+- fix: dict uninstall reclaims persist arena bytes in-place
+- docs: faq entry explaining "gemeistert" + drill scheduling
+- feat: arabisch-alphabet community pack
+- docs: refresh MCP tool count + switch config snippet to mcp-remote
+
 ## v0.6.17 (2026-04-24)
 
 - feat: list_packs + add_lesson_to_pack MCP tools + WS sync toast
