@@ -11,7 +11,7 @@
 	import { speak } from '$lib/speak';
 	import { data } from '$lib/data.svelte';
 	import { toastStore } from '$lib/toast.svelte';
-	import { onMount } from 'svelte';
+	import { afterNavigate } from '$app/navigation';
 	import { page } from '$app/state';
 
 	type UnifiedResult = {
@@ -40,11 +40,14 @@
 
 	let debounceTimer: ReturnType<typeof setTimeout> | undefined;
 
-	onMount(() => {
-		// Pre-fill the search from `?q=...` — used by ⌘K → Wörterbuch hits
-		// to deep-link into the lookup UI with the query already active.
+	// Fires on initial mount AND on same-route navigations — important
+	// because ⌘K does `goto('/dictionary?q=…')`, and SvelteKit reuses the
+	// page component when the route matches. With a plain onMount the
+	// input + results would freeze on the previous query while the URL
+	// silently updated.
+	afterNavigate(() => {
 		const q = page.url.searchParams.get('q');
-		if (q) {
+		if (q !== null && q !== query) {
 			query = q;
 			handleInput();
 		}
