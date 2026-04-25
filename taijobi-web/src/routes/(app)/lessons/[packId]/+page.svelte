@@ -309,11 +309,17 @@
 						</p>
 					{/if}
 
-					<!-- Drill CTA — adapts to pack-scoped due/upcoming state -->
+					<!-- Drill CTA — adapts to pack-scoped due/upcoming state.
+					     `sticky bottom-*` keeps the button pinned to the viewport
+					     bottom while the user scrolls through the (potentially
+					     thousands of) vocab rows; releases naturally when the
+					     accordion scrolls past. mobile bottom-24 clears the
+					     fixed bottom nav (~76px tall), desktop bottom-2 is a
+					     small gap from the sidebar layout. -->
 					{#if dueCount > 0}
 						<a
 							href="/drill?pack={encodeURIComponent(packId)}"
-							class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90"
+							class="sticky bottom-24 z-10 mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 lg:bottom-2"
 						>
 							<PlayCircle />
 							Drill starten — {dueCount} fällig
@@ -321,7 +327,7 @@
 					{:else if upcomingCount > 0}
 						<a
 							href="/drill?pack={encodeURIComponent(packId)}"
-							class="mt-4 flex w-full flex-col items-center gap-1 rounded-xl border-2 border-primary/30 bg-primary/5 py-3 font-bold text-primary transition-colors hover:bg-primary/10"
+							class="sticky bottom-24 z-10 mt-4 flex w-full flex-col items-center gap-1 rounded-xl border-2 border-primary/30 bg-primary/5 py-3 font-bold text-primary shadow-lg shadow-primary/10 backdrop-blur-md transition-colors hover:bg-primary/10 lg:bottom-2"
 						>
 							<span class="flex items-center gap-2">
 								<PlayCircle />
@@ -333,7 +339,7 @@
 						</a>
 					{:else}
 						<div
-							class="mt-4 flex w-full flex-col items-center gap-1 rounded-xl border border-slate-100 bg-slate-50 py-3 text-slate-500 dark:border-white/5 dark:bg-white/5 dark:text-slate-400"
+							class="sticky bottom-24 z-10 mt-4 flex w-full flex-col items-center gap-1 rounded-xl border border-slate-100 bg-slate-50 py-3 text-slate-500 shadow-lg shadow-slate-900/5 dark:border-white/5 dark:bg-white/10 dark:text-slate-400 lg:bottom-2"
 						>
 							<span class="font-bold">Alle Karten geübt 🎉</span>
 							<span class="text-xs">Nächste Wiederholung später — komm zurück, wenn FSRS sie fällig stellt.</span>
