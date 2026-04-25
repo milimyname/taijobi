@@ -245,6 +245,39 @@
 						></div>
 					</div>
 
+					<!-- Drill CTA — at the top of the expanded body so it stays
+					     reachable without scrolling through thousands of vocab
+					     rows. Adapts to pack-scoped due/upcoming state. -->
+					{#if dueCount > 0}
+						<a
+							href="/drill?pack={encodeURIComponent(packId)}"
+							class="mb-4 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90"
+						>
+							<PlayCircle />
+							Drill starten — {dueCount} fällig
+						</a>
+					{:else if upcomingCount > 0}
+						<a
+							href="/drill?pack={encodeURIComponent(packId)}"
+							class="mb-4 flex w-full flex-col items-center gap-1 rounded-xl border-2 border-primary/30 bg-primary/5 py-3 font-bold text-primary transition-colors hover:bg-primary/10"
+						>
+							<span class="flex items-center gap-2">
+								<PlayCircle />
+								Karten vorziehen
+							</span>
+							<span class="text-xs font-medium text-primary/70">
+								Heute alles wiederholt — {upcomingCount} {upcomingCount === 1 ? 'Karte' : 'Karten'} in den nächsten 24 Std
+							</span>
+						</a>
+					{:else}
+						<div
+							class="mb-4 flex w-full flex-col items-center gap-1 rounded-xl border border-slate-100 bg-slate-50 py-3 text-slate-500 dark:border-white/5 dark:bg-white/5 dark:text-slate-400"
+						>
+							<span class="font-bold">Alle Karten geübt 🎉</span>
+							<span class="text-xs">Nächste Wiederholung später — komm zurück, wenn FSRS sie fällig stellt.</span>
+						</div>
+					{/if}
+
 					<!-- Vocab table -->
 					<div class="overflow-hidden rounded-lg border border-primary/10">
 						<table class="w-full text-left text-sm">
@@ -307,43 +340,6 @@
 						<p class="mt-2 text-center text-xs text-slate-400 dark:text-slate-500">
 							Alle {lesson.total} Wörter geladen
 						</p>
-					{/if}
-
-					<!-- Drill CTA — adapts to pack-scoped due/upcoming state.
-					     `sticky bottom-*` keeps the button pinned to the viewport
-					     bottom while the user scrolls through the (potentially
-					     thousands of) vocab rows; releases naturally when the
-					     accordion scrolls past. mobile bottom-24 clears the
-					     fixed bottom nav (~76px tall), desktop bottom-2 is a
-					     small gap from the sidebar layout. -->
-					{#if dueCount > 0}
-						<a
-							href="/drill?pack={encodeURIComponent(packId)}"
-							class="sticky bottom-24 z-10 mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 lg:bottom-2"
-						>
-							<PlayCircle />
-							Drill starten — {dueCount} fällig
-						</a>
-					{:else if upcomingCount > 0}
-						<a
-							href="/drill?pack={encodeURIComponent(packId)}"
-							class="sticky bottom-24 z-10 mt-4 flex w-full flex-col items-center gap-1 rounded-xl border-2 border-primary/30 bg-primary/5 py-3 font-bold text-primary shadow-lg shadow-primary/10 backdrop-blur-md transition-colors hover:bg-primary/10 lg:bottom-2"
-						>
-							<span class="flex items-center gap-2">
-								<PlayCircle />
-								Karten vorziehen
-							</span>
-							<span class="text-xs font-medium text-primary/70">
-								Heute alles wiederholt — {upcomingCount} {upcomingCount === 1 ? 'Karte' : 'Karten'} in den nächsten 24 Std
-							</span>
-						</a>
-					{:else}
-						<div
-							class="sticky bottom-24 z-10 mt-4 flex w-full flex-col items-center gap-1 rounded-xl border border-slate-100 bg-slate-50 py-3 text-slate-500 shadow-lg shadow-slate-900/5 dark:border-white/5 dark:bg-white/10 dark:text-slate-400 lg:bottom-2"
-						>
-							<span class="font-bold">Alle Karten geübt 🎉</span>
-							<span class="text-xs">Nächste Wiederholung später — komm zurück, wenn FSRS sie fällig stellt.</span>
-						</div>
 					{/if}
 				</div>
 			{/if}
