@@ -88,5 +88,14 @@
 		"language_pair": "zh-de",
 		"word_count": 25,
 		"description": ""
+	},
+	{
+		"id": "arabisch-alphabet",
+		"kind": "content",
+		"tag": "community",
+		"name": "Arabisches Alphabet",
+		"language_pair": "ar-de",
+		"word_count": 28,
+		"description": "Die 28 Buchstaben des arabischen Alphabets in vier Lektionen — isolierte Form, wissenschaftliche Umschrift und deutsche Lautwertbeschreibung."
 	}
 ]

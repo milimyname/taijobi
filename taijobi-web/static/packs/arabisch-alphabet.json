@@ -1,0 +1,65 @@
+{
+	"id": "arabisch-alphabet",
+	"name": "Arabisches Alphabet",
+	"version": 1,
+	"language_pair": "ar-de",
+	"description": "Die 28 Buchstaben des arabischen Alphabets in vier Lektionen — isolierte Form, wissenschaftliche Umschrift und deutsche Lautwertbeschreibung.",
+	"lessons": [
+		{
+			"id": "arabisch-alphabet-01",
+			"title": "alif bis ḫāʾ",
+			"sort_order": 1,
+			"vocabulary": [
+				{ "word": "ا", "translation": "alif — langer a-Laut oder Träger des Hamza (Glottisschlag)" },
+				{ "word": "ب", "translation": "bāʾ — b wie in „Buch“" },
+				{ "word": "ت", "translation": "tāʾ — t wie in „Tag“" },
+				{ "word": "ث", "translation": "ṯāʾ — stimmloses th wie in englisch „thin“" },
+				{ "word": "ج", "translation": "ǧīm — dsch wie in „Dschungel“" },
+				{ "word": "ح", "translation": "ḥāʾ — kehliges, hauchiges h tief im Rachen" },
+				{ "word": "خ", "translation": "ḫāʾ — ch wie in „Bach“" }
+			]
+		},
+		{
+			"id": "arabisch-alphabet-02",
+			"title": "dāl bis ṣād",
+			"sort_order": 2,
+			"vocabulary": [
+				{ "word": "د", "translation": "dāl — d wie in „du“" },
+				{ "word": "ذ", "translation": "ḏāl — stimmhaftes th wie in englisch „this“" },
+				{ "word": "ر", "translation": "rāʾ — gerolltes r mit der Zungenspitze" },
+				{ "word": "ز", "translation": "zāy — stimmhaftes s wie in „Sonne“" },
+				{ "word": "س", "translation": "sīn — stimmloses s wie in „Wasser“" },
+				{ "word": "ش", "translation": "šīn — sch wie in „Schule“" },
+				{ "word": "ص", "translation": "ṣād — emphatisches, dunkles s (Velarisierung)" }
+			]
+		},
+		{
+			"id": "arabisch-alphabet-03",
+			"title": "ḍād bis qāf",
+			"sort_order": 3,
+			"vocabulary": [
+				{ "word": "ض", "translation": "ḍād — emphatisches, dunkles d" },
+				{ "word": "ط", "translation": "ṭāʾ — emphatisches, dunkles t" },
+				{ "word": "ظ", "translation": "ẓāʾ — emphatisches, dunkles th/dh" },
+				{ "word": "ع", "translation": "ʿain — gepresster Pharyngal-Stimmlaut, kein deutsches Pendant" },
+				{ "word": "غ", "translation": "ġain — kehliges Reibe-r, ähnlich dem französischen r grasseyé" },
+				{ "word": "ف", "translation": "fāʾ — f wie in „fünf“" },
+				{ "word": "ق", "translation": "qāf — tiefes, uvulares k weit hinten im Mund" }
+			]
+		},
+		{
+			"id": "arabisch-alphabet-04",
+			"title": "kāf bis yāʾ",
+			"sort_order": 4,
+			"vocabulary": [
+				{ "word": "ك", "translation": "kāf — k wie in „Kind“" },
+				{ "word": "ل", "translation": "lām — l wie in „Land“" },
+				{ "word": "م", "translation": "mīm — m wie in „Mond“" },
+				{ "word": "ن", "translation": "nūn — n wie in „nein“" },
+				{ "word": "ه", "translation": "hāʾ — leichtes h wie in „Hallo“" },
+				{ "word": "و", "translation": "wāw — w-Laut oder langer u-Laut" },
+				{ "word": "ي", "translation": "yāʾ — j-Laut wie in „ja“ oder langer i-Laut" }
+			]
+		}
+	]
+}
