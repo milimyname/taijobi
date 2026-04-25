@@ -155,7 +155,7 @@
 			bind:value={query}
 			oninput={handleInput}
 			onkeydown={handleKeydown}
-			class="min-w-0 flex-1 border-none bg-transparent p-0 text-base font-normal placeholder:text-primary/40 focus:ring-0"
+			class="min-w-0 flex-1 border-none bg-transparent p-0 text-base font-normal outline-none placeholder:text-primary/40 focus:ring-0"
 			placeholder="Wort suchen..."
 		/>
 		{#if query}
