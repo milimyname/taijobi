@@ -186,7 +186,7 @@
 		<div
 			class="rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-white/5"
 		>
-			<SearchOff class="mb-2 text-[32px] text-slate-300 dark:text-slate-500" />
+			<SearchOff class="mx-auto mb-2 block text-[32px] text-slate-300 dark:text-slate-500" />
 			<p class="text-sm text-slate-500 dark:text-slate-400">
 				Keine Ergebnisse f&uuml;r &laquo;{query.trim()}&raquo;
 			</p>
@@ -291,7 +291,7 @@
 		<div
 			class="rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-white/5"
 		>
-			<Dictionary class="mb-2 text-[32px] text-primary/30" />
+			<Dictionary class="mx-auto mb-2 block text-[32px] text-primary/30" />
 			<p class="text-sm text-slate-500 dark:text-slate-400">
 				Durchsuche CC-CEDICT mit 124.000 Eintr&auml;gen.
 			</p>

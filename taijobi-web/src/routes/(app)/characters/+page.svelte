@@ -179,7 +179,7 @@
 		<div
 			class="rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-white/5"
 		>
-			<Translate class="mb-2 text-[32px] text-slate-300 dark:text-slate-500" />
+			<Translate class="mx-auto mb-2 block text-[32px] text-slate-300 dark:text-slate-500" />
 			{#if filter === 'decomp'}
 				<p class="text-sm text-slate-500 dark:text-slate-400">Lädt Zeichen-Datenbank…</p>
 			{:else if allChars.length === 0}

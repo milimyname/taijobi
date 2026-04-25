@@ -270,7 +270,7 @@
 <section class="mt-6 space-y-6">
 	{#if filtered.length === 0}
 		<div class="rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-white/5">
-			<Book2 class="mb-2 text-[32px] text-slate-300 dark:text-slate-500" />
+			<Book2 class="mx-auto mb-2 block text-[32px] text-slate-300 dark:text-slate-500" />
 			<p class="text-sm text-slate-500 dark:text-slate-400">
 				Noch keine W&ouml;rter. F&uuml;ge W&ouml;rter hinzu, die dir beim Lesen begegnen.
 			</p>

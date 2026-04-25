@@ -514,7 +514,7 @@
 	<div
 		class="mt-8 rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-white/5"
 	>
-		<Inventory2 class="mb-2 text-[32px] text-slate-300 dark:text-slate-500" />
+		<Inventory2 class="mx-auto mb-2 block text-[32px] text-slate-300 dark:text-slate-500" />
 		<p class="text-sm text-slate-500 dark:text-slate-400">Lade Pakete...</p>
 	</div>
 {:else if installedGroups.length === 0 && availableGroups.length === 0}
@@ -558,7 +558,7 @@
 		ondragleave={() => { dragging = false; }}
 		ondrop={(e) => { e.preventDefault(); handleDrop(e); }}
 	>
-		<UploadFile class="mb-2 text-[32px] text-slate-300 dark:text-slate-500" />
+		<UploadFile class="mx-auto mb-2 block text-[32px] text-slate-300 dark:text-slate-500" />
 		<p class="text-sm text-slate-500 dark:text-slate-400">
 			Datei hierher ziehen
 		</p>
