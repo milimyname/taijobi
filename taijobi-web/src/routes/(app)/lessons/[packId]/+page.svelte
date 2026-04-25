@@ -137,6 +137,15 @@
 		if (total === 0) return 0;
 		return Math.round((mastered / total) * 100);
 	}
+
+	/** True for any CJK Unified Ideographs codepoint (the range
+	 *  /character/[char] knows how to render). Excludes punctuation
+	 *  like 。 ？ ， so multi-char vocabulary entries link only the
+	 *  hanzi parts to their detail page. */
+	function isHanzi(ch: string): boolean {
+		const cp = ch.codePointAt(0) ?? 0;
+		return cp >= 0x4e00 && cp <= 0x9fff;
+	}
 </script>
 
 <!-- Pack progress -->
@@ -301,7 +310,13 @@
 									>
 										<td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100" class:chinese-char={isChinese} class:text-lg={isArabic} dir={isArabic ? 'rtl' : undefined}>
 											{#if isChinese}
-												<a href="/character/{encodeURIComponent(word.word)}" class="hover:text-primary">{word.word}</a>
+												{#each [...word.word] as ch, i (i)}
+													{#if isHanzi(ch)}
+														<a href="/character/{encodeURIComponent(ch)}" class="hover:text-primary">{ch}</a>
+													{:else}
+														<span>{ch}</span>
+													{/if}
+												{/each}
 											{:else}
 												{word.word}
 											{/if}
