@@ -36,7 +36,16 @@ export fn hanzi_remove_pack(id: [*]const u8, len: usize) i32
 export fn hanzi_get_lessons(pack_id: [*]const u8, len: usize) ?[*]const u8
 export fn hanzi_get_vocabulary(lesson_id: [*]const u8, len: usize) ?[*]const u8
 export fn hanzi_get_progress(pack_id: [*]const u8, len: usize) ?[*]const u8
+export fn hanzi_add_lesson_to_pack(pack_id_ptr: [*]const u8, pack_id_len: usize,
+    lesson_json_ptr: [*]const u8, lesson_json_len: usize) i32
 ```
+
+`hanzi_add_lesson_to_pack` is the non-destructive sibling of
+`hanzi_install_pack`: it requires an existing, non-deleted pack and
+appends a single lesson + its vocabulary in one transaction. Cards use
+`INSERT OR IGNORE` so existing FSRS scheduler state is preserved on
+re-runs. Returns `-1` with `setError("pack not found")` if the pack id
+is unknown, mirroring `hanzi_install_pack`'s error contract.
 
 ## Phase 3 — Deep Chinese
 
