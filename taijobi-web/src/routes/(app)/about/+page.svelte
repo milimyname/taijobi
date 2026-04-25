@@ -308,54 +308,6 @@
 		Auf GitHub ansehen
 	</a>
 
-	<!-- Tech Stack -->
-	<div>
-		<h3 class="mb-3 text-lg font-extrabold text-slate-900 dark:text-slate-100">Tech Stack</h3>
-		<div class="grid grid-cols-3 gap-2.5">
-			{#each [
-				{ icon: '⚙️', name: 'libtaijobi', sub: 'Zig + SQLite' },
-				{ icon: '🎨', name: 'Web', sub: 'Svelte 5 + Tailwind' },
-				{ icon: '📱', name: 'iOS', sub: 'SwiftUI (geplant)' },
-			] as t (t.name)}
-				<div class="rounded-2xl border border-slate-100 bg-white p-3.5 text-center dark:border-white/5 dark:bg-white/5">
-					<div class="mx-auto mb-2 flex size-9 items-center justify-center rounded-xl bg-primary/10">
-						<span class="text-lg">{t.icon}</span>
-					</div>
-					<p class="text-xs font-bold text-slate-900 dark:text-slate-100">{t.name}</p>
-					<p class="mt-0.5 text-[10px] text-slate-500 dark:text-slate-400">{t.sub}</p>
-				</div>
-			{/each}
-		</div>
-	</div>
-
-	<!-- Datenschutz callout -->
-	<div class="rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-5">
-		<div class="mb-2.5 flex items-center gap-2">
-			<svg class="size-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-			</svg>
-			<h3 class="text-base font-extrabold text-slate-900 dark:text-slate-100">Datenschutz</h3>
-		</div>
-		<ul class="space-y-1.5 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
-			<li class="flex gap-2">
-				<span class="shrink-0 text-primary">✓</span>
-				Alle Daten bleiben auf deinem Gerät (OPFS / lokale Datei)
-			</li>
-			<li class="flex gap-2">
-				<span class="shrink-0 text-primary">✓</span>
-				Sync ist optional und Ende-zu-Ende verschlüsselt
-			</li>
-			<li class="flex gap-2">
-				<span class="shrink-0 text-primary">✓</span>
-				Keine Konten, keine Passwörter, kein Tracking
-			</li>
-			<li class="flex gap-2">
-				<span class="shrink-0 text-primary">✓</span>
-				Wörterbücher laufen offline in WASM
-			</li>
-		</ul>
-	</div>
-
 	<!-- FAQ -->
 	<div id="faq">
 		<h3 class="mb-3 flex items-center gap-2 text-lg font-extrabold text-slate-900 dark:text-slate-100">
