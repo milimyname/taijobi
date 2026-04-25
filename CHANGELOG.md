@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.6.20 (2026-04-25)
+
+- fix: link individual hanzi (not whole sentences) from lesson table
+- fix: move lesson drill CTA to top of expanded body
+- feat: sticky drill CTA inside expanded lesson accordion
+- docs: drop tech-stack section + redundant Datenschutz callout
+- feat: lexicon delete-with-undo + add/edit feedback via toast
+- feat: scroll + highlight imported pack in /packs
+
 ## v0.6.19 (2026-04-25)
 
 - fix: /characters empty state acknowledges installed dictionary
