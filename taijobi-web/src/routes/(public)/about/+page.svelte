@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { afterNavigate } from '$app/navigation';
 	import { APP_VERSION, RELEASES_URL } from '$lib/version';
-	import ArrowBack from '$lib/icons/ArrowBack.svelte';
 	import Translate from '$lib/icons/Translate.svelte';
 
 	/**
@@ -219,18 +218,29 @@
 	];
 </script>
 
+<svelte:head>
+	<title>&Uuml;ber Taijobi &mdash; offline Vokabel-Engine</title>
+	<meta
+		name="description"
+		content="Taijobi ist eine lokale Vokabel-Engine für Chinesisch, Englisch und Deutsch — Spaced Repetition mit FSRS, Wörterbücher, Strichfolge und Zeichenzerlegung. Offline-first, kein Konto, libtaijobi (Zig) ist das Produkt."
+	/>
+	<meta property="og:type" content="website" />
+	<meta property="og:title" content="Über Taijobi — offline Vokabel-Engine" />
+	<meta
+		property="og:description"
+		content="Lokale Vokabel-Engine für Chinesisch, Englisch und Deutsch. FSRS, Wörterbücher, Strichfolge. Offline-first, kein Konto."
+	/>
+	<meta property="og:image" content="https://taijobi.com/og/default.png" />
+	<meta property="og:url" content="https://taijobi.com/about" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:title" content="Über Taijobi" />
+	<meta name="twitter:description" content="Lokale, offline-first Vokabel-Engine." />
+	<meta name="twitter:image" content="https://taijobi.com/og/default.png" />
+	<link rel="canonical" href="https://taijobi.com/about" />
+</svelte:head>
+
 <section class="space-y-5 py-4">
-	<!-- Header -->
-	<div class="flex items-center gap-3">
-		<a
-			href="/more"
-			class="flex size-10 items-center justify-center rounded-2xl bg-white shadow-sm dark:bg-white/5"
-			aria-label="Zurück"
-		>
-			<ArrowBack class="text-slate-600 dark:text-slate-300" />
-		</a>
-		<h2 class="text-2xl font-extrabold text-slate-900 dark:text-slate-100">Über Taijobi</h2>
-	</div>
+	<h2 class="text-2xl font-extrabold text-slate-900 dark:text-slate-100">Über Taijobi</h2>
 
 	<!-- Hero card -->
 	<div
@@ -321,7 +331,7 @@
 			{#each faqs as faq (faq.id)}
 				<details
 					id={faq.id}
-					class="group overflow-hidden rounded-2xl border border-slate-100 bg-white dark:border-white/5 dark:bg-white/5"
+					class="group scroll-mt-24 overflow-hidden rounded-2xl border border-slate-100 bg-white dark:border-white/5 dark:bg-white/5"
 				>
 					<summary class="flex cursor-pointer list-none select-none items-center justify-between p-4">
 						<span class="pr-4 text-sm font-semibold text-slate-900 dark:text-slate-100">{faq.q}</span>

@@ -12,6 +12,14 @@ const config = {
 		},
 		version: {
 			pollInterval: 60 * 1000
+		},
+		experimental: {
+			remoteFunctions: true
+		}
+	},
+	compilerOptions: {
+		experimental: {
+			async: true
 		}
 	},
 	vitePlugin: {

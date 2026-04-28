@@ -179,11 +179,9 @@
 										? 'Statistik'
 										: page.url.pathname === '/settings'
 											? 'Einstellungen'
-											: page.url.pathname === '/about'
-												? 'Über'
-												: page.url.pathname === '/more'
-													? 'Mehr'
-													: 'Taijobi',
+											: page.url.pathname === '/more'
+												? 'Mehr'
+												: 'Taijobi',
 	);
 
 	// Routes that live under the "Mehr" tab — used to highlight it as active.
@@ -196,8 +194,7 @@
 		'/lexicon',
 		'/characters',
 		'/character',
-		'/settings',
-		'/about'
+		'/settings'
 	];
 
 	function isMoreActive(): boolean {
@@ -289,7 +286,6 @@
 
 				{#each [
 					{ href: '/settings', label: 'Einstellungen', Icon: Settings },
-					{ href: '/about', label: 'Über', Icon: Person },
 				] as item (item.href)}
 					<a
 						href={item.href}

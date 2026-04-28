@@ -6,7 +6,20 @@
 		"name": "Chinesisches Wörterbuch",
 		"language_pair": "zh",
 		"size_mb": 19,
-		"description": "CC-CEDICT, Strichfolge und Zeichenzerlegung"
+		"description": "CC-CEDICT, Strichfolge und Zeichenzerlegung",
+		"added_at": "2025-01-20",
+		"sources": [
+			{
+				"name": "CC-CEDICT",
+				"url": "https://www.mdbg.net/chinese/dictionary?page=cc-cedict",
+				"license": "CC BY-SA 4.0"
+			},
+			{
+				"name": "Make Me a Hanzi",
+				"url": "https://github.com/skishore/makemeahanzi",
+				"license": "LGPL / Arphic"
+			}
+		]
 	},
 	{
 		"id": "dict-en",
@@ -15,7 +28,20 @@
 		"name": "Englisches Wörterbuch",
 		"language_pair": "en",
 		"size_mb": 19,
-		"description": "Wiktionary-Definitionen (Englisch)"
+		"description": "Wiktionary-Definitionen (Englisch)",
+		"added_at": "2025-08-10",
+		"sources": [
+			{
+				"name": "Wiktextract (kaikki.org)",
+				"url": "https://kaikki.org/dictionary/English/",
+				"license": "CC BY-SA"
+			},
+			{
+				"name": "English Wiktionary",
+				"url": "https://en.wiktionary.org",
+				"license": "CC BY-SA"
+			}
+		]
 	},
 	{
 		"id": "dict-de",
@@ -24,7 +50,20 @@
 		"name": "Deutsches Wörterbuch",
 		"language_pair": "de",
 		"size_mb": 5,
-		"description": "Wiktionary-Definitionen (Deutsch)"
+		"description": "Wiktionary-Definitionen (Deutsch)",
+		"added_at": "2025-08-10",
+		"sources": [
+			{
+				"name": "Wiktextract (kaikki.org)",
+				"url": "https://kaikki.org/dictionary/German/",
+				"license": "CC BY-SA"
+			},
+			{
+				"name": "English Wiktionary (German extract)",
+				"url": "https://en.wiktionary.org",
+				"license": "CC BY-SA"
+			}
+		]
 	},
 	{
 		"id": "hsk-1",
@@ -33,7 +72,15 @@
 		"name": "HSK 1",
 		"language_pair": "zh-en",
 		"word_count": 150,
-		"description": ""
+		"description": "",
+		"added_at": "2024-12-10",
+		"sources": [
+			{
+				"name": "drkameleon/complete-hsk-vocabulary",
+				"url": "https://github.com/drkameleon/complete-hsk-vocabulary",
+				"license": "MIT"
+			}
+		]
 	},
 	{
 		"id": "hsk-2",
@@ -42,7 +89,15 @@
 		"name": "HSK 2",
 		"language_pair": "zh-en",
 		"word_count": 150,
-		"description": ""
+		"description": "",
+		"added_at": "2024-12-10",
+		"sources": [
+			{
+				"name": "drkameleon/complete-hsk-vocabulary",
+				"url": "https://github.com/drkameleon/complete-hsk-vocabulary",
+				"license": "MIT"
+			}
+		]
 	},
 	{
 		"id": "hsk-3",
@@ -51,7 +106,15 @@
 		"name": "HSK 3",
 		"language_pair": "zh-en",
 		"word_count": 299,
-		"description": ""
+		"description": "",
+		"added_at": "2024-12-10",
+		"sources": [
+			{
+				"name": "drkameleon/complete-hsk-vocabulary",
+				"url": "https://github.com/drkameleon/complete-hsk-vocabulary",
+				"license": "MIT"
+			}
+		]
 	},
 	{
 		"id": "hsk-4",
@@ -60,7 +123,15 @@
 		"name": "HSK 4",
 		"language_pair": "zh-en",
 		"word_count": 601,
-		"description": ""
+		"description": "",
+		"added_at": "2024-12-10",
+		"sources": [
+			{
+				"name": "drkameleon/complete-hsk-vocabulary",
+				"url": "https://github.com/drkameleon/complete-hsk-vocabulary",
+				"license": "MIT"
+			}
+		]
 	},
 	{
 		"id": "hsk-5",
@@ -69,7 +140,15 @@
 		"name": "HSK 5",
 		"language_pair": "zh-en",
 		"word_count": 1298,
-		"description": ""
+		"description": "",
+		"added_at": "2024-12-10",
+		"sources": [
+			{
+				"name": "drkameleon/complete-hsk-vocabulary",
+				"url": "https://github.com/drkameleon/complete-hsk-vocabulary",
+				"license": "MIT"
+			}
+		]
 	},
 	{
 		"id": "hsk-6",
@@ -78,7 +157,15 @@
 		"name": "HSK 6",
 		"language_pair": "zh-en",
 		"word_count": 2500,
-		"description": ""
+		"description": "",
+		"added_at": "2024-12-10",
+		"sources": [
+			{
+				"name": "drkameleon/complete-hsk-vocabulary",
+				"url": "https://github.com/drkameleon/complete-hsk-vocabulary",
+				"license": "MIT"
+			}
+		]
 	},
 	{
 		"id": "long-neu-l5",
@@ -87,7 +174,8 @@
 		"name": "Lóng neu L5",
 		"language_pair": "zh-de",
 		"word_count": 25,
-		"description": ""
+		"description": "",
+		"added_at": "2024-11-15"
 	},
 	{
 		"id": "arabisch-alphabet",
@@ -96,6 +184,7 @@
 		"name": "Arabisches Alphabet",
 		"language_pair": "ar-de",
 		"word_count": 28,
-		"description": "Die 28 Buchstaben des arabischen Alphabets in vier Lektionen — isolierte Form, wissenschaftliche Umschrift und deutsche Lautwertbeschreibung."
+		"description": "Die 28 Buchstaben des arabischen Alphabets in vier Lektionen — isolierte Form, wissenschaftliche Umschrift und deutsche Lautwertbeschreibung.",
+		"added_at": "2026-02-15"
 	}
 ]

@@ -10,6 +10,12 @@
 export type CatalogKind = 'content' | 'dictionary';
 export type CatalogTag = 'official' | 'community' | 'personal' | string;
 
+export interface CatalogSource {
+	name: string;
+	url: string;
+	license?: string;
+}
+
 export interface CatalogEntry {
 	id: string;
 	kind: CatalogKind;
@@ -19,6 +25,8 @@ export interface CatalogEntry {
 	description: string;
 	word_count?: number;
 	size_mb?: number;
+	added_at?: string;
+	sources?: CatalogSource[];
 }
 
 export const BUILTIN_DICTIONARIES: CatalogEntry[] = [
@@ -62,7 +70,9 @@ export function normalizeEntry(
 		language_pair: raw.language_pair ?? '',
 		description: raw.description ?? '',
 		word_count: raw.word_count,
-		size_mb: raw.size_mb
+		size_mb: raw.size_mb,
+		added_at: raw.added_at,
+		sources: raw.sources
 	};
 }
 

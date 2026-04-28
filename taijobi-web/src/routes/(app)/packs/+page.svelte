@@ -8,10 +8,8 @@
 	import FolderOpen from '$lib/icons/FolderOpen.svelte';
 	import Inventory2 from '$lib/icons/Inventory2.svelte';
 	import Language from '$lib/icons/Language.svelte';
-	import Search from '$lib/icons/Search.svelte';
 	import Upload from '$lib/icons/Upload.svelte';
 	import UploadFile from '$lib/icons/UploadFile.svelte';
-	import Sync from '$lib/icons/Sync.svelte';
 	import {
 		installPack,
 		removePack,
@@ -33,7 +31,6 @@
 		tagLabel,
 		tagBadgeClass,
 		type CatalogEntry,
-		type CatalogKind
 	} from '$lib/catalog-store.svelte';
 
 	interface CsvPreview {
@@ -50,8 +47,6 @@
 	let csvPreview: CsvPreview | null = $state(null);
 	let importing = $state(false);
 	let dragging = $state(false);
-	let searchQuery = $state('');
-	let kindFilter = $state<'all' | CatalogKind>('all');
 	let highlightedId = $state<string | null>(null);
 
 	let zhLoaded = $derived(data.chineseDataLoaded());
@@ -59,22 +54,45 @@
 	let deLoaded = $derived(data.dedictLoaded());
 
 	onMount(async () => {
-		// Honor `?kind=dictionary` or `?kind=content` deep-link from ⌘K /
-		// other entry points — preselects the filter chip.
-		const kindParam = page.url.searchParams.get('kind');
-		if (kindParam === 'dictionary' || kindParam === 'content') {
-			kindFilter = kindParam;
+		await catalogStore.ensureLoaded();
+		await tick();
+
+		// Deep-link from /marketplace/[id]: `?install={id}` triggers an install
+		// (no-op if already installed), then scrolls to the row.
+		const installParam = page.url.searchParams.get('install');
+		if (installParam) {
+			// Strip the param immediately so a later "Entfernen" + refresh
+			// doesn't re-install the pack from a stale URL.
+			const cleaned = new URL(window.location.href);
+			cleaned.searchParams.delete('install');
+			window.history.replaceState(window.history.state, '', cleaned.pathname + cleaned.hash);
+
+			await handleInstallById(installParam);
+			return;
 		}
 
-		await catalogStore.ensureLoaded();
 		// Honor ⌘K deep-link `#pack-{id}` — scroll to + briefly highlight
 		// the target row once rendered.
-		await tick();
 		const hash = location.hash;
 		if (hash.startsWith('#pack-')) {
 			await flashPack(decodeURIComponent(hash.slice('#pack-'.length)));
 		}
 	});
+
+	async function handleInstallById(id: string): Promise<void> {
+		const entry = catalog.find((e) => e.id === id);
+		if (!entry) {
+			toastStore.show(`Paket "${id}" nicht im Katalog`);
+			return;
+		}
+		if (isInstalled(entry)) {
+			await flashPack(id);
+			return;
+		}
+		await handleInstall(entry);
+		await tick();
+		await flashPack(id);
+	}
 
 	/** Scroll to the pack row and briefly highlight it. */
 	async function flashPack(id: string): Promise<void> {
@@ -97,25 +115,12 @@
 		return installed.some((p) => p.id === entry.id);
 	}
 
-	// ----- filtering + grouping -----
-
-	function matchesSearch(entry: CatalogEntry, q: string): boolean {
-		if (!q) return true;
-		const hay = `${entry.name} ${entry.description} ${entry.language_pair}`.toLowerCase();
-		return hay.includes(q.toLowerCase());
-	}
-
-	let filteredCatalog = $derived(
-		catalog.filter(
-			(e) =>
-				(kindFilter === 'all' || e.kind === kindFilter) && matchesSearch(e, searchQuery.trim()),
-		),
-	);
+	// ----- grouping -----
 
 	// Installed entries include catalog-tracked packs that are installed,
 	// plus any SQLite packs not in the catalog (imports → tag 'personal').
 	let installedEntries = $derived.by<CatalogEntry[]>(() => {
-		const fromCatalog = filteredCatalog.filter(isInstalled);
+		const fromCatalog = catalog.filter(isInstalled);
 		const catalogIds = new Set(catalog.map((e) => e.id));
 		const orphans = installed
 			.filter((p) => !catalogIds.has(p.id))
@@ -128,14 +133,8 @@
 				word_count: p.word_count,
 				description: 'Importiertes Paket',
 			}));
-		const orphansFiltered = orphans.filter(
-			(e) =>
-				(kindFilter === 'all' || e.kind === kindFilter) && matchesSearch(e, searchQuery.trim()),
-		);
-		return [...orphansFiltered, ...fromCatalog];
+		return [...orphans, ...fromCatalog];
 	});
-
-	let availableEntries = $derived(filteredCatalog.filter((e) => !isInstalled(e)));
 
 	const GROUPS: {
 		key: string;
@@ -159,7 +158,6 @@
 	}
 
 	let installedGroups = $derived(groupEntries(installedEntries));
-	let availableGroups = $derived(groupEntries(availableEntries));
 
 	// ----- install / remove -----
 
@@ -324,34 +322,29 @@
 	<title>Pakete — Taijobi</title>
 </svelte:head>
 
-<!-- Search + kind filter -->
-<section class="mt-4 space-y-3">
-	<div class="relative">
-		<Search class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
-		<input
-			type="search"
-			bind:value={searchQuery}
-			placeholder="Pakete und Wörterbücher suchen"
-			class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-3 text-sm text-slate-700 placeholder:text-slate-400 focus:border-primary focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:placeholder:text-slate-500"
-		/>
-	</div>
-
-	<div class="flex flex-wrap gap-2">
-		{#each [
-			{ value: 'all' as const, label: 'Alle' },
-			{ value: 'dictionary' as const, label: 'Wörterbücher' },
-			{ value: 'content' as const, label: 'Lehrbücher' },
-		] as chip (chip.value)}
-			<button
-				onclick={() => (kindFilter = chip.value)}
-				class="rounded-full px-3 py-1.5 text-xs font-bold transition-colors {kindFilter === chip.value
-					? 'bg-primary text-white'
-					: 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10'}"
-			>
-				{chip.label}
-			</button>
-		{/each}
-	</div>
+<!-- Marketplace banner -->
+<section class="mt-4">
+	<a
+		href="/marketplace"
+		class="group flex items-center justify-between gap-4 rounded-2xl border border-primary/30 bg-primary/5 px-5 py-4 transition-colors hover:border-primary hover:bg-primary/10 dark:border-primary/30 dark:bg-primary/10"
+	>
+		<div class="flex items-center gap-3">
+			<div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/15">
+				<Explore class="text-primary" />
+			</div>
+			<div>
+				<p class="text-sm font-bold text-slate-900 dark:text-slate-100">
+					Pakete entdecken
+				</p>
+				<p class="text-xs text-slate-500 dark:text-slate-400">
+					HSK, L&oacute;ng neu, Community-Decks und W&ouml;rterb&uuml;cher
+				</p>
+			</div>
+		</div>
+		<span class="hidden text-sm font-medium text-primary transition-transform group-hover:translate-x-1 dark:text-accent sm:inline">
+			Marktplatz &rarr;
+		</span>
+	</a>
 </section>
 
 <!-- Installed Packs -->
@@ -443,84 +436,46 @@
 	</section>
 {/if}
 
-<!-- Available Packs -->
-{#if availableGroups.length > 0}
-	<section class="mt-8">
-		<h2 class="mb-4 flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-slate-100">
-			<Explore class="text-primary" />
-			Verf&uuml;gbar
-		</h2>
-		<div class="space-y-6">
-			{#each availableGroups as group (group.key)}
-				<div class="space-y-3">
-					<p class="text-[11px] font-bold uppercase tracking-wider text-primary">{group.label}</p>
-					{#each group.entries as entry (entry.id)}
-						{@const isDict = entry.kind === 'dictionary'}
-						{@const downloadingThis = isDict && downloadStore.active === entry.language_pair}
-						<div
-							id="pack-{entry.id}"
-							class="rounded-2xl border bg-white p-4 shadow-sm transition-colors dark:bg-white/5 {highlightedId === entry.id
-								? 'border-primary ring-2 ring-primary/30'
-								: 'border-slate-100 dark:border-white/5'}"
-						>
-							<div class="mb-3 flex items-start gap-4">
-								<div class="flex size-16 shrink-0 items-center justify-center rounded-lg bg-primary/5">
-									{#if isDict}
-										<Dictionary class="text-3xl text-primary" />
-									{:else}
-										<Inventory2 class="text-3xl text-primary" />
-									{/if}
-								</div>
-								<div class="min-w-0 flex-1">
-									<div class="flex items-center gap-2">
-										<h3 class="truncate text-lg font-bold text-slate-900 dark:text-slate-100">{entry.name}</h3>
-										<span class="shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider {tagBadgeClass(entry.tag)}">
-											{tagLabel(entry.tag)}
-										</span>
-									</div>
-									<p class="text-sm text-slate-500 dark:text-slate-400">{entry.description}</p>
-									<p class="text-xs text-slate-400 dark:text-slate-500">
-										{#if isDict}
-											~{entry.size_mb} MB
-										{:else}
-											{entry.word_count ?? 0} W&ouml;rter
-										{/if}
-									</p>
-								</div>
-							</div>
-							<button
-								onclick={() => handleInstall(entry)}
-								disabled={(isDict && downloadStore.active !== null) || loading === entry.id}
-								class="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-2.5 font-medium text-white transition-colors hover:bg-primary/90 disabled:opacity-50"
-							>
-								{#if downloadingThis}
-									<Sync class="animate-spin text-sm" />
-									{#if downloadStore.total > 0}
-										{Math.round((downloadStore.progress / downloadStore.total) * 100)}%
-									{:else}
-										Herunterladen&hellip;
-									{/if}
-								{:else if loading === entry.id}
-									Installiere&hellip;
-								{:else}
-									<Download class="text-sm" />
-									Installieren
-								{/if}
-							</button>
-							{#if downloadingThis && downloadStore.total > 0}
-								<div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
-									<div
-										class="h-full rounded-full bg-primary transition-all duration-200"
-										style="width: {Math.round((downloadStore.progress / downloadStore.total) * 100)}%"
-									></div>
-								</div>
+<!-- Active dictionary download (e.g. user just clicked install on /marketplace
+     and the page navigated here while the dict download is still streaming).
+     The /packs surface no longer has an "Available" section, so without this
+     the progress bar would be invisible. -->
+{#if downloadStore.active !== null}
+	{@const activeId =
+		downloadStore.active === 'zh' ? 'dict-zh' : downloadStore.active === 'en' ? 'dict-en' : 'dict-de'}
+	{@const activeEntry = catalog.find((e) => e.id === activeId)}
+	{#if activeEntry}
+		<section class="mt-6">
+			<div class="rounded-2xl border border-primary/30 bg-primary/5 p-4 dark:border-primary/30 dark:bg-primary/10">
+				<div class="flex items-start gap-4">
+					<div class="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary/15">
+						<Dictionary class="text-2xl text-primary" />
+					</div>
+					<div class="min-w-0 flex-1">
+						<p class="text-sm font-bold text-slate-900 dark:text-slate-100">
+							{activeEntry.name} wird heruntergeladen&hellip;
+						</p>
+						<p class="text-xs text-slate-500 dark:text-slate-400">
+							{#if downloadStore.total > 0}
+								{Math.round((downloadStore.progress / downloadStore.total) * 100)}% &mdash;
+								Du kannst die Seite verlassen, der Download l&auml;uft weiter.
+							{:else}
+								Herunterladen&hellip;
 							{/if}
-						</div>
-					{/each}
+						</p>
+					</div>
 				</div>
-			{/each}
-		</div>
-	</section>
+				{#if downloadStore.total > 0}
+					<div class="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
+						<div
+							class="h-full rounded-full bg-primary transition-all duration-200"
+							style="width: {Math.round((downloadStore.progress / downloadStore.total) * 100)}%"
+						></div>
+					</div>
+				{/if}
+			</div>
+		</section>
+	{/if}
 {/if}
 
 <!-- Empty / loading state -->
@@ -531,11 +486,20 @@
 		<Inventory2 class="mx-auto mb-2 block text-[32px] text-slate-300 dark:text-slate-500" />
 		<p class="text-sm text-slate-500 dark:text-slate-400">Lade Pakete...</p>
 	</div>
-{:else if installedGroups.length === 0 && availableGroups.length === 0}
+{:else if installedGroups.length === 0}
 	<div
 		class="mt-8 rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-white/5"
 	>
-		<p class="text-sm text-slate-500 dark:text-slate-400">Keine Treffer.</p>
+		<Inventory2 class="mx-auto mb-2 block text-[32px] text-slate-300 dark:text-slate-500" />
+		<p class="text-sm text-slate-500 dark:text-slate-400">
+			Noch keine Pakete installiert.
+		</p>
+		<a
+			href="/marketplace"
+			class="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary dark:text-accent"
+		>
+			Pakete im Marktplatz entdecken &rarr;
+		</a>
 	</div>
 {/if}
 
