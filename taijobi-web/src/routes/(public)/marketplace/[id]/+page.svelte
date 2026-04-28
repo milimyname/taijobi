@@ -7,8 +7,15 @@
 	import { page } from '$app/state';
 	import { tagLabel, tagBadgeClass } from '$lib/catalog-store.svelte';
 	import { getPack, type Pack, type PackVocab } from '$lib/marketplace.remote';
+	import { error } from '@sveltejs/kit';
 
 	const result = await getPack(page.params.id ?? '');
+
+	// Handle not found — throw 404 so the error page renders properly
+	if (!result.entry) {
+		throw error(404, `Paket "${page.params.id}" nicht gefunden`);
+	}
+
 	let entry = $derived(result.entry);
 	let pack = $derived<Pack | null>(result.pack);
 

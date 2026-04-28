@@ -8,7 +8,6 @@
  * catalog-store all read through these functions.
  */
 import { prerender } from '$app/server';
-import { error } from '@sveltejs/kit';
 import * as v from 'valibot';
 import {
 	normalizeEntry,
@@ -103,8 +102,8 @@ export const getPack = prerender(
 	v.string(),
 	async (id) => {
 		const catalog = await readCatalogFile();
-		const entry = catalog.find((e) => e.id === id);
-		if (!entry) throw error(404, `Paket "${id}" nicht gefunden`);
+		const entry = catalog.find((e) => e.id === id) ?? null;
+		if (!entry) return { entry: null, pack: null };
 		const pack = entry.kind === 'content' ? await readPackFile(id) : null;
 		return { entry, pack };
 	},
