@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.6.21 (2026-04-28)
+
+- feat: public /marketplace surface with per-pack OG cards
+- fix: filter multi-char entries from Kürzlich palette section
+
 ## v0.6.20 (2026-04-25)
 
 - fix: link individual hanzi (not whole sentences) from lesson table
