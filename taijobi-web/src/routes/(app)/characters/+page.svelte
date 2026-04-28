@@ -166,7 +166,7 @@
 </section>
 
 <!-- Filter Chips -->
-<section class="no-scrollbar mt-3 flex gap-2 overflow-x-auto">
+<div class="no-scrollbar mt-3 flex gap-2 overflow-x-auto px-2 py-1 [-webkit-overflow-scrolling:touch]">
 	<button
 		onclick={() => (filter = 'all')}
 		class="flex h-9 shrink-0 items-center rounded-full px-5 text-sm font-semibold transition-colors {filter ===
@@ -207,7 +207,9 @@
 			Alle Zeichen
 		</button>
 	{/if}
-</section>
+	<!-- Spacer to show end of scroll -->
+	<div class="w-2 shrink-0"></div>
+</div>
 
 <!-- Character Grid -->
 <section class="mt-6">
