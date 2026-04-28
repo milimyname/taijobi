@@ -161,7 +161,7 @@
 			</p>
 		{/if}
 		<div class="flex flex-wrap gap-3">
-			{#each decompData.components as comp (comp.char)}
+			{#each decompData.components as comp, idx (idx)}
 				<a
 					href="/character/{encodeURIComponent(comp.char)}"
 					class="flex min-w-[80px] flex-col items-center rounded-xl border border-slate-100 dark:border-white/5 bg-white dark:bg-white/5 p-3 shadow-sm transition-colors hover:border-primary/20 hover:bg-primary/5"
