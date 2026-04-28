@@ -1,10 +1,18 @@
 /**
  * Recent characters — small ring buffer of the last N Chinese characters
  * the user visited via /character/[char]. Surfaced in the ⌘K empty state.
+ *
+ * Only single-grapheme entries are kept. Older versions of the app linked
+ * whole sentences into /character/* — those get filtered out on `init()`
+ * so the ⌘K chip grid stays a clean row of hanzi.
  */
 import { LS_RECENT_CHARS } from './config';
 
 const MAX = 10;
+
+function isSingleChar(s: string): boolean {
+	return typeof s === 'string' && [...s].length === 1;
+}
 
 class RecentCharsStore {
 	chars = $state<string[]>([]);
@@ -15,8 +23,15 @@ class RecentCharsStore {
 			const raw = localStorage.getItem(LS_RECENT_CHARS);
 			if (!raw) return;
 			const parsed = JSON.parse(raw);
-			if (Array.isArray(parsed)) {
-				this.chars = parsed.filter((x): x is string => typeof x === 'string').slice(0, MAX);
+			if (!Array.isArray(parsed)) return;
+
+			const cleaned = parsed.filter(isSingleChar).slice(0, MAX);
+			this.chars = cleaned;
+
+			// Persist the cleanup so old multi-char sentences don't haunt
+			// the user across reloads.
+			if (cleaned.length !== parsed.length) {
+				localStorage.setItem(LS_RECENT_CHARS, JSON.stringify(cleaned));
 			}
 		} catch {
 			/* ignore */
@@ -24,7 +39,7 @@ class RecentCharsStore {
 	}
 
 	visit(ch: string): void {
-		if (!ch) return;
+		if (!isSingleChar(ch)) return;
 		const deduped = [ch, ...this.chars.filter((c) => c !== ch)].slice(0, MAX);
 		this.chars = deduped;
 		try {
