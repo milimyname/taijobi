@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.6.22 (2026-04-28)
+
+- fix: use index key for duplicate components in decomp grid
+
 ## v0.6.21 (2026-04-28)
 
 - feat: public /marketplace surface with per-pack OG cards
