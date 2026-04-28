@@ -108,6 +108,45 @@
 		return chars;
 	});
 
+	const PAGE_SIZE = 200;
+	let displayed = $state<CharInfo[]>([]);
+	let hasMore = $state(true);
+	let loadingMore = $state(false);
+
+	function loadMore(): void {
+		if (loadingMore || !hasMore) return;
+		loadingMore = true;
+		const next = filtered.slice(displayed.length, displayed.length + PAGE_SIZE);
+		if (next.length === 0) {
+			hasMore = false;
+		} else {
+			displayed = [...displayed, ...next];
+			if (displayed.length >= filtered.length) hasMore = false;
+		}
+		loadingMore = false;
+	}
+
+	// Reset displayed when filter/search changes
+	$effect(() => {
+		const chars = filtered;
+		displayed = chars.slice(0, PAGE_SIZE);
+		hasMore = chars.length > PAGE_SIZE;
+	});
+
+	// IntersectionObserver sentinel — loads more as user scrolls
+	$effect(() => {
+		const sentinel = document.getElementById('chars-sentinel');
+		if (!sentinel) return;
+		const io = new IntersectionObserver(
+			(entries) => {
+				if (entries.some((e) => e.isIntersecting)) loadMore();
+			},
+			{ rootMargin: '400px' }
+		);
+		io.observe(sentinel);
+		return () => io.disconnect();
+	});
+
 	const packs = $derived(data.packs());
 </script>
 
@@ -175,7 +214,7 @@
 	<h3 class="mb-3 text-[11px] font-bold uppercase tracking-wider text-primary">
 		{filtered.length} Zeichen
 	</h3>
-	{#if filtered.length === 0}
+	{#if displayed.length === 0}
 		<div
 			class="rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-white/5"
 		>
@@ -228,7 +267,7 @@
 		</div>
 	{:else}
 		<div class="grid grid-cols-5 gap-2 sm:grid-cols-7">
-			{#each filtered as info (info.char)}
+			{#each displayed as info (info.char)}
 				<a
 					href="/character/{encodeURIComponent(info.char)}"
 					style="content-visibility: auto; contain-intrinsic-size: 4rem 4rem;"
@@ -241,6 +280,8 @@
 				</a>
 			{/each}
 		</div>
+		<!-- Sentinel for infinite scroll -->
+		<div id="chars-sentinel" class="h-4 w-full"></div>
 	{/if}
 </section>
 
