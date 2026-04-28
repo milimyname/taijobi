@@ -29,24 +29,6 @@
 	</style>
 </svelte:head>
 
-<nav class="sticky top-0 z-10 mx-auto flex max-w-4xl items-center justify-between bg-bg-light/90 px-6 py-4 backdrop-blur-xl dark:bg-bg-dark/90">
-	<span class="text-xl font-extrabold text-primary">Taijobi</span>
-	<div class="flex items-center gap-2 sm:gap-3">
-		<a
-			href="/marketplace"
-			class="rounded-full px-4 py-2 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-white/5"
-		>
-			Marktplatz
-		</a>
-		<a
-			href="/home"
-			class="rounded-full bg-primary px-5 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90"
-		>
-			App starten &rarr;
-		</a>
-	</div>
-</nav>
-
 <div class="mx-auto max-w-4xl px-6">
 	<!-- Hero -->
 	<section class="py-24 text-center">
