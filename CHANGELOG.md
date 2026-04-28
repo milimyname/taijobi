@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.6.23 (2026-04-28)
+
+- fix: simplify filter chips with end spacer for scrollability
+- fix: remove duplicate nav from landing page (uses shared layout)
+- feat: landing page SSR for OG images, infinite scroll in /characters
+
 ## v0.6.22 (2026-04-28)
 
 - fix: use index key for duplicate components in decomp grid
