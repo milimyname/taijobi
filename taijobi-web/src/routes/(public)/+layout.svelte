@@ -12,32 +12,33 @@
 
 <div class="min-h-screen bg-bg-light dark:bg-bg-dark">
 	<nav class="sticky top-0 z-10 border-b border-slate-100 bg-bg-light/90 backdrop-blur-xl dark:border-white/5 dark:bg-bg-dark/90">
-		<div class="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-			<a href="/" class="text-xl font-extrabold text-primary">Taijobi</a>
-			<div class="flex items-center gap-1 sm:gap-2">
+		<div class="mx-auto flex max-w-5xl items-center justify-between gap-2 px-4 py-3 sm:px-6 sm:py-4">
+			<a href="/" class="shrink-0 text-lg font-extrabold text-primary sm:text-xl">Taijobi</a>
+			<div class="flex items-center gap-0.5 sm:gap-2">
 				<a
 					href="/marketplace"
-					class="rounded-full px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-white/5"
+					class="rounded-full px-2 py-2 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5 sm:px-3 sm:text-sm sm:text-slate-700 sm:dark:text-slate-200"
 				>
 					Marktplatz
 				</a>
 				<a
 					href="/about"
-					class="rounded-full px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-white/5"
+					class="rounded-full px-2 py-2 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5 sm:px-3 sm:text-sm sm:text-slate-700 sm:dark:text-slate-200"
 				>
 					&Uuml;ber
 				</a>
 				<a
 					href="/home"
-					class="rounded-full bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90"
+					class="rounded-full bg-primary px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-primary/90 sm:px-4 sm:text-sm"
 				>
-					App starten &rarr;
+					<span class="sm:hidden">Start &rarr;</span>
+					<span class="hidden sm:inline">App starten &rarr;</span>
 				</a>
 			</div>
 		</div>
 	</nav>
 
-	<main class="mx-auto max-w-5xl px-6 pb-20">
+	<main class="mx-auto max-w-5xl px-4 pb-12 sm:px-6 sm:pb-20">
 		{@render children()}
 	</main>
 

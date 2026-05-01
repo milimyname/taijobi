@@ -393,7 +393,7 @@
 								</div>
 							</div>
 							{#if entry.kind === 'content'}
-								<div class="flex items-center justify-between gap-2">
+								<div class="flex flex-wrap items-center justify-between gap-x-2 gap-y-2">
 									<a href="/lessons/{entry.id}" class="text-sm font-medium text-primary">
 										Lektionen anzeigen &rarr;
 									</a>
@@ -402,18 +402,20 @@
 											<button
 												onclick={() => handleExportPack(entry)}
 												title="Als Community-Pack JSON exportieren (für PR nach packs/community/)"
-												class="flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium text-primary transition-colors hover:bg-primary/10 dark:text-accent dark:hover:bg-accent/10"
+												aria-label="Exportieren"
+												class="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-sm font-medium text-primary transition-colors hover:bg-primary/10 dark:text-accent dark:hover:bg-accent/10"
 											>
 												<Upload class="text-sm" />
-												Exportieren
+												<span class="hidden sm:inline">Exportieren</span>
 											</button>
 										{/if}
 										<button
 											onclick={() => handleRemove(entry)}
-											class="flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10"
+											aria-label="Entfernen"
+											class="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10"
 										>
 											<Delete class="text-sm" />
-											Entfernen
+											<span class="hidden sm:inline">Entfernen</span>
 										</button>
 									</div>
 								</div>

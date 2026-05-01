@@ -192,9 +192,9 @@
      the word is already in the lexicon. -->
 <section class="mt-4 flex items-center gap-2">
 	<div
-		class="flex h-12 flex-1 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 transition-colors focus-within:border-primary/40 dark:border-white/10 dark:bg-white/5"
+		class="flex h-12 min-w-0 flex-1 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 transition-colors focus-within:border-primary/40 dark:border-white/10 dark:bg-white/5"
 	>
-		<Search class="text-[20px] text-slate-400 dark:text-slate-500" />
+		<Search class="shrink-0 text-[20px] text-slate-400 dark:text-slate-500" />
 		<input
 			type="search"
 			bind:value={searchQuery}
@@ -206,7 +206,7 @@
 			<button
 				type="button"
 				onclick={() => (searchQuery = '')}
-				class="rounded-full p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-white/10 dark:hover:text-slate-200"
+				class="shrink-0 rounded-full p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-white/10 dark:hover:text-slate-200"
 				aria-label="Eingabe l&ouml;schen"
 			>
 				<Close class="text-[16px]" />
@@ -219,8 +219,9 @@
 		title={exactMatch
 			? 'Bereits im Lexikon'
 			: searchQuery.trim()
-				? `«${searchQuery.trim()}» hinzuf&uuml;gen`
-				: 'Hinzuf&uuml;gen'}
+				? `«${searchQuery.trim()}» hinzufügen`
+				: 'Hinzufügen'}
+		aria-label="Hinzuf&uuml;gen"
 		class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-sm transition-colors hover:bg-primary/90 disabled:opacity-40"
 	>
 		<Add />

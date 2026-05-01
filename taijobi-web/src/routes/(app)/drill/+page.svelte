@@ -476,13 +476,13 @@
 				{#each readSources as source (source.id)}
 					<button
 						onclick={() => startReading(source.id, source.label)}
-						class="flex w-full items-center justify-between rounded-2xl border border-primary/20 bg-primary-light p-4 shadow-sm transition-colors hover:bg-primary/10 dark:border-primary/30 dark:bg-primary/10 dark:hover:bg-primary/20"
+						class="flex w-full items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary-light p-4 shadow-sm transition-colors hover:bg-primary/10 dark:border-primary/30 dark:bg-primary/10 dark:hover:bg-primary/20"
 					>
-						<div class="flex items-center gap-3">
-							<AutoStories class="text-primary" />
-							<span class="font-bold text-slate-900 dark:text-slate-100">{source.label}</span>
+						<div class="flex min-w-0 flex-1 items-center gap-3">
+							<AutoStories class="shrink-0 text-primary" />
+							<span class="truncate text-left font-bold text-slate-900 dark:text-slate-100">{source.label}</span>
 						</div>
-						<span class="rounded-full bg-primary/10 px-3 py-1 text-sm font-bold text-primary dark:bg-primary/20">
+						<span class="shrink-0 rounded-full bg-primary/10 px-3 py-1 text-sm font-bold text-primary dark:bg-primary/20">
 							{source.count} neu
 						</span>
 					</button>
@@ -498,13 +498,13 @@
 			{#each sources as source (source.id)}
 				<button
 					onclick={() => startDrill(source.id, source.label)}
-					class="flex w-full items-center justify-between rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition-colors hover:bg-primary/5 dark:border-white/5 dark:bg-white/5"
+					class="flex w-full items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition-colors hover:bg-primary/5 dark:border-white/5 dark:bg-white/5"
 				>
-					<div class="flex items-center gap-3">
-						<Icon name={source.id === '' ? 'layers' : source.id === 'lexicon' ? 'book' : 'inventory_2'} class="text-primary" />
-						<span class="font-bold text-slate-900 dark:text-slate-100">{source.label}</span>
+					<div class="flex min-w-0 flex-1 items-center gap-3">
+						<Icon name={source.id === '' ? 'layers' : source.id === 'lexicon' ? 'book' : 'inventory_2'} class="shrink-0 text-primary" />
+						<span class="truncate text-left font-bold text-slate-900 dark:text-slate-100">{source.label}</span>
 					</div>
-					<span class="rounded-full bg-primary/10 px-3 py-1 text-sm font-bold text-primary">
+					<span class="shrink-0 rounded-full bg-primary/10 px-3 py-1 text-sm font-bold text-primary">
 						{source.count}
 					</span>
 				</button>

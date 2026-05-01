@@ -268,7 +268,7 @@
 			{/if}
 		</div>
 	{:else}
-		<div class="grid grid-cols-5 gap-2 sm:grid-cols-7">
+		<div class="grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-7">
 			{#each displayed as info (info.char)}
 				<a
 					href="/character/{encodeURIComponent(info.char)}"
