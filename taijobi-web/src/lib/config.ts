@@ -34,9 +34,11 @@ export const LS_FEATURES = 'taijobi_features';
 export const LS_SQL_HISTORY = 'taijobi_sql_history';
 export const LS_DEVTOOLS = 'taijobi_devtools';
 export const LS_RECENT_CHARS = 'taijobi_recent_chars';
+export const LS_LAST_ROUTE = 'taijobi_last_route';
 
 // --- SessionStorage keys ---
 export const SS_DRILL_SESSION = 'taijobi_drill_session';
+export const SS_BOOTED = 'taijobi_session_booted';
 
 // --- Feature flags ---
 // Map of flag key → default enabled state. Empty by default; add entries

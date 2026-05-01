@@ -18,7 +18,7 @@
 	import { connectSync, disconnectSync, isSyncEnabled } from '$lib/sync';
 	import { data } from '$lib/data.svelte';
 	import { page } from '$app/state';
-	import { goto } from '$app/navigation';
+	import { goto, afterNavigate } from '$app/navigation';
 	import { onboardingStore } from '$lib/onboarding.svelte';
 	import { streakBannerStore } from '$lib/streak-banner.svelte';
 	import { pushStore } from '$lib/push.svelte';
@@ -27,7 +27,7 @@
 	import { downloadStore } from '$lib/download-state.svelte';
 	import { updateStore } from '$lib/update.svelte';
 	import { themeStore } from '$lib/theme.svelte';
-	import { LS_DEVTOOLS } from '$lib/config';
+	import { LS_DEVTOOLS, LS_LAST_ROUTE, SS_BOOTED } from '$lib/config';
 	import UpdateBanner from '../../components/UpdateBanner.svelte';
 	import CharTooltip from '../../components/CharTooltip.svelte';
 	import Toast from '../../components/Toast.svelte';
@@ -63,8 +63,20 @@
 	let enLoaded = $derived(data.endictLoaded());
 	let deLoaded = $derived(data.dedictLoaded());
 
+	// PWA cold-boot route restore: iOS evicts standalone PWA processes
+	// aggressively, so every "resume" from the app switcher is actually a
+	// cold start at start_url (/home). If we have a saved last-route from
+	// before the eviction, redirect there before the user sees /home blink.
 	onMount(async () => {
 		try {
+			const isColdBoot = !sessionStorage.getItem(SS_BOOTED);
+			sessionStorage.setItem(SS_BOOTED, '1');
+			if (isColdBoot && page.url.pathname === '/home') {
+				const last = localStorage.getItem(LS_LAST_ROUTE);
+				if (last && last !== '/home' && last.startsWith('/')) {
+					await goto(last, { replaceState: true });
+				}
+			}
 			themeStore.init();
 			await init();
 			ready = true;
@@ -81,11 +93,39 @@
 			console.error('[taijobi] init error:', e);
 		}
 		window.addEventListener('keydown', onKeydown);
+		document.addEventListener('visibilitychange', persistRouteOnHide);
 	});
 
 	onDestroy(() => {
 		disconnectSync();
-		if (typeof window !== 'undefined') window.removeEventListener('keydown', onKeydown);
+		if (typeof window !== 'undefined') {
+			window.removeEventListener('keydown', onKeydown);
+			document.removeEventListener('visibilitychange', persistRouteOnHide);
+		}
+	});
+
+	function persistRoute(path: string) {
+		// Skip the default /home so the restore logic doesn't loop, and skip
+		// public/marketplace routes — those are SEO entry points, not where
+		// the user was actively working.
+		if (
+			path === '/home' ||
+			path === '/' ||
+			path.startsWith('/marketplace') ||
+			path.startsWith('/about')
+		)
+			return;
+		localStorage.setItem(LS_LAST_ROUTE, path);
+	}
+
+	function persistRouteOnHide() {
+		if (document.visibilityState === 'hidden') {
+			persistRoute(window.location.pathname + window.location.search);
+		}
+	}
+
+	afterNavigate(({ to }) => {
+		if (to?.url) persistRoute(to.url.pathname + to.url.search);
 	});
 
 	let lastKey = '';
@@ -206,7 +246,6 @@
 
 <svelte:head>
 	<meta name="theme-color" content={themeStore.isDark ? '#131f18' : '#195c37'} />
-	<link rel="manifest" href="/manifest.webmanifest" />
 </svelte:head>
 
 {#if error}

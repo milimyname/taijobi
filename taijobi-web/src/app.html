@@ -2,7 +2,31 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+		<!-- PWA / iOS standalone -->
+		<link rel="manifest" href="/manifest.webmanifest" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-title" content="Taijobi" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+		<link rel="apple-touch-icon" href="/icon.svg" />
+
+		<!-- Default theme-color matches manifest background_color so the iOS
+		     PWA cold-boot flash uses the warm-cream / deep-jade brand colour
+		     instead of black. The FOUC script below swaps to dark when needed,
+		     and (app)/+layout.svelte refines it again after hydration. -->
+		<meta name="theme-color" content="#fefdfb" media="(prefers-color-scheme: light)" />
+		<meta name="theme-color" content="#131f18" media="(prefers-color-scheme: dark)" />
+		<style>
+			/* Paint the page background ASAP — before CSS bundle loads — so the
+			   PWA cold-boot doesn't flash black behind the Svelte loading screen. */
+			html {
+				background-color: #fefdfb;
+			}
+			html.dark {
+				background-color: #131f18;
+			}
+		</style>
 		<script>
 			(function () {
 				var t = localStorage.getItem('taijobi_theme');
