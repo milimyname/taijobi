@@ -4,18 +4,12 @@
 	import Language from '$lib/icons/Language.svelte';
 	import Download from '$lib/icons/Download.svelte';
 	import Book from '$lib/icons/Book.svelte';
+	import SearchOff from '$lib/icons/SearchOff.svelte';
 	import { page } from '$app/state';
 	import { tagLabel, tagBadgeClass } from '$lib/catalog-store.svelte';
 	import { getPack, type Pack, type PackVocab } from '$lib/marketplace.remote';
-	import { error } from '@sveltejs/kit';
 
 	const result = await getPack(page.params.id ?? '');
-
-	// Handle not found — throw 404 so the error page renders properly
-	if (!result.entry) {
-		throw error(404, `Paket "${page.params.id}" nicht gefunden`);
-	}
-
 	let entry = $derived(result.entry);
 	let pack = $derived<Pack | null>(result.pack);
 
@@ -35,6 +29,7 @@
 	}
 
 	function sizeLabel(): string {
+		if (!entry) return '';
 		if (entry.kind === 'dictionary') return `~${entry.size_mb ?? 0} MB`;
 		return `${(entry.word_count ?? 0).toLocaleString('de-DE')} Wörter`;
 	}
@@ -53,14 +48,19 @@
 
 	const ABS_URL = 'https://taijobi.com';
 
-	let metaDescription = $derived(
-		entry.description ||
-			(entry.kind === 'dictionary'
-				? `${entry.name} für Taijobi — offline-fähiges Wörterbuch (~${entry.size_mb ?? 0} MB).`
-				: `${entry.name} — ${(entry.word_count ?? 0).toLocaleString('de-DE')} Vokabeln (${languagePairLabel(entry.language_pair)}). Offline lernen mit Taijobi, Spaced Repetition, kein Konto nötig.`)
+	let metaTitle = $derived(
+		entry ? `${entry.name} — Taijobi-Marktplatz` : 'Paket nicht gefunden — Taijobi-Marktplatz'
 	);
-	let metaTitle = $derived(`${entry.name} — Taijobi-Marktplatz`);
-	let canonical = $derived(`${ABS_URL}/marketplace/${entry.id}`);
+	let metaDescription = $derived.by(() => {
+		if (!entry) return `Paket "${page.params.id}" wurde nicht gefunden.`;
+		if (entry.description) return entry.description;
+		if (entry.kind === 'dictionary')
+			return `${entry.name} für Taijobi — offline-fähiges Wörterbuch (~${entry.size_mb ?? 0} MB).`;
+		return `${entry.name} — ${(entry.word_count ?? 0).toLocaleString('de-DE')} Vokabeln (${languagePairLabel(entry.language_pair)}). Offline lernen mit Taijobi, Spaced Repetition, kein Konto nötig.`;
+	});
+	let canonical = $derived(
+		entry ? `${ABS_URL}/marketplace/${entry.id}` : `${ABS_URL}/marketplace`
+	);
 </script>
 
 <svelte:head>
@@ -69,12 +69,16 @@
 	<meta property="og:type" content="website" />
 	<meta property="og:title" content={metaTitle} />
 	<meta property="og:description" content={metaDescription} />
-	<meta property="og:image" content="{ABS_URL}/og/{entry.id}.png" />
+	{#if entry}
+		<meta property="og:image" content="{ABS_URL}/og/{entry.id}.png" />
+	{/if}
 	<meta property="og:url" content={canonical} />
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content={metaTitle} />
 	<meta name="twitter:description" content={metaDescription} />
-	<meta name="twitter:image" content="{ABS_URL}/og/{entry.id}.png" />
+	{#if entry}
+		<meta name="twitter:image" content="{ABS_URL}/og/{entry.id}.png" />
+	{/if}
 	<link rel="canonical" href={canonical} />
 </svelte:head>
 
@@ -89,6 +93,34 @@
 	</a>
 </nav>
 
+{#if !entry}
+	<div class="flex min-h-[50vh] flex-col items-center justify-center px-6 text-center">
+		<div class="mb-6 flex size-20 items-center justify-center rounded-2xl bg-primary/10">
+			<SearchOff class="text-5xl text-primary" />
+		</div>
+		<p class="text-[11px] font-bold uppercase tracking-widest text-primary">Fehler 404</p>
+		<h1 class="mt-2 text-3xl font-black tracking-tight text-slate-900 dark:text-slate-100">
+			Paket nicht gefunden
+		</h1>
+		<p class="mt-3 max-w-md text-sm text-slate-500 dark:text-slate-400">
+			Das Paket «{page.params.id}» existiert nicht (mehr) im Marktplatz.
+		</p>
+		<div class="mt-8 flex flex-wrap items-center justify-center gap-2">
+			<a
+				href="/marketplace"
+				class="rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-primary/90"
+			>
+				Zum Marktplatz
+			</a>
+			<a
+				href="/home"
+				class="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
+			>
+				App starten
+			</a>
+		</div>
+	</div>
+{:else}
 <!-- Hero -->
 <section class="pt-4 pb-8">
 	<div class="flex flex-col gap-6 md:flex-row md:items-start">
@@ -304,3 +336,4 @@
 		In Taijobi installieren
 	</a>
 </section>
+{/if}
