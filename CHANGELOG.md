@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.6.24 (2026-05-01)
+
+- fix: stop a handful of mobile overflows
+- feat: merge lexicon search + add into one find-or-create input
+- fix: render styled 404 inline on /marketplace/[id]
+- feat: PWA cold-boot route restore + brand-coloured splash
+- fix: proper 404 handling in /marketplace/[id] with error page
+
 ## v0.6.23 (2026-04-28)
 
 - fix: simplify filter chips with end spacer for scrollability
