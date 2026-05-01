@@ -5,8 +5,7 @@
 	import Close from '$lib/icons/Close.svelte';
 	import Delete from '$lib/icons/Delete.svelte';
 	import Edit from '$lib/icons/Edit.svelte';
-	import Mic from '$lib/icons/Mic.svelte';
-	import PhotoCamera from '$lib/icons/PhotoCamera.svelte';
+	import Search from '$lib/icons/Search.svelte';
 	import UploadFile from '$lib/icons/UploadFile.svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
@@ -14,25 +13,51 @@
 	import { data } from '$lib/data.svelte';
 	import { toastStore } from '$lib/toast.svelte';
 
-	let input = $state('');
 	let adding = $state(false);
 	let filter = $state('all');
 	let editingId = $state<string | null>(null);
 	let editTranslation = $state('');
+	// Single input does double duty: live-filters the list while the user
+	// types, and adds the trimmed query as a new lexicon word on Enter / via
+	// the + button (only when there's no exact match — find-or-create).
+	// Initialised from ?q=… so the command palette can deep-link.
+	let searchQuery = $state(page.url.searchParams.get('q') ?? '');
+
+	$effect(() => {
+		const current = page.url.searchParams.get('q') ?? '';
+		if (current === searchQuery) return;
+		const next = new URL(page.url);
+		if (searchQuery.trim()) next.searchParams.set('q', searchQuery.trim());
+		else next.searchParams.delete('q');
+		goto(next.pathname + next.search, { replaceState: true, keepFocus: true, noScroll: true });
+	});
 
 	let entries: LexiconEntry[] = $derived(data.lexicon());
 
-	let filtered = $derived(
-		filter === 'all' ? entries : entries.filter((e) => e.language === filter),
+	let searchNeedle = $derived(searchQuery.trim().toLowerCase());
+
+	let exactMatch = $derived(
+		searchNeedle ? entries.some((e) => e.word.toLowerCase() === searchNeedle) : false,
 	);
 
+	let filtered = $derived.by(() => {
+		const byLang = filter === 'all' ? entries : entries.filter((e) => e.language === filter);
+		if (!searchNeedle) return byLang;
+		return byLang.filter((e) => {
+			const w = e.word.toLowerCase();
+			const t = (e.translation ?? '').toLowerCase();
+			const p = (e.pinyin ?? '').toLowerCase();
+			return w.includes(searchNeedle) || t.includes(searchNeedle) || p.includes(searchNeedle);
+		});
+	});
+
 	async function handleAdd() {
-		const word = input.trim();
-		if (!word || adding) return;
+		const word = searchQuery.trim();
+		if (!word || adding || exactMatch) return;
 		adding = true;
 		try {
 			const result = await addWord(word);
-			input = '';
+			searchQuery = '';
 			const tail = result.translation
 				? ` — ${result.translation}`
 				: result.pinyin
@@ -48,7 +73,7 @@
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
-		if (e.key === 'Enter') handleAdd();
+		if (e.key === 'Enter' && !exactMatch) handleAdd();
 	}
 
 	async function handleRemove(entry: LexiconEntry) {
@@ -162,52 +187,59 @@
 	</section>
 {/if}
 
-<!-- Import from Kindle link -->
-<section class="mt-4">
+<!-- Combined search + add input.
+     Type to filter · Enter (or +) to add the trimmed query · disabled when
+     the word is already in the lexicon. -->
+<section class="mt-4 flex items-center gap-2">
+	<div
+		class="flex h-12 flex-1 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 transition-colors focus-within:border-primary/40 dark:border-white/10 dark:bg-white/5"
+	>
+		<Search class="text-[20px] text-slate-400 dark:text-slate-500" />
+		<input
+			type="search"
+			bind:value={searchQuery}
+			onkeydown={handleKeydown}
+			placeholder="Suchen oder hinzuf&uuml;gen..."
+			class="min-w-0 flex-1 border-none bg-transparent p-0 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0 dark:text-slate-100 dark:placeholder:text-slate-500"
+		/>
+		{#if searchQuery}
+			<button
+				type="button"
+				onclick={() => (searchQuery = '')}
+				class="rounded-full p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-white/10 dark:hover:text-slate-200"
+				aria-label="Eingabe l&ouml;schen"
+			>
+				<Close class="text-[16px]" />
+			</button>
+		{/if}
+	</div>
+	<button
+		onclick={handleAdd}
+		disabled={adding || !searchQuery.trim() || exactMatch}
+		title={exactMatch
+			? 'Bereits im Lexikon'
+			: searchQuery.trim()
+				? `«${searchQuery.trim()}» hinzuf&uuml;gen`
+				: 'Hinzuf&uuml;gen'}
+		class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-sm transition-colors hover:bg-primary/90 disabled:opacity-40"
+	>
+		<Add />
+	</button>
 	<a
 		href="/lexicon/import"
-		class="flex items-center justify-between rounded-xl border border-primary/10 bg-primary/5 px-4 py-2.5 text-sm text-primary transition-colors hover:bg-primary/10 dark:border-primary/20 dark:bg-primary/10 dark:hover:bg-primary/15"
+		title="Kindle-Import"
+		aria-label="Kindle-Import"
+		class="flex size-12 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition-colors hover:border-primary/30 hover:text-primary dark:border-white/10 dark:bg-white/5 dark:text-slate-400 dark:hover:text-primary"
 	>
-		<span class="flex items-center gap-2">
-			<UploadFile class="text-[18px]" />
-			<span class="font-bold">Kindle-Import</span>
-			<span class="text-xs opacity-70">My Clippings.txt</span>
-		</span>
-		<span class="text-xs font-bold">&rarr;</span>
+		<UploadFile />
 	</a>
 </section>
 
-<!-- Quick Add Bar -->
-<section class="mt-4 px-0">
-	<div class="flex items-center gap-2">
-		<div
-			class="flex h-12 flex-1 items-center overflow-hidden rounded-xl border border-primary/10 bg-primary/5 px-4 transition-all focus-within:border-primary/30"
-		>
-			<input
-				type="text"
-				bind:value={input}
-				onkeydown={handleKeydown}
-				class="min-w-0 flex-1 border-none bg-transparent p-0 text-base font-normal text-slate-900 placeholder:text-primary/40 focus:outline-none focus:ring-0 dark:text-slate-100"
-				placeholder="Schnell hinzuf&uuml;gen..."
-			/>
-			<div class="flex items-center gap-1">
-				<button class="p-1 text-primary/60 hover:text-primary">
-					<PhotoCamera class="text-[20px]" />
-				</button>
-				<button class="p-1 text-primary/60 hover:text-primary">
-					<Mic class="text-[20px]" />
-				</button>
-			</div>
-		</div>
-		<button
-			onclick={handleAdd}
-			disabled={adding || !input.trim()}
-			class="flex size-12 items-center justify-center rounded-xl bg-primary text-white shadow-sm transition-colors hover:bg-primary/90 disabled:opacity-50"
-		>
-			<Add />
-		</button>
-	</div>
-</section>
+{#if searchQuery.trim() && !exactMatch && !adding}
+	<p class="mt-1.5 px-1 text-[11px] text-slate-400 dark:text-slate-500">
+		Enter dr&uuml;cken oder + tippen, um &laquo;{searchQuery.trim()}&raquo; hinzuzuf&uuml;gen.
+	</p>
+{/if}
 
 <!-- Filter Chips -->
 <section class="mt-4 flex gap-2 overflow-x-auto no-scrollbar">
@@ -250,9 +282,15 @@
 	{#if filtered.length === 0}
 		<div class="rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-white/5">
 			<Book2 class="mx-auto mb-2 block text-[32px] text-slate-300 dark:text-slate-500" />
-			<p class="text-sm text-slate-500 dark:text-slate-400">
-				Noch keine W&ouml;rter. F&uuml;ge W&ouml;rter hinzu, die dir beim Lesen begegnen.
-			</p>
+			{#if searchNeedle || filter !== 'all'}
+				<p class="text-sm text-slate-500 dark:text-slate-400">
+					Keine Treffer{#if searchNeedle} f&uuml;r &laquo;{searchQuery}&raquo;{/if}.
+				</p>
+			{:else}
+				<p class="text-sm text-slate-500 dark:text-slate-400">
+					Noch keine W&ouml;rter. F&uuml;ge W&ouml;rter hinzu, die dir beim Lesen begegnen.
+				</p>
+			{/if}
 		</div>
 	{:else}
 		<!-- Word group -->

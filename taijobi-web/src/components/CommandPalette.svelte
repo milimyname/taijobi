@@ -320,11 +320,11 @@
 			if (c.language === 'zh' && isSingleHanzi(c.word)) {
 				goto(`/character/${encodeURIComponent(c.word)}`);
 			} else if (c.source_type === 'lexicon') {
-				goto('/lexicon');
+				goto(`/lexicon?q=${encodeURIComponent(c.word)}`);
 			} else if (c.pack_id) {
 				goto(buildLessonUrl(c.pack_id, c.lesson_id, c.id));
 			} else {
-				goto('/lexicon');
+				goto(`/lexicon?q=${encodeURIComponent(c.word)}`);
 			}
 			return;
 		}
@@ -334,7 +334,7 @@
 			if (isSingleHanzi(item.value.word)) {
 				goto(`/character/${encodeURIComponent(item.value.word)}`);
 			} else {
-				goto('/lexicon');
+				goto(`/lexicon?q=${encodeURIComponent(item.value.word)}`);
 			}
 			return;
 		}
@@ -386,11 +386,11 @@
 			if (hasChinese(c.word) && isSingleHanzi(c.word)) {
 				goto(`/character/${encodeURIComponent(c.word)}`);
 			} else if (c.source_type === 'lexicon') {
-				goto('/lexicon');
+				goto(`/lexicon?q=${encodeURIComponent(c.word)}`);
 			} else if (c.pack_id) {
 				goto(buildLessonUrl(c.pack_id, c.lesson_id, c.id));
 			} else {
-				goto('/lexicon');
+				goto(`/lexicon?q=${encodeURIComponent(c.word)}`);
 			}
 			return;
 		}
@@ -573,9 +573,9 @@
 					>
 						<PlayCircle class="text-primary" />
 						<div class="flex min-w-0 flex-1 flex-col">
-							<span class="truncate text-sm font-medium text-slate-900 dark:text-slate-100">{lastReviewed.word}</span>
+							<span class="block w-full truncate text-sm font-medium text-slate-900 dark:text-slate-100">{lastReviewed.word}</span>
 							{#if lastReviewed.translation}
-								<span class="truncate text-xs text-slate-500 dark:text-slate-400">{lastReviewed.translation}</span>
+								<span class="block w-full truncate text-xs text-slate-500 dark:text-slate-400">{lastReviewed.translation}</span>
 							{/if}
 						</div>
 					</button>
@@ -634,7 +634,7 @@
 						<button
 							data-idx={idx}
 							onclick={() => executeItem({ kind: 'card', value: c })}
-							class="flex w-full flex-col gap-0.5 rounded-xl px-3 py-2.5 text-left transition-colors {selectedIndex === idx ? 'border-l-[3px] border-primary bg-primary/10' : 'hover:bg-slate-50 dark:hover:bg-white/5'}"
+							class="flex w-full min-w-0 flex-col gap-0.5 overflow-hidden rounded-xl px-3 py-2.5 text-left transition-colors {selectedIndex === idx ? 'border-l-[3px] border-primary bg-primary/10' : 'hover:bg-slate-50 dark:hover:bg-white/5'}"
 						>
 							<div class="flex items-baseline gap-2">
 								<span class="text-base font-medium text-slate-900 dark:text-slate-100">{c.word}</span>
@@ -643,10 +643,10 @@
 								{/if}
 							</div>
 							{#if c.translation}
-								<span class="truncate text-xs text-slate-500 dark:text-slate-400">{c.translation}</span>
+								<span class="block w-full truncate text-xs text-slate-500 dark:text-slate-400">{c.translation}</span>
 							{/if}
 							{#if c.context && (bookMatch || c.context.toLowerCase().includes(searchQuery.toLowerCase()))}
-								<span class="truncate text-[11px] italic text-slate-400 dark:text-slate-500">&bdquo;{c.context.slice(0, 80)}{c.context.length > 80 ? '…' : ''}&ldquo;</span>
+								<span class="block w-full truncate text-[11px] italic text-slate-400 dark:text-slate-500">&bdquo;{c.context}&ldquo;</span>
 							{/if}
 						</button>
 					{/each}
@@ -661,10 +661,10 @@
 							onclick={() => executeItem({ kind: 'pinyin', value: p })}
 							class="flex w-full items-baseline gap-2 rounded-xl px-3 py-2.5 text-left transition-colors {selectedIndex === idx ? 'border-l-[3px] border-primary bg-primary/10' : 'hover:bg-slate-50 dark:hover:bg-white/5'}"
 						>
-							<span class="text-base font-medium text-slate-900 dark:text-slate-100">{p.word}</span>
-							<span class="text-xs text-slate-500 dark:text-slate-400">{p.pinyin}</span>
+							<span class="shrink-0 text-base font-medium text-slate-900 dark:text-slate-100">{p.word}</span>
+							<span class="shrink-0 text-xs text-slate-500 dark:text-slate-400">{p.pinyin}</span>
 							{#if p.translation}
-								<span class="ml-auto truncate text-xs text-slate-400 dark:text-slate-500">{p.translation}</span>
+								<span class="ml-auto min-w-0 truncate text-xs text-slate-400 dark:text-slate-500">{p.translation}</span>
 							{/if}
 						</button>
 					{/each}
@@ -677,13 +677,13 @@
 						<button
 							data-idx={idx}
 							onclick={() => executeItem({ kind: 'dict', value: d })}
-							class="flex w-full flex-col gap-0.5 rounded-xl px-3 py-2.5 text-left transition-colors {selectedIndex === idx ? 'border-l-[3px] border-primary bg-primary/10' : 'hover:bg-slate-50 dark:hover:bg-white/5'}"
+							class="flex w-full min-w-0 flex-col gap-0.5 overflow-hidden rounded-xl px-3 py-2.5 text-left transition-colors {selectedIndex === idx ? 'border-l-[3px] border-primary bg-primary/10' : 'hover:bg-slate-50 dark:hover:bg-white/5'}"
 						>
 							<div class="flex items-baseline gap-2">
 								<span class="text-base font-medium text-slate-900 dark:text-slate-100">{d.simplified}</span>
 								<span class="text-xs text-slate-500 dark:text-slate-400">{d.pinyin}</span>
 							</div>
-							<span class="truncate text-xs text-slate-500 dark:text-slate-400">{d.english}</span>
+							<span class="block w-full truncate text-xs text-slate-500 dark:text-slate-400">{d.english}</span>
 						</button>
 					{/each}
 					{#each wiktResults as w, i (w.word + i)}
@@ -691,7 +691,7 @@
 						<button
 							data-idx={idx}
 							onclick={() => executeItem({ kind: 'wikt', value: w })}
-							class="flex w-full flex-col gap-0.5 rounded-xl px-3 py-2.5 text-left transition-colors {selectedIndex === idx ? 'border-l-[3px] border-primary bg-primary/10' : 'hover:bg-slate-50 dark:hover:bg-white/5'}"
+							class="flex w-full min-w-0 flex-col gap-0.5 overflow-hidden rounded-xl px-3 py-2.5 text-left transition-colors {selectedIndex === idx ? 'border-l-[3px] border-primary bg-primary/10' : 'hover:bg-slate-50 dark:hover:bg-white/5'}"
 						>
 							<div class="flex items-baseline gap-2">
 								<span class="text-base font-medium text-slate-900 dark:text-slate-100">{w.word}</span>
@@ -699,7 +699,7 @@
 									<span class="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary">{w.pos}</span>
 								{/if}
 							</div>
-							<span class="truncate text-xs text-slate-500 dark:text-slate-400">{w.definition}</span>
+							<span class="block w-full truncate text-xs text-slate-500 dark:text-slate-400">{w.definition}</span>
 						</button>
 					{/each}
 				{/if}
