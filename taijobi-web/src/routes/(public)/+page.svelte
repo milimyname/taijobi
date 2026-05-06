@@ -5,6 +5,40 @@
 	import Draw from '$lib/icons/Draw.svelte';
 	import Inventory2 from '$lib/icons/Inventory2.svelte';
 	import Translate from '$lib/icons/Translate.svelte';
+
+	// Structured data — helps Google understand we're a software product, not
+	// just a generic website. Doesn't directly create sitelinks but feeds the
+	// knowledge panel and brand-search ranking.
+	// The escaped slash in `<\/script>` is load-bearing: an unescaped one
+	// inside this Svelte script block would close it. oxlint misses that
+	// context, hence the disable.
+	// oxlint-disable no-useless-escape
+	const ldScripts =
+		'<script type="application/ld+json">' +
+		JSON.stringify({
+			'@context': 'https://schema.org',
+			'@type': 'SoftwareApplication',
+			name: 'Taijobi',
+			url: 'https://taijobi.com/',
+			applicationCategory: 'EducationalApplication',
+			operatingSystem: 'Web, iOS, Android (PWA)',
+			description:
+				'Lokale Vokabel-App für Chinesisch, Englisch und Deutsch. Spaced Repetition, Wörterbücher, offline-first. Kein Konto nötig.',
+			inLanguage: ['de', 'zh', 'en'],
+			offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+			image: 'https://taijobi.com/og/default.png'
+		}) +
+		'<\/script>' +
+		'<script type="application/ld+json">' +
+		JSON.stringify({
+			'@context': 'https://schema.org',
+			'@type': 'WebSite',
+			name: 'Taijobi',
+			url: 'https://taijobi.com/',
+			inLanguage: 'de'
+		}) +
+		'<\/script>';
+	// oxlint-enable no-useless-escape
 </script>
 
 <svelte:head>
@@ -20,6 +54,7 @@
 	<meta name="twitter:description" content="Lokale Vokabel-App für Chinesisch, Englisch und Deutsch. Offline-first." />
 	<meta name="twitter:image" content="https://taijobi.com/og/default.png" />
 	<link rel="canonical" href="https://taijobi.com/" />
+	{@html ldScripts}
 	<style>
 		/* Body bg + color come from src/app.css which has html.dark handling.
 		   Just set the font here so the landing page doesn't inherit Inter
