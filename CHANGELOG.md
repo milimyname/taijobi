@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.6.25 (2026-05-06)
+
+- feat: SEO basics — sitemap, structured data, lang="de"
+
 ## v0.6.24 (2026-05-01)
 
 - fix: stop a handful of mobile overflows
