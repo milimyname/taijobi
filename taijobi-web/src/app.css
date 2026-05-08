@@ -38,3 +38,34 @@ html.dark body {
 		font-size: 16px !important;
 	}
 }
+
+/* Inputs default to the user-agent's text colour (~black) instead of
+   inheriting from body, so on dark surfaces they look black-on-dark and
+   the user can't read what they're typing. Force inheritance for the text
+   colour + caret. Per-input `dark:text-*` overrides still win because
+   class specificity beats this element selector. */
+input,
+textarea,
+select {
+	color: inherit;
+	caret-color: currentColor;
+}
+
+html.dark input,
+html.dark textarea,
+html.dark select {
+	color: #f1f5f9; /* slate-100 */
+}
+
+/* Kill the user-agent blue focus ring on form controls — every input we
+   ship signals focus via its wrapper (`focus-within:border-primary/30`)
+   or its own border-colour transition. Buttons keep the default outline
+   for keyboard accessibility. */
+input:focus,
+input:focus-visible,
+textarea:focus,
+textarea:focus-visible,
+select:focus,
+select:focus-visible {
+	outline: none;
+}

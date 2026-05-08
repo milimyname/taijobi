@@ -165,8 +165,11 @@
 	</div>
 </section>
 
-<!-- Filter Chips -->
-<div class="no-scrollbar mt-3 flex gap-2 overflow-x-auto px-2 py-1 [-webkit-overflow-scrolling:touch]">
+<!-- Filter Chips
+     Bleed to viewport edges with -mx-4 + matching px-4 so chips can scroll
+     all the way (no awkward gap on the right edge). min-h reserves space
+     so the row doesn't pop in once packs load. -->
+<div class="no-scrollbar -mx-4 mt-3 flex min-h-[2.75rem] gap-2 overflow-x-auto px-4 py-1 lg:-mx-8 lg:px-8 [-webkit-overflow-scrolling:touch]">
 	<button
 		onclick={() => (filter = 'all')}
 		class="flex h-9 shrink-0 items-center rounded-full px-5 text-sm font-semibold transition-colors {filter ===
@@ -207,8 +210,6 @@
 			Alle Zeichen
 		</button>
 	{/if}
-	<!-- Spacer to show end of scroll -->
-	<div class="w-2 shrink-0"></div>
 </div>
 
 <!-- Character Grid -->
