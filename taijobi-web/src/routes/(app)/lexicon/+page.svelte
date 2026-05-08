@@ -189,24 +189,25 @@
 
 <!-- Combined search + add input.
      Type to filter · Enter (or +) to add the trimmed query · disabled when
-     the word is already in the lexicon. -->
+     the word is already in the lexicon. Styling matches /characters and
+     /dictionary so the search bar feels consistent across the app. -->
 <section class="mt-4 flex items-center gap-2">
 	<div
-		class="flex h-12 min-w-0 flex-1 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 transition-colors focus-within:border-primary/40 dark:border-white/10 dark:bg-white/5"
+		class="flex h-12 min-w-0 flex-1 items-center gap-2 overflow-hidden rounded-xl border border-primary/10 bg-primary/5 px-4 transition-all focus-within:border-primary/30"
 	>
-		<Search class="shrink-0 text-[20px] text-slate-400 dark:text-slate-500" />
+		<Search class="shrink-0 text-[20px] text-primary/40" />
 		<input
 			type="search"
 			bind:value={searchQuery}
 			onkeydown={handleKeydown}
 			placeholder="Suchen oder hinzuf&uuml;gen..."
-			class="min-w-0 flex-1 border-none bg-transparent p-0 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0 dark:text-slate-100 dark:placeholder:text-slate-500"
+			class="min-w-0 flex-1 border-none bg-transparent p-0 text-base font-normal outline-none placeholder:text-primary/40 focus:ring-0"
 		/>
 		{#if searchQuery}
 			<button
 				type="button"
 				onclick={() => (searchQuery = '')}
-				class="shrink-0 rounded-full p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-white/10 dark:hover:text-slate-200"
+				class="shrink-0 rounded-full p-1 text-primary/50 transition-colors hover:bg-primary/10 hover:text-primary"
 				aria-label="Eingabe l&ouml;schen"
 			>
 				<Close class="text-[16px]" />
