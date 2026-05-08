@@ -4,6 +4,11 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 
+		<!-- Favicon — point at the existing SVG so browsers stop auto-probing
+		     for /favicon.ico (which we don't ship). `sizes="any"` lets the SVG
+		     scale to any rendering context. -->
+		<link rel="icon" href="/icon.svg" type="image/svg+xml" sizes="any" />
+
 		<!-- PWA / iOS standalone -->
 		<link rel="manifest" href="/manifest.webmanifest" />
 		<meta name="apple-mobile-web-app-capable" content="yes" />
