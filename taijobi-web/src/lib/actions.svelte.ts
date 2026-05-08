@@ -244,6 +244,53 @@ export function getActions(): PaletteAction[] {
 				}
 			}
 		},
+		{
+			id: 'sync-qr',
+			label: 'Sync-Schlüssel als QR-Code',
+			icon: 'qr_code_2',
+			group: 'Sync',
+			keywords: ['sync', 'key', 'qr', 'qrcode', 'backup', 'sichern'],
+			enabled: isSyncEnabled,
+			handler: () => goto('/settings?show=qr')
+		},
+		{
+			id: 'sync-download',
+			label: 'Sync-Schlüssel als Datei sichern',
+			icon: 'download',
+			group: 'Sync',
+			keywords: ['sync', 'key', 'backup', 'sichern', 'download', 'datei'],
+			enabled: isSyncEnabled,
+			handler: () => {
+				const key = getSyncKey();
+				if (!key) {
+					toastStore.show('Kein Sync-Schlüssel');
+					return;
+				}
+				const stamp = new Date().toISOString().slice(0, 10);
+				const body = `Taijobi Sync-Schlüssel
+Erstellt: ${new Date().toLocaleString('de-DE')}
+
+${key}
+
+Diesen Schlüssel sicher aufbewahren. Er ist deine Identität —
+auf jedem Gerät, das du verbinden willst, fügst du genau diesen
+Schlüssel ein. Ohne ihn lassen sich verschlüsselte Daten nicht
+wiederherstellen.
+`;
+				downloadText(`taijobi-sync-key-${stamp}.txt`, body, 'text/plain');
+				localStorage.setItem('taijobi_key_backed_up', '1');
+				toastStore.show('Schlüssel heruntergeladen');
+			}
+		},
+		{
+			id: 'sync-enable',
+			label: 'Sync aktivieren',
+			icon: 'sync',
+			group: 'Sync',
+			keywords: ['sync', 'aktivieren', 'enable', 'einrichten'],
+			enabled: () => !isSyncEnabled(),
+			handler: () => goto('/settings?show=sync-info')
+		},
 
 		// Onboarding
 		{
