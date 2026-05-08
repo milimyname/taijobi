@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.6.26 (2026-05-08)
+
+- fix: align lexicon search input to the jade-tint convention
+- feat: brand the sync-key QR with jade modules + hanzi overlay
+- feat: QR backup + sync-info drawer, drop unreliable PM form
+- fix: dark-mode input text + edge-bleed character chip row
+- fix: declare SVG favicon to stop /favicon.ico 404s
+- feat: sync-key backup affordances + first-run nag
+
 ## v0.6.25 (2026-05-06)
 
 - feat: SEO basics — sitemap, structured data, lang="de"
