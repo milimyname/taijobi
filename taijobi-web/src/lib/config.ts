@@ -35,6 +35,10 @@ export const LS_SQL_HISTORY = 'taijobi_sql_history';
 export const LS_DEVTOOLS = 'taijobi_devtools';
 export const LS_RECENT_CHARS = 'taijobi_recent_chars';
 export const LS_LAST_ROUTE = 'taijobi_last_route';
+// Set to '1' the first time the user explicitly backs up their sync key
+// (download or password-manager save). Drives the "back up your key!" nag
+// banner so it stops appearing once they've actually done it.
+export const LS_KEY_BACKED_UP = 'taijobi_key_backed_up';
 
 // --- SessionStorage keys ---
 export const SS_DRILL_SESSION = 'taijobi_drill_session';

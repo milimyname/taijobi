@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ContentCopy from '$lib/icons/ContentCopy.svelte';
+	import Download from '$lib/icons/Download.svelte';
 	import Sync from '$lib/icons/Sync.svelte';
 	import VpnKey from '$lib/icons/VpnKey.svelte';
 	import Icon from '$lib/icons/Icon.svelte';
@@ -17,6 +18,7 @@
 	import { toastStore } from '$lib/toast.svelte';
 	import { themeStore, type Theme } from '$lib/theme.svelte';
 	import { pushStore } from '$lib/push.svelte';
+	import { LS_KEY_BACKED_UP } from '$lib/config';
 
 	const themeOptions: { value: Theme; label: string; icon: string }[] = [
 		{ value: 'light', label: 'Hell', icon: 'light_mode' },
@@ -29,6 +31,15 @@
 	let inputKey = $state('');
 	let syncing = $state(false);
 	let lastSync = $state(getLastSyncTimestamp());
+	// Drives the "back up your key!" nag — true until the user has explicitly
+	// downloaded or password-manager-saved their key at least once.
+	let keyBackedUp = $state(localStorage.getItem(LS_KEY_BACKED_UP) === '1');
+	let pwForm: HTMLFormElement | undefined = $state();
+
+	function markBackedUp(): void {
+		localStorage.setItem(LS_KEY_BACKED_UP, '1');
+		keyBackedUp = true;
+	}
 
 	function generateKey(): void {
 		const bytes = new Uint8Array(24);
@@ -40,8 +51,74 @@
 		syncKey = key;
 		setSyncKey(key);
 		enabled = true;
+		// Fresh key — force the nag back on so the user has a chance to back it
+		// up before something happens (uninstall, browser wipe, lost device).
+		localStorage.removeItem(LS_KEY_BACKED_UP);
+		keyBackedUp = false;
 		connectSync();
 		toastStore.show('Sync-Schlüssel generiert');
+	}
+
+	function downloadKey(): void {
+		if (!syncKey) return;
+		const stamp = new Date().toISOString().slice(0, 10);
+		const body = `Taijobi Sync-Schlüssel
+Erstellt: ${new Date().toLocaleString('de-DE')}
+
+${syncKey}
+
+Diesen Schlüssel sicher aufbewahren. Er ist deine Identität —
+auf jedem Gerät, das du verbinden willst, fügst du genau diesen
+Schlüssel ein. Ohne ihn lassen sich verschlüsselte Daten nicht
+wiederherstellen.
+`;
+		const blob = new Blob([body], { type: 'text/plain;charset=utf-8' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `taijobi-sync-key-${stamp}.txt`;
+		document.body.appendChild(a);
+		a.click();
+		a.remove();
+		URL.revokeObjectURL(url);
+		markBackedUp();
+		toastStore.show('Schlüssel heruntergeladen');
+	}
+
+	async function saveToPasswordManager(e?: Event): Promise<void> {
+		if (e) e.preventDefault();
+		if (!syncKey) return;
+		// Chromium-only: programmatic credential storage. Safari + Firefox don't
+		// implement PasswordCredential — they fall through to the form-submit
+		// path, which all major managers (iOS Keychain, Bitwarden, 1Password,
+		// Chrome built-in) hook for save prompts.
+		type PasswordCredentialCtor = new (init: {
+			id: string;
+			password: string;
+			name?: string;
+		}) => Credential;
+		const w = window as unknown as { PasswordCredential?: PasswordCredentialCtor };
+		if ('credentials' in navigator && typeof w.PasswordCredential === 'function') {
+			try {
+				const cred = new w.PasswordCredential({
+					id: 'taijobi-sync',
+					password: syncKey,
+					name: 'Taijobi Sync-Schlüssel'
+				});
+				await navigator.credentials.store(cred);
+				markBackedUp();
+				toastStore.show('Im Passwort-Manager gespeichert');
+				return;
+			} catch {
+				// fall through to form submit
+			}
+		}
+		// Form submission triggers the manager's save-password popup. We can't
+		// detect whether the user actually accepted, so we mark backed-up
+		// optimistically — worst case the nag goes away and the user can still
+		// re-trigger via the buttons.
+		pwForm?.requestSubmit();
+		markBackedUp();
 	}
 
 	function linkKey(): void {
@@ -51,6 +128,9 @@
 		setSyncKey(key);
 		enabled = true;
 		inputKey = '';
+		// User pasted a key from another device — they already have it backed
+		// up (it came from somewhere). No nag.
+		markBackedUp();
 		connectSync();
 		toastStore.show('Sync-Schlüssel verknüpft');
 	}
@@ -131,6 +211,51 @@
 	</div>
 
 	{#if enabled}
+		<!-- Backup nag — appears after key generation, dismisses when the user
+		     downloads or saves to password manager. Critical because losing the
+		     key means losing access to all encrypted data on the sync server. -->
+		{#if !keyBackedUp}
+			<div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-500/30 dark:bg-amber-500/10">
+				<div class="flex items-start gap-3">
+					<div class="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-amber-200/60 dark:bg-amber-500/20">
+						<VpnKey class="text-amber-700 dark:text-amber-400" />
+					</div>
+					<div class="min-w-0 flex-1">
+						<p class="text-sm font-bold text-amber-900 dark:text-amber-200">
+							Schl&uuml;ssel jetzt sichern
+						</p>
+						<p class="mt-1 text-xs leading-relaxed text-amber-800/80 dark:text-amber-300/80">
+							Dein Sync-Schl&uuml;ssel ist deine Identit&auml;t. Geht er verloren
+							(App deinstalliert, Browser zur&uuml;ckgesetzt, Ger&auml;t kaputt),
+							sind deine verschl&uuml;sselten Daten unwiederbringlich weg.
+						</p>
+						<div class="mt-3 flex flex-wrap gap-2">
+							<button
+								onclick={() => saveToPasswordManager()}
+								class="flex items-center gap-1.5 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm transition-colors hover:bg-amber-700"
+							>
+								<VpnKey class="text-[14px]" />
+								In Passwort-Manager
+							</button>
+							<button
+								onclick={downloadKey}
+								class="flex items-center gap-1.5 rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-bold text-amber-800 transition-colors hover:bg-amber-50 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200 dark:hover:bg-amber-500/20"
+							>
+								<Download class="text-[14px]" />
+								Als Datei
+							</button>
+							<button
+								onclick={markBackedUp}
+								class="rounded-lg px-3 py-1.5 text-xs font-medium text-amber-700/80 transition-colors hover:bg-amber-100 dark:text-amber-400/80 dark:hover:bg-amber-500/10"
+							>
+								Habe ich
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		{/if}
+
 		<!-- Connected state -->
 		<div class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm dark:border-white/5 dark:bg-white/5">
 			<div class="flex items-center gap-2">
@@ -148,11 +273,58 @@
 				</code>
 				<button
 					onclick={copyKey}
+					title="Kopieren"
+					aria-label="Kopieren"
 					class="rounded-lg bg-slate-100 p-2 text-slate-500 transition-colors hover:bg-slate-200 dark:bg-white/10 dark:text-slate-400 dark:hover:bg-white/15"
 				>
 					<ContentCopy class="text-[18px]" />
 				</button>
+				<button
+					onclick={() => saveToPasswordManager()}
+					title="In Passwort-Manager speichern"
+					aria-label="In Passwort-Manager speichern"
+					class="rounded-lg bg-slate-100 p-2 text-slate-500 transition-colors hover:bg-slate-200 dark:bg-white/10 dark:text-slate-400 dark:hover:bg-white/15"
+				>
+					<VpnKey class="text-[18px]" />
+				</button>
+				<button
+					onclick={downloadKey}
+					title="Als .txt herunterladen"
+					aria-label="Als Datei herunterladen"
+					class="rounded-lg bg-slate-100 p-2 text-slate-500 transition-colors hover:bg-slate-200 dark:bg-white/10 dark:text-slate-400 dark:hover:bg-white/15"
+				>
+					<Download class="text-[18px]" />
+				</button>
 			</div>
+
+			<!-- Hidden form for password-manager autosave fallback. The manager
+			     hooks into form submission with `autocomplete="new-password"`;
+			     `display:none` would prevent detection in some managers, so we
+			     position offscreen instead. -->
+			<form
+				bind:this={pwForm}
+				onsubmit={(e) => e.preventDefault()}
+				class="pointer-events-none absolute -left-[9999px] top-0 opacity-0"
+				aria-hidden="true"
+			>
+				<input
+					type="text"
+					name="username"
+					autocomplete="username"
+					value="taijobi-sync"
+					readonly
+					tabindex={-1}
+				/>
+				<input
+					type="password"
+					name="password"
+					autocomplete="new-password"
+					value={syncKey}
+					readonly
+					tabindex={-1}
+				/>
+				<button type="submit" tabindex={-1}>save</button>
+			</form>
 
 			<p class="mt-2 text-xs text-slate-400 dark:text-slate-500">
 				Letzte Synchronisierung: {formatTimestamp(lastSync)}
