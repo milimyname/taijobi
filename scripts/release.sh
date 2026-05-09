@@ -142,8 +142,9 @@ echo "Done! Created commit and tag v${NEW}."
 
 if [[ "$PUSH" == true ]]; then
   echo ""
-  echo "Pushing..."
-  git push && git push origin "v${NEW}"
+  echo "Pushing branch and tag..."
+  git push || die "git push (branch) failed"
+  git push origin "v${NEW}" || die "git push (tag) failed"
   echo "Pushed! CI will build and deploy."
 else
   echo ""
