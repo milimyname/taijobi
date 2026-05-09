@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.6.27 (2026-05-10)
+
+- fix: catch-up sync drops local rows when server already has data
+- fix: characters page overflow + mobile-web-app-capable
+
 ## v0.6.26 (2026-05-08)
 
 - fix: align lexicon search input to the jade-tint convention
