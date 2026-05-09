@@ -67,8 +67,11 @@ export function isSyncEnabled(): boolean {
 	return !!getSyncKey();
 }
 
-export async function syncPush(syncKey: string): Promise<number> {
-	const lastSync = getLastSyncTimestamp();
+export async function syncPush(syncKey: string, sinceOverride?: number): Promise<number> {
+	// Catch-up sync passes the pre-pull timestamp so local rows that existed
+	// before the link aren't excluded by syncPull's setLastSyncTimestamp(now).
+	// Default falls back to the persisted timestamp for the steady-state case.
+	const lastSync = sinceOverride ?? getLastSyncTimestamp();
 	const changes: SyncRow[] = getChanges(lastSync);
 	console.log(`[taijobi-sync] Push: ${changes.length} changes since ${lastSync}`);
 	if (changes.length === 0) return 0;
@@ -126,8 +129,13 @@ export async function syncPull(syncKey: string): Promise<number> {
 }
 
 export async function syncFull(syncKey: string): Promise<{ pushed: number; pulled: number }> {
+	// Snapshot the pre-pull timestamp so push can find local rows that have
+	// updated_at < now() — i.e. rows that were created on this device before
+	// the (possibly fresh) link. Without this, a fresh link with pre-existing
+	// local data + a non-empty server silently drops the local rows.
+	const tsBeforePull = getLastSyncTimestamp();
 	const pulled = await syncPull(syncKey);
-	const pushed = await syncPush(syncKey);
+	const pushed = await syncPush(syncKey, tsBeforePull);
 	setLastSyncTimestamp(Date.now());
 	return { pushed, pulled };
 }
@@ -139,12 +147,17 @@ export function connectSync(): void {
 
 	syncWS.connect(key);
 
-	// Catch-up sync on every (re)connect
+	// Catch-up sync on every (re)connect. Snapshot the pre-pull timestamp so
+	// the follow-up push picks up local rows older than `now` — critical on
+	// the first connect after pasting a key from another device, where the
+	// device has unsynced local rows that pull's setLastSyncTimestamp(now)
+	// would otherwise hide.
 	syncWS.setOnReconnect(() => {
 		const syncKey = getSyncKey();
 		if (syncKey) {
+			const tsBeforePull = getLastSyncTimestamp();
 			syncPull(syncKey)
-				.then(() => syncPush(syncKey))
+				.then(() => syncPush(syncKey, tsBeforePull))
 				.catch((err) => {
 					console.error('[taijobi-sync] Catch-up sync failed:', err);
 				});
