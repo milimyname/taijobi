@@ -727,7 +727,7 @@ export fn hanzi_get_changes(since_ts: i64) ?[*]const u8 {
         return null;
     };
 
-    const buf_size: usize = 8 * 1024 * 1024; // 8 MB
+    const buf_size: usize = if (MCP_BUILD) 8 * 1024 * 1024 else 32 * 1024 * 1024;
     const buf = fba.allocator().alloc(u8, buf_size + 4) catch {
         setError("hanzi_get_changes: failed to allocate buffer");
         return null;

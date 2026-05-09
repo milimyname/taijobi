@@ -101,8 +101,8 @@ export async function syncPush(syncKey: string, sinceOverride?: number): Promise
 	return result.merged;
 }
 
-export async function syncPull(syncKey: string): Promise<number> {
-	const lastSync = getLastSyncTimestamp();
+export async function syncPull(syncKey: string, sinceOverride?: number): Promise<number> {
+	const lastSync = sinceOverride ?? getLastSyncTimestamp();
 	console.log(`[taijobi-sync] Pull: since=${lastSync}`);
 
 	const res = await fetch(`${SYNC_API_URL}/sync/${syncKey}?since=${lastSync}`);
@@ -147,19 +147,18 @@ export function connectSync(): void {
 
 	syncWS.connect(key);
 
-	// Catch-up sync on every (re)connect. Snapshot the pre-pull timestamp so
-	// the follow-up push picks up local rows older than `now` — critical on
-	// the first connect after pasting a key from another device, where the
-	// device has unsynced local rows that pull's setLastSyncTimestamp(now)
-	// would otherwise hide.
+	// Full reconciliation on every (re)connect: pull+push with since=0 so that
+	// rows with old updated_at (e.g. pre-existing lexicon entries from before
+	// the sync key was set, or rows whose broadcast was missed during WS
+	// downtime) don't fall through the cracks. The server deduplicates on push,
+	// and the client applies INSERT OR REPLACE on pull.
 	syncWS.setOnReconnect(() => {
 		const syncKey = getSyncKey();
 		if (syncKey) {
-			const tsBeforePull = getLastSyncTimestamp();
-			syncPull(syncKey)
-				.then(() => syncPush(syncKey, tsBeforePull))
+			syncPull(syncKey, 0)
+				.then(() => syncPush(syncKey, 0))
 				.catch((err) => {
-					console.error('[taijobi-sync] Catch-up sync failed:', err);
+					console.error('[taijobi-sync] Reconnect sync failed:', err);
 				});
 		}
 	});
