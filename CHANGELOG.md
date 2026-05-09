@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.6.28 (2026-05-10)
+
+- fix: hanzi_get_changes buffer overflow kills full-sync pushes; reconnect full reconciliation
+
 ## v0.6.27 (2026-05-10)
 
 - fix: catch-up sync drops local rows when server already has data
