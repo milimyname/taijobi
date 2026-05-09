@@ -9,8 +9,12 @@
 		     scale to any rendering context. -->
 		<link rel="icon" href="/icon.svg" type="image/svg+xml" sizes="any" />
 
-		<!-- PWA / iOS standalone -->
+		<!-- PWA / iOS standalone. `apple-mobile-web-app-capable` is what iOS
+		     Safari actually reads; `mobile-web-app-capable` is the W3C-blessed
+		     equivalent the Chrome devtools deprecation warning asks for. Ship
+		     both to satisfy iOS today + the standard going forward. -->
 		<link rel="manifest" href="/manifest.webmanifest" />
+		<meta name="mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-title" content="Taijobi" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="default" />

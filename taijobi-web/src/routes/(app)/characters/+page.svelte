@@ -165,11 +165,13 @@
 	</div>
 </section>
 
-<!-- Filter Chips
-     Bleed to viewport edges with -mx-4 + matching px-4 so chips can scroll
-     all the way (no awkward gap on the right edge). min-h reserves space
-     so the row doesn't pop in once packs load. -->
-<div class="no-scrollbar -mx-4 mt-3 flex min-h-[2.75rem] gap-2 overflow-x-auto px-4 py-1 lg:-mx-8 lg:px-8 [-webkit-overflow-scrolling:touch]">
+<!-- Filter Chips — overflow-x-auto scrolls within the row when there are
+     many packs. The earlier -mx bleed pattern was pushing main-column past
+     its 840px allotment on desktop (because flex-row + min-width: auto
+     amplifies content width); plain padding + min-w-0 keeps the row
+     contained. min-h reserves space so the row doesn't pop in once packs
+     load. -->
+<div class="no-scrollbar mt-3 flex min-h-[2.75rem] min-w-0 gap-2 overflow-x-auto py-1 [-webkit-overflow-scrolling:touch]">
 	<button
 		onclick={() => (filter = 'all')}
 		class="flex h-9 shrink-0 items-center rounded-full px-5 text-sm font-semibold transition-colors {filter ===
@@ -274,11 +276,15 @@
 				<a
 					href="/character/{encodeURIComponent(info.char)}"
 					style="content-visibility: auto; contain-intrinsic-size: 4rem 4rem;"
-					class="flex flex-col items-center rounded-xl border border-slate-100 bg-white p-3 shadow-sm transition-colors hover:border-primary/20 hover:bg-primary/5 dark:border-white/5 dark:bg-white/5"
+					class="flex min-w-0 flex-col items-center overflow-hidden rounded-xl border border-slate-100 bg-white p-3 shadow-sm transition-colors hover:border-primary/20 hover:bg-primary/5 dark:border-white/5 dark:bg-white/5"
 				>
 					<span class="chinese-char text-3xl text-slate-900 dark:text-slate-100">{info.char}</span>
 					{#if info.pinyin}
-						<span class="mt-1 text-[10px] text-primary/70 dark:text-accent">{info.pinyin}</span>
+						<span
+							class="mt-1 block w-full truncate text-center text-[10px] text-primary/70 dark:text-accent"
+						>
+							{info.pinyin}
+						</span>
 					{/if}
 				</a>
 			{/each}
