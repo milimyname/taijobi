@@ -66,6 +66,18 @@ esac
 
 echo "Bumping $OLD → $NEW"
 
+# ── guard: no uncommitted changes ──────────────────────────────────────────
+
+if ! git diff --quiet HEAD; then
+  die "working tree has uncommitted changes — commit or stash first"
+fi
+
+# ── guard: tag doesn't already exist ───────────────────────────────────────
+
+if git tag -l | grep -q "^v${NEW}$"; then
+  die "tag v${NEW} already exists — delete it first (git tag -d v${NEW} && git push origin :refs/tags/v${NEW})"
+fi
+
 # ── pre-release checks ─────────────────────────────────────────────────────
 
 echo ""
