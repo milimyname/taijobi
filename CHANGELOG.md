@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.6.29 (2026-05-14)
+
+- feat: add favicon ico
+- fix: guard release.sh against uncommitted changes and existing tags
+- fix: release.sh push failure handling — push branch and tag separately
+
 ## v0.6.28 (2026-05-10)
 
 - fix: hanzi_get_changes buffer overflow kills full-sync pushes; reconnect full reconciliation
