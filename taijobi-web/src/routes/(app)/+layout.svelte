@@ -354,8 +354,12 @@
 			</button>
 		</aside>
 
-		<!-- Main column (mobile frame + tablet/desktop content area) -->
-		<div class="flex min-h-screen flex-1 flex-col lg:min-h-0">
+		<!-- Main column (mobile frame + tablet/desktop content area).
+		     min-w-0 is critical: without it, lg:flex-row children default to
+		     min-width: auto and wide content (e.g. many filter chips on
+		     /characters) pushes the column past its flex-1 allotment, making
+		     the whole page scroll horizontally. -->
+		<div class="flex min-h-screen min-w-0 flex-1 flex-col lg:min-h-0">
 		<!-- Update Banner -->
 		{#if updateStore.showBanner}
 			<button
