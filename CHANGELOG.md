@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.6.30 (2026-05-14)
+
+- fix: prevent /characters chip row from horizontally overflowing the page
+
 ## v0.6.29 (2026-05-14)
 
 - feat: add favicon ico
