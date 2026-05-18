@@ -70,6 +70,61 @@ jobs:
           cp taijobi-web/static/data/dedict.bin upload/data/
           ls -lh upload/data/
 
+      # Guard against the next silent OOM. The web WASM holds every dict in
+      # a single fixed-size persistent allocator declared in
+      #   libtaijobi/src/root.zig  →  `const PERSIST_SIZE = 256 * 1024 * 1024;`
+      # plus a static `[PERSIST_SIZE]u8` backing buffer. That arena is
+      # bump-allocated at WASM init and never grows — `hanzi_persist_alloc`
+      # just returns null when the next dict doesn't fit, which leaves the
+      # dict silently unloaded and the user staring at a stuck "update"
+      # banner with no useful error (see the May 2026 endict 19→141MB
+      # incident).
+      #
+      # The per-file caps below pre-empt that scenario at deploy time. They
+      # must sum to less than PERSIST_SIZE with ~30MB headroom for FBA
+      # round-trips + future JMdict/KDICT slots. If a cap trips, you have
+      # three options in increasing order of effort:
+      #
+      #   1. Tighten compile-wiktdict.ts's MAX_* limits (cap senses /
+      #      examples / etymology length) — keeps total entry count, less
+      #      info per entry.
+      #   2. Cap total entry count in compile-wiktdict.ts (drop the long
+      #      tail of rare words) — fewer entries, full info per entry.
+      #   3. Bump PERSIST_SIZE in root.zig AND wasm max_memory in
+      #      libtaijobi/build.zig in lock-step — same coverage, bigger
+      #      initial WASM memory cost on every device.
+      - name: Guard dict sizes vs WASM persist allocator
+        run: |
+          set -e
+          # Budget (MB) per file. Tracks current production sizes with
+          # headroom; keep the SUM under PERSIST_SIZE − 30MB headroom.
+          # Sum = 225 MB; PERSIST_SIZE = 256 MB → 31 MB headroom.
+          declare -A LIMITS=(
+            [cedict.bin]=15
+            [decomp.bin]=3
+            [strokes.bin]=12
+            [endict.bin]=175
+            [dedict.bin]=20
+          )
+          fail=0
+          for f in upload/data/*.bin; do
+            name=$(basename "$f")
+            bytes=$(stat -c%s "$f")
+            mb=$(( bytes / 1024 / 1024 ))
+            limit=${LIMITS[$name]:-}
+            if [ -z "$limit" ]; then
+              echo "::warning::No budget defined for $name (${mb} MB) — add one to .github/workflows/data-upload.yml"
+              continue
+            fi
+            if [ "$mb" -gt "$limit" ]; then
+              echo "::error::$name = ${mb} MB > ${limit} MB budget. See the comment above this step in data-upload.yml for fix options (cap entries, tighten compile-wiktdict.ts MAX_*, or bump PERSIST_SIZE in libtaijobi/src/root.zig)."
+              fail=1
+            else
+              echo "  $name: ${mb} MB / ${limit} MB budget ✓"
+            fi
+          done
+          exit $fail
+
       - name: Upload to R2 (taijobi-data bucket)
         run: |
           for f in upload/data/*.bin; do
