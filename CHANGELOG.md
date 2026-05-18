@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.6.31 (2026-05-18)
+
+- fix: update banner re-pops on every reload
+- feat: richer Wiktionary entries — POS groups, senses, examples, tags, etymology, syn/ant/hyp
+
 ## v0.6.30 (2026-05-14)
 
 - fix: prevent /characters chip row from horizontally overflowing the page
