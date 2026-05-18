@@ -142,6 +142,16 @@ self.addEventListener('fetch', (event) => {
 		return;
 	}
 
+	// SvelteKit's `updated` store polls `/_app/version.json` to detect new
+	// deployments. If we cache it (which `ASSETS.includes()` would, since
+	// it's in `build`), the comparison always reads the OLD build ID,
+	// `updated` stays `true` forever, and the UpdateBanner re-pops on every
+	// load — even right after the user just applied an update. Skip the
+	// SW entirely so the browser fetches fresh from the network.
+	if (url.pathname === '/_app/version.json') {
+		return;
+	}
+
 	// Network-first for the pack catalog. catalog.json changes when the
 	// catalog is edited (new packs, dictionary entries, tag updates) — the
 	// content hash of the file isn't part of the SW `version`, so a

@@ -26,6 +26,10 @@ export const GITHUB_RELEASES_API = 'https://api.github.com/repos/milimyname/taij
 export const LS_SYNC_KEY = 'taijobi_sync_key';
 export const LS_SYNC_LAST_TS = 'taijobi_sync_last_ts';
 export const LS_LAST_VERSION = 'taijobi-last-version';
+// Version the user was running when they dismissed the update banner. Suppresses
+// the banner on subsequent loads until APP_VERSION changes (i.e. the update
+// actually got applied) or a different update is detected.
+export const LS_DISMISSED_VERSION = 'taijobi-update-dismissed';
 export const LS_CHANGELOG = 'taijobi_changelog';
 export const LS_THEME = 'taijobi_theme';
 export const LS_ONBOARDED = 'taijobi_onboarded';

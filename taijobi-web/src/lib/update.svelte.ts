@@ -1,5 +1,5 @@
 import { APP_VERSION, RELEASES_URL, IS_BREAKING } from './version';
-import { LS_LAST_VERSION } from './config';
+import { LS_LAST_VERSION, LS_DISMISSED_VERSION } from './config';
 import { updated } from '$app/stores';
 
 function getLastVersion(): string | null {
@@ -8,6 +8,18 @@ function getLastVersion(): string | null {
 
 function setLastVersion(version: string) {
 	localStorage.setItem(LS_LAST_VERSION, version);
+}
+
+function getDismissedVersion(): string | null {
+	return localStorage.getItem(LS_DISMISSED_VERSION);
+}
+
+function setDismissedVersion(version: string) {
+	localStorage.setItem(LS_DISMISSED_VERSION, version);
+}
+
+function clearDismissedVersion() {
+	localStorage.removeItem(LS_DISMISSED_VERSION);
 }
 
 class UpdateStore {
@@ -44,9 +56,23 @@ class UpdateStore {
 			return;
 		}
 
+		// First-ever load: seed LS_LAST_VERSION. Subsequent loads: if the user
+		// upgraded since we last saw them, bump it now. Previously this only
+		// fired inside `controllerchange` (where APP_VERSION still refers to
+		// the OLD bundle that's about to be unloaded), so LS_LAST_VERSION
+		// permanently lagged one release behind, inflating the "missed
+		// releases" list in the changelog drawer.
 		const lastVersion = getLastVersion();
-		if (!lastVersion) {
+		if (lastVersion !== APP_VERSION) {
 			setLastVersion(APP_VERSION);
+		}
+
+		// If the user dismissed a prior update prompt but the upgrade has now
+		// been applied (APP_VERSION moved on), the dismissal is stale —
+		// clear it so the next *real* update isn't accidentally suppressed.
+		const dismissed = getDismissedVersion();
+		if (dismissed && dismissed !== APP_VERSION) {
+			clearDismissedVersion();
 		}
 
 		navigator.serviceWorker.ready.then((registration) => {
@@ -69,13 +95,16 @@ class UpdateStore {
 
 		updated.subscribe((isUpdated) => {
 			if (isUpdated) {
-				this.#showBanner = true;
+				this.#maybeShowBanner();
 				navigator.serviceWorker.ready.then((reg) => reg.update());
 			}
 		});
 
 		navigator.serviceWorker.addEventListener('controllerchange', () => {
-			setLastVersion(APP_VERSION);
+			// Don't write LS_LAST_VERSION here — APP_VERSION still refers to the
+			// OLD bundle that's about to be unloaded. The new bundle's init()
+			// above handles the bump, where APP_VERSION is correct.
+			clearDismissedVersion();
 			const overlay = document.createElement('div');
 			overlay.style.cssText =
 				'position:fixed;inset:0;z-index:9999;background:#fefdfb;opacity:0;transition:opacity 300ms ease';
@@ -90,6 +119,15 @@ class UpdateStore {
 
 	#trackWaitingSW(sw: ServiceWorker) {
 		this.#waitingSW = sw;
+		this.#maybeShowBanner();
+	}
+
+	/// Show the banner only if the user hasn't already dismissed it for the
+	/// version they're currently running. Without this gate, every reload
+	/// re-detects the waiting SW (or a stale `updated=true`) and the banner
+	/// re-appears immediately.
+	#maybeShowBanner() {
+		if (getDismissedVersion() === APP_VERSION) return;
 		this.#showBanner = true;
 	}
 
@@ -104,6 +142,10 @@ class UpdateStore {
 
 	dismiss() {
 		this.#showBanner = false;
+		// Persist so the banner doesn't pop right back on the next reload
+		// while the user is still on this version. Cleared automatically
+		// once they actually upgrade (see init()).
+		setDismissedVersion(APP_VERSION);
 	}
 
 	async clearData() {
