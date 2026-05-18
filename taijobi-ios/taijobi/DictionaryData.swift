@@ -33,12 +33,14 @@ final class DictionaryData: ObservableObject {
 
         /// Approximate download size in MB — surfaced in the install prompt so
         /// users on cellular can decline. Tracks production binary sizes
-        /// rather than exact compressed-on-the-wire byte counts.
+        /// rather than exact compressed-on-the-wire byte counts. These are
+        /// fallback values shown before the HEAD probe lands; once `liveSizes`
+        /// is populated, the UI prefers those.
         var approxSizeMB: Int {
             switch self {
             case .zh: return 18  // cedict + decomp + strokes
-            case .en: return 19
-            case .de: return 5
+            case .en: return 135 // kaikki English Wiktextract (v3, May 2026)
+            case .de: return 12  // kaikki German Wiktextract (v3)
             }
         }
 
@@ -64,6 +66,19 @@ final class DictionaryData: ObservableObject {
     @Published var lastError: String?
 
     private let baseURL = "https://taijobi.com/data"
+
+    /// 10-minute resource timeout — the wall-clock budget for an entire
+    /// download. The 19s/60s defaults aren't enough for 135 MB endict on
+    /// patchy networks. The byte-by-byte `bytes(from:)` API doesn't expose
+    /// these knobs, so we manage our own session.
+    private lazy var session: URLSession = {
+        let cfg = URLSessionConfiguration.default
+        cfg.timeoutIntervalForRequest = 60       // per-segment timeout
+        cfg.timeoutIntervalForResource = 600     // total budget for one file
+        cfg.waitsForConnectivity = true          // wait through brief loss of signal
+        cfg.requestCachePolicy = .reloadIgnoringLocalCacheData
+        return URLSession(configuration: cfg)
+    }()
 
     // MARK: - Filesystem
 
@@ -180,21 +195,51 @@ final class DictionaryData: ObservableObject {
         onProgress: @escaping @Sendable (Double) -> Void
     ) async throws -> Data {
         let url = URL(string: "\(baseURL)/\(name)")!
-        let (asyncBytes, response) = try await URLSession.shared.bytes(from: url)
-        let expected = response.expectedContentLength
-        var collected = Data()
-        if expected > 0 { collected.reserveCapacity(Int(expected)) }
-        var nextEmitAt: Int64 = 0
-        for try await byte in asyncBytes {
-            collected.append(byte)
-            if expected > 0, Int64(collected.count) >= nextEmitAt {
-                onProgress(Double(collected.count) / Double(expected))
-                // Emit ~30 progress callbacks total to keep the UI smooth
-                // without flooding the run loop. expected/30 spacing.
-                nextEmitAt = Int64(collected.count) + max(1, expected / 30)
-            }
+        // `download(for:delegate:)` streams to a temp file on disk via the
+        // OS networking stack — orders of magnitude faster than
+        // `bytes(from:)` for 100 MB+ payloads, and progress comes via the
+        // delegate rather than a byte-yielding AsyncSequence.
+        let delegate = ProgressDelegate(onProgress: onProgress)
+        let (tempURL, response) = try await session.download(from: url, delegate: delegate)
+        defer { try? FileManager.default.removeItem(at: tempURL) }
+        if let http = response as? HTTPURLResponse, http.statusCode != 200 {
+            throw NSError(
+                domain: "taijobi.dict",
+                code: http.statusCode,
+                userInfo: [
+                    NSLocalizedDescriptionKey: "\(name): HTTP \(http.statusCode)"
+                ]
+            )
         }
-        onProgress(1.0)
-        return collected
+        return try Data(contentsOf: tempURL)
+    }
+}
+
+/// URLSessionDownloadDelegate that forwards progress as a 0…1 fraction.
+/// NSObject-backed because URLSession delegates predate Swift protocols.
+private final class ProgressDelegate: NSObject, URLSessionTaskDelegate, URLSessionDownloadDelegate {
+    let onProgress: @Sendable (Double) -> Void
+    init(onProgress: @escaping @Sendable (Double) -> Void) {
+        self.onProgress = onProgress
+    }
+
+    // Required but unused — `download(from:delegate:)` returns the temp URL
+    // via the async-await wrapper rather than this delegate callback.
+    func urlSession(
+        _ session: URLSession,
+        downloadTask: URLSessionDownloadTask,
+        didFinishDownloadingTo location: URL
+    ) {}
+
+    func urlSession(
+        _ session: URLSession,
+        downloadTask: URLSessionDownloadTask,
+        didWriteData bytesWritten: Int64,
+        totalBytesWritten: Int64,
+        totalBytesExpectedToWrite: Int64
+    ) {
+        guard totalBytesExpectedToWrite > 0 else { return }
+        let fraction = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
+        onProgress(min(max(fraction, 0), 1))
     }
 }
