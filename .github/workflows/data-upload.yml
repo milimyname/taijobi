@@ -39,6 +39,13 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
 
+      # bunx fetches wrangler globally here (no package.json at repo root),
+      # so its shebang runs under the runner's system Node. Wrangler bails
+      # if Node < 22, so pin Node 22 explicitly.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
       - name: Cache Wiktextract JSONL
         uses: actions/cache@v4
         with:
