@@ -8,6 +8,7 @@
 	import SearchOff from '$lib/icons/SearchOff.svelte';
 	import VolumeUp from '$lib/icons/VolumeUp.svelte';
 	import { lookupCedict, lookupWord, addWord, removeWord, type CedictResult, type DictResult } from '$lib/wasm';
+	import WiktEntry from '../../../components/WiktEntry.svelte';
 	import { speak } from '$lib/speak';
 	import { data } from '$lib/data.svelte';
 	import { toastStore } from '$lib/toast.svelte';
@@ -23,10 +24,9 @@
 	} | {
 		type: 'wikt';
 		word: string;
-		pos: string;
-		definition: string;
 		entry: DictResult;
 	};
+
 
 	let query = $state('');
 	let results: UnifiedResult[] = $state([]);
@@ -79,7 +79,7 @@
 
 			// Search EN/DE dictionaries
 			for (const r of lookupWord(q)) {
-				unified.push({ type: 'wikt', word: r.word, pos: r.pos, definition: r.definition, entry: r });
+				unified.push({ type: 'wikt', word: r.word, entry: r });
 			}
 
 			// If no Chinese match, try CEDICT anyway (pinyin/english search)
@@ -202,7 +202,8 @@
 			>
 				<div class="flex items-start gap-3">
 					<div class="min-w-0 flex-1">
-						<div class="mb-1 flex flex-wrap items-baseline gap-2">
+						<!-- Headword row -->
+						<div class="mb-2 flex flex-wrap items-baseline gap-2">
 							{#if result.type === 'cedict'}
 								<span class="text-2xl font-light">
 									{#each splitChars(result.word) as char}
@@ -215,17 +216,19 @@
 										<span>{result.word}</span>
 									{/if}
 								</span>
-								<span class="text-sm text-primary/70">{result.pinyin}</span>
+								<span class="text-sm text-primary/70 dark:text-accent">{result.pinyin}</span>
 							{:else}
 								<span class="text-xl font-semibold text-slate-900 dark:text-slate-100">{result.word}</span>
-								{#if result.pos}
-									<span class="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary">{result.pos}</span>
-								{/if}
 							{/if}
 						</div>
-						<p class="text-[13px] leading-relaxed text-slate-600 dark:text-slate-400">
-							{result.definition}
-						</p>
+
+						{#if result.type === 'cedict'}
+							<p class="text-[13px] leading-relaxed text-slate-600 dark:text-slate-400">
+								{result.definition}
+							</p>
+						{:else}
+							<WiktEntry result={result.entry} />
+						{/if}
 					</div>
 
 					<!-- Actions -->

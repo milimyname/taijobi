@@ -9,7 +9,8 @@
 	import UploadFile from '$lib/icons/UploadFile.svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { addWord, removeWord, restoreWord, updateWord, type LexiconEntry } from '$lib/wasm';
+	import { addWord, removeWord, restoreWord, updateWord, lookupWord, type LexiconEntry, type DictResult } from '$lib/wasm';
+	import WiktEntry from '../../../components/WiktEntry.svelte';
 	import { data } from '$lib/data.svelte';
 	import { toastStore } from '$lib/toast.svelte';
 
@@ -17,6 +18,13 @@
 	let filter = $state('all');
 	let editingId = $state<string | null>(null);
 	let editTranslation = $state('');
+	// Inline dictionary panel — at most one row expanded at a time. Lookup is
+	// done once on expand (WASM binary search is sub-millisecond, so caching
+	// across collapse/expand cycles isn't worth the bookkeeping). Only the
+	// exact-match dictionary entry is shown; prefix matches would just be
+	// noise here since the user already chose this exact word.
+	let expandedId = $state<string | null>(null);
+	let expandedHit = $state<DictResult | null>(null);
 	// Single input does double duty: live-filters the list while the user
 	// types, and adds the trimmed query as a new lexicon word on Enter / via
 	// the + button (only when there's no exact match — find-or-create).
@@ -112,6 +120,26 @@
 	function handleEditKeydown(e: KeyboardEvent) {
 		if (e.key === 'Enter') saveEdit();
 		if (e.key === 'Escape') cancelEdit();
+	}
+
+	function toggleExpand(entry: LexiconEntry) {
+		if (editingId === entry.id) return; // never toggle while editing the row
+		if (expandedId === entry.id) {
+			expandedId = null;
+			expandedHit = null;
+			return;
+		}
+		const needle = entry.word.toLowerCase();
+		const hits = lookupWord(entry.word);
+		expandedHit = hits.find((h) => h.word.toLowerCase() === needle) ?? null;
+		expandedId = entry.id;
+	}
+
+	function handleRowKeydown(e: KeyboardEvent, entry: LexiconEntry) {
+		if (e.key === 'Enter' || e.key === ' ') {
+			e.preventDefault();
+			toggleExpand(entry);
+		}
 	}
 
 	function langTag(code: string): string {
@@ -329,20 +357,30 @@
 								</button>
 							</div>
 						{:else}
-							<!-- Display mode -->
+							<!-- Display mode: tap the word/translation area to expand the
+							     full Wiktionary entry inline; action buttons + CJK char
+							     links handle their own click via stopPropagation. -->
 							<div class="flex items-center">
-								<div class="min-w-0 flex-1">
+								<div
+									role="button"
+									tabindex="0"
+									aria-expanded={expandedId === entry.id}
+									onclick={() => toggleExpand(entry)}
+									onkeydown={(e) => handleRowKeydown(e, entry)}
+									class="min-w-0 flex-1 cursor-pointer rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+								>
 									<div class="mb-0.5 flex items-center gap-2">
 										{#if entry.language === 'zh'}
-										<a
-											href="/character/{encodeURIComponent(entry.word)}"
-											class="chinese-char text-lg font-bold text-slate-900 hover:text-primary dark:text-slate-100"
-										>{entry.word}</a>
-									{:else if entry.language === 'ar'}
-										<span dir="rtl" class="text-xl font-bold text-slate-900 dark:text-slate-100">{entry.word}</span>
-									{:else}
-										<span class="text-lg font-bold text-slate-900 dark:text-slate-100">{entry.word}</span>
-									{/if}
+											<a
+												href="/character/{encodeURIComponent(entry.word)}"
+												onclick={(e) => e.stopPropagation()}
+												class="chinese-char text-lg font-bold text-slate-900 hover:text-primary dark:text-slate-100"
+											>{entry.word}</a>
+										{:else if entry.language === 'ar'}
+											<span dir="rtl" class="text-xl font-bold text-slate-900 dark:text-slate-100">{entry.word}</span>
+										{:else}
+											<span class="text-lg font-bold text-slate-900 dark:text-slate-100">{entry.word}</span>
+										{/if}
 										<span
 											class="rounded bg-primary/5 px-1.5 py-0.5 text-[10px] font-bold text-primary"
 										>
@@ -365,14 +403,14 @@
 								</div>
 								<div class="flex items-center gap-1">
 									<button
-										onclick={() => startEdit(entry)}
+										onclick={(e) => { e.stopPropagation(); startEdit(entry); }}
 										class="rounded-lg p-1.5 text-slate-300 transition-colors hover:bg-slate-100 hover:text-primary dark:text-slate-500 dark:hover:bg-white/10 dark:hover:text-primary"
 										title="Bearbeiten"
 									>
 										<Edit class="text-[18px]" />
 									</button>
 									<button
-										onclick={() => handleRemove(entry)}
+										onclick={(e) => { e.stopPropagation(); handleRemove(entry); }}
 										class="rounded-lg p-1.5 text-slate-300 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-slate-500 dark:hover:bg-red-950"
 										title="Entfernen"
 									>
@@ -384,6 +422,18 @@
 									></div>
 								</div>
 							</div>
+
+							{#if expandedId === entry.id}
+								<div class="mt-3 border-t border-slate-100 pt-3 dark:border-white/5">
+									{#if !expandedHit}
+										<p class="text-[13px] italic text-slate-400 dark:text-slate-500">
+											Kein W&ouml;rterbuch-Eintrag f&uuml;r &laquo;{entry.word}&raquo; gefunden.
+										</p>
+									{:else}
+										<WiktEntry result={expandedHit} />
+									{/if}
+								</div>
+							{/if}
 						{/if}
 					</div>
 				{/each}

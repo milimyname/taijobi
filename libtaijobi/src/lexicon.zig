@@ -46,17 +46,17 @@ pub fn addWord(
             translation = entry.english;
         }
     } else if (detected == .en) {
-        if (wiktdict.lookupEn(word)) |entry| {
-            translation = entry.definition;
-        } else if (wiktdict.lookupDe(word)) |entry| {
-            translation = entry.definition;
+        if (wiktdict.lookupEn(word)) |hit| {
+            translation = hit.first_gloss;
+        } else if (wiktdict.lookupDe(word)) |hit| {
+            translation = hit.first_gloss;
             lang_code = lang.Language.de.code();
         }
     } else if (detected == .de) {
-        if (wiktdict.lookupDe(word)) |entry| {
-            translation = entry.definition;
-        } else if (wiktdict.lookupEn(word)) |entry| {
-            translation = entry.definition;
+        if (wiktdict.lookupDe(word)) |hit| {
+            translation = hit.first_gloss;
+        } else if (wiktdict.lookupEn(word)) |hit| {
+            translation = hit.first_gloss;
             lang_code = lang.Language.en.code();
         }
     }

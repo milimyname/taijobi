@@ -31,7 +31,7 @@ if [ ! -f "$COMBINED" ]; then
 fi
 
 echo "=== Compiling English dictionary ==="
-bun scripts/compile-wiktdict.ts "$COMBINED" "$OUTPUT" WKEN
+bun scripts/compile-wiktdict.ts "$COMBINED" "$OUTPUT" WKE3
 
 echo "=== Done ==="
 ls -lh "$OUTPUT"

@@ -1,22 +1,41 @@
 // Wiktionary dictionary lookup — binary search over compiled data.
 //
-// Binary format (compiled by scripts/compile-wiktdict.ts):
-//   Header:  "WKEN"/"WKDE" magic (4 bytes) + count: u32 LE
+// Binary format v3 (compiled by scripts/compile-wiktdict.ts):
+//   Header:  "WKE3"/"WKD3" magic (4 bytes) + count: u32 LE
 //   Offsets: count * u32 LE (byte offset into entry table)
-//   Entries: each = { word_len: u8, pos_len: u8, def_len: u16 LE,
-//                     word bytes, pos bytes, definition bytes }
+//   Per entry (sorted by lowercase word, UTF-8 byte order):
+//     u8  word_len, word bytes
+//     u8  pos_count
+//     for each POS:
+//       u8  pos_len, pos bytes
+//       u16 LE etymology_len, etymology bytes      (v3 new)
+//       u8  sense_count
+//       for each sense:
+//         u8  tag_count
+//         for each tag: u8 tag_len, tag bytes
+//         u16 LE gloss_len, gloss bytes
+//         u16 LE example_len, example bytes
+//         u8  syn_count;  for each: u8 len, bytes  (v3 new)
+//         u8  ant_count;  for each: u8 len, bytes  (v3 new)
+//         u8  hyp_count;  for each: u8 len, bytes  (v3 new)
 //
-// Entries sorted by word (UTF-8 byte order) for binary search.
-// Separate data slots for English and German.
+// v1 ("WKEN"/"WKDE") and v2 ("WKE2"/"WKD2") formats are no longer parsed —
+// bumping the magic forces a re-download from /packs when users have a stale
+// OPFS-cached file. The `isLoaded` helpers validate the magic so the UI
+// reports "not installed" if the loaded slice is stale, instead of silently
+// failing every lookup.
 
 const std = @import("std");
 const types = @import("types.zig");
 const JsonWriter = types.JsonWriter;
 
-pub const WiktEntry = struct {
+pub const LookupHit = struct {
+    /// Lowercased headword as stored in the binary.
     word: []const u8,
-    pos: []const u8,
-    definition: []const u8,
+    /// First sense's gloss of the first POS group. Used by lexicon
+    /// auto-enrichment, which needs a single flat string for the
+    /// `cards.translation` column.
+    first_gloss: []const u8,
 };
 
 const header_size = 8; // magic + u32 count
@@ -40,19 +59,25 @@ pub fn unloadDe() void {
     de_data = &.{};
 }
 
+/// True only when a slice is loaded AND it carries the v3 magic. A stale v1
+/// or v2 cache (or any unrecognized bytes) reports false so the UI prompts a
+/// re-install instead of silently returning empty lookups.
 pub fn isEnLoaded() bool {
-    return en_data.len > 0;
+    return validMagic(en_data, "WKE3");
 }
 
 pub fn isDeLoaded() bool {
-    return de_data.len > 0;
+    return validMagic(de_data, "WKD3");
 }
 
-// --- Internal helpers (operate on any data slice) ---
+fn validMagic(d: []const u8, magic: *const [4]u8) bool {
+    return d.len >= header_size and std.mem.eql(u8, d[0..4], magic);
+}
+
+// --- Binary search over the offset table ---
 
 fn getCount(d: []const u8, magic: *const [4]u8) u32 {
-    if (d.len < header_size) return 0;
-    if (!std.mem.eql(u8, d[0..4], magic)) return 0;
+    if (!validMagic(d, magic)) return 0;
     return std.mem.readInt(u32, d[4..8], .little);
 }
 
@@ -66,49 +91,47 @@ fn entryTableStart(count: u32) u32 {
     return @intCast(header_size + count * 4);
 }
 
-fn readEntry(d: []const u8, count: u32, index: u32) ?WiktEntry {
+/// Returns the word bytes at the given index, without parsing the rest of
+/// the entry. Used as the comparator for binary search.
+fn getWord(d: []const u8, count: u32, index: u32) []const u8 {
     const base = entryTableStart(count);
     const off = getOffset(d, index);
     const pos = base + off;
-    if (pos + 4 > d.len) return null;
-
+    if (pos + 1 > d.len) return "";
     const w_len: usize = d[pos];
-    const p_len: usize = d[pos + 1];
-    const def_len: usize = std.mem.readInt(u16, d[pos + 2 ..][0..2], .little);
-
-    const w_start = pos + 4;
-    const p_start = w_start + w_len;
-    const d_start = p_start + p_len;
-    const d_end = d_start + def_len;
-
-    if (d_end > d.len) return null;
-
-    return .{
-        .word = d[w_start..][0..w_len],
-        .pos = d[p_start..][0..p_len],
-        .definition = d[d_start..][0..def_len],
-    };
+    const w_start = pos + 1;
+    if (w_start + w_len > d.len) return "";
+    return d[w_start..][0..w_len];
 }
 
-fn getWord(d: []const u8, count: u32, index: u32) []const u8 {
-    const entry = readEntry(d, count, index) orelse return "";
-    return entry.word;
-}
-
-/// Case-insensitive comparison for Latin text (ASCII lowercase).
-fn orderCaseInsensitive(a: []const u8, b: []const u8) std.math.Order {
-    const min_len = @min(a.len, b.len);
-    for (0..min_len) |i| {
-        const ca = if (a[i] >= 'A' and a[i] <= 'Z') a[i] + 32 else a[i];
-        const cb = if (b[i] >= 'A' and b[i] <= 'Z') b[i] + 32 else b[i];
-        if (ca < cb) return .lt;
-        if (ca > cb) return .gt;
-    }
-    return std.math.order(a.len, b.len);
+/// Returns the byte range covering an entire entry (word + all POS groups).
+fn getEntryBytes(d: []const u8, count: u32, index: u32) ?[]const u8 {
+    const base = entryTableStart(count);
+    const off = getOffset(d, index);
+    const start = base + off;
+    if (start >= d.len) return null;
+    const next_idx = index + 1;
+    const end: usize = if (next_idx < count) blk: {
+        const next_off = getOffset(d, next_idx);
+        break :blk base + next_off;
+    } else d.len;
+    if (end > d.len or end <= start) return null;
+    return d[start..end];
 }
 
 fn toLowerByte(c: u8) u8 {
     return if (c >= 'A' and c <= 'Z') c + 32 else c;
+}
+
+fn orderCaseInsensitive(a: []const u8, b: []const u8) std.math.Order {
+    const min_len = @min(a.len, b.len);
+    for (0..min_len) |i| {
+        const ca = toLowerByte(a[i]);
+        const cb = toLowerByte(b[i]);
+        if (ca < cb) return .lt;
+        if (ca > cb) return .gt;
+    }
+    return std.math.order(a.len, b.len);
 }
 
 fn startsWithCaseInsensitive(haystack: []const u8, needle: []const u8) bool {
@@ -119,9 +142,169 @@ fn startsWithCaseInsensitive(haystack: []const u8, needle: []const u8) bool {
     return true;
 }
 
+// --- Entry-bytes walker ---
+
+const Reader = struct {
+    data: []const u8,
+    pos: usize = 0,
+
+    fn u8val(self: *Reader) ?u8 {
+        if (self.pos >= self.data.len) return null;
+        const v = self.data[self.pos];
+        self.pos += 1;
+        return v;
+    }
+
+    fn u16val(self: *Reader) ?u16 {
+        if (self.pos + 2 > self.data.len) return null;
+        const v = std.mem.readInt(u16, self.data[self.pos..][0..2], .little);
+        self.pos += 2;
+        return v;
+    }
+
+    fn take(self: *Reader, n: usize) ?[]const u8 {
+        if (self.pos + n > self.data.len) return null;
+        const s = self.data[self.pos..][0..n];
+        self.pos += n;
+        return s;
+    }
+};
+
+/// Writes a JSON string-array of u8-length-prefixed items pulled from the
+/// reader. Returns false on malformed input.
+fn emitU8StringArray(w: *JsonWriter, r: *Reader) bool {
+    const count = r.u8val() orelse return false;
+    w.writeByte('[');
+    var i: u32 = 0;
+    while (i < count) : (i += 1) {
+        const len = r.u8val() orelse return false;
+        const bytes = r.take(len) orelse return false;
+        if (i > 0) w.writeByte(',');
+        w.writeJsonString(bytes);
+    }
+    w.writeByte(']');
+    return true;
+}
+
+/// Walks an entry's bytes and writes structured JSON for it. The opening
+/// `{` and closing `}` are emitted by this function. Returns false on
+/// malformed input so the caller can fail the lookup cleanly.
+fn emitEntry(w: *JsonWriter, entry_bytes: []const u8) bool {
+    var r = Reader{ .data = entry_bytes };
+
+    const w_len = r.u8val() orelse return false;
+    const word = r.take(w_len) orelse return false;
+
+    w.writeByte('{');
+    w.writeKey("word");
+    w.writeJsonString(word);
+    w.writeByte(',');
+    w.writeKey("groups");
+    w.writeByte('[');
+
+    const pos_count = r.u8val() orelse return false;
+    var gi: u32 = 0;
+    while (gi < pos_count) : (gi += 1) {
+        const p_len = r.u8val() orelse return false;
+        const pos = r.take(p_len) orelse return false;
+
+        const ety_len = r.u16val() orelse return false;
+        const etymology = r.take(ety_len) orelse return false;
+
+        const sense_count = r.u8val() orelse return false;
+
+        if (gi > 0) w.writeByte(',');
+        w.writeByte('{');
+        w.writeKey("pos");
+        w.writeJsonString(pos);
+        w.writeByte(',');
+        w.writeKey("etymology");
+        w.writeJsonString(etymology);
+        w.writeByte(',');
+        w.writeKey("senses");
+        w.writeByte('[');
+
+        var si: u32 = 0;
+        while (si < sense_count) : (si += 1) {
+            if (si > 0) w.writeByte(',');
+            w.writeByte('{');
+
+            w.writeKey("tags");
+            if (!emitU8StringArray(w, &r)) return false;
+
+            const g_len = r.u16val() orelse return false;
+            const gloss = r.take(g_len) orelse return false;
+            w.writeByte(',');
+            w.writeKey("gloss");
+            w.writeJsonString(gloss);
+
+            const e_len = r.u16val() orelse return false;
+            const example = r.take(e_len) orelse return false;
+            w.writeByte(',');
+            w.writeKey("example");
+            w.writeJsonString(example);
+
+            w.writeByte(',');
+            w.writeKey("synonyms");
+            if (!emitU8StringArray(w, &r)) return false;
+
+            w.writeByte(',');
+            w.writeKey("antonyms");
+            if (!emitU8StringArray(w, &r)) return false;
+
+            w.writeByte(',');
+            w.writeKey("hypernyms");
+            if (!emitU8StringArray(w, &r)) return false;
+
+            w.writeByte('}');
+        }
+        w.writeByte(']');
+        w.writeByte('}');
+    }
+
+    w.writeByte(']');
+    w.writeByte('}');
+    return true;
+}
+
+/// Scans the entry far enough to find the first sense's gloss, then stops.
+/// Used by the lexicon auto-enrichment path which only needs a flat string.
+fn extractFirstGloss(entry_bytes: []const u8) ?LookupHit {
+    var r = Reader{ .data = entry_bytes };
+    const w_len = r.u8val() orelse return null;
+    const word = r.take(w_len) orelse return null;
+
+    const pos_count = r.u8val() orelse return null;
+    if (pos_count == 0) return null;
+
+    // Skip POS label
+    const p_len = r.u8val() orelse return null;
+    _ = r.take(p_len) orelse return null;
+
+    // Skip etymology
+    const ety_len = r.u16val() orelse return null;
+    _ = r.take(ety_len) orelse return null;
+
+    const sense_count = r.u8val() orelse return null;
+    if (sense_count == 0) return null;
+
+    // Skip tags of first sense
+    const tag_count = r.u8val() orelse return null;
+    var ti: u32 = 0;
+    while (ti < tag_count) : (ti += 1) {
+        const t_len = r.u8val() orelse return null;
+        _ = r.take(t_len) orelse return null;
+    }
+
+    const g_len = r.u16val() orelse return null;
+    const gloss = r.take(g_len) orelse return null;
+
+    return .{ .word = word, .first_gloss = gloss };
+}
+
 // --- Public lookup API ---
 
-fn lookupIn(d: []const u8, magic: *const [4]u8, query: []const u8) ?WiktEntry {
+fn lookupIn(d: []const u8, magic: *const [4]u8, query: []const u8) ?LookupHit {
     const count = getCount(d, magic);
     if (count == 0) return null;
 
@@ -132,7 +315,10 @@ fn lookupIn(d: []const u8, magic: *const [4]u8, query: []const u8) ?WiktEntry {
         const word = getWord(d, count, mid);
         const cmp = orderCaseInsensitive(word, query);
         switch (cmp) {
-            .eq => return readEntry(d, count, mid),
+            .eq => {
+                const bytes = getEntryBytes(d, count, mid) orelse return null;
+                return extractFirstGloss(bytes);
+            },
             .lt => lo = mid + 1,
             .gt => hi = mid,
         }
@@ -148,7 +334,7 @@ fn searchIn(d: []const u8, magic: *const [4]u8, query: []const u8, max_results: 
     w.writeByte('[');
     var found: u32 = 0;
 
-    // Binary search to find the first entry >= query (case-insensitive)
+    // Find the first entry >= query (case-insensitive)
     var lo: u32 = 0;
     var hi: u32 = count;
     while (lo < hi) {
@@ -164,11 +350,14 @@ fn searchIn(d: []const u8, magic: *const [4]u8, query: []const u8, max_results: 
     // Scan forward for prefix matches
     var i = lo;
     while (i < count and found < max_results) : (i += 1) {
-        const entry = readEntry(d, count, i) orelse break;
-        if (!startsWithCaseInsensitive(entry.word, query)) break;
+        const word = getWord(d, count, i);
+        if (!startsWithCaseInsensitive(word, query)) break;
+        const bytes = getEntryBytes(d, count, i) orelse break;
 
         if (found > 0) w.writeByte(',');
-        writeEntryJson(&w, entry);
+        if (!emitEntry(&w, bytes)) {
+            return w.written();
+        }
         found += 1;
     }
 
@@ -176,33 +365,115 @@ fn searchIn(d: []const u8, magic: *const [4]u8, query: []const u8, max_results: 
     return w.written();
 }
 
-fn writeEntryJson(w: *JsonWriter, entry: WiktEntry) void {
-    w.writeByte('{');
-    w.writeKey("word");
-    w.writeJsonString(entry.word);
-    w.writeByte(',');
-    w.writeKey("pos");
-    w.writeJsonString(entry.pos);
-    w.writeByte(',');
-    w.writeKey("definition");
-    w.writeJsonString(entry.definition);
-    w.writeByte('}');
-}
-
 // --- Public EN/DE API ---
 
-pub fn lookupEn(query: []const u8) ?WiktEntry {
-    return lookupIn(en_data, "WKEN", query);
+pub fn lookupEn(query: []const u8) ?LookupHit {
+    return lookupIn(en_data, "WKE3", query);
 }
 
-pub fn lookupDe(query: []const u8) ?WiktEntry {
-    return lookupIn(de_data, "WKDE", query);
+pub fn lookupDe(query: []const u8) ?LookupHit {
+    return lookupIn(de_data, "WKD3", query);
 }
 
 pub fn searchEn(query: []const u8, max_results: u32, buf: []u8) ?[]const u8 {
-    return searchIn(en_data, "WKEN", query, max_results, buf);
+    return searchIn(en_data, "WKE3", query, max_results, buf);
 }
 
 pub fn searchDe(query: []const u8, max_results: u32, buf: []u8) ?[]const u8 {
-    return searchIn(de_data, "WKDE", query, max_results, buf);
+    return searchIn(de_data, "WKD3", query, max_results, buf);
+}
+
+// --- Tests against a hand-compiled fixture.
+//
+// To regenerate test_data/fixture_wikt.bin after format changes:
+//   bun scripts/compile-wiktdict.ts \
+//       libtaijobi/src/test_data/fixture_wikt.jsonl \
+//       libtaijobi/src/test_data/fixture_wikt.bin WKE3
+//
+// Both the .jsonl source and the .bin output are checked in — the .bin so
+// tests have a stable input without bundling a JSONL parser into the test
+// binary, the .jsonl so the fixture is regeneratable.
+
+test "parses v3 format: bank merges noun + verb groups" {
+    const fixture = @embedFile("test_data/fixture_wikt.bin");
+    loadEn(fixture.ptr, fixture.len);
+    defer unloadEn();
+
+    try std.testing.expect(isEnLoaded());
+
+    const hit = lookupEn("bank") orelse return error.LookupMissed;
+    try std.testing.expectEqualStrings("bank", hit.word);
+    try std.testing.expectEqualStrings(
+        "A financial institution where people deposit money.",
+        hit.first_gloss,
+    );
+}
+
+test "structured search emits POS groups, senses, examples, tags" {
+    const fixture = @embedFile("test_data/fixture_wikt.bin");
+    loadEn(fixture.ptr, fixture.len);
+    defer unloadEn();
+
+    var buf: [16 * 1024]u8 = undefined;
+    const json = searchEn("limp", 5, &buf) orelse return error.SearchReturnedNull;
+
+    try std.testing.expect(std.mem.indexOf(u8, json, "\"pos\":\"v\"") != null);
+    try std.testing.expect(std.mem.indexOf(u8, json, "\"pos\":\"adj\"") != null);
+    try std.testing.expect(std.mem.indexOf(u8, json, "He limped off the field after the tackle.") != null);
+    try std.testing.expect(std.mem.indexOf(u8, json, "\"tags\":[]") != null);
+}
+
+test "tags are preserved per sense" {
+    const fixture = @embedFile("test_data/fixture_wikt.bin");
+    loadEn(fixture.ptr, fixture.len);
+    defer unloadEn();
+
+    var buf: [16 * 1024]u8 = undefined;
+    const json = searchEn("obfuscate", 5, &buf) orelse return error.SearchReturnedNull;
+
+    try std.testing.expect(std.mem.indexOf(u8, json, "\"tags\":[\"formal\"]") != null);
+}
+
+test "etymology is emitted per POS group" {
+    const fixture = @embedFile("test_data/fixture_wikt.bin");
+    loadEn(fixture.ptr, fixture.len);
+    defer unloadEn();
+
+    var buf: [16 * 1024]u8 = undefined;
+    const json = searchEn("obfuscate", 5, &buf) orelse return error.SearchReturnedNull;
+
+    try std.testing.expect(std.mem.indexOf(u8, json, "From Latin") != null);
+    try std.testing.expect(std.mem.indexOf(u8, json, "\"etymology\":\"") != null);
+}
+
+test "synonyms, antonyms, hypernyms emitted per sense" {
+    const fixture = @embedFile("test_data/fixture_wikt.bin");
+    loadEn(fixture.ptr, fixture.len);
+    defer unloadEn();
+
+    var buf: [16 * 1024]u8 = undefined;
+    const json = searchEn("obfuscate", 5, &buf) orelse return error.SearchReturnedNull;
+
+    try std.testing.expect(std.mem.indexOf(u8, json, "\"synonyms\":[\"confuse\",\"obscure\"") != null);
+    try std.testing.expect(std.mem.indexOf(u8, json, "\"antonyms\":[\"clarify\"") != null);
+    try std.testing.expect(std.mem.indexOf(u8, json, "\"hypernyms\":[\"mislead\"") != null);
+}
+
+test "case-insensitive prefix search returns multiple hits" {
+    const fixture = @embedFile("test_data/fixture_wikt.bin");
+    loadEn(fixture.ptr, fixture.len);
+    defer unloadEn();
+
+    var buf: [16 * 1024]u8 = undefined;
+    const json = searchEn("ban", 5, &buf) orelse return error.SearchReturnedNull;
+
+    try std.testing.expect(std.mem.indexOf(u8, json, "\"word\":\"bank\"") != null);
+}
+
+test "stale v2 magic is rejected by isEnLoaded" {
+    const stale_v2 = [_]u8{ 'W', 'K', 'E', '2', 0, 0, 0, 0 };
+    loadEn(&stale_v2, stale_v2.len);
+    defer unloadEn();
+
+    try std.testing.expect(!isEnLoaded());
 }

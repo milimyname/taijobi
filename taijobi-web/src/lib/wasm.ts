@@ -615,10 +615,32 @@ export async function updateWord(id: string, translation: string): Promise<void>
 	onDataChangedCb?.();
 }
 
+export interface DictSense {
+	tags: string[];
+	gloss: string;
+	/** Empty string when Wiktionary had no usable example for this sense. */
+	example: string;
+	/** Related words from Wiktextract `senses[].synonyms` + entry-level
+	 *  `synonyms` (folded into the first sense). Capped at 6. */
+	synonyms: string[];
+	/** Opposite-meaning words. Often empty — Wiktionary doesn't list antonyms
+	 *  for most words. Capped at 4. */
+	antonyms: string[];
+	/** "Broader category" words (e.g. cat → feline). Capped at 4. */
+	hypernyms: string[];
+}
+
+export interface DictPosGroup {
+	/** Short POS label: "n" | "v" | "adj" | "adv" | "prep" | … */
+	pos: string;
+	/** One-sentence etymology, plain text. Empty when missing. */
+	etymology: string;
+	senses: DictSense[];
+}
+
 export interface DictResult {
 	word: string;
-	pos: string;
-	definition: string;
+	groups: DictPosGroup[];
 }
 
 export function lookupWord(query: string): DictResult[] {
@@ -634,6 +656,21 @@ export function lookupWord(query: string): DictResult[] {
 	} catch {
 		return [];
 	}
+}
+
+/**
+ * Convenience flat-text accessor — joins all groups/senses into a single
+ * line. Used by callers that still want the legacy v1-style "definition"
+ * (e.g. command palette previews). Card-sized UIs should consume the
+ * structured fields directly.
+ */
+export function flattenDictResult(r: DictResult): string {
+	const parts: string[] = [];
+	for (const g of r.groups) {
+		const senseGlosses = g.senses.map((s) => s.gloss).join('; ');
+		parts.push(g.pos ? `(${g.pos}) ${senseGlosses}` : senseGlosses);
+	}
+	return parts.join(' · ');
 }
 
 export function isEndictLoaded(): boolean {

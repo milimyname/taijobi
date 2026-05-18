@@ -688,6 +688,8 @@
 					{/each}
 					{#each wiktResults as w, i (w.word + i)}
 						{@const idx = indexOfItem((it) => it.kind === 'wikt' && it.value === w)}
+						{@const firstGroup = w.groups[0]}
+						{@const firstSense = firstGroup?.senses[0]}
 						<button
 							data-idx={idx}
 							onclick={() => executeItem({ kind: 'wikt', value: w })}
@@ -695,11 +697,13 @@
 						>
 							<div class="flex items-baseline gap-2">
 								<span class="text-base font-medium text-slate-900 dark:text-slate-100">{w.word}</span>
-								{#if w.pos}
-									<span class="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary">{w.pos}</span>
+								{#if firstGroup?.pos}
+									<span class="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary">{firstGroup.pos}</span>
 								{/if}
 							</div>
-							<span class="block w-full truncate text-xs text-slate-500 dark:text-slate-400">{w.definition}</span>
+							{#if firstSense}
+								<span class="block w-full truncate text-xs text-slate-500 dark:text-slate-400">{firstSense.gloss}</span>
+							{/if}
 						</button>
 					{/each}
 				{/if}

@@ -946,16 +946,20 @@ export fn hanzi_lookup_word(query_ptr: [*]const u8, query_len: usize) ?[*]const 
     // falls through. Treat empty as "try the other dict" so German words
     // without umlauts (e.g. "hinken", misdetected as English) still resolve.
     const detected = lang_mod.detect(query);
+    // Cap at 10 results: v2 entries carry full sense/example/tag structure
+    // and a single entry can serialize to ~25 KB worst case. 10 fits the
+    // 512 KB json_buf comfortably and matches what the UI can reasonably
+    // render on a phone screen.
     const primary = switch (detected) {
-        .de => wiktdict.searchDe(query, 20, &json_buf),
-        else => wiktdict.searchEn(query, 20, &json_buf),
+        .de => wiktdict.searchDe(query, 10, &json_buf),
+        else => wiktdict.searchEn(query, 10, &json_buf),
     };
     const fallback_is_de = detected != .de;
     const result = if (primary != null and !isEmptyJsonArray(primary.?))
         primary.?
     else switch (fallback_is_de) {
-        true => wiktdict.searchDe(query, 20, &json_buf) orelse return null,
-        false => wiktdict.searchEn(query, 20, &json_buf) orelse return null,
+        true => wiktdict.searchDe(query, 10, &json_buf) orelse return null,
+        false => wiktdict.searchEn(query, 10, &json_buf) orelse return null,
     };
     return makeLengthPrefixed(result);
 }
