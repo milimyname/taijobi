@@ -16,6 +16,10 @@ taijobi-sync/libtaijobi-mcp.wasm
 libtaijobi/build-ios/
 taijobi-ios/Frameworks/libtaijobi.xcframework/
 
+# XcodeGen-generated — regenerate with `xcodegen generate` inside taijobi-ios/
+taijobi-ios/taijobi.xcodeproj/
+taijobi-ios/taijobi/Info.plist
+
 # CEDICT binary (built artifact — regenerate with scripts/compile-cedict.py)
 libtaijobi/src/cedict.bin
 
