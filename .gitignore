@@ -12,6 +12,10 @@ zig-cache
 taijobi-web/static/libtaijobi.wasm
 taijobi-sync/libtaijobi-mcp.wasm
 
+# iOS build artifacts — regenerate with scripts/build-ios.sh
+libtaijobi/build-ios/
+taijobi-ios/Frameworks/libtaijobi.xcframework/
+
 # CEDICT binary (built artifact — regenerate with scripts/compile-cedict.py)
 libtaijobi/src/cedict.bin
 
