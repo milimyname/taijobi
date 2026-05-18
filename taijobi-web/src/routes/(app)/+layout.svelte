@@ -26,9 +26,11 @@
 	import Download from '$lib/icons/Download.svelte';
 	import { downloadStore } from '$lib/download-state.svelte';
 	import { updateStore } from '$lib/update.svelte';
+	import { dictUpdateStore } from '$lib/dict-update.svelte';
 	import { themeStore } from '$lib/theme.svelte';
 	import { LS_DEVTOOLS, LS_LAST_ROUTE, SS_BOOTED } from '$lib/config';
 	import UpdateBanner from '../../components/UpdateBanner.svelte';
+	import DictUpdateBanner from '../../components/DictUpdateBanner.svelte';
 	import CharTooltip from '../../components/CharTooltip.svelte';
 	import Toast from '../../components/Toast.svelte';
 	import DevTools from '../../components/DevTools.svelte';
@@ -81,6 +83,11 @@
 			await init();
 			ready = true;
 			updateStore.init();
+			// Magic-validation check runs after WASM init has loaded any OPFS
+			// caches — that's when we know whether on-disk bytes match the
+			// current format. Fire-and-forget; the banner appears once it
+			// resolves and stays hidden if nothing is stale.
+			void dictUpdateStore.check();
 			onboardingStore.init();
 			streakBannerStore.init();
 			recentCharsStore.init();
@@ -371,6 +378,7 @@
 			</button>
 		{/if}
 		<UpdateBanner />
+		<DictUpdateBanner />
 
 		<!-- Header -->
 		<header

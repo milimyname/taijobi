@@ -14,7 +14,9 @@ import {
 	loadStrokes,
 	loadEndict,
 	loadDedict,
-	isChineseDataLoaded
+	isChineseDataLoaded,
+	isEndictLoaded,
+	isDedictLoaded
 } from './wasm';
 
 type DataKey = 'cedict' | 'decomp' | 'strokes' | 'endict' | 'dedict';
@@ -370,4 +372,82 @@ export async function uninstallDictionary(kind: 'zh' | 'en' | 'de'): Promise<voi
 	// 3. Re-feed remaining dicts from OPFS. loadCachedData() iterates
 	//    ALL_FILES — the just-deleted ones are skipped naturally.
 	await loadCachedData();
+}
+
+/**
+ * Detects EN/DE dictionaries whose OPFS bytes loaded but whose magic header
+ * doesn't validate against the current format version. Triggered by a bump
+ * to the on-disk format (e.g. WKE2 → WKE3) where stale caches are no longer
+ * readable. Chinese dicts are skipped — they have no magic guard, so this
+ * detection wouldn't fire reliably for them anyway.
+ *
+ * Returns the kinds the user can offer to refresh. Empty when everything is
+ * either current or simply not installed.
+ */
+export async function detectStaleDictionaries(): Promise<Array<'en' | 'de'>> {
+	if (!opfsAvailable()) return [];
+	let dir: FileSystemDirectoryHandle;
+	try {
+		const root = await navigator.storage.getDirectory();
+		dir = await root.getDirectoryHandle(OPFS_DIR);
+	} catch {
+		return [];
+	}
+
+	const stale: Array<'en' | 'de'> = [];
+	const checks: Array<{ kind: 'en' | 'de'; file: string; loaded: () => boolean }> = [
+		{ kind: 'en', file: 'endict.bin', loaded: isEndictLoaded },
+		{ kind: 'de', file: 'dedict.bin', loaded: isDedictLoaded }
+	];
+	for (const { kind, file, loaded } of checks) {
+		try {
+			const fh = await dir.getFileHandle(file);
+			const f = await fh.getFile();
+			if (f.size > 0 && !loaded()) stale.push(kind);
+		} catch {
+			// Not in OPFS — user never installed this one, so it's not "stale".
+		}
+	}
+	return stale;
+}
+
+/**
+ * One-shot refresh after a format bump: drop stale OPFS files, reset the
+ * persist arena so leaked bytes don't pile up, reload still-valid dicts,
+ * then fetch fresh data for each stale kind via the global download store.
+ *
+ * The download store handles the toast feedback + beforeunload guard.
+ * Sequential `await downloadStore.start()` calls are fine — the store's
+ * `active` flag makes them serialize even if invoked in parallel.
+ */
+export async function refreshStaleDictionaries(stale: Array<'en' | 'de'>): Promise<void> {
+	if (stale.length === 0) return;
+
+	if (opfsAvailable()) {
+		try {
+			const root = await navigator.storage.getDirectory();
+			const dir = await root.getDirectoryHandle(OPFS_DIR);
+			for (const kind of stale) {
+				const file = kind === 'en' ? 'endict.bin' : 'dedict.bin';
+				try {
+					await dir.removeEntry(file);
+				} catch {
+					// Already gone — fine.
+				}
+			}
+		} catch {
+			// OPFS dir missing — nothing to clean.
+		}
+	}
+
+	persistReset();
+	await loadCachedData();
+
+	// Defer the import to break a cycle: download-state.svelte.ts imports
+	// from this file. Loading it lazily means the bundler doesn't need to
+	// resolve the circular reference at module-graph time.
+	const { downloadStore } = await import('./download-state.svelte');
+	for (const kind of stale) {
+		await downloadStore.start(kind);
+	}
 }
