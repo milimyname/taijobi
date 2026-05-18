@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to release (e.g. v0.7.0). Uses latest tag if empty."
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -12,32 +18,55 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  check:
+  detect-changes:
+    # Decide whether the iOS pipeline needs to run for this tag.
+    # Tags that only touch web or sync code skip the native build so
+    # TestFlight isn't churned for no reason.
     runs-on: ubuntu-latest
     outputs:
-      libtaijobi: ${{ steps.changes.outputs.libtaijobi }}
-      web: ${{ steps.changes.outputs.web }}
-      scripts: ${{ steps.changes.outputs.scripts }}
-      sync: ${{ steps.changes.outputs.sync }}
+      libtaijobi: ${{ steps.filter.outputs.libtaijobi }}
+      web: ${{ steps.filter.outputs.web }}
+      scripts: ${{ steps.filter.outputs.scripts }}
+      sync: ${{ steps.filter.outputs.sync }}
+      ios: ${{ steps.filter.outputs.ios }}
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           fetch-tags: true
-
-      - name: Detect changed paths
-        id: changes
+      - id: filter
         run: |
-          PREV_TAG=$(git tag -l --sort=-v:refname | sed -n '2p')
-          if [ -n "$PREV_TAG" ]; then
-            CHANGED=$(git diff --name-only "$PREV_TAG"..HEAD -- . ':(exclude)CHANGELOG.md' ':(exclude)taijobi-web/package.json')
-          else
-            CHANGED=$(git diff --name-only HEAD~1 -- . ':(exclude)CHANGELOG.md' ':(exclude)taijobi-web/package.json')
+          CURRENT=${GITHUB_REF#refs/tags/}
+          PREV=$(git tag -l --sort=-v:refname | grep -v "^${CURRENT}$" | head -1)
+          if [ -z "$PREV" ]; then
+            echo "No previous tag — running all builds"
+            echo "libtaijobi=true" >> $GITHUB_OUTPUT
+            echo "web=true" >> $GITHUB_OUTPUT
+            echo "scripts=true" >> $GITHUB_OUTPUT
+            echo "sync=true" >> $GITHUB_OUTPUT
+            echo "ios=true" >> $GITHUB_OUTPUT
+            exit 0
           fi
+          CHANGED=$(git diff --name-only "$PREV..HEAD" -- . ':(exclude)CHANGELOG.md' ':(exclude)taijobi-web/package.json')
+          echo "Changed files since $PREV:"
+          echo "$CHANGED"
           echo "libtaijobi=$(echo "$CHANGED" | grep -q '^libtaijobi/' && echo true || echo false)" >> $GITHUB_OUTPUT
           echo "web=$(echo "$CHANGED" | grep -q '^taijobi-web/' && echo true || echo false)" >> $GITHUB_OUTPUT
           echo "scripts=$(echo "$CHANGED" | grep -q '^scripts/' && echo true || echo false)" >> $GITHUB_OUTPUT
           echo "sync=$(echo "$CHANGED" | grep -q '^taijobi-sync/' && echo true || echo false)" >> $GITHUB_OUTPUT
+          if echo "$CHANGED" | grep -qE '^(libtaijobi/|taijobi-ios/|scripts/build-ios|scripts/gen-xcodeproj|\.github/workflows/release\.yml)'; then
+            echo "ios=true" >> $GITHUB_OUTPUT
+          else
+            echo "ios=false" >> $GITHUB_OUTPUT
+          fi
+
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
       - uses: mlugg/setup-zig@v2
         with:
@@ -81,8 +110,8 @@ jobs:
         run: bun run check
 
   build-and-deploy-web:
-    needs: check
-    if: needs.check.outputs.web == 'true' || needs.check.outputs.libtaijobi == 'true' || needs.check.outputs.scripts == 'true'
+    needs: [check, detect-changes]
+    if: needs.detect-changes.outputs.web == 'true' || needs.detect-changes.outputs.libtaijobi == 'true' || needs.detect-changes.outputs.scripts == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -128,12 +157,123 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
+  build-libtaijobi-ios:
+    # Zig 0.15.2's build runner can't link on macos-26 (missing
+    # __availability_version_check in libSystem). Build the static .a on
+    # macos-15 — the XCFramework is portable across SDK versions.
+    needs: [check, detect-changes]
+    if: needs.detect-changes.outputs.ios == 'true'
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: mlugg/setup-zig@v2
+        with:
+          version: 0.15.2
+
+      - name: Download SQLite amalgamation
+        working-directory: libtaijobi/vendor
+        run: |
+          curl -fsSL https://www.sqlite.org/2026/sqlite-amalgamation-3520000.zip -o sqlite.zip
+          unzip -o sqlite.zip
+          cp sqlite-amalgamation-3520000/sqlite3.c sqlite3.c
+          cp sqlite-amalgamation-3520000/sqlite3.h sqlite3.h
+
+      - name: Build iOS XCFramework
+        run: ./scripts/build-ios.sh
+
+      - name: Zip XCFramework
+        working-directory: libtaijobi/build-ios
+        run: zip -r libtaijobi.xcframework.zip libtaijobi.xcframework
+
+      - name: Upload iOS artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: libtaijobi-ios
+          path: libtaijobi/build-ios/libtaijobi.xcframework.zip
+
+  build-ios:
+    needs: [detect-changes, build-libtaijobi-ios]
+    if: needs.detect-changes.outputs.ios == 'true'
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Show toolchain versions
+        run: |
+          sw_vers
+          xcodebuild -version
+          xcrun --show-sdk-version --sdk iphoneos
+
+      - name: Download XCFramework
+        uses: actions/download-artifact@v8
+        with:
+          name: libtaijobi-ios
+          path: artifacts
+
+      - name: Unpack XCFramework
+        run: |
+          mkdir -p taijobi-ios/Frameworks
+          unzip -o artifacts/libtaijobi.xcframework.zip -d taijobi-ios/Frameworks/
+
+      - name: Bump build number
+        working-directory: taijobi-ios
+        run: |
+          BUILD_NUMBER=$(date +%s)
+          sed -i '' "s/CURRENT_PROJECT_VERSION: .*/CURRENT_PROJECT_VERSION: $BUILD_NUMBER/g" project.yml
+          echo "Build number: $BUILD_NUMBER"
+
+      - name: Generate Xcode project
+        run: ./scripts/gen-xcodeproj.sh
+
+      - name: Install App Store Connect API key
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_KEY_CONTENT: ${{ secrets.ASC_KEY_CONTENT }}
+        run: |
+          mkdir -p ~/.appstoreconnect/private_keys
+          printf '%s' "$ASC_KEY_CONTENT" > ~/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8
+          chmod 600 ~/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8
+
+      - name: Archive
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          xcodebuild archive \
+            -project taijobi-ios/taijobi.xcodeproj \
+            -scheme taijobi \
+            -destination "generic/platform=iOS" \
+            -archivePath build/taijobi.xcarchive \
+            -allowProvisioningUpdates \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8 \
+            -quiet
+
+      - name: Export and upload to TestFlight
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath build/taijobi.xcarchive \
+            -exportOptionsPlist taijobi-ios/ExportOptions.plist \
+            -exportPath build/export \
+            -allowProvisioningUpdates \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8
+
   deploy-sync:
-    needs: check
+    needs: [check, detect-changes]
     # libtaijobi changes also require a sync redeploy because the MCP Worker
     # bundles libtaijobi-mcp.wasm. The scripts check covers build-wasm.sh
     # edits that change how the compact WASM is produced.
-    if: needs.check.outputs.sync == 'true' || needs.check.outputs.libtaijobi == 'true' || needs.check.outputs.scripts == 'true'
+    if: needs.detect-changes.outputs.sync == 'true' || needs.detect-changes.outputs.libtaijobi == 'true' || needs.detect-changes.outputs.scripts == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -170,7 +310,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
   release:
-    needs: [build-and-deploy-web, deploy-sync]
+    needs: [check, detect-changes, build-and-deploy-web, build-libtaijobi-ios, build-ios, deploy-sync]
     if: always() && !failure() && !cancelled()
     runs-on: ubuntu-latest
     steps:
@@ -178,18 +318,35 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download all artifacts
+      - name: Download WASM artifact
         uses: actions/download-artifact@v8
         continue-on-error: true
         with:
-          path: artifacts
+          name: libtaijobi-wasm
+          path: artifacts/libtaijobi-wasm
+
+      - name: Download iOS artifact
+        if: needs.detect-changes.outputs.ios == 'true'
+        uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          name: libtaijobi-ios
+          path: artifacts/libtaijobi-ios
 
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG=${GITHUB_REF#refs/tags/}
+          # Resolve tag: from input (manual dispatch), GITHUB_REF (tag push), or latest tag
+          if [ -n "${{ inputs.tag }}" ]; then
+            TAG="${{ inputs.tag }}"
+          elif [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            TAG=${GITHUB_REF#refs/tags/}
+          else
+            TAG=$(git tag -l --sort=-v:refname | head -1)
+          fi
 
+          # Find the last tag that has a GitHub release (skips failed CI tags)
           PREV_TAG=""
           for t in $(git tag -l --sort=-v:refname | tail -n +2); do
             if gh release view "$t" --json tagName >/dev/null 2>&1; then
@@ -208,10 +365,13 @@ jobs:
 
           echo "$NOTES" > release-notes.md
 
-          # Find the WASM artifact wherever download-artifact placed it
-          WASM=$(find artifacts -name 'libtaijobi.wasm' -type f | head -1)
-          if [ -z "$WASM" ]; then
-            echo "Warning: WASM artifact not found, creating release without it"
+          # Collect available artifacts (each gated so a missing one just gets skipped)
+          ASSETS=()
+          WASM=$(find artifacts/libtaijobi-wasm -name 'libtaijobi.wasm' -type f 2>/dev/null | head -1)
+          [ -n "$WASM" ] && ASSETS+=("$WASM")
+          [ -f artifacts/libtaijobi-ios/libtaijobi.xcframework.zip ] && ASSETS+=(artifacts/libtaijobi-ios/libtaijobi.xcframework.zip)
+
+          if [ ${#ASSETS[@]} -eq 0 ]; then
             gh release create "$TAG" \
               --title "$TAG" \
               --notes-file release-notes.md
@@ -219,5 +379,5 @@ jobs:
             gh release create "$TAG" \
               --title "$TAG" \
               --notes-file release-notes.md \
-              "$WASM"
+              "${ASSETS[@]}"
           fi
