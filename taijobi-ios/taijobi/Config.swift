@@ -8,11 +8,21 @@ enum TaijobiConfig {
     /// three targets see the same data without IPC.
     static let appGroup = "group.com.taijobi.app"
 
-    #if DEBUG && targetEnvironment(simulator)
-    static let syncBaseURL = "http://localhost:8787"
-    #else
-    static let syncBaseURL = "https://sync.taijobi.com"
-    #endif
+    /// Local dev: 8788 is the port `wrangler dev` runs taijobi-sync on
+    /// (see taijobi-sync/wrangler.toml). Simulator reaches the host via
+    /// `localhost`; a real device needs the Mac's LAN IP — set
+    /// `TAIJOBI_SYNC_URL` in the scheme's environment variables to override.
+    static let syncBaseURL: String = {
+        if let override = ProcessInfo.processInfo.environment["TAIJOBI_SYNC_URL"],
+           !override.isEmpty {
+            return override
+        }
+        #if DEBUG && targetEnvironment(simulator)
+        return "http://localhost:8788"
+        #else
+        return "https://sync.taijobi.com"
+        #endif
+    }()
 
     /// UserDefaults keys (kept in App Group defaults so share/widget see them).
     static let udSyncKey = "taijobi_sync_key"

@@ -53,6 +53,16 @@ targets:
         CFBundleDisplayName: taijobi
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
+        # App Transport Security: prod (sync.taijobi.com) is HTTPS so the
+        # default policy is happy. Allow plain HTTP only for local dev
+        # against `wrangler dev` running on the Mac — production builds
+        # never see these hosts.
+        NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true
+          NSExceptionDomains:
+            localhost:
+              NSExceptionAllowsInsecureHTTPLoads: true
+              NSIncludesSubdomains: true
 
 schemes:
   taijobi:
