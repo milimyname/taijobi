@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.6.32 (2026-05-18)
+
+- Version bump
+
 ## v0.6.31 (2026-05-18)
 
 - fix: update banner re-pops on every reload
