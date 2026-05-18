@@ -221,16 +221,58 @@ final class LibTaijobi {
         case strokes
         case endict
         case dedict
+
+        /// Expected first 4 bytes of the binary. Used for pre-load magic
+        /// validation so stale OPFS/App-Group caches and stale CF-edge
+        /// downloads surface as a clear "magic mismatch" error rather than
+        /// being attributed to allocator pressure. Chinese binaries don't
+        /// carry a magic header today — return nil for those.
+        var expectedMagic: [UInt8]? {
+            switch self {
+            case .cedict, .decomp, .strokes: return nil
+            case .endict: return [0x57, 0x4B, 0x45, 0x33] // "WKE3"
+            case .dedict: return [0x57, 0x4B, 0x44, 0x33] // "WKD3"
+            }
+        }
+    }
+
+    /// Outcome of `loadDictionary`. Splits "couldn't fit in the persist
+    /// arena" from "loaded but the bytes weren't the format we expected" so
+    /// callers can surface honest error messages instead of conflating both
+    /// into a single "magic check failed".
+    enum LoadResult: Equatable {
+        case ok
+        /// The persistent allocator couldn't satisfy `bytesNeeded`. Either
+        /// PERSIST_SIZE needs a bump or another dict is hogging the arena.
+        case allocFailed(bytesNeeded: Int)
+        /// Bytes loaded but the first 4 bytes didn't match the expected
+        /// format magic. Typically a stale on-disk cache.
+        case magicMismatch(expected: String, gotHex: String)
+        /// Caller passed empty bytes.
+        case emptyInput
     }
 
     /// Copies `bytes` into the persistent arena and hands the slice to the
-    /// matching Zig loader. Returns true if the loader accepted the magic.
-    @discardableResult
-    func loadDictionary(_ kind: DictKind, bytes: Data) -> Bool {
+    /// matching Zig loader.
+    func loadDictionary(_ kind: DictKind, bytes: Data) -> LoadResult {
         withAbi {
-            guard !bytes.isEmpty,
-                  let dst = hanzi_persist_alloc(bytes.count)
-            else { return false }
+            guard !bytes.isEmpty else { return .emptyInput }
+
+            // Pre-load magic check: cheaper than allocating the arena slot
+            // first only to discover the bytes were stale.
+            if let want = kind.expectedMagic, bytes.count >= want.count {
+                let head = Array(bytes.prefix(want.count))
+                if head != want {
+                    return .magicMismatch(
+                        expected: String(bytes: want, encoding: .ascii) ?? "?",
+                        gotHex: head.map { String(format: "%02X", $0) }.joined()
+                    )
+                }
+            }
+
+            guard let dst = hanzi_persist_alloc(bytes.count) else {
+                return .allocFailed(bytesNeeded: bytes.count)
+            }
             bytes.withUnsafeBytes { raw in
                 if let src = raw.baseAddress {
                     memcpy(dst, src, bytes.count)
@@ -245,7 +287,10 @@ final class LibTaijobi {
             case .endict: rc = hanzi_load_endict(typed, bytes.count)
             case .dedict: rc = hanzi_load_dedict(typed, bytes.count)
             }
-            return rc == 0
+            // The Zig loaders currently always return 0 — they just set the
+            // slice. Wiktdict magic validation happens lazily in
+            // `is{En,De}Loaded()`. Treat non-zero as a future-proofed error.
+            return rc == 0 ? .ok : .magicMismatch(expected: "load rc=0", gotHex: String(rc))
         }
     }
 

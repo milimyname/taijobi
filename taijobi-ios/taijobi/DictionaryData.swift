@@ -127,8 +127,13 @@ final class DictionaryData: ObservableObject {
                 allLoaded = false
                 continue
             }
-            let ok = LibTaijobi.shared.loadDictionary(file.kind, bytes: bytes)
-            if !ok { allLoaded = false }
+            let result = LibTaijobi.shared.loadDictionary(file.kind, bytes: bytes)
+            if result != .ok {
+                allLoaded = false
+                // Boot path is silent — log so devtools see why a cached dict
+                // didn't apply, but don't surface an error banner.
+                print("[taijobi] cached \(file.name) skipped: \(result)")
+            }
         }
         return allLoaded
     }
@@ -170,9 +175,22 @@ final class DictionaryData: ObservableObject {
                     }
                 }
                 try Self.writeCache(name: file.name, bytes: bytes)
-                let ok = LibTaijobi.shared.loadDictionary(file.kind, bytes: bytes)
-                if !ok {
-                    lastError = "Konnte \(file.name) nicht laden (Magic-Prüfung fehlgeschlagen)"
+                switch LibTaijobi.shared.loadDictionary(file.kind, bytes: bytes) {
+                case .ok:
+                    break
+                case .allocFailed(let needed):
+                    let mb = Double(needed) / 1024 / 1024
+                    lastError = String(
+                        format:
+                            "%@ konnte nicht in den Wörterbuch-Speicher passen (%.0f MB benötigt). PERSIST_SIZE in libtaijobi/src/root.zig anheben.",
+                        file.name, mb)
+                    return
+                case .magicMismatch(let expected, let gotHex):
+                    lastError =
+                        "\(file.name) hat falsches Magic (\(gotHex) statt \(expected)). Vermutlich ein veralteter CF-Edge-Cache — bitte später erneut versuchen."
+                    return
+                case .emptyInput:
+                    lastError = "\(file.name): leere Daten heruntergeladen."
                     return
                 }
                 doneFiles += 1
