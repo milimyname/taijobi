@@ -92,9 +92,12 @@ pub fn build(b: *std.Build) void {
         wasm_exe.rdynamic = true;
         wasm_exe.stack_size = 1 * 1024 * 1024;
         // V8 on Cloudflare Workers reserves max_memory upfront at
-        // WebAssembly.instantiate(). 512MB > 128MB Worker cap → OOM.
+        // WebAssembly.instantiate(). MCP build stays small to fit the 128MB
+        // Worker cap. Web build needs to host: persist 256MB + fba 64MB +
+        // vfs 4×32MB + heap 16MB + stack 1MB ≈ 465MB of BSS, plus headroom
+        // for sqlite + JSON scratch growth → 768MB.
         // MCP budget: fba 16MB + persist 16MB + vfs 32MB + heap 4MB + stack 1MB ≈ 69MB.
-        wasm_exe.max_memory = if (mcp) 96 * 1024 * 1024 else 512 * 1024 * 1024;
+        wasm_exe.max_memory = if (mcp) 96 * 1024 * 1024 else 768 * 1024 * 1024;
 
         // Install to zig-out/bin/ — use scripts/build-wasm.sh to copy to taijobi-web
         b.installArtifact(wasm_exe);

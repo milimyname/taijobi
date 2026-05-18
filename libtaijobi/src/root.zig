@@ -36,15 +36,18 @@ var fba = std.heap.FixedBufferAllocator.init(&fba_backing);
 
 // --- Persistent allocator — never reset, holds all dictionary .bin data ---
 //
-// Web build sizing budget (prod as of 2026-04):
-//   cedict ~9MB, decomp ~1MB, strokes ~9MB, endict ~60MB, dedict ~5MB
-//   → ~84MB total; 128MB leaves headroom for JMdict/KDICT later.
+// Web build sizing budget (prod as of 2026-05):
+//   cedict ~9MB, decomp ~1MB, strokes ~9MB, endict ~141MB (!), dedict ~12MB
+//   → ~172MB total. Kaikki's English Wiktextract roughly quadrupled in coverage
+//   between March and May 2026 (~166k → 691k entries), so the previous 128MB
+//   reservation no longer fits endict. 256MB leaves headroom for the next
+//   growth wave + JMdict/KDICT later.
 //
 // MCP build: MCP tools never touch dictionaries (Claude already knows
-// definitions for the languages we support), so we skip the 128MB reservation
+// definitions for the languages we support), so we skip the big reservation
 // entirely. 16MB fits well inside the 128MB Cloudflare Worker memory cap and
 // is plenty for CEDICT if we re-enable `lookup_word` in v2.
-const PERSIST_SIZE: usize = if (MCP_BUILD) 16 * 1024 * 1024 else 128 * 1024 * 1024;
+const PERSIST_SIZE: usize = if (MCP_BUILD) 16 * 1024 * 1024 else 256 * 1024 * 1024;
 var persist_backing: [PERSIST_SIZE]u8 = undefined;
 var persist_fba = std.heap.FixedBufferAllocator.init(&persist_backing);
 

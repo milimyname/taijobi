@@ -289,8 +289,17 @@ async function opfsWriteViaWorker(path: string, data: Uint8Array): Promise<void>
 function writeToWasm(key: DataKey, buf: Uint8Array): void {
 	const ptr = persistAlloc(buf.length);
 	if (ptr === 0) {
-		console.error(`[taijobi] Chinese data: persistent alloc failed for ${key}`);
-		return;
+		// Throw instead of silently no-oping: writeToWasm is on the boot path
+		// for loadCachedData and on the install path for downloadStore. Both
+		// callers wrap us in try/catch so they can surface a real error to the
+		// user — previously a silent return left the dict update banner stuck
+		// on every reload because the post-refresh isLoaded() check stayed
+		// false with no signal to anybody.
+		const mb = (buf.length / 1024 / 1024).toFixed(1);
+		throw new Error(
+			`Persist allocator zu klein für ${key} (${mb} MB). ` +
+				`PERSIST_SIZE in libtaijobi/src/root.zig erhöhen.`
+		);
 	}
 
 	switch (key) {

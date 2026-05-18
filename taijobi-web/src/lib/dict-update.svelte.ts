@@ -18,6 +18,7 @@ class DictUpdateStore {
 	staleKinds = $state<Kind[]>([]);
 	dismissed = $state(false);
 	busy = $state(false);
+	error = $state<string | null>(null);
 
 	async check(): Promise<void> {
 		try {
@@ -30,11 +31,18 @@ class DictUpdateStore {
 	async refresh(): Promise<void> {
 		if (this.busy || this.staleKinds.length === 0) return;
 		this.busy = true;
+		this.error = null;
 		const kinds = [...this.staleKinds];
 		try {
 			await refreshStaleDictionaries(kinds);
-			this.staleKinds = [];
-			this.dismissed = false;
+			// Re-check rather than assuming success — even if no exception
+			// fired, alloc could have failed silently on an older WASM build.
+			const remaining = await detectStaleDictionaries();
+			this.staleKinds = remaining;
+			if (remaining.length === 0) this.dismissed = false;
+		} catch (e) {
+			this.error = e instanceof Error ? e.message : String(e);
+			console.error('[taijobi] dict-update refresh failed:', e);
 		} finally {
 			this.busy = false;
 		}

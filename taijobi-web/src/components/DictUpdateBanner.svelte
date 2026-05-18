@@ -30,6 +30,8 @@
 			<Sync class="text-[16px] {dictUpdateStore.busy ? 'animate-spin' : ''}" />
 			{#if dictUpdateStore.busy}
 				W&ouml;rterbuch wird aktualisiert&hellip;
+			{:else if dictUpdateStore.error}
+				Fehler: {dictUpdateStore.error}
 			{:else}
 				W&ouml;rterbuch-Update ({langLabel}, {sizeLabel}) &mdash; tippen zum Aktualisieren
 			{/if}
