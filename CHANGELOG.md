@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.6.33 (2026-05-19)
+
+- feat: banner prompting users to re-download stale EN/DE dictionaries
+- feat: SwiftUI shell linking libtaijobi.xcframework
+- feat: build libtaijobi for iOS as a static library + XCFramework
+
 ## v0.6.32 (2026-05-18)
 
 - Version bump
