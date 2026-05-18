@@ -298,6 +298,107 @@ final class LibTaijobi {
     var isEndictLoaded: Bool { withAbi { hanzi_endict_loaded() == 1 } }
     var isDedictLoaded: Bool { withAbi { hanzi_dedict_loaded() == 1 } }
 
+    // MARK: - Sync (E2E-encrypted change log)
+    //
+    // Mirrors taijobi-web/src/lib/sync.ts: derive a 32-byte symmetric key
+    // from the user's sync passphrase via HKDF-SHA256, fetch changed rows
+    // since the last sync timestamp, encrypt them with XChaCha20-Poly1305
+    // before they leave the device, and decrypt incoming rows after
+    // pulling. Server only sees ciphertext.
+
+    /// Length-prefixed JSON of `{rows:[{table, id, updated_at, data:{…}}]}`
+    /// that changed since `sinceTs` (ms epoch). Each row's `data` payload
+    /// is plaintext at this point — the caller encrypts before upload.
+    func getChanges(sinceMs: Int64) -> Data? {
+        withAbi {
+            guard initialized,
+                  let ptr = hanzi_get_changes(sinceMs)
+            else { return nil }
+            let bytes = Self.copyLengthPrefixed(ptr)
+            hanzi_reset_alloc()
+            return bytes
+        }
+    }
+
+    /// Applies a length-prefixed JSON change set pulled from the server
+    /// (rows already decrypted in Swift). Returns true on success.
+    @discardableResult
+    func applyChanges(_ json: Data) -> Bool {
+        withAbi {
+            guard initialized else { return false }
+            let rc: Int32 = json.withUnsafeBytes { raw in
+                guard let base = raw.baseAddress else { return Int32(-1) }
+                return hanzi_apply_changes(base, UInt32(json.count))
+            }
+            return rc == 0
+        }
+    }
+
+    /// Derives the 32-byte symmetric encryption key from the user's sync
+    /// passphrase. Cache the result — derivation is HKDF and not free.
+    func deriveEncryptionKey(syncKey: String) -> Data? {
+        withAbi {
+            let bytes = Data(syncKey.utf8)
+            return bytes.withUnsafeBytes { raw -> Data? in
+                guard let base = raw.baseAddress,
+                      let ptr = hanzi_derive_key(base, UInt32(bytes.count))
+                else { return nil }
+                let data = Self.copyLengthPrefixed(ptr)
+                hanzi_reset_alloc()
+                return data
+            }
+        }
+    }
+
+    /// Encrypts `plaintext` with the derived key + a fresh 24-byte nonce.
+    /// Returns the base64-encoded `nonce ‖ ciphertext ‖ tag` payload.
+    func encryptField(_ plaintext: String, key: Data) -> String? {
+        guard key.count == 32 else { return nil }
+        var nonce = Data(count: 24)
+        let status = nonce.withUnsafeMutableBytes { b in
+            SecRandomCopyBytes(kSecRandomDefault, 24, b.baseAddress!)
+        }
+        guard status == errSecSuccess else { return nil }
+        return withAbi {
+            let pt = Data(plaintext.utf8)
+            return pt.withUnsafeBytes { ptRaw -> String? in
+                key.withUnsafeBytes { keyRaw -> String? in
+                    nonce.withUnsafeBytes { nonceRaw -> String? in
+                        guard let pPtr = ptRaw.baseAddress,
+                              let kPtr = keyRaw.baseAddress,
+                              let nPtr = nonceRaw.baseAddress,
+                              let out = hanzi_encrypt_field(
+                                pPtr, UInt32(pt.count), kPtr, nPtr)
+                        else { return nil }
+                        let data = Self.copyLengthPrefixed(out)
+                        hanzi_reset_alloc()
+                        return String(data: data, encoding: .utf8)
+                    }
+                }
+            }
+        }
+    }
+
+    /// Decrypts a base64-encoded `nonce ‖ ciphertext ‖ tag` payload.
+    func decryptField(_ ciphertext: String, key: Data) -> String? {
+        guard key.count == 32 else { return nil }
+        return withAbi {
+            let ct = Data(ciphertext.utf8)
+            return ct.withUnsafeBytes { ctRaw -> String? in
+                key.withUnsafeBytes { keyRaw -> String? in
+                    guard let cPtr = ctRaw.baseAddress,
+                          let kPtr = keyRaw.baseAddress,
+                          let out = hanzi_decrypt_field(
+                            cPtr, UInt32(ct.count), kPtr)
+                    else { return nil }
+                    let data = Self.copyLengthPrefixed(out)
+                    hanzi_reset_alloc()
+                    return String(data: data, encoding: .utf8)
+                }
+            }
+        }
+    }
+
     // MARK: - Errors
 
     /// Last error set by libtaijobi. Returns nil if no error was recorded

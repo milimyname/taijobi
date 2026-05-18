@@ -80,6 +80,15 @@ int32_t hanzi_dedict_loaded(void);
 const void *hanzi_lookup_word(const void *query, size_t len);
 const void *hanzi_search_cards(const void *query, size_t len, uint32_t limit);
 
+/* Sync — E2E-encrypted change log over HTTP (wimg-sync protocol) */
+const void *hanzi_get_changes(int64_t since_ts);
+int32_t     hanzi_apply_changes(const void *data, uint32_t len);
+const void *hanzi_derive_key(const void *sync_key, uint32_t sync_key_len);
+const void *hanzi_encrypt_field(const void *pt, uint32_t pt_len,
+                                 const void *key, const void *nonce);
+const void *hanzi_decrypt_field(const void *ct, uint32_t ct_len,
+                                 const void *key);
+
 /* WASM-only: OPFS persistence helpers */
 void   *hanzi_db_ptr(void);
 int32_t hanzi_db_size(void);

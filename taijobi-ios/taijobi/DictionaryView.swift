@@ -89,9 +89,21 @@ struct DictionaryView: View {
                 }
             }
 
-            if dict.active != nil {
-                ProgressView(value: dict.progress)
-                    .tint(.accentColor)
+            if let active = dict.active {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text("\(active.label) wird geladen…")
+                            .font(.caption.weight(.medium))
+                        Spacer()
+                        Text("\(Int((dict.progress * 100).rounded()))%")
+                            .font(.caption.monospacedDigit())
+                            .foregroundStyle(.secondary)
+                    }
+                    ProgressView(value: dict.progress, total: 1.0)
+                        .progressViewStyle(.linear)
+                        .tint(.accentColor)
+                        .animation(.linear(duration: 0.15), value: dict.progress)
+                }
             }
             if let err = dict.lastError {
                 Text(err)
@@ -242,18 +254,26 @@ struct DictionaryView: View {
             wiktHits = []
             return
         }
-        debounceTask = Task { @MainActor in
+        let zhLoaded = dict.zhLoaded
+        let dictsLoaded = dict.enLoaded || dict.deLoaded
+        debounceTask = Task.detached(priority: .userInitiated) {
             // 180 ms debounce — long enough that fast typing doesn't trigger
             // a search per keystroke, short enough that the user sees results
             // before they finish reaching for the screen.
             try? await Task.sleep(nanoseconds: 180_000_000)
             if Task.isCancelled { return }
-            performSearch(q)
+            // Run the WASM lookups on a background task: they hold the
+            // libtaijobi NSRecursiveLock and decode JSON, which can take 5–50ms
+            // for richer Wiktionary hits. Keeping that off the main thread is
+            // what makes the search field feel responsive while typing.
+            let cedict = zhLoaded ? LibTaijobi.shared.lookupCedict(q) : []
+            if Task.isCancelled { return }
+            let wikt = dictsLoaded ? LibTaijobi.shared.lookupWord(q) : []
+            if Task.isCancelled { return }
+            await MainActor.run {
+                self.cedictHits = cedict
+                self.wiktHits = wikt
+            }
         }
-    }
-
-    private func performSearch(_ q: String) {
-        cedictHits = dict.zhLoaded ? LibTaijobi.shared.lookupCedict(q) : []
-        wiktHits = (dict.enLoaded || dict.deLoaded) ? LibTaijobi.shared.lookupWord(q) : []
     }
 }

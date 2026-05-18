@@ -15,6 +15,10 @@ struct ContentView: View {
                 .tabItem {
                     Label("Wörterbuch", systemImage: "magnifyingglass")
                 }
+            SettingsView()
+                .tabItem {
+                    Label("Einstellungen", systemImage: "gearshape")
+                }
         }
     }
 }
