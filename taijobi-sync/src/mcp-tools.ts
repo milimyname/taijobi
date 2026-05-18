@@ -25,7 +25,6 @@ export interface ToolDefinition {
  */
 export const WRITE_TOOL_NAMES = new Set([
   "add_word",
-  "import_kindle_clippings",
   "review_card",
   "install_pack",
   "add_lesson_to_pack",
@@ -145,30 +144,6 @@ export function getToolDefinitions(): ToolDefinition[] {
         const word = String(args.word ?? "").trim();
         if (!word) throw new Error("word is empty");
         return ok(wasm.addWord(word));
-      },
-    },
-
-    {
-      name: "import_kindle_clippings",
-      description:
-        "Parse a Kindle `My Clippings.txt` file and bulk-add every highlight to the personal lexicon in one transaction. Bookmarks are skipped. Duplicates are counted but not re-added. Use when the user pastes their clippings file content directly.",
-      schema: {
-        raw: z
-          .string()
-          .min(1)
-          .describe("Full My Clippings.txt contents (the `==========` delimited format)"),
-      },
-      handler: (args, wasm) => {
-        const raw = String(args.raw ?? "");
-        if (!raw) throw new Error("raw is empty");
-        const clippings = wasm.parseKindle(raw);
-        if (clippings.length === 0) {
-          return ok({ parsed: 0, added: 0, skipped: 0, failed: 0, books: 0 });
-        }
-        const words = clippings.map((c) => c.text);
-        const bulk = wasm.bulkAddLexicon(words);
-        const books = new Set(clippings.map((c) => c.book)).size;
-        return ok({ parsed: clippings.length, ...bulk, books });
       },
     },
 

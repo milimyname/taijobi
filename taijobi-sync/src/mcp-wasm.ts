@@ -46,19 +46,6 @@ export interface StatsData {
   longest_streak: number;
 }
 
-export interface BulkAddResult {
-  added: number;
-  skipped: number;
-  failed: number;
-}
-
-export interface KindleClipping {
-  book: string;
-  author: string;
-  type: "highlight" | "note" | "bookmark";
-  text: string;
-}
-
 export interface SyncRow {
   table: string;
   id: string;
@@ -89,8 +76,6 @@ interface WasmExports {
   // Write
   hanzi_add_word: (word: number, len: number) => number;
   hanzi_review_card: (id: number, idLen: number, rating: number) => number;
-  hanzi_parse_kindle: (data: number, len: number) => number;
-  hanzi_bulk_add_lexicon: (data: number, len: number) => number;
   hanzi_install_pack: (json: number, len: number) => number;
   hanzi_get_packs: () => number;
   hanzi_add_lesson_to_pack: (
@@ -332,45 +317,6 @@ export class WasmInstance {
     if (ptr === 0) throw new Error(this.getLastError("getPacks failed"));
     const json = this.readLengthPrefixedString(ptr);
     return JSON.parse(json);
-  }
-
-  parseKindle(raw: string): KindleClipping[] {
-    this.wasm.hanzi_reset_alloc();
-    const encoded = new TextEncoder().encode(raw);
-    const ptr = this.writeBytes(encoded);
-    const resultPtr = this.wasm.hanzi_parse_kindle(ptr, encoded.length);
-    if (resultPtr === 0) throw new Error(this.getLastError("parseKindle failed"));
-    const json = this.readLengthPrefixedString(resultPtr);
-    return JSON.parse(json) as KindleClipping[];
-  }
-
-  /**
-   * Bulk-add words inside one SQLite transaction. Wire format: [u32 count]
-   * [u32 len][bytes]… — identical to the web client's bulkAddLexicon wrapper.
-   */
-  bulkAddLexicon(words: string[]): BulkAddResult {
-    if (words.length === 0) return { added: 0, skipped: 0, failed: 0 };
-    this.wasm.hanzi_reset_alloc();
-
-    const enc = new TextEncoder();
-    const encoded = words.map((w) => enc.encode(w));
-    const total = 4 + encoded.reduce((sum, e) => sum + 4 + e.length, 0);
-    const buf = new Uint8Array(total);
-    const view = new DataView(buf.buffer);
-    view.setUint32(0, words.length, true);
-    let off = 4;
-    for (const e of encoded) {
-      view.setUint32(off, e.length, true);
-      off += 4;
-      buf.set(e, off);
-      off += e.length;
-    }
-
-    const ptr = this.writeBytes(buf);
-    const resultPtr = this.wasm.hanzi_bulk_add_lexicon(ptr, buf.length);
-    if (resultPtr === 0) throw new Error(this.getLastError("bulkAddLexicon failed"));
-    const json = this.readLengthPrefixedString(resultPtr);
-    return JSON.parse(json) as BulkAddResult;
   }
 
   // --- Sync API ---

@@ -1995,7 +1995,7 @@ test "searchCards SQL LIKE matches" {
     const json2 = db.searchCards("banana", 10, &buf) orelse return error.TestUnexpectedResult;
     try std.testing.expect(std.mem.indexOf(u8, json2, "Banane") != null);
 
-    // Context-field match: find Banane via its Kindle source "Dune"
+    // Context-field match: find Banane via its free-form source "Dune"
     const json3 = db.searchCards("Dune", 10, &buf) orelse return error.TestUnexpectedResult;
     try std.testing.expect(std.mem.indexOf(u8, json3, "Banane") != null);
     try std.testing.expect(std.mem.indexOf(u8, json3, "Apfel") == null);

@@ -6,7 +6,6 @@
 	import Delete from '$lib/icons/Delete.svelte';
 	import Edit from '$lib/icons/Edit.svelte';
 	import Search from '$lib/icons/Search.svelte';
-	import UploadFile from '$lib/icons/UploadFile.svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { addWord, removeWord, restoreWord, updateWord, lookupWord, type LexiconEntry, type DictResult } from '$lib/wasm';
@@ -167,53 +166,7 @@
 		return 'Wiederholen';
 	}
 
-	// Import summary banner — driven by ?imported=N&skipped=M&books=K query
-	// params that /lexicon/import redirects with after a successful bulk-add.
-	const importSummary = $derived.by(() => {
-		const imported = Number(page.url.searchParams.get('imported'));
-		if (!Number.isFinite(imported) || imported <= 0) return null;
-		return {
-			imported,
-			skipped: Number(page.url.searchParams.get('skipped')) || 0,
-			books: Number(page.url.searchParams.get('books')) || 0,
-		};
-	});
-
-	function dismissImportSummary() {
-		goto('/lexicon', { replaceState: true });
-	}
 </script>
-
-<!-- Post-import summary banner -->
-{#if importSummary}
-	<section class="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-3 dark:border-primary/30 dark:bg-primary/10">
-		<div class="flex items-start gap-3">
-			<div class="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 dark:bg-primary/20">
-				<Check class="text-primary" />
-			</div>
-			<div class="min-w-0 flex-1">
-				<p class="text-sm font-bold text-slate-900 dark:text-slate-100">
-					{importSummary.imported} W&ouml;rter importiert{#if importSummary.books > 0}
-						aus {importSummary.books} B&uuml;chern
-					{/if}
-				</p>
-				{#if importSummary.skipped > 0}
-					<p class="text-xs text-slate-500 dark:text-slate-400">
-						{importSummary.skipped} schon im Lexikon &mdash; &uuml;bersprungen.
-					</p>
-				{/if}
-			</div>
-			<button
-				type="button"
-				onclick={dismissImportSummary}
-				class="rounded-lg p-1 text-slate-400 transition-colors hover:bg-white/50 hover:text-slate-600 dark:text-slate-500 dark:hover:bg-white/10 dark:hover:text-slate-300"
-				aria-label="Schlie&szlig;en"
-			>
-				<Close class="text-[18px]" />
-			</button>
-		</div>
-	</section>
-{/if}
 
 <!-- Combined search + add input.
      Type to filter · Enter (or +) to add the trimmed query · disabled when
@@ -255,15 +208,7 @@
 	>
 		<Add />
 	</button>
-	<a
-		href="/lexicon/import"
-		title="Kindle-Import"
-		aria-label="Kindle-Import"
-		class="flex size-12 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition-colors hover:border-primary/30 hover:text-primary dark:border-white/10 dark:bg-white/5 dark:text-slate-400 dark:hover:text-primary"
-	>
-		<UploadFile />
-	</a>
-</section>
+	</section>
 
 {#if searchQuery.trim() && !exactMatch && !adding}
 	<p class="mt-1.5 px-1 text-[11px] text-slate-400 dark:text-slate-500">

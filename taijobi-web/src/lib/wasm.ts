@@ -86,8 +86,6 @@ interface WasmExports {
 	hanzi_get_last_reviewed_card: () => number;
 	hanzi_get_card_by_id: (id: number, len: number) => number;
 	hanzi_query: (sql: number, len: number) => number;
-	hanzi_parse_kindle: (data: number, len: number) => number;
-	hanzi_bulk_add_lexicon: (data: number, len: number) => number;
 	hanzi_get_lexicon: () => number;
 	hanzi_get_drill_stats: () => number;
 	hanzi_install_pack: (json: number, len: number) => number;
@@ -807,94 +805,6 @@ export function queryRaw(sql: string): QueryResult {
 	}
 	const json = readLengthPrefixedString(resultPtr);
 	return JSON.parse(json) as QueryResult;
-}
-
-// === Bulk lexicon import (Kindle, future Anki, etc.) ===
-
-export interface BulkAddResult {
-	added: number;
-	skipped: number;
-	failed: number;
-}
-
-/**
- * Add many lexicon words in one SQLite transaction + one OPFS save.
- * Per-word `addWord()` would do N OPFS writes; this collapses to 1.
- *
- * Wire format (length-prefixed, little-endian u32):
- *   [count][len1][bytes1][len2][bytes2]...
- */
-/** Kindle `My Clippings.txt` entry shape returned by the Zig parser. */
-export interface KindleClipping {
-	book: string;
-	author: string;
-	type: 'highlight' | 'note' | 'bookmark';
-	text: string;
-}
-
-/**
- * Parse a raw My Clippings.txt file via the Zig parser. Bookmarks are
- * skipped server-side (they have no body). Throws on fatal parse errors.
- */
-export function parseKindleClippings(raw: string): KindleClipping[] {
-	if (!wasm) throw new Error('WASM not initialized — reload the page');
-	if (typeof wasm.hanzi_parse_kindle !== 'function') {
-		throw new Error(
-			'hanzi_parse_kindle export missing — stale WASM. Hard-reload (Cmd+Shift+R) or unregister the service worker in DevTools → Application.'
-		);
-	}
-	if (!raw) return [];
-
-	wasm.hanzi_reset_alloc();
-	const encoded = new TextEncoder().encode(raw);
-	const ptr = writeBytes(encoded);
-	const resultPtr = wasm.hanzi_parse_kindle(ptr, encoded.length);
-	if (resultPtr === 0) {
-		throw new Error(getLastError('parseKindleClippings failed'));
-	}
-	const json = readLengthPrefixedString(resultPtr);
-	return JSON.parse(json) as KindleClipping[];
-}
-
-export async function bulkAddLexicon(words: string[]): Promise<BulkAddResult> {
-	if (!wasm) throw new Error('WASM not initialized — reload the page');
-	if (typeof wasm.hanzi_bulk_add_lexicon !== 'function') {
-		throw new Error(
-			'hanzi_bulk_add_lexicon export missing — stale WASM. Hard-reload (Cmd+Shift+R) or unregister the service worker in DevTools → Application.'
-		);
-	}
-	if (words.length === 0) return { added: 0, skipped: 0, failed: 0 };
-
-	wasm.hanzi_reset_alloc();
-
-	const enc = new TextEncoder();
-	const encoded = words.map((w) => enc.encode(w));
-	const total = 4 + encoded.reduce((sum, e) => sum + 4 + e.length, 0);
-	const buf = new Uint8Array(total);
-	const view = new DataView(buf.buffer);
-	view.setUint32(0, words.length, true);
-	let off = 4;
-	for (const e of encoded) {
-		view.setUint32(off, e.length, true);
-		off += 4;
-		buf.set(e, off);
-		off += e.length;
-	}
-
-	const ptr = writeBytes(buf);
-	const resultPtr = wasm.hanzi_bulk_add_lexicon(ptr, buf.length);
-	if (resultPtr === 0) {
-		throw new Error(getLastError('bulkAddLexicon failed'));
-	}
-	const json = readLengthPrefixedString(resultPtr);
-	const result = JSON.parse(json) as BulkAddResult;
-
-	// One OPFS save for the whole batch — the whole point of this path.
-	await opfsSave();
-	onMutateCb?.();
-	onDataChangedCb?.();
-
-	return result;
 }
 
 export function lookupCedict(query: string): CedictResult[] {

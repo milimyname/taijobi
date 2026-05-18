@@ -208,9 +208,7 @@
 	const pageTitle = $derived(
 		page.url.pathname === '/drill'
 			? 'Drill'
-			: page.url.pathname === '/lexicon/import'
-				? 'Kindle-Import'
-				: page.url.pathname === '/lexicon'
+			: page.url.pathname === '/lexicon'
 				? 'Lexikon'
 				: page.url.pathname === '/packs'
 					? 'Pakete'
