@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.7.0 (2026-05-19)
+
+- fix: align iOS sync URL with local wrangler dev (8788) + ATS exception
+- feat: iOS sync + smoother dict UX
+- fix: distinguish persistAlloc failure from magic mismatch on iOS
+- fix: stream iOS dict download with proper timeouts
+- refactor: remove Kindle clippings import end-to-end
+- fix: bump PERSIST_SIZE to 256MB so 141MB endict actually fits
+- feat: iOS dictionary + lexicon screens with on-demand dict install
+- style: restyle dict-update banner as flat strip matching UpdateBanner
+
 ## v0.6.33 (2026-05-19)
 
 - feat: banner prompting users to re-download stale EN/DE dictionaries
