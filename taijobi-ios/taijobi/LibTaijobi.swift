@@ -36,6 +36,42 @@ struct LexiconEntry: Codable, Identifiable, Hashable {
     let stability: Double
 }
 
+/// One CC-CEDICT hit. Returned by `hanzi_lookup`.
+struct CedictResult: Codable, Identifiable, Hashable {
+    let traditional: String
+    let simplified: String
+    let pinyin: String
+    let english: String
+
+    /// Synthesized — CEDICT doesn't carry a primary key.
+    var id: String { "\(simplified)|\(pinyin)" }
+}
+
+/// One Wiktionary sense (translation slot inside a POS group).
+struct DictSense: Codable, Hashable {
+    let tags: [String]
+    let gloss: String
+    let example: String
+    let synonyms: [String]
+    let antonyms: [String]
+    let hypernyms: [String]
+}
+
+/// One POS group within a Wiktionary entry (noun / verb / adj / …).
+struct DictPosGroup: Codable, Hashable {
+    let pos: String
+    let etymology: String
+    let senses: [DictSense]
+}
+
+/// One Wiktionary headword with all its POS groups.
+struct DictResult: Codable, Identifiable, Hashable {
+    let word: String
+    let groups: [DictPosGroup]
+
+    var id: String { word }
+}
+
 final class LibTaijobi {
     static let shared = LibTaijobi()
     private init() {}
@@ -129,6 +165,93 @@ final class LibTaijobi {
             return rc == 0
         }
     }
+
+    // MARK: - Dictionary lookup
+
+    /// CC-CEDICT lookup (Chinese ↔ English). Empty array if no CEDICT data is
+    /// loaded, or if no entry matches `query` (which can be hanzi, pinyin
+    /// without tone marks, or any English token).
+    func lookupCedict(_ query: String) -> [CedictResult] {
+        withAbi {
+            guard initialized, !query.isEmpty else { return [] }
+            let bytes = Data(query.utf8)
+            let payload: Data? = bytes.withUnsafeBytes { raw -> Data? in
+                guard let base = raw.baseAddress,
+                      let returned = hanzi_lookup(base, bytes.count)
+                else { return nil }
+                return Self.copyLengthPrefixed(returned)
+            }
+            hanzi_reset_alloc()
+            guard let data = payload else { return [] }
+            return (try? JSONDecoder().decode([CedictResult].self, from: data)) ?? []
+        }
+    }
+
+    /// Wiktionary lookup against whichever EN/DE dictionary is loaded.
+    /// Returns structured `DictResult` (POS groups, senses, etymology,
+    /// examples, syn/ant/hyp) — the same v3 shape the web client renders.
+    func lookupWord(_ query: String) -> [DictResult] {
+        withAbi {
+            guard initialized, !query.isEmpty else { return [] }
+            let bytes = Data(query.utf8)
+            let payload: Data? = bytes.withUnsafeBytes { raw -> Data? in
+                guard let base = raw.baseAddress,
+                      let returned = hanzi_lookup_word(base, bytes.count)
+                else { return nil }
+                return Self.copyLengthPrefixed(returned)
+            }
+            hanzi_reset_alloc()
+            guard let data = payload else { return [] }
+            return (try? JSONDecoder().decode([DictResult].self, from: data)) ?? []
+        }
+    }
+
+    // MARK: - Dictionary data loading
+    //
+    // libtaijobi keeps dictionary blobs in a separate "persistent" allocator
+    // arena — distinct from the FBA reset on every call — so the bytes
+    // survive across requests. To load a .bin file:
+    //   1. `hanzi_persist_alloc(byteCount)` returns a pointer into the arena
+    //   2. copy raw bytes into that pointer
+    //   3. call the per-dict loader, which stores the slice and reads the magic
+
+    enum DictKind {
+        case cedict
+        case decomp
+        case strokes
+        case endict
+        case dedict
+    }
+
+    /// Copies `bytes` into the persistent arena and hands the slice to the
+    /// matching Zig loader. Returns true if the loader accepted the magic.
+    @discardableResult
+    func loadDictionary(_ kind: DictKind, bytes: Data) -> Bool {
+        withAbi {
+            guard !bytes.isEmpty,
+                  let dst = hanzi_persist_alloc(bytes.count)
+            else { return false }
+            bytes.withUnsafeBytes { raw in
+                if let src = raw.baseAddress {
+                    memcpy(dst, src, bytes.count)
+                }
+            }
+            let typed = dst.assumingMemoryBound(to: UInt8.self)
+            let rc: Int32
+            switch kind {
+            case .cedict: rc = hanzi_load_cedict(typed, bytes.count)
+            case .decomp: rc = hanzi_load_decomp(typed, bytes.count)
+            case .strokes: rc = hanzi_load_strokes(typed, bytes.count)
+            case .endict: rc = hanzi_load_endict(typed, bytes.count)
+            case .dedict: rc = hanzi_load_dedict(typed, bytes.count)
+            }
+            return rc == 0
+        }
+    }
+
+    var isChineseDataLoaded: Bool { withAbi { hanzi_chinese_data_loaded() == 1 } }
+    var isEndictLoaded: Bool { withAbi { hanzi_endict_loaded() == 1 } }
+    var isDedictLoaded: Bool { withAbi { hanzi_dedict_loaded() == 1 } }
 
     // MARK: - Errors
 

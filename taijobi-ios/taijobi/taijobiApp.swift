@@ -25,6 +25,10 @@ struct TaijobiApp: App {
     init() {
         do {
             try LibTaijobi.shared.initialize()
+            // Reload whatever's already cached in the App Group container
+            // from a prior install, so lookup works immediately after launch
+            // without re-downloading.
+            DictionaryData.shared.loadCachedOnBoot()
         } catch {
             _initError = State(initialValue: "\(error)")
         }

@@ -61,12 +61,24 @@ int32_t     hanzi_mark_read(const void *id, size_t len);
 const void *hanzi_get_unread_cards(const void *filter, size_t filter_len, uint32_t limit);
 int32_t     hanzi_get_unread_count(const void *filter, size_t filter_len);
 
-/* Chinese data — on-demand loading */
+/* Dictionary data — on-demand loading */
 void   *hanzi_persist_alloc(size_t len);
+void    hanzi_persist_reset(void);
 int32_t hanzi_load_cedict(const void *ptr, size_t len);
 int32_t hanzi_load_decomp(const void *ptr, size_t len);
 int32_t hanzi_load_strokes(const void *ptr, size_t len);
+int32_t hanzi_load_endict(const void *ptr, size_t len);
+int32_t hanzi_load_dedict(const void *ptr, size_t len);
+int32_t hanzi_unload_chinese(void);
+int32_t hanzi_unload_endict(void);
+int32_t hanzi_unload_dedict(void);
 int32_t hanzi_chinese_data_loaded(void);
+int32_t hanzi_endict_loaded(void);
+int32_t hanzi_dedict_loaded(void);
+
+/* Wiktionary EN/DE lookup + card search */
+const void *hanzi_lookup_word(const void *query, size_t len);
+const void *hanzi_search_cards(const void *query, size_t len, uint32_t limit);
 
 /* WASM-only: OPFS persistence helpers */
 void   *hanzi_db_ptr(void);
