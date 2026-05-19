@@ -28,6 +28,10 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: W5N395VNYH
+        # iPhone-only (1). Universal (1,2) would require iPad-sized icons +
+        # all four orientations for iPad multitasking — both currently
+        # missing. Revisit if/when iPad support lands.
+        TARGETED_DEVICE_FAMILY: "1"
         # XCFramework currently only ships ios-arm64{,-simulator}. Restrict
         # x86_64 so Intel-Mac simulator builds don't fail link.
         "EXCLUDED_ARCHS[sdk=iphonesimulator*]": x86_64
@@ -51,6 +55,9 @@ targets:
         UILaunchScreen: {}
         ITSAppUsesNonExemptEncryption: false
         CFBundleDisplayName: taijobi
+        # Required by App Store validation when icons live in an asset
+        # catalog. Must match the .appiconset directory name.
+        CFBundleIconName: AppIcon
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         # App Transport Security: prod (sync.taijobi.com) is HTTPS so the
