@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.7.3 (2026-05-20)
+
+- fix: double-cast ECDH derive params through unknown for tsc
+
 ## v0.7.2 (2026-05-20)
 
 - fix: reserve scrollbar gutter to stop sidebar shift between routes
