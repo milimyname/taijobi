@@ -171,6 +171,8 @@ jobs:
         with:
           version: 0.15.2
 
+      - uses: oven-sh/setup-bun@v2
+
       - name: Download SQLite amalgamation
         working-directory: libtaijobi/vendor
         run: |
@@ -178,6 +180,11 @@ jobs:
           unzip -o sqlite.zip
           cp sqlite-amalgamation-3520000/sqlite3.c sqlite3.c
           cp sqlite-amalgamation-3520000/sqlite3.h sqlite3.h
+
+      - name: Build data binaries (CEDICT + decomposition + strokes)
+        # Native iOS .a uses @embedFile("cedict.bin") etc. — WASM build skips
+        # via is_wasm guard, but the iOS target compiles the embed in.
+        run: ./scripts/build-all-data.sh
 
       - name: Build iOS XCFramework
         run: ./scripts/build-ios.sh
