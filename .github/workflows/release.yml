@@ -18,48 +18,6 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  detect-changes:
-    # Decide whether the iOS pipeline needs to run for this tag.
-    # Tags that only touch web or sync code skip the native build so
-    # TestFlight isn't churned for no reason.
-    runs-on: ubuntu-latest
-    outputs:
-      libtaijobi: ${{ steps.filter.outputs.libtaijobi }}
-      web: ${{ steps.filter.outputs.web }}
-      scripts: ${{ steps.filter.outputs.scripts }}
-      sync: ${{ steps.filter.outputs.sync }}
-      ios: ${{ steps.filter.outputs.ios }}
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-          fetch-tags: true
-      - id: filter
-        run: |
-          CURRENT=${GITHUB_REF#refs/tags/}
-          PREV=$(git tag -l --sort=-v:refname | grep -v "^${CURRENT}$" | head -1)
-          if [ -z "$PREV" ]; then
-            echo "No previous tag — running all builds"
-            echo "libtaijobi=true" >> $GITHUB_OUTPUT
-            echo "web=true" >> $GITHUB_OUTPUT
-            echo "scripts=true" >> $GITHUB_OUTPUT
-            echo "sync=true" >> $GITHUB_OUTPUT
-            echo "ios=true" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          CHANGED=$(git diff --name-only "$PREV..HEAD" -- . ':(exclude)CHANGELOG.md' ':(exclude)taijobi-web/package.json')
-          echo "Changed files since $PREV:"
-          echo "$CHANGED"
-          echo "libtaijobi=$(echo "$CHANGED" | grep -q '^libtaijobi/' && echo true || echo false)" >> $GITHUB_OUTPUT
-          echo "web=$(echo "$CHANGED" | grep -q '^taijobi-web/' && echo true || echo false)" >> $GITHUB_OUTPUT
-          echo "scripts=$(echo "$CHANGED" | grep -q '^scripts/' && echo true || echo false)" >> $GITHUB_OUTPUT
-          echo "sync=$(echo "$CHANGED" | grep -q '^taijobi-sync/' && echo true || echo false)" >> $GITHUB_OUTPUT
-          if echo "$CHANGED" | grep -qE '^(libtaijobi/|taijobi-ios/|scripts/build-ios|scripts/gen-xcodeproj|\.github/workflows/release\.yml)'; then
-            echo "ios=true" >> $GITHUB_OUTPUT
-          else
-            echo "ios=false" >> $GITHUB_OUTPUT
-          fi
-
   check:
     runs-on: ubuntu-latest
     steps:
@@ -110,8 +68,7 @@ jobs:
         run: bun run check
 
   build-and-deploy-web:
-    needs: [check, detect-changes]
-    if: needs.detect-changes.outputs.web == 'true' || needs.detect-changes.outputs.libtaijobi == 'true' || needs.detect-changes.outputs.scripts == 'true'
+    needs: check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -161,8 +118,7 @@ jobs:
     # Zig 0.15.2's build runner can't link on macos-26 (missing
     # __availability_version_check in libSystem). Build the static .a on
     # macos-15 — the XCFramework is portable across SDK versions.
-    needs: [check, detect-changes]
-    if: needs.detect-changes.outputs.ios == 'true'
+    needs: check
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v6
@@ -200,11 +156,29 @@ jobs:
           path: libtaijobi/build-ios/libtaijobi.xcframework.zip
 
   build-ios:
-    needs: [detect-changes, build-libtaijobi-ios]
-    if: needs.detect-changes.outputs.ios == 'true'
+    needs: build-libtaijobi-ios
     runs-on: macos-26
     steps:
       - uses: actions/checkout@v6
+
+      - name: Verify App Store Connect secrets are set
+        # Fail fast with a clear message instead of letting xcodebuild
+        # crash with `-authenticationKeyID is required when specifying
+        # -authenticationKeyPath` when the secret is empty.
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_CONTENT: ${{ secrets.ASC_KEY_CONTENT }}
+        run: |
+          missing=()
+          [ -z "$ASC_KEY_ID" ] && missing+=("ASC_KEY_ID")
+          [ -z "$ASC_ISSUER_ID" ] && missing+=("ASC_ISSUER_ID")
+          [ -z "$ASC_KEY_CONTENT" ] && missing+=("ASC_KEY_CONTENT")
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "::error::Missing App Store Connect secrets: ${missing[*]}"
+            echo "Set them via: gh secret set ASC_KEY_ID / ASC_ISSUER_ID / ASC_KEY_CONTENT"
+            exit 1
+          fi
 
       - name: Install XcodeGen
         run: brew install xcodegen
@@ -276,11 +250,7 @@ jobs:
             -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8
 
   deploy-sync:
-    needs: [check, detect-changes]
-    # libtaijobi changes also require a sync redeploy because the MCP Worker
-    # bundles libtaijobi-mcp.wasm. The scripts check covers build-wasm.sh
-    # edits that change how the compact WASM is produced.
-    if: needs.detect-changes.outputs.sync == 'true' || needs.detect-changes.outputs.libtaijobi == 'true' || needs.detect-changes.outputs.scripts == 'true'
+    needs: check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -317,7 +287,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
   release:
-    needs: [check, detect-changes, build-and-deploy-web, build-libtaijobi-ios, build-ios, deploy-sync]
+    needs: [build-and-deploy-web, build-libtaijobi-ios, build-ios, deploy-sync]
     if: always() && !failure() && !cancelled()
     runs-on: ubuntu-latest
     steps:
@@ -333,7 +303,6 @@ jobs:
           path: artifacts/libtaijobi-wasm
 
       - name: Download iOS artifact
-        if: needs.detect-changes.outputs.ios == 'true'
         uses: actions/download-artifact@v8
         continue-on-error: true
         with:
