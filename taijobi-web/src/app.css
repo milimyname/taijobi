@@ -20,6 +20,13 @@ body {
 	background: #fefdfb;
 }
 
+/* Reserve the scrollbar gutter so navigating between short pages (no
+   scrollbar) and tall pages (scrollbar) doesn't shift the centered
+   max-w-[1080px] column — and with it the desktop sidebar — by ~15px. */
+html {
+	scrollbar-gutter: stable;
+}
+
 html.dark,
 html.dark body {
 	background: #131f18;
