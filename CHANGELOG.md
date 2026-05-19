@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.7.1 (2026-05-19)
+
+- Version bump
+
 ## v0.7.0 (2026-05-19)
 
 - fix: align iOS sync URL with local wrangler dev (8788) + ATS exception
