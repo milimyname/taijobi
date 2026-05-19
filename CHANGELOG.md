@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.7.2 (2026-05-20)
+
+- fix: reserve scrollbar gutter to stop sidebar shift between routes
+
 ## v0.7.1 (2026-05-19)
 
 - Version bump
