@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.7.4 (2026-05-20)
+
+- fix: ship 1024x1024 app icon + iPhone-only target for TestFlight
+
 ## v0.7.3 (2026-05-20)
 
 - fix: double-cast ECDH derive params through unknown for tsc
