@@ -1,0 +1,170 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+    tags-ignore:
+      - "v*"
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+# Cancel superseded runs for the same branch / PR. Saves runner minutes
+# when pushing several commits in quick succession.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      libtaijobi: ${{ steps.filter.outputs.libtaijobi }}
+      web: ${{ steps.filter.outputs.web }}
+      sync: ${{ steps.filter.outputs.sync }}
+      ios: ${{ steps.filter.outputs.ios }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          filters: |
+            libtaijobi:
+              - 'libtaijobi/**'
+              - 'scripts/build-all-data.sh'
+              - 'scripts/build-cedict.sh'
+              - 'scripts/build-decomp.sh'
+              - 'scripts/build-strokes.sh'
+              - 'scripts/build-endict.sh'
+              - 'scripts/build-dedict.sh'
+              - 'scripts/compile-*.ts'
+              - '.github/workflows/ci.yml'
+            web:
+              - 'libtaijobi/**'
+              - 'taijobi-web/**'
+              - 'scripts/build-wasm.sh'
+              - '.github/workflows/ci.yml'
+            sync:
+              - 'libtaijobi/**'
+              - 'taijobi-sync/**'
+              - 'scripts/build-wasm.sh'
+              - '.github/workflows/ci.yml'
+            ios:
+              - 'libtaijobi/**'
+              - 'taijobi-ios/**'
+              - 'scripts/build-ios.sh'
+              - 'scripts/gen-xcodeproj.sh'
+              - '.github/workflows/ci.yml'
+
+  zig:
+    needs: changes
+    if: needs.changes.outputs.libtaijobi == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: mlugg/setup-zig@v2
+        with:
+          version: 0.15.2
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Download SQLite amalgamation
+        working-directory: libtaijobi/vendor
+        run: |
+          curl -fsSL https://www.sqlite.org/2026/sqlite-amalgamation-3520000.zip -o sqlite.zip
+          unzip -o sqlite.zip
+          cp sqlite-amalgamation-3520000/sqlite3.c sqlite3.c
+          cp sqlite-amalgamation-3520000/sqlite3.h sqlite3.h
+
+      - name: Build data binaries (CEDICT + decomposition + strokes)
+        run: ./scripts/build-all-data.sh
+
+      - name: Zig fmt check
+        working-directory: libtaijobi
+        run: zig fmt --check src/
+
+      - name: Zig tests
+        working-directory: libtaijobi
+        run: zig build test
+
+  web:
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install web dependencies
+        working-directory: taijobi-web
+        run: bun install --frozen-lockfile
+
+      - name: oxfmt check
+        working-directory: taijobi-web
+        run: bunx oxfmt --check
+
+      - name: oxlint
+        working-directory: taijobi-web
+        run: bunx oxlint
+
+      - name: svelte-check
+        working-directory: taijobi-web
+        run: bun run check
+
+  sync:
+    needs: changes
+    if: needs.changes.outputs.sync == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install sync worker dependencies
+        working-directory: taijobi-sync
+        run: bun install --frozen-lockfile
+
+      - name: Type-check sync worker
+        working-directory: taijobi-sync
+        run: bun run typecheck
+
+  # iOS-side check — only builds the XCFramework slice so we catch Zig
+  # iOS-target compile breaks before tagging a release. SwiftUI app build
+  # is deferred to release.yml (needs ASC secrets + macos-26 runner) to
+  # keep PR feedback fast.
+  ios:
+    needs: changes
+    if: needs.changes.outputs.ios == 'true'
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: mlugg/setup-zig@v2
+        with:
+          version: 0.15.2
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Download SQLite amalgamation
+        working-directory: libtaijobi/vendor
+        run: |
+          curl -fsSL https://www.sqlite.org/2026/sqlite-amalgamation-3520000.zip -o sqlite.zip
+          unzip -o sqlite.zip
+          cp sqlite-amalgamation-3520000/sqlite3.c sqlite3.c
+          cp sqlite-amalgamation-3520000/sqlite3.h sqlite3.h
+
+      - name: Build data binaries
+        run: ./scripts/build-all-data.sh
+
+      - name: Build iOS XCFramework
+        run: ./scripts/build-ios.sh
