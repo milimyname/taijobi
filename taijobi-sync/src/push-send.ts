@@ -108,7 +108,7 @@ async function encryptPayload(
   ecdhParams["public"] = subscriberKey;
   const sharedSecret = new Uint8Array(
     await crypto.subtle.deriveBits(
-      ecdhParams as SubtleCryptoDeriveKeyAlgorithm,
+      ecdhParams as unknown as SubtleCryptoDeriveKeyAlgorithm,
       localKeyPair.privateKey,
       256,
     ),
