@@ -13,9 +13,11 @@ const builtin = @import("builtin");
 const types = @import("types.zig");
 const JsonWriter = types.JsonWriter;
 
-const is_wasm = builtin.cpu.arch == .wasm32;
-
-var data: []const u8 = if (is_wasm) &.{} else @embedFile("cedict.bin");
+// Embed only when running zig tests. Production iOS + WASM both load at
+// runtime via the load() export — keeps the iOS static lib ~18 MB leaner
+// and mirrors the PWA "install on demand" UX so a fresh install prompts
+// the user instead of silently shipping a dictionary they may not want.
+var data: []const u8 = if (builtin.is_test) @embedFile("cedict.bin") else &.{};
 
 pub fn load(ptr: [*]const u8, len: usize) void {
     data = ptr[0..len];

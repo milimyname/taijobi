@@ -15,9 +15,9 @@ const builtin = @import("builtin");
 const types = @import("types.zig");
 const JsonWriter = types.JsonWriter;
 
-const is_wasm = builtin.cpu.arch == .wasm32;
-
-var data: []const u8 = if (is_wasm) &.{} else @embedFile("decomp.bin");
+// See cedict.zig — embed only for zig tests so the iOS static lib stays
+// lean and matches the install-on-demand model the PWA already uses.
+var data: []const u8 = if (builtin.is_test) @embedFile("decomp.bin") else &.{};
 
 pub fn load(ptr: [*]const u8, len: usize) void {
     data = ptr[0..len];

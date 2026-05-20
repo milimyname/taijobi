@@ -137,12 +137,13 @@ jobs:
           cp sqlite-amalgamation-3520000/sqlite3.c sqlite3.c
           cp sqlite-amalgamation-3520000/sqlite3.h sqlite3.h
 
-      - name: Build data binaries (CEDICT + decomposition + strokes)
-        # Native iOS .a uses @embedFile("cedict.bin") etc. — WASM build skips
-        # via is_wasm guard, but the iOS target compiles the embed in.
-        run: ./scripts/build-all-data.sh
-
       - name: Build iOS XCFramework
+        # No data-binary build step here on purpose — the production iOS
+        # static lib loads dictionaries at runtime via hanzi_load_cedict /
+        # hanzi_load_decomp / hanzi_load_strokes, same as WASM. The
+        # @embedFile calls are gated by builtin.is_test so they only fire
+        # when zig build test runs in the check job, where the bins do
+        # get built. Mirrors the PWA install-on-demand UX.
         run: ./scripts/build-ios.sh
 
       - name: Zip XCFramework
