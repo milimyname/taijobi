@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.7.6 (2026-05-21)
+
+- style: convert HTML entities to real Unicode chars in Svelte sources
+- feat: ios share extension — capture text from any app into lexicon
+
 ## v0.7.5 (2026-05-20)
 
 - feat: drop embedded Chinese data on iOS, install on demand like PWA
