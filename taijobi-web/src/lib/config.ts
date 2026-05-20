@@ -39,6 +39,13 @@ export const LS_SQL_HISTORY = 'taijobi_sql_history';
 export const LS_DEVTOOLS = 'taijobi_devtools';
 export const LS_RECENT_CHARS = 'taijobi_recent_chars';
 export const LS_LAST_ROUTE = 'taijobi_last_route';
+// JSON-encoded array of dict kinds ('zh' | 'en' | 'de') the user has
+// successfully installed. The truthful source is OPFS + WASM loaded state,
+// but a write-on-success marker lets us notice when a kind that *should*
+// be installed isn't loaded — i.e. the download was interrupted and OPFS
+// lost the file in flight. Without this, an aborted update silently leaves
+// the user dictionary-less and the banner stays hidden.
+export const LS_INSTALLED_DICTS = 'taijobi_installed_dicts';
 // Set to '1' the first time the user explicitly backs up their sync key
 // (download or password-manager save). Drives the "back up your key!" nag
 // banner so it stops appearing once they've actually done it.

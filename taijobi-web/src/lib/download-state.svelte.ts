@@ -9,6 +9,7 @@
  */
 import { downloadAndLoad, downloadByKeys } from './dictionary-data';
 import { data } from './data.svelte';
+import { markDictInstalled } from './installed-dicts';
 import { toastStore } from './toast.svelte';
 
 export type DownloadKey = 'zh' | 'en' | 'de';
@@ -41,6 +42,7 @@ class DownloadStore {
 			};
 			if (which === 'zh') await downloadAndLoad(cb);
 			else await downloadByKeys([which === 'en' ? 'endict' : 'dedict'], cb);
+			markDictInstalled(which);
 			data.bump();
 			toastStore.show(`${label}-Wörterbuch geladen`);
 		} catch (e) {

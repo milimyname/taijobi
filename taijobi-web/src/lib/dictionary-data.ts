@@ -18,6 +18,12 @@ import {
 	isEndictLoaded,
 	isDedictLoaded
 } from './wasm';
+import {
+	type DictKind,
+	getInstalledDicts,
+	markDictInstalled,
+	markDictUninstalled
+} from './installed-dicts';
 
 type DataKey = 'cedict' | 'decomp' | 'strokes' | 'endict' | 'dedict';
 
@@ -80,9 +86,34 @@ export async function loadCachedData(): Promise<void> {
 				// File doesn't exist in cache
 			}
 		}
+
+		// One-time migration: legacy users who installed dicts before LS
+		// tracking existed don't have a marker yet. Stamp whatever just loaded
+		// successfully so detectMissingDictionaries can do its job on a future
+		// abort. New users get marked through download-state on every install.
+		if (isChineseDataLoaded()) markDictInstalled('zh');
+		if (isEndictLoaded()) markDictInstalled('en');
+		if (isDedictLoaded()) markDictInstalled('de');
 	} catch (e) {
 		console.warn('[taijobi] data: OPFS cache load failed:', e);
 	}
+}
+
+/**
+ * Returns dicts that LS says the user installed but aren't currently loaded
+ * into WASM. Fires when a previous update download was interrupted (e.g. iOS
+ * killing a backgrounded PWA mid-fetch) or if OPFS bytes went missing for
+ * any other reason. Complements detectStaleDictionaries — that one catches
+ * format bumps where the file is present but unreadable; this one catches
+ * the file-is-just-gone case the former misses.
+ */
+export function detectMissingDictionaries(): DictKind[] {
+	const loaded: Record<DictKind, boolean> = {
+		zh: isChineseDataLoaded(),
+		en: isEndictLoaded(),
+		de: isDedictLoaded()
+	};
+	return getInstalledDicts().filter((k) => !loaded[k]);
 }
 
 /** Download Chinese data files (cedict, decomp, strokes). */
@@ -355,6 +386,11 @@ export async function clearCache(): Promise<void> {
  * A subsequent reinstall hits a fresh arena and "just works".
  */
 export async function uninstallDictionary(kind: 'zh' | 'en' | 'de'): Promise<void> {
+	// Drop the LS marker first — if anything below fails partway, we still
+	// want detectMissingDictionaries to NOT flag this kind as missing, since
+	// the user explicitly asked for it gone.
+	markDictUninstalled(kind);
+
 	// 1. Delete the target dict's OPFS file(s) first so we don't accidentally
 	//    re-load the very thing we're trying to remove in step 3.
 	if (opfsAvailable()) {
@@ -429,7 +465,7 @@ export async function detectStaleDictionaries(): Promise<Array<'en' | 'de'>> {
  * Sequential `await downloadStore.start()` calls are fine — the store's
  * `active` flag makes them serialize even if invoked in parallel.
  */
-export async function refreshStaleDictionaries(stale: Array<'en' | 'de'>): Promise<void> {
+export async function refreshStaleDictionaries(stale: Array<DictKind>): Promise<void> {
 	if (stale.length === 0) return;
 
 	if (opfsAvailable()) {
@@ -437,11 +473,16 @@ export async function refreshStaleDictionaries(stale: Array<'en' | 'de'>): Promi
 			const root = await navigator.storage.getDirectory();
 			const dir = await root.getDirectoryHandle(OPFS_DIR);
 			for (const kind of stale) {
-				const file = kind === 'en' ? 'endict.bin' : 'dedict.bin';
-				try {
-					await dir.removeEntry(file);
-				} catch {
-					// Already gone — fine.
+				const files =
+					kind === 'zh'
+						? CHINESE_FILES.map((f) => `${f.key}.bin`)
+						: [kind === 'en' ? 'endict.bin' : 'dedict.bin'];
+				for (const file of files) {
+					try {
+						await dir.removeEntry(file);
+					} catch {
+						// Already gone — fine.
+					}
 				}
 			}
 		} catch {
