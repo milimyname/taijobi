@@ -57,3 +57,6 @@ taijobi-sync/node_modules
 
 # Docs output
 docs/taijobi-full.md
+
+# Claude Code worktrees — local-only scratch checkouts
+.claude/worktrees/
