@@ -53,7 +53,7 @@
 			onclick={() => history.back()}
 			class="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/5"
 		>
-			Zur&uuml;ck
+			Zurück
 		</button>
 		{#if status >= 500}
 			<button

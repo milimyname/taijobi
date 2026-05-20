@@ -86,13 +86,13 @@
 										onclick={() => toastStore.triggerUndo(toast.id)}
 										class="cursor-pointer text-sm font-bold text-accent transition-opacity hover:opacity-80"
 									>
-										R&uuml;ckg&auml;ngig
+										Rückgängig
 									</button>
 								{/if}
 								<button
 									onclick={() => toastStore.dismiss(toast.id)}
 									class="group relative flex size-7 cursor-pointer items-center justify-center"
-									aria-label="Schlie&szlig;en"
+									aria-label="Schließen"
 								>
 									{#key toast.id}
 										<svg class="absolute inset-0 size-7 -rotate-90" viewBox="0 0 22 22">

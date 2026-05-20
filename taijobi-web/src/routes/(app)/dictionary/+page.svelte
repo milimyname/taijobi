@@ -188,7 +188,7 @@
 		>
 			<SearchOff class="mx-auto mb-2 block text-[32px] text-slate-300 dark:text-slate-500" />
 			<p class="text-sm text-slate-500 dark:text-slate-400">
-				Keine Ergebnisse f&uuml;r &laquo;{query.trim()}&raquo;
+				Keine Ergebnisse für «{query.trim()}»
 			</p>
 		</div>
 	{:else if results.length > 0}
@@ -263,7 +263,7 @@
 	{:else}
 		<!-- Empty state — no search yet -->
 		{#if recentWords.length > 0}
-			<h3 class="px-1 text-[11px] font-bold uppercase tracking-wider text-primary">Deine W&ouml;rter</h3>
+			<h3 class="px-1 text-[11px] font-bold uppercase tracking-wider text-primary">Deine Wörter</h3>
 			<div class="flex flex-wrap gap-2">
 				{#each recentWords as entry (entry.id)}
 					<button
@@ -279,7 +279,7 @@
 			</div>
 		{/if}
 
-		<h3 class="px-1 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Vorschl&auml;ge</h3>
+		<h3 class="px-1 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Vorschläge</h3>
 		<div class="flex flex-wrap gap-2">
 			{#each defaultWords as word (word)}
 				<button
@@ -296,7 +296,7 @@
 		>
 			<Dictionary class="mx-auto mb-2 block text-[32px] text-primary/30" />
 			<p class="text-sm text-slate-500 dark:text-slate-400">
-				Durchsuche CC-CEDICT mit 124.000 Eintr&auml;gen.
+				Durchsuche CC-CEDICT mit 124.000 Einträgen.
 			</p>
 			<p class="mt-1 text-xs text-slate-400 dark:text-slate-500">
 				Suche nach Schriftzeichen, Pinyin oder Englisch.

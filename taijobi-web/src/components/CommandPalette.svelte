@@ -502,7 +502,7 @@
 							<button
 								onclick={() => (query = bookRest)}
 								class="-mr-1 rounded-full p-0.5 hover:bg-primary/20"
-								aria-label="Filter l&ouml;schen"
+								aria-label="Filter löschen"
 							>
 								<Close class="text-[12px]" />
 							</button>
@@ -512,7 +512,7 @@
 
 				{#if quickAddAvailable}
 					{@const idx = indexOfItem((it) => it.kind === 'quickadd')}
-					<p class="mb-1 mt-2 px-2 text-[11px] font-bold uppercase tracking-wider text-primary">Hinzuf&uuml;gen</p>
+					<p class="mb-1 mt-2 px-2 text-[11px] font-bold uppercase tracking-wider text-primary">Hinzufügen</p>
 					<button
 						data-idx={idx}
 						onclick={() => executeItem({ kind: 'quickadd', value: query.trim() })}
@@ -521,7 +521,7 @@
 					>
 						<Add class="text-primary" />
 						<span class="text-sm font-medium text-slate-900 dark:text-slate-100">
-							Zum Lexikon hinzuf&uuml;gen &laquo;{query.trim()}&raquo;
+							Zum Lexikon hinzufügen «{query.trim()}»
 						</span>
 					</button>
 				{/if}
@@ -565,7 +565,7 @@
 
 				{#if lastReviewed}
 					{@const idx = indexOfItem((it) => it.kind === 'last-reviewed')}
-					<p class="mb-1 mt-2 px-2 text-[11px] font-bold uppercase tracking-wider text-primary">Zuletzt ge&uuml;bt</p>
+					<p class="mb-1 mt-2 px-2 text-[11px] font-bold uppercase tracking-wider text-primary">Zuletzt geübt</p>
 					<button
 						data-idx={idx}
 						onclick={() => executeItem({ kind: 'last-reviewed', value: lastReviewed })}
@@ -582,7 +582,7 @@
 				{/if}
 
 				{#if recentChars.length > 0}
-					<p class="mb-1 mt-3 px-2 text-[11px] font-bold uppercase tracking-wider text-primary">K&uuml;rzlich</p>
+					<p class="mb-1 mt-3 px-2 text-[11px] font-bold uppercase tracking-wider text-primary">Kürzlich</p>
 					<div class="flex flex-wrap gap-1.5 px-2 py-1">
 						{#each recentChars as ch (ch)}
 							{@const idx = indexOfItem((it) => it.kind === 'recent-char' && it.value === ch)}
@@ -646,7 +646,7 @@
 								<span class="block w-full truncate text-xs text-slate-500 dark:text-slate-400">{c.translation}</span>
 							{/if}
 							{#if c.context && (bookMatch || c.context.toLowerCase().includes(searchQuery.toLowerCase()))}
-								<span class="block w-full truncate text-[11px] italic text-slate-400 dark:text-slate-500">&bdquo;{c.context}&ldquo;</span>
+								<span class="block w-full truncate text-[11px] italic text-slate-400 dark:text-slate-500">„{c.context}“</span>
 							{/if}
 						</button>
 					{/each}
@@ -671,7 +671,7 @@
 				{/if}
 
 				{#if dictResults.length > 0 || wiktResults.length > 0}
-					<p class="mb-1 mt-3 px-2 text-[11px] font-bold uppercase tracking-wider text-primary">W&ouml;rterbuch</p>
+					<p class="mb-1 mt-3 px-2 text-[11px] font-bold uppercase tracking-wider text-primary">Wörterbuch</p>
 					{#each dictResults as d, i (d.simplified + i)}
 						{@const idx = indexOfItem((it) => it.kind === 'dict' && it.value === d)}
 						<button
@@ -717,7 +717,7 @@
 						class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors {selectedIndex === idx ? 'border-l-[3px] border-primary bg-primary/10' : 'hover:bg-slate-50 dark:hover:bg-white/5'}"
 					>
 						<span class="text-2xl font-light text-slate-900 dark:text-slate-100">{query.trim()}</span>
-						<span class="text-sm text-slate-500 dark:text-slate-400">Zeichen-Detail &ouml;ffnen</span>
+						<span class="text-sm text-slate-500 dark:text-slate-400">Zeichen-Detail öffnen</span>
 					</button>
 				{/if}
 
@@ -727,9 +727,9 @@
 		</div>
 
 		<div {@attach footer} class="flex items-center justify-center gap-4 border-t border-slate-100 px-4 py-3 text-[11px] text-slate-400 dark:border-white/5 dark:text-slate-500">
-			<span><kbd class="rounded bg-slate-100 px-1.5 py-0.5 font-mono dark:bg-white/10">&uarr;&darr;</kbd> Navigation</span>
-			<span><kbd class="rounded bg-slate-100 px-1.5 py-0.5 font-mono dark:bg-white/10">&crarr;</kbd> Ausw&auml;hlen</span>
-			<span><kbd class="rounded bg-slate-100 px-1.5 py-0.5 font-mono dark:bg-white/10">Esc</kbd> Schlie&szlig;en</span>
+			<span><kbd class="rounded bg-slate-100 px-1.5 py-0.5 font-mono dark:bg-white/10">↑↓</kbd> Navigation</span>
+			<span><kbd class="rounded bg-slate-100 px-1.5 py-0.5 font-mono dark:bg-white/10">&crarr;</kbd> Auswählen</span>
+			<span><kbd class="rounded bg-slate-100 px-1.5 py-0.5 font-mono dark:bg-white/10">Esc</kbd> Schließen</span>
 		</div>
 	{/snippet}
 </Drawer>

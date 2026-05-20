@@ -71,11 +71,11 @@
 			<Translate class="text-5xl text-primary" />
 		</div>
 		<h1 class="mb-5 text-5xl font-black leading-tight tracking-tight text-slate-900 dark:text-slate-100">
-			Vokabeln lernen,<br />auf deinem Ger&auml;t.
+			Vokabeln lernen,<br />auf deinem Gerät.
 		</h1>
 		<p class="mx-auto max-w-xl text-lg font-medium leading-relaxed text-slate-500 dark:text-slate-400">
-			Chinesisch, Englisch, Deutsch &mdash; alles in einer App.
-			Spaced Repetition, W&ouml;rterb&uuml;cher, offline-first.
+			Chinesisch, Englisch, Deutsch — alles in einer App.
+			Spaced Repetition, Wörterbücher, offline-first.
 			Keine Cloud, kein Konto.
 		</p>
 	</section>
@@ -89,14 +89,14 @@
 			<h3 class="mb-2 text-lg font-extrabold text-slate-900 dark:text-slate-100">Spaced Repetition</h3>
 			<p class="text-sm leading-relaxed text-slate-500 dark:text-slate-400">
 				FSRS-5 Algorithmus passt Intervalle automatisch an.
-				Lerne effizient &mdash; wiederhole nur, was du vergisst.
+				Lerne effizient — wiederhole nur, was du vergisst.
 			</p>
 		</div>
 		<div class="rounded-3xl bg-white p-7 shadow-sm transition-shadow hover:shadow-md dark:bg-white/5 dark:shadow-none dark:ring-1 dark:ring-white/5">
 			<div class="mb-4 flex size-14 items-center justify-center rounded-2xl bg-primary/5 dark:bg-primary/10">
 				<Dictionary class="text-2xl text-primary" />
 			</div>
-			<h3 class="mb-2 text-lg font-extrabold text-slate-900 dark:text-slate-100">3 W&ouml;rterb&uuml;cher</h3>
+			<h3 class="mb-2 text-lg font-extrabold text-slate-900 dark:text-slate-100">3 Wörterbücher</h3>
 			<p class="text-sm leading-relaxed text-slate-500 dark:text-slate-400">
 				CC-CEDICT (124k Chinesisch), Wiktionary Englisch (166k)
 				und Deutsch. Nachschlagen und sofort lernen.
@@ -108,7 +108,7 @@
 			</div>
 			<h3 class="mb-2 text-lg font-extrabold text-slate-900 dark:text-slate-100">Offline-first</h3>
 			<p class="text-sm leading-relaxed text-slate-500 dark:text-slate-400">
-				Alles l&auml;uft lokal. SQLite im Browser, OPFS-Speicher.
+				Alles läuft lokal. SQLite im Browser, OPFS-Speicher.
 				Funktioniert ohne Internet. Sync optional.
 			</p>
 		</div>
@@ -125,11 +125,11 @@
 			</div>
 			<h3 class="mb-2 text-lg font-extrabold text-slate-900 dark:text-slate-100">Pakete-Marktplatz</h3>
 			<p class="text-sm leading-relaxed text-slate-500 dark:text-slate-400">
-				HSK 1-6, L&oacute;ng neu, Community-Decks und W&ouml;rterb&uuml;cher.
+				HSK 1-6, Lóng neu, Community-Decks und Wörterbücher.
 				Importiere auch Anki/Quizlet CSVs.
 			</p>
 			<p class="mt-3 text-sm font-medium text-primary transition-transform group-hover:translate-x-1 dark:text-accent">
-				Pakete durchsuchen &rarr;
+				Pakete durchsuchen →
 			</p>
 		</a>
 		<div class="rounded-3xl bg-white p-7 shadow-sm transition-shadow hover:shadow-md dark:bg-white/5 dark:shadow-none dark:ring-1 dark:ring-white/5">
@@ -169,7 +169,7 @@
 					<path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
 				</svg>
 			</div>
-			<h3 class="mb-2 text-lg font-extrabold text-slate-900 dark:text-slate-100">iOS &ndash; TestFlight</h3>
+			<h3 class="mb-2 text-lg font-extrabold text-slate-900 dark:text-slate-100">iOS – TestFlight</h3>
 			<p class="mx-auto mb-5 max-w-sm text-sm leading-relaxed text-slate-500 dark:text-slate-400">
 				Native SwiftUI-App, gleicher Zig-Kern wie die Web-Version.
 				Teste die Beta direkt auf deinem iPhone.
@@ -192,9 +192,9 @@
 <!-- Footer -->
 <footer class="border-t border-slate-100 px-6 py-8 text-center text-xs font-medium text-slate-400 dark:border-white/5 dark:text-slate-500">
 	<p>
-		&copy; {new Date().getFullYear()} Taijobi &middot;
+		© {new Date().getFullYear()} Taijobi ·
 		<a href="/changelog" class="font-bold hover:underline">Was ist neu?</a>
-		&middot;
+		·
 		<a href="https://github.com/milimyname/taijobi" class="font-bold hover:underline" target="_blank" rel="noopener noreferrer">
 			GitHub
 		</a>

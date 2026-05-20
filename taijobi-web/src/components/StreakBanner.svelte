@@ -22,11 +22,11 @@
 			</p>
 			<p class="text-xs text-slate-600 dark:text-slate-400">
 				{#if state.dueCount > 0 && state.unreadCount > 0}
-					{state.dueCount} f&auml;llige &middot; {state.unreadCount} neue W&ouml;rter warten
+					{state.dueCount} fällige · {state.unreadCount} neue Wörter warten
 				{:else if state.dueCount > 0}
-					{state.dueCount} Karten f&auml;llig &mdash; jetzt &uuml;ben
+					{state.dueCount} Karten fällig — jetzt üben
 				{:else}
-					{state.unreadCount} neue W&ouml;rter zum Lesen
+					{state.unreadCount} neue Wörter zum Lesen
 				{/if}
 			</p>
 		</div>
@@ -34,7 +34,7 @@
 			href="/drill"
 			class="shrink-0 rounded-lg bg-primary px-3 py-1.5 text-xs font-bold text-white shadow-sm transition-colors hover:bg-primary/90"
 		>
-			&Uuml;ben
+			Üben
 		</a>
 		<button
 			type="button"

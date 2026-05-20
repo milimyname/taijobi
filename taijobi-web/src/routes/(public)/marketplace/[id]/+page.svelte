@@ -144,7 +144,7 @@
 				{entry.name}
 			</h1>
 			<p class="mb-4 text-base font-medium text-primary dark:text-accent">
-				{languagePairLabel(entry.language_pair)} &bull; {sizeLabel()}
+				{languagePairLabel(entry.language_pair)} • {sizeLabel()}
 			</p>
 			{#if entry.description}
 				<p class="mb-4 max-w-2xl text-base leading-relaxed text-slate-600 dark:text-slate-300">
@@ -210,7 +210,7 @@
 							</th>
 						{/if}
 						<th class="px-4 py-3 text-xs font-bold uppercase tracking-wider text-primary dark:text-accent">
-							&Uuml;bersetzung
+							Übersetzung
 						</th>
 					</tr>
 				</thead>
@@ -234,7 +234,7 @@
 			</table>
 		</div>
 		<p class="mt-2 text-center text-xs text-slate-400 dark:text-slate-500">
-			Auszug aus {totalVocab.toLocaleString('de-DE')} Vokabeln &mdash; nach Installation komplett verf&uuml;gbar
+			Auszug aus {totalVocab.toLocaleString('de-DE')} Vokabeln — nach Installation komplett verfügbar
 		</p>
 	</section>
 {/if}
@@ -255,7 +255,7 @@
 						</span>
 					</div>
 					<span class="shrink-0 text-xs text-slate-400 dark:text-slate-500">
-						{lesson.vocabulary?.length ?? 0} W&ouml;rter
+						{lesson.vocabulary?.length ?? 0} Wörter
 					</span>
 				</div>
 			{/each}
@@ -266,18 +266,18 @@
 <!-- Dictionary detail block (no sample vocab) -->
 {#if entry.kind === 'dictionary'}
 	<section class="mt-10 rounded-2xl border border-slate-100 bg-white p-6 dark:border-white/5 dark:bg-white/5">
-		<h2 class="mb-3 text-lg font-bold text-slate-900 dark:text-slate-100">&Uuml;ber dieses W&ouml;rterbuch</h2>
+		<h2 class="mb-3 text-lg font-bold text-slate-900 dark:text-slate-100">Über dieses Wörterbuch</h2>
 		<p class="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
 			{#if entry.id === 'dict-zh'}
-				CC-CEDICT (124.000 Eintr&auml;ge), Strichfolge-Animationen aus &laquo;Make Me a Hanzi&raquo;
+				CC-CEDICT (124.000 Einträge), Strichfolge-Animationen aus «Make Me a Hanzi»
 				und Zeichenzerlegung. Wird beim ersten Start in den Browser-Speicher (OPFS) geladen
-				und l&auml;uft danach komplett offline.
+				und läuft danach komplett offline.
 			{:else if entry.id === 'dict-en'}
-				Wiktionary-Definitionen f&uuml;r Englisch, kompiliert aus Wiktextract
-				(166.000 Eintr&auml;ge). Wird einmalig heruntergeladen und l&auml;uft offline.
+				Wiktionary-Definitionen für Englisch, kompiliert aus Wiktextract
+				(166.000 Einträge). Wird einmalig heruntergeladen und läuft offline.
 			{:else if entry.id === 'dict-de'}
-				Wiktionary-Definitionen f&uuml;r Deutsch, kompiliert aus Wiktextract.
-				Wird einmalig heruntergeladen und l&auml;uft offline.
+				Wiktionary-Definitionen für Deutsch, kompiliert aus Wiktextract.
+				Wird einmalig heruntergeladen und läuft offline.
 			{:else}
 				Offline-fähiges Wörterbuch für Taijobi.
 			{/if}
@@ -305,7 +305,7 @@
 						</a>
 						{#if source.license}
 							<span class="ml-2 text-xs text-slate-400 dark:text-slate-500">
-								&middot; {source.license}
+								· {source.license}
 							</span>
 						{/if}
 						<p class="truncate text-xs text-slate-400 dark:text-slate-500">{source.url}</p>
@@ -314,7 +314,7 @@
 			{/each}
 		</ul>
 		<p class="mt-2 text-xs text-slate-400 dark:text-slate-500">
-			Inhalte stammen von Drittanbietern und sind unter der jeweiligen Lizenz verf&uuml;gbar.
+			Inhalte stammen von Drittanbietern und sind unter der jeweiligen Lizenz verfügbar.
 		</p>
 	</section>
 {/if}
@@ -325,8 +325,8 @@
 		Bereit zum Lernen?
 	</h2>
 	<p class="mx-auto mb-4 max-w-xl text-sm text-slate-500 dark:text-slate-400">
-		&Ouml;ffne Taijobi und installiere &laquo;{entry.name}&raquo; mit einem Klick.
-		Alles l&auml;uft lokal, kein Konto n&ouml;tig.
+		Öffne Taijobi und installiere «{entry.name}» mit einem Klick.
+		Alles läuft lokal, kein Konto nötig.
 	</p>
 	<a
 		href="/packs?install={entry.id}"

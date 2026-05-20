@@ -24,16 +24,16 @@
 	const SORT_OPTIONS: { value: SortKey; label: string }[] = [
 		{ value: 'featured', label: 'Empfohlen' },
 		{ value: 'newest', label: 'Neueste zuerst' },
-		{ value: 'oldest', label: '&Auml;lteste zuerst' },
-		{ value: 'alpha', label: 'A&ndash;Z' },
-		{ value: 'alpha-desc', label: 'Z&ndash;A' },
-		{ value: 'largest', label: 'Gr&ouml;&szlig;te zuerst' }
+		{ value: 'oldest', label: 'Älteste zuerst' },
+		{ value: 'alpha', label: 'A–Z' },
+		{ value: 'alpha-desc', label: 'Z–A' },
+		{ value: 'largest', label: 'Größte zuerst' }
 	];
 
 	const FILTERS: { value: 'all' | CatalogKind | 'community'; label: string }[] = [
 		{ value: 'all', label: 'Alle' },
-		{ value: 'dictionary', label: 'W&ouml;rterb&uuml;cher' },
-		{ value: 'content', label: 'Lehrb&uuml;cher' },
+		{ value: 'dictionary', label: 'Wörterbücher' },
+		{ value: 'content', label: 'Lehrbücher' },
 		{ value: 'community', label: 'Community' }
 	];
 
@@ -99,13 +99,13 @@
 </script>
 
 <svelte:head>
-	<title>Pakete-Marktplatz &mdash; Taijobi</title>
+	<title>Pakete-Marktplatz — Taijobi</title>
 	<meta
 		name="description"
 		content="Durchsuche Vokabel-Pakete und Wörterbücher für Taijobi. HSK-Stufen, Lóng neu, Community-Decks und CC-CEDICT/Wiktionary-Wörterbücher — alle offline lauffähig."
 	/>
 	<meta property="og:type" content="website" />
-	<meta property="og:title" content="Pakete-Marktplatz &mdash; Taijobi" />
+	<meta property="og:title" content="Pakete-Marktplatz — Taijobi" />
 	<meta
 		property="og:description"
 		content="Vokabel-Pakete und Wörterbücher für Taijobi. HSK, Lóng neu, Community-Decks. Offline-first, kein Konto nötig."
@@ -113,7 +113,7 @@
 	<meta property="og:image" content="/og/default.png" />
 	<meta property="og:url" content="https://taijobi.com/marketplace" />
 	<meta name="twitter:card" content="summary_large_image" />
-	<meta name="twitter:title" content="Pakete-Marktplatz &mdash; Taijobi" />
+	<meta name="twitter:title" content="Pakete-Marktplatz — Taijobi" />
 	<meta
 		name="twitter:description"
 		content="Vokabel-Pakete und Wörterbücher für Taijobi. Offline-first, kein Konto nötig."
@@ -131,8 +131,8 @@
 		Pakete-Marktplatz
 	</h1>
 	<p class="mx-auto max-w-2xl text-base leading-relaxed text-slate-500 dark:text-slate-400 md:text-lg">
-		Durchsuche kuratierte Vokabel-Pakete und W&ouml;rterb&uuml;cher.
-		Alle laufen lokal in deinem Browser &mdash; offline-first, ohne Konto.
+		Durchsuche kuratierte Vokabel-Pakete und Wörterbücher.
+		Alle laufen lokal in deinem Browser — offline-first, ohne Konto.
 	</p>
 </section>
 

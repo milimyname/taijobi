@@ -191,7 +191,7 @@
 				{/if}
 				{#if focusedCard.context}
 					<p class="mt-2 truncate text-xs italic text-slate-500 dark:text-slate-400">
-						&bdquo;{focusedCard.context}&ldquo;
+						„{focusedCard.context}“
 					</p>
 				{/if}
 				<p class="mt-2 text-xs text-slate-400 dark:text-slate-500">
@@ -236,7 +236,7 @@
 					<div>
 						<p class="font-bold text-slate-900 dark:text-slate-100">{lesson.title ?? `Lektion ${lesson.sort_order}`}</p>
 						<p class="text-xs text-slate-500 dark:text-slate-400">
-							{lesson.mastered}/{lesson.total} gemeistert &bull; {progressPercent(lesson.mastered, lesson.total)}%
+							{lesson.mastered}/{lesson.total} gemeistert • {progressPercent(lesson.mastered, lesson.total)}%
 						</p>
 					</div>
 				</div>
@@ -365,6 +365,6 @@
 {#if lessons.length === 0}
 	<div class="mt-8 rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-white/5">
 		<p class="text-sm text-slate-500 dark:text-slate-400">Keine Lektionen gefunden.</p>
-		<a href="/packs" class="mt-2 text-sm font-medium text-primary">Zur&uuml;ck zu Paketen</a>
+		<a href="/packs" class="mt-2 text-sm font-medium text-primary">Zurück zu Paketen</a>
 	</div>
 {/if}

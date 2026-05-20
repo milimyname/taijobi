@@ -471,7 +471,7 @@
 	<!-- Read new words -->
 	{#if readSources.length > 0}
 		<section class="mt-6">
-			<h3 class="mb-2 text-[11px] font-bold uppercase tracking-wider text-primary">Neue W&ouml;rter durchlesen</h3>
+			<h3 class="mb-2 text-[11px] font-bold uppercase tracking-wider text-primary">Neue Wörter durchlesen</h3>
 			<div class="space-y-3">
 				{#each readSources as source (source.id)}
 					<button
@@ -493,7 +493,7 @@
 
 	<!-- Source picker -->
 	<section class="mt-6">
-		<h3 class="mb-2 text-[11px] font-bold uppercase tracking-wider text-primary">F&auml;llige Karten</h3>
+		<h3 class="mb-2 text-[11px] font-bold uppercase tracking-wider text-primary">Fällige Karten</h3>
 		<div class="space-y-3">
 			{#each sources as source (source.id)}
 				<button
@@ -513,7 +513,7 @@
 		{#if sources.length === 0 && readSources.length === 0}
 			<div class="rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-white/5">
 				<p class="text-2xl font-bold text-slate-900 dark:text-slate-100">Alles erledigt!</p>
-				<p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Keine Karten f&auml;llig.</p>
+				<p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Keine Karten fällig.</p>
 			</div>
 		{/if}
 	</section>
@@ -603,10 +603,10 @@
 			onclick={nextReadCard}
 			class="h-14 w-full max-w-md rounded-xl bg-primary text-lg font-bold text-white transition-all hover:opacity-90 active:scale-[0.98]"
 		>
-			{readIndex >= readCards.length - 1 ? 'Fertig' : 'Weiter'} &rarr;
+			{readIndex >= readCards.length - 1 ? 'Fertig' : 'Weiter'} →
 		</button>
 		<p class="mt-3 hidden text-center text-[10px] font-medium uppercase tracking-wider text-slate-400 sm:block">
-			Enter oder &rarr;
+			Enter oder →
 		</p>
 	</div>
 {:else if phase === 'complete'}
@@ -617,13 +617,13 @@
 			<CheckCircle class="text-[32px]" />
 		</div>
 		{#if readingDone}
-			<p class="mt-4 text-2xl font-bold text-slate-900 dark:text-slate-100">{readCount} neue W&ouml;rter gelesen</p>
+			<p class="mt-4 text-2xl font-bold text-slate-900 dark:text-slate-100">{readCount} neue Wörter gelesen</p>
 			{#if remainingUnread > 0}
 				<p class="mt-1 text-sm font-medium text-primary">
-					Noch {remainingUnread} neue W&ouml;rter
+					Noch {remainingUnread} neue Wörter
 				</p>
 			{:else}
-				<p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Bereit zum &Uuml;ben!</p>
+				<p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Bereit zum Üben!</p>
 			{/if}
 			<div class="mt-8 flex gap-3">
 				{#if remainingUnread > 0}
@@ -631,20 +631,20 @@
 						onclick={() => { readingDone = false; startReading(activeFilter, filterLabel); }}
 						class="rounded-lg bg-primary px-8 py-3 font-semibold text-white shadow-md shadow-primary/20 transition-all hover:bg-primary/90"
 					>
-						Weiter lesen &rarr;
+						Weiter lesen →
 					</button>
 				{/if}
 				<button
 					onclick={() => { readingDone = false; startDrill(activeFilter, filterLabel); }}
 					class="rounded-lg {remainingUnread > 0 ? 'border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5' : 'bg-primary text-white shadow-md shadow-primary/20 hover:bg-primary/90'} px-8 py-3 font-semibold transition-all"
 				>
-					Jetzt &uuml;ben
+					Jetzt üben
 				</button>
 				<button
 					onclick={() => { readingDone = false; clearSession(); buildSources(); phase = 'picking'; }}
 					class="rounded-lg border border-slate-200 dark:border-white/10 px-8 py-3 font-semibold text-slate-600 dark:text-slate-300 transition-all hover:bg-slate-50 dark:hover:bg-white/5"
 				>
-					Zur&uuml;ck
+					Zurück
 				</button>
 			</div>
 		{:else}
@@ -652,11 +652,11 @@
 			<p class="mt-2 text-sm text-slate-500 dark:text-slate-400">{reviewed} Karten gelernt</p>
 			{#if remainingDue > 0}
 				<p class="mt-1 text-sm font-medium text-primary">
-					Noch {remainingDue} Karten f&auml;llig
+					Noch {remainingDue} Karten fällig
 				</p>
 			{:else if upcomingCount > 0}
 				<p class="mt-1 text-sm font-medium text-slate-500 dark:text-slate-400">
-					Karten f&uuml;r morgen verf&uuml;gbar
+					Karten für morgen verfügbar
 				</p>
 			{/if}
 			<div class="mt-8 flex flex-wrap justify-center gap-3">
@@ -665,7 +665,7 @@
 						onclick={() => startDrill(activeFilter, filterLabel)}
 						class="rounded-lg bg-primary px-8 py-3 font-semibold text-white shadow-md shadow-primary/20 transition-all hover:bg-primary/90"
 					>
-						Weiter &rarr;
+						Weiter →
 					</button>
 				{:else if upcomingCount > 0}
 					<button
@@ -688,7 +688,7 @@
 					href="/home"
 					class="rounded-lg border border-slate-200 dark:border-white/10 px-8 py-3 font-semibold text-slate-600 dark:text-slate-300 transition-all hover:bg-slate-50 dark:hover:bg-white/5"
 				>
-					Zur&uuml;ck
+					Zurück
 				</a>
 			</div>
 		{/if}
@@ -800,7 +800,7 @@
 						onclick={reveal}
 						class="h-14 w-full rounded-xl bg-primary text-lg font-bold text-white transition-all hover:opacity-90 active:scale-[0.98]"
 					>
-						Pr&uuml;fen
+						Prüfen
 					</button>
 				{/if}
 			{:else}
@@ -861,9 +861,9 @@
 						>
 							Deine Antwort: <span class="font-medium">{input}</span>
 							{#if answerCorrect === true}
-								&mdash; Richtig!
+								— Richtig!
 							{:else if answerCorrect === false}
-								&mdash; Falsch
+								— Falsch
 							{/if}
 						</p>
 					{/if}
@@ -893,12 +893,12 @@
 						onclick={dismissPeek}
 						class="mt-6 h-14 w-full rounded-xl bg-primary text-lg font-bold text-white transition-all hover:opacity-90 active:scale-[0.98]"
 					>
-						Weiter &rarr;
+						Weiter →
 					</button>
 					<p
 						class="mt-3 hidden text-center text-[10px] font-medium uppercase tracking-wider text-slate-400 sm:block"
 					>
-						Enter oder &rarr;
+						Enter oder →
 					</p>
 				{:else}
 					<!-- Rating buttons -->

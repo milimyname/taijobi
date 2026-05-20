@@ -337,12 +337,12 @@
 					Pakete entdecken
 				</p>
 				<p class="text-xs text-slate-500 dark:text-slate-400">
-					HSK, L&oacute;ng neu, Community-Decks und W&ouml;rterb&uuml;cher
+					HSK, Lóng neu, Community-Decks und Wörterbücher
 				</p>
 			</div>
 		</div>
 		<span class="hidden text-sm font-medium text-primary transition-transform group-hover:translate-x-1 dark:text-accent sm:inline">
-			Marktplatz &rarr;
+			Marktplatz →
 		</span>
 	</a>
 </section>
@@ -385,9 +385,9 @@
 										{#if entry.kind === 'dictionary'}
 											{entry.description}
 										{:else if pack}
-											{pack.language_pair} &bull; {pack.word_count} W&ouml;rter
+											{pack.language_pair} • {pack.word_count} Wörter
 										{:else}
-											{entry.language_pair} &bull; {entry.word_count ?? 0} W&ouml;rter
+											{entry.language_pair} • {entry.word_count ?? 0} Wörter
 										{/if}
 									</p>
 								</div>
@@ -395,7 +395,7 @@
 							{#if entry.kind === 'content'}
 								<div class="flex flex-wrap items-center justify-between gap-x-2 gap-y-2">
 									<a href="/lessons/{entry.id}" class="text-sm font-medium text-primary">
-										Lektionen anzeigen &rarr;
+										Lektionen anzeigen →
 									</a>
 									<div class="flex items-center gap-1">
 										{#if entry.tag === 'personal'}
@@ -455,14 +455,14 @@
 					</div>
 					<div class="min-w-0 flex-1">
 						<p class="text-sm font-bold text-slate-900 dark:text-slate-100">
-							{activeEntry.name} wird heruntergeladen&hellip;
+							{activeEntry.name} wird heruntergeladen…
 						</p>
 						<p class="text-xs text-slate-500 dark:text-slate-400">
 							{#if downloadStore.total > 0}
-								{Math.round((downloadStore.progress / downloadStore.total) * 100)}% &mdash;
-								Du kannst die Seite verlassen, der Download l&auml;uft weiter.
+								{Math.round((downloadStore.progress / downloadStore.total) * 100)}% —
+								Du kannst die Seite verlassen, der Download läuft weiter.
 							{:else}
-								Herunterladen&hellip;
+								Herunterladen…
 							{/if}
 						</p>
 					</div>
@@ -500,7 +500,7 @@
 			href="/marketplace"
 			class="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary dark:text-accent"
 		>
-			Pakete im Marktplatz entdecken &rarr;
+			Pakete im Marktplatz entdecken →
 		</a>
 	</div>
 {/if}
@@ -547,7 +547,7 @@
 		</p>
 		<label class="mt-3 inline-flex cursor-pointer items-center gap-1 rounded-lg bg-primary/10 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/20">
 			<FolderOpen class="text-sm" />
-			Datei ausw&auml;hlen
+			Datei auswählen
 			<input type="file" accept=".csv,.tsv,.txt,.apkg" class="hidden" onchange={handleFileInput} />
 		</label>
 	</div>

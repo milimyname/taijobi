@@ -70,13 +70,13 @@
 						</h3>
 						<p class="truncate text-xs text-slate-500 dark:text-slate-400">
 							{#if source.due > 0 && source.unread > 0}
-								{source.due} f&auml;llig &middot; {source.unread} neu
+								{source.due} fällig · {source.unread} neu
 							{:else if source.due > 0}
-								{source.due} Karten f&auml;llig
+								{source.due} Karten fällig
 							{:else}
-								{source.unread} neue W&ouml;rter
+								{source.unread} neue Wörter
 							{/if}
-							&middot; ~{Math.max(1, Math.round((source.due + source.unread) * 0.5))} Min.
+							· ~{Math.max(1, Math.round((source.due + source.unread) * 0.5))} Min.
 						</p>
 					</div>
 					<PlayArrow class="shrink-0 text-primary" />
@@ -89,7 +89,7 @@
 				class="mt-3 flex items-center justify-center gap-2 rounded-xl bg-primary p-4 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-colors hover:bg-primary/90"
 			>
 				<Shuffle class="text-lg" />
-				Alles gemischt &middot; {dueCount} Karten
+				Alles gemischt · {dueCount} Karten
 			</a>
 		{/if}
 	</section>
@@ -97,7 +97,7 @@
 	<section class="mb-8">
 		<div class="rounded-xl border border-primary/10 bg-white dark:bg-white/5 p-8 text-center shadow-sm">
 			<p class="text-2xl font-bold text-slate-900 dark:text-slate-100">Alles erledigt!</p>
-			<p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Keine Karten f&auml;llig. Komm sp&auml;ter wieder.</p>
+			<p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Keine Karten fällig. Komm später wieder.</p>
 		</div>
 	</section>
 {/if}
@@ -126,7 +126,7 @@
 				{/each}
 			</div>
 			<p class="text-sm text-slate-500 dark:text-slate-400">
-				{stats.reviewed_today} gelernt &middot; {accuracy(stats)}
+				{stats.reviewed_today} gelernt · {accuracy(stats)}
 			</p>
 		</div>
 	</div>
@@ -136,7 +136,7 @@
 			<div class="mb-4 flex items-center justify-between">
 				<h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Lexikon</h3>
 				<a href="/lexicon" class="text-xs font-bold uppercase tracking-wider text-primary hover:underline">
-					&Ouml;ffnen
+					Öffnen
 				</a>
 			</div>
 			<a
@@ -146,7 +146,7 @@
 				<div class="flex items-center gap-3">
 					<Book class="text-primary" />
 					<p class="text-sm text-slate-500 dark:text-slate-400">
-						{stats.lexicon_count} W&ouml;rter gesammelt
+						{stats.lexicon_count} Wörter gesammelt
 					</p>
 				</div>
 				<ChevronRight class="text-slate-400 dark:text-slate-500" />
@@ -158,7 +158,7 @@
 <!-- Recent Words -->
 {#if previewCards.length > 0}
 	<section class="mb-8">
-		<h3 class="mb-4 text-lg font-bold text-slate-900 dark:text-slate-100">Zuletzt gelernte W&ouml;rter</h3>
+		<h3 class="mb-4 text-lg font-bold text-slate-900 dark:text-slate-100">Zuletzt gelernte Wörter</h3>
 		<div class="flex flex-wrap gap-2">
 			{#each previewCards.slice(0, 5) as card (card.id)}
 				<div

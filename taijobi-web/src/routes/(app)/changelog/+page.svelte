@@ -56,10 +56,10 @@
 		<div class="flex items-center justify-between">
 			<h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">Was ist neu?</h1>
 			<a href="/home" class="text-sm font-bold text-slate-500 dark:text-slate-400 transition-colors hover:text-slate-900 dark:text-slate-100 dark:hover:text-slate-100">
-				Zur App &rarr;
+				Zur App →
 			</a>
 		</div>
-		<p class="text-lg text-slate-500 dark:text-slate-400">Die neuesten Updates f&uuml;r Taijobi</p>
+		<p class="text-lg text-slate-500 dark:text-slate-400">Die neuesten Updates für Taijobi</p>
 	</header>
 
 	{#if changelogStore.loading && changelogStore.releases.length === 0}

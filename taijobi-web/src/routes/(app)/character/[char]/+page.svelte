@@ -95,7 +95,7 @@
 	<!-- Breadcrumb -->
 	<div class="mb-4 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
 		<a href="/home" class="hover:text-primary">Lernen</a>
-		<span>&rsaquo;</span>
+		<span>›</span>
 		<span class="font-medium text-slate-900 dark:text-slate-100">{char}</span>
 	</div>
 

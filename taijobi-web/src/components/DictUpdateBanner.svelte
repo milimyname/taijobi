@@ -50,11 +50,11 @@
 		>
 			<Sync class="text-[16px] {dictUpdateStore.busy ? 'animate-spin' : ''}" />
 			{#if dictUpdateStore.busy}
-				W&ouml;rterbuch wird aktualisiert&hellip; {progressPct}%
+				Wörterbuch wird aktualisiert… {progressPct}%
 			{:else if dictUpdateStore.error}
-				Fehler &mdash; antippen zum Erneut versuchen
+				Fehler — antippen zum Erneut versuchen
 			{:else}
-				W&ouml;rterbuch neu laden ({langLabel}, ~{totalMb} MB) &mdash; antippen f&uuml;r Details
+				Wörterbuch neu laden ({langLabel}, ~{totalMb} MB) — antippen für Details
 			{/if}
 		</button>
 		{#if !dictUpdateStore.busy}
@@ -82,17 +82,17 @@
 					<Download class="text-primary" />
 				</div>
 				<div class="min-w-0">
-					<p class="text-base font-bold text-slate-900 dark:text-slate-100">W&ouml;rterbuch neu laden</p>
-					<p class="text-sm text-slate-500 dark:text-slate-400">{langLabel} &middot; ~{totalMb} MB</p>
+					<p class="text-base font-bold text-slate-900 dark:text-slate-100">Wörterbuch neu laden</p>
+					<p class="text-sm text-slate-500 dark:text-slate-400">{langLabel} · ~{totalMb} MB</p>
 				</div>
 			</div>
 
 			<div class="min-h-0 flex-1 space-y-3 overflow-y-auto">
 				<div class="rounded-2xl bg-slate-50 p-4 dark:bg-white/5">
 					<p class="text-sm leading-relaxed text-slate-700 dark:text-slate-200">
-						Eine oder mehrere W&ouml;rterb&uuml;cher fehlen oder sind im alten Format.
+						Eine oder mehrere Wörterbücher fehlen oder sind im alten Format.
 						Beim Antippen werden sie neu heruntergeladen und ersetzen die alten
-						Daten lokal &mdash; deine Lexikon- und &Uuml;bungsdaten bleiben unber&uuml;hrt.
+						Daten lokal — deine Lexikon- und Übungsdaten bleiben unberührt.
 					</p>
 					<ul class="mt-3 space-y-1.5">
 						{#each dictUpdateStore.affectedKinds as kind (kind)}
@@ -108,9 +108,9 @@
 					<div
 						class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300"
 					>
-						<p class="font-bold">Gro&szlig;er Download</p>
+						<p class="font-bold">Großer Download</p>
 						<p class="mt-1 leading-relaxed">
-							Verbinde dich mit WLAN, bevor du startest &mdash; im Mobilfunknetz kann
+							Verbinde dich mit WLAN, bevor du startest — im Mobilfunknetz kann
 							das Datenvolumen verbrauchen. Lass die App offen, bis der Download
 							fertig ist; auf iOS kann sie sonst im Hintergrund beendet werden.
 						</p>
@@ -155,7 +155,7 @@
 					{#if dictUpdateStore.busy}
 						<span class="inline-flex items-center gap-2">
 							<span class="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span>
-							L&auml;dt &hellip; {progressPct}%
+							Lädt … {progressPct}%
 						</span>
 					{:else if dictUpdateStore.error}
 						Erneut versuchen
@@ -168,7 +168,7 @@
 						onclick={() => dictUpdateStore.close()}
 						class="rounded-xl px-5 py-3 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/10"
 					>
-						Sp&auml;ter
+						Später
 					</button>
 				{/if}
 			</div>

@@ -80,7 +80,7 @@
 					<Sync class="text-primary" />
 				</div>
 				<div>
-					<p class="text-base font-bold text-slate-900 dark:text-slate-100">Neue Version verf&uuml;gbar</p>
+					<p class="text-base font-bold text-slate-900 dark:text-slate-100">Neue Version verfügbar</p>
 					<p class="text-sm text-slate-500 dark:text-slate-400">v{updateStore.targetVersion}</p>
 				</div>
 			</div>
@@ -132,8 +132,8 @@
 					<div
 						class="mt-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300"
 					>
-						Diese Version enth&auml;lt Datenbank-&Auml;nderungen. Lokale Daten m&uuml;ssen
-						zur&uuml;ckgesetzt werden.
+						Diese Version enthält Datenbank-Änderungen. Lokale Daten müssen
+						zurückgesetzt werden.
 					</div>
 				{/if}
 			</div>
@@ -155,7 +155,7 @@
 								Aktualisiere...
 							</span>
 						{:else}
-							Daten l&ouml;schen & aktualisieren
+							Daten löschen & aktualisieren
 						{/if}
 					</button>
 				{:else}
@@ -184,7 +184,7 @@
 						}}
 						class="rounded-xl px-5 py-3 text-sm font-medium text-slate-500 dark:text-slate-400 transition-colors hover:bg-slate-100 dark:hover:bg-white/10"
 					>
-						Sp&auml;ter
+						Später
 					</button>
 				{/if}
 			</div>

@@ -181,7 +181,7 @@
 			type="search"
 			bind:value={searchQuery}
 			onkeydown={handleKeydown}
-			placeholder="Suchen oder hinzuf&uuml;gen..."
+			placeholder="Suchen oder hinzufügen..."
 			class="min-w-0 flex-1 border-none bg-transparent p-0 text-base font-normal outline-none placeholder:text-primary/40 focus:ring-0"
 		/>
 		{#if searchQuery}
@@ -189,7 +189,7 @@
 				type="button"
 				onclick={() => (searchQuery = '')}
 				class="shrink-0 rounded-full p-1 text-primary/50 transition-colors hover:bg-primary/10 hover:text-primary"
-				aria-label="Eingabe l&ouml;schen"
+				aria-label="Eingabe löschen"
 			>
 				<Close class="text-[16px]" />
 			</button>
@@ -203,7 +203,7 @@
 			: searchQuery.trim()
 				? `«${searchQuery.trim()}» hinzufügen`
 				: 'Hinzufügen'}
-		aria-label="Hinzuf&uuml;gen"
+		aria-label="Hinzufügen"
 		class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-sm transition-colors hover:bg-primary/90 disabled:opacity-40"
 	>
 		<Add />
@@ -212,7 +212,7 @@
 
 {#if searchQuery.trim() && !exactMatch && !adding}
 	<p class="mt-1.5 px-1 text-[11px] text-slate-400 dark:text-slate-500">
-		Enter dr&uuml;cken oder + tippen, um &laquo;{searchQuery.trim()}&raquo; hinzuzuf&uuml;gen.
+		Enter drücken oder + tippen, um «{searchQuery.trim()}» hinzuzufügen.
 	</p>
 {/if}
 
@@ -259,11 +259,11 @@
 			<Book2 class="mx-auto mb-2 block text-[32px] text-slate-300 dark:text-slate-500" />
 			{#if searchNeedle || filter !== 'all'}
 				<p class="text-sm text-slate-500 dark:text-slate-400">
-					Keine Treffer{#if searchNeedle} f&uuml;r &laquo;{searchQuery}&raquo;{/if}.
+					Keine Treffer{#if searchNeedle} für «{searchQuery}»{/if}.
 				</p>
 			{:else}
 				<p class="text-sm text-slate-500 dark:text-slate-400">
-					Noch keine W&ouml;rter. F&uuml;ge W&ouml;rter hinzu, die dir beim Lesen begegnen.
+					Noch keine Wörter. Füge Wörter hinzu, die dir beim Lesen begegnen.
 				</p>
 			{/if}
 		</div>
@@ -271,7 +271,7 @@
 		<!-- Word group -->
 		<div>
 			<h3 class="mb-3 px-1 text-[11px] font-bold uppercase tracking-wider text-primary">
-				Lexikon ({filtered.length} W&ouml;rter)
+				Lexikon ({filtered.length} Wörter)
 			</h3>
 			<div class="space-y-3">
 				{#each filtered as entry (entry.id)}
@@ -285,7 +285,7 @@
 									type="text"
 									bind:value={editTranslation}
 									onkeydown={handleEditKeydown}
-									placeholder="&Uuml;bersetzung..."
+									placeholder="Übersetzung..."
 									class="min-w-0 flex-1 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-slate-900 placeholder-primary/40 outline-none focus:border-primary/40 dark:text-slate-100"
 								/>
 								<button
@@ -335,7 +335,7 @@
 									<p class="text-[13px] text-slate-500 dark:text-slate-400">
 										{#if entry.pinyin}
 											{entry.pinyin}
-											{#if entry.translation} &bull; {/if}
+											{#if entry.translation} • {/if}
 										{/if}
 										{#if entry.translation}
 											{entry.translation}
@@ -372,7 +372,7 @@
 								<div class="mt-3 border-t border-slate-100 pt-3 dark:border-white/5">
 									{#if !expandedHit}
 										<p class="text-[13px] italic text-slate-400 dark:text-slate-500">
-											Kein W&ouml;rterbuch-Eintrag f&uuml;r &laquo;{entry.word}&raquo; gefunden.
+											Kein Wörterbuch-Eintrag für «{entry.word}» gefunden.
 										</p>
 									{:else}
 										<WiktEntry result={expandedHit} />

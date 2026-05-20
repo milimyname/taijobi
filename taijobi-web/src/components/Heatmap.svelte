@@ -78,7 +78,7 @@
 
 <div class="rounded-xl border border-primary/10 bg-white p-4 shadow-sm dark:bg-white/5">
 	<div class="mb-3 flex items-center justify-between">
-		<p class="text-[11px] font-bold uppercase tracking-wider text-primary">Aktivit&auml;t</p>
+		<p class="text-[11px] font-bold uppercase tracking-wider text-primary">Aktivität</p>
 		<p class="text-xs text-slate-400 dark:text-slate-500">{totalReviews} gesamt</p>
 	</div>
 

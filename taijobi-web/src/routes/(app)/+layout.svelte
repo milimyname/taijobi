@@ -372,7 +372,7 @@
 				class="flex w-full items-center justify-center gap-2 bg-primary px-4 py-2 text-sm font-medium text-white"
 			>
 				<Sync class="text-[16px]" />
-				Neue Version verf&uuml;gbar &mdash; tippen zum Aktualisieren
+				Neue Version verfügbar — tippen zum Aktualisieren
 			</button>
 		{/if}
 		<UpdateBanner />
@@ -438,7 +438,7 @@
 						: 'text-slate-400 hover:text-primary'} transition-colors"
 				>
 					<Style class={isActive('/drill') ? 'active-icon' : ''} />
-					<span class="text-[10px] font-bold uppercase tracking-wider">&Uuml;ben</span>
+					<span class="text-[10px] font-bold uppercase tracking-wider">Üben</span>
 				</a>
 				<a
 					href="/more"

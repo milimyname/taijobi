@@ -68,7 +68,7 @@
 		</div>
 		<p class="mt-4 text-2xl font-bold text-slate-900 dark:text-slate-100">Noch keine Daten</p>
 		<p class="mt-2 text-center text-sm text-slate-500 dark:text-slate-400">
-			Starte eine &Uuml;bungsrunde, um deine Statistiken zu sehen.
+			Starte eine Übungsrunde, um deine Statistiken zu sehen.
 		</p>
 		<a
 			href="/drill"
@@ -88,7 +88,7 @@
 				<span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Streak</span>
 			</div>
 			<p class="text-3xl font-bold text-slate-900 dark:text-slate-100">{statsData.streak}</p>
-			<p class="text-xs text-slate-500 dark:text-slate-400">Tage &middot; L&auml;ngster: {statsData.longest_streak}</p>
+			<p class="text-xs text-slate-500 dark:text-slate-400">Tage · Längster: {statsData.longest_streak}</p>
 		</div>
 
 		<!-- Today -->
@@ -99,7 +99,7 @@
 			</div>
 			<p class="text-3xl font-bold text-slate-900 dark:text-slate-100">{stats.reviewed_today}</p>
 			<p class="text-xs text-slate-500 dark:text-slate-400">
-				von {stats.total_cards} &middot; {accuracy(stats)}
+				von {stats.total_cards} · {accuracy(stats)}
 			</p>
 		</div>
 	</section>
