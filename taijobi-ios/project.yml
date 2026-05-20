@@ -49,6 +49,9 @@ targets:
     dependencies:
       - framework: Frameworks/libtaijobi.xcframework
         embed: false
+      # Embed the Share extension into the app bundle so iOS exposes it
+      # in the system Share Sheet for plain-text / URL payloads.
+      - target: taijobi-share
     info:
       path: taijobi/Info.plist
       properties:
@@ -71,10 +74,71 @@ targets:
               NSExceptionAllowsInsecureHTTPLoads: true
               NSIncludesSubdomains: true
 
+  taijobi-share:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: taijobi-share
+        excludes:
+          - "**/.DS_Store"
+      # Reuse the wrapper + config from the main app. Both targets share the
+      # libtaijobi C ABI and need the same App-Group SQLite path resolver.
+      - path: taijobi/LibTaijobi.swift
+      - path: taijobi/Config.swift
+    entitlements:
+      path: taijobi-share/taijobi-share.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.taijobi.app
+    settings:
+      base:
+        SWIFT_VERSION: "5.10"
+        PRODUCT_BUNDLE_IDENTIFIER: com.taijobi.app.share
+        MARKETING_VERSION: "0.6.32"
+        CURRENT_PROJECT_VERSION: 1
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: W5N395VNYH
+        TARGETED_DEVICE_FAMILY: "1"
+        "EXCLUDED_ARCHS[sdk=iphonesimulator*]": x86_64
+        # Bridging header is the same one the main app uses — it's just a
+        # one-liner import of libtaijobi.h, no per-target customisation.
+        SWIFT_OBJC_BRIDGING_HEADER: "taijobi/taijobi-Bridging-Header.h"
+        FRAMEWORK_SEARCH_PATHS:
+          - "$(inherited)"
+          - '"Frameworks"'
+        HEADER_SEARCH_PATHS:
+          - "$(inherited)"
+          - "$(PROJECT_DIR)/Frameworks/libtaijobi.xcframework/ios-arm64/Headers"
+          - "$(PROJECT_DIR)/Frameworks/libtaijobi.xcframework/ios-arm64-simulator/Headers"
+        LD_RUNPATH_SEARCH_PATHS:
+          - "$(inherited)"
+          - "@executable_path/Frameworks"
+          - "@executable_path/../../Frameworks"
+    dependencies:
+      - framework: Frameworks/libtaijobi.xcframework
+        embed: false
+    info:
+      path: taijobi-share/Info.plist
+      properties:
+        CFBundleDisplayName: Taijobi
+        # Registers the target as a system Share destination for plain text
+        # (Live Text, Safari Selection, x.com share) and single URLs.
+        NSExtension:
+          NSExtensionAttributes:
+            NSExtensionActivationRule:
+              NSExtensionActivationSupportsText: true
+              NSExtensionActivationSupportsWebURLWithMaxCount: 1
+          NSExtensionPointIdentifier: com.apple.share-services
+          # @objc(ShareViewController) makes the demangled Swift class name
+          # visible to the Objective-C runtime so iOS can instantiate it
+          # without a full module-qualified lookup.
+          NSExtensionPrincipalClass: ShareViewController
+
 schemes:
   taijobi:
     build:
       targets:
         taijobi: all
+        taijobi-share: all
     run:
       config: Debug
