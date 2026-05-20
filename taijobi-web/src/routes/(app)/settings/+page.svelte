@@ -233,12 +233,12 @@ wiederherstellen.
 					</div>
 					<div class="min-w-0 flex-1">
 						<p class="text-sm font-bold text-amber-900 dark:text-amber-200">
-							Schl&uuml;ssel jetzt sichern
+							Schlüssel jetzt sichern
 						</p>
 						<p class="mt-1 text-xs leading-relaxed text-amber-800/80 dark:text-amber-300/80">
-							Dein Sync-Schl&uuml;ssel ist deine Identit&auml;t. Geht er verloren
-							(App deinstalliert, Browser zur&uuml;ckgesetzt, Ger&auml;t kaputt),
-							sind deine verschl&uuml;sselten Daten unwiederbringlich weg.
+							Dein Sync-Schlüssel ist deine Identität. Geht er verloren
+							(App deinstalliert, Browser zurückgesetzt, Gerät kaputt),
+							sind deine verschlüsselten Daten unwiederbringlich weg.
 						</p>
 						<div class="mt-3 flex flex-wrap gap-2">
 							<button
@@ -391,12 +391,12 @@ wiederherstellen.
 		{#if !pushStore.supported}
 			<div class="flex items-center gap-2">
 				<div class="size-2.5 rounded-full bg-slate-300 dark:bg-slate-600"></div>
-				<span class="text-sm font-medium text-slate-700 dark:text-slate-200">Nicht verf&uuml;gbar</span>
+				<span class="text-sm font-medium text-slate-700 dark:text-slate-200">Nicht verfügbar</span>
 			</div>
 			<p class="mt-2 text-xs text-slate-400 dark:text-slate-500">
-				Dein Browser unterst&uuml;tzt keine Push-Benachrichtigungen.
+				Dein Browser unterstützt keine Push-Benachrichtigungen.
 				{#if /iPhone|iPad/.test(navigator.userAgent) && !('standalone' in navigator)}
-					F&uuml;ge die App zum Home-Bildschirm hinzu, um Benachrichtigungen zu aktivieren.
+					Füge die App zum Home-Bildschirm hinzu, um Benachrichtigungen zu aktivieren.
 				{/if}
 			</p>
 		{:else if pushStore.permission === 'denied'}
@@ -405,7 +405,7 @@ wiederherstellen.
 				<span class="text-sm font-medium text-slate-700 dark:text-slate-200">Blockiert</span>
 			</div>
 			<p class="mt-2 text-xs text-slate-400 dark:text-slate-500">
-				Benachrichtigungen wurden im Browser blockiert. &Auml;ndere die Einstellung in den Browser-/Systemeinstellungen.
+				Benachrichtigungen wurden im Browser blockiert. Ändere die Einstellung in den Browser-/Systemeinstellungen.
 			</p>
 		{:else}
 			<div class="flex items-center justify-between">
@@ -473,7 +473,7 @@ wiederherstellen.
 				</div>
 				<div>
 					<h3 class="text-lg font-extrabold text-slate-900 dark:text-slate-100">Sync</h3>
-					<p class="text-sm text-slate-500 dark:text-slate-400">Daten zwischen Ger&auml;ten teilen</p>
+					<p class="text-sm text-slate-500 dark:text-slate-400">Daten zwischen Geräten teilen</p>
 				</div>
 			</div>
 
@@ -489,7 +489,7 @@ wiederherstellen.
 							Echtzeit-Synchronisierung
 						</p>
 						<p class="text-xs text-slate-500 dark:text-slate-400">
-							Karten, Lexikon und Reviews erscheinen sofort auf allen verbundenen Ger&auml;ten.
+							Karten, Lexikon und Reviews erscheinen sofort auf allen verbundenen Geräten.
 						</p>
 					</div>
 				</div>
@@ -502,10 +502,10 @@ wiederherstellen.
 					</div>
 					<div>
 						<p class="text-sm font-medium text-slate-900 dark:text-slate-100">
-							Ein Schl&uuml;ssel, kein Konto
+							Ein Schlüssel, kein Konto
 						</p>
 						<p class="text-xs text-slate-500 dark:text-slate-400">
-							Ein zuf&auml;lliger Sync-Schl&uuml;ssel wird erstellt. Kein Konto, kein Passwort, keine E-Mail.
+							Ein zufälliger Sync-Schlüssel wird erstellt. Kein Konto, kein Passwort, keine E-Mail.
 						</p>
 					</div>
 				</div>
@@ -516,10 +516,10 @@ wiederherstellen.
 					</div>
 					<div>
 						<p class="text-sm font-medium text-slate-900 dark:text-slate-100">
-							Schl&uuml;ssel geheim halten
+							Schlüssel geheim halten
 						</p>
 						<p class="text-xs text-slate-500 dark:text-slate-400">
-							Wer den Schl&uuml;ssel hat, kann deine Daten sehen. Teile ihn nur mit deinen eigenen Ger&auml;ten.
+							Wer den Schlüssel hat, kann deine Daten sehen. Teile ihn nur mit deinen eigenen Geräten.
 						</p>
 					</div>
 				</div>
@@ -530,11 +530,11 @@ wiederherstellen.
 					</div>
 					<div>
 						<p class="text-sm font-medium text-slate-900 dark:text-slate-100">
-							MCP f&uuml;r KI-Agenten
+							MCP für KI-Agenten
 						</p>
 						<p class="text-xs text-slate-500 dark:text-slate-400">
-							Der Sync-Schl&uuml;ssel dient auch als MCP-Zugang. Claude Desktop kann
-							W&ouml;rter hinzuf&uuml;gen, Kindle-Highlights importieren und Reviews abfragen.
+							Der Sync-Schlüssel dient auch als MCP-Zugang. Claude Desktop kann
+							Wörter hinzufügen, Pakete installieren und Reviews abfragen.
 						</p>
 					</div>
 				</div>
@@ -572,9 +572,9 @@ wiederherstellen.
 		</div>
 
 		<div {@attach content} class="flex flex-col items-center px-6">
-			<h3 class="mb-1 text-lg font-bold text-slate-900 dark:text-slate-100">Sync-Schl&uuml;ssel</h3>
+			<h3 class="mb-1 text-lg font-bold text-slate-900 dark:text-slate-100">Sync-Schlüssel</h3>
 			<p class="mb-6 text-xs text-slate-500 dark:text-slate-400">
-				Scanne diesen Code mit deinem Passwort-Manager oder einem anderen Ger&auml;t.
+				Scanne diesen Code mit deinem Passwort-Manager oder einem anderen Gerät.
 			</p>
 
 			{#if qrSvg}

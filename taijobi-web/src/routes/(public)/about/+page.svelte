@@ -163,7 +163,7 @@
 		{
 			id: 'faq-mcp',
 			q: 'Kann ich Taijobi mit Claude verbinden?',
-			a: 'Ja, über einen MCP-Server (Model Context Protocol). Claude Desktop kann dein Taijobi-Lexikon direkt abfragen und ändern.\n\nVerfügbare Tools:\n\n• Fällige Karten anzeigen, suchen und bewerten\n• Wörter zum Lexikon hinzufügen\n• Kindle-Clippings importieren\n• Statistiken und Streak lesen\n• Pakete auflisten und neue installieren\n• Lektionen in bestehende Pakete ergänzen (für „Ach, ich habe noch ein paar Wörter vergessen…")\n\nAuthentifizierung läuft über deinen Sync-Schlüssel — die gleiche Ende-zu-Ende-Verschlüsselung wie beim Geräte-Sync.\n\nEinrichtung: Öffne die `claude_desktop_config.json` und füge hinzu:\n\n• macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`\n• Windows: `%APPDATA%\\Claude\\claude_desktop_config.json`\n• Linux: `~/.config/Claude/claude_desktop_config.json`\n\n```json\n{\n  "mcpServers": {\n    "taijobi": {\n      "command": "npx",\n      "args": [\n        "mcp-remote",\n        "https://sync.taijobi.com/mcp",\n        "--header",\n        "Authorization: Bearer DEIN-SYNC-SCHLÜSSEL"\n      ]\n    }\n  }\n}\n```\n\n`mcp-remote` ist eine kleine stdio-zu-HTTP-Brücke (npm-Paket) — Claude Desktops MCP-Loader spricht stdio, der Taijobi-Worker spricht Streamable HTTP. `npx` lädt sie bei Bedarf.\n\nClaude neustarten — die 11 Tools erscheinen im Tool-Picker.',
+			a: 'Ja, über einen MCP-Server (Model Context Protocol). Claude Desktop kann dein Taijobi-Lexikon direkt abfragen und ändern.\n\nVerfügbare Tools:\n\n• Fällige Karten anzeigen, suchen und bewerten\n• Wörter zum Lexikon hinzufügen\n• Statistiken und Streak lesen\n• Pakete auflisten und neue installieren\n• Lektionen in bestehende Pakete ergänzen (für „Ach, ich habe noch ein paar Wörter vergessen…")\n\nAuthentifizierung läuft über deinen Sync-Schlüssel — die gleiche Ende-zu-Ende-Verschlüsselung wie beim Geräte-Sync.\n\nEinrichtung: Öffne die `claude_desktop_config.json` und füge hinzu:\n\n• macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`\n• Windows: `%APPDATA%\\Claude\\claude_desktop_config.json`\n• Linux: `~/.config/Claude/claude_desktop_config.json`\n\n```json\n{\n  "mcpServers": {\n    "taijobi": {\n      "command": "npx",\n      "args": [\n        "mcp-remote",\n        "https://sync.taijobi.com/mcp",\n        "--header",\n        "Authorization: Bearer DEIN-SYNC-SCHLÜSSEL"\n      ]\n    }\n  }\n}\n```\n\n`mcp-remote` ist eine kleine stdio-zu-HTTP-Brücke (npm-Paket) — Claude Desktops MCP-Loader spricht stdio, der Taijobi-Worker spricht Streamable HTTP. `npx` lädt sie bei Bedarf.\n\nClaude neustarten — die 10 Tools erscheinen im Tool-Picker.',
 		},
 		{
 			id: 'faq-benachrichtigungen',
@@ -219,7 +219,7 @@
 </script>
 
 <svelte:head>
-	<title>&Uuml;ber Taijobi &mdash; offline Vokabel-Engine</title>
+	<title>Über Taijobi — offline Vokabel-Engine</title>
 	<meta
 		name="description"
 		content="Taijobi ist eine lokale Vokabel-Engine für Chinesisch, Englisch und Deutsch — Spaced Repetition mit FSRS, Wörterbücher, Strichfolge und Zeichenzerlegung. Offline-first, kein Konto, libtaijobi (Zig) ist das Produkt."
