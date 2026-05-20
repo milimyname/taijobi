@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.7.5 (2026-05-20)
+
+- feat: drop embedded Chinese data on iOS, install on demand like PWA
+- feat: dict update drawer with confirm, progress, and abort recovery
+- fix: real dictionary sizes + richer descriptions on marketplace
+- feat: add TestFlight invite card to landing page
+
 ## v0.7.4 (2026-05-20)
 
 - fix: ship 1024x1024 app icon + iPhone-only target for TestFlight
