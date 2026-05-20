@@ -6,7 +6,7 @@
 		"name": "Chinesisches Wörterbuch",
 		"language_pair": "zh",
 		"size_mb": 19,
-		"description": "CC-CEDICT, Strichfolge und Zeichenzerlegung",
+		"description": "CC-CEDICT (124.000 Wörter), Strichfolge-Animationen und Radikalzerlegung für 9.500 Zeichen — alles offline.",
 		"added_at": "2025-01-20",
 		"sources": [
 			{
@@ -27,8 +27,8 @@
 		"tag": "official",
 		"name": "Englisches Wörterbuch",
 		"language_pair": "en",
-		"size_mb": 19,
-		"description": "Wiktionary-Definitionen (Englisch)",
+		"size_mb": 141,
+		"description": "Wiktextract-Definitionen für 166.000 englische Wörter mit Wortart, Beispielsätzen und Etymologie. Einmaliger Download, danach offline.",
 		"added_at": "2025-08-10",
 		"sources": [
 			{
@@ -49,8 +49,8 @@
 		"tag": "official",
 		"name": "Deutsches Wörterbuch",
 		"language_pair": "de",
-		"size_mb": 5,
-		"description": "Wiktionary-Definitionen (Deutsch)",
+		"size_mb": 11,
+		"description": "Wiktextract-Definitionen für deutsche Wörter mit englischen Glossen, Wortarten und Beispielen. Einmaliger Download, danach offline.",
 		"added_at": "2025-08-10",
 		"sources": [
 			{
