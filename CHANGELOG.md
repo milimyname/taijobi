@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.7.7 (2026-05-21)
+
+- feat: ios auto-sync + dict download progress fix + may session log
+- feat: reading mode — tap-to-define paragraph, save to lexicon
+
 ## v0.7.6 (2026-05-21)
 
 - style: convert HTML entities to real Unicode chars in Svelte sources
