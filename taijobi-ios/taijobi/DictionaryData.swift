@@ -70,15 +70,21 @@ final class DictionaryData: ObservableObject {
     /// 10-minute resource timeout — the wall-clock budget for an entire
     /// download. The 19s/60s defaults aren't enough for 135 MB endict on
     /// patchy networks. The byte-by-byte `bytes(from:)` API doesn't expose
-    /// these knobs, so we manage our own session.
-    private lazy var session: URLSession = {
+    /// these knobs, so we build our own configuration. We instantiate a
+    /// fresh URLSession per download because the async
+    /// `session.download(from:delegate:)` overload only forwards
+    /// task-level delegate callbacks — `URLSessionDownloadDelegate`
+    /// methods like `didWriteData` never fire, so the progress bar stays
+    /// at 0 forever. A session created with a session-level delegate
+    /// reliably invokes the download callbacks.
+    private var sessionConfig: URLSessionConfiguration {
         let cfg = URLSessionConfiguration.default
         cfg.timeoutIntervalForRequest = 60       // per-segment timeout
         cfg.timeoutIntervalForResource = 600     // total budget for one file
         cfg.waitsForConnectivity = true          // wait through brief loss of signal
         cfg.requestCachePolicy = .reloadIgnoringLocalCacheData
-        return URLSession(configuration: cfg)
-    }()
+        return cfg
+    }
 
     // MARK: - Filesystem
 
@@ -213,51 +219,105 @@ final class DictionaryData: ObservableObject {
         onProgress: @escaping @Sendable (Double) -> Void
     ) async throws -> Data {
         let url = URL(string: "\(baseURL)/\(name)")!
-        // `download(for:delegate:)` streams to a temp file on disk via the
-        // OS networking stack — orders of magnitude faster than
-        // `bytes(from:)` for 100 MB+ payloads, and progress comes via the
-        // delegate rather than a byte-yielding AsyncSequence.
-        let delegate = ProgressDelegate(onProgress: onProgress)
-        let (tempURL, response) = try await session.download(from: url, delegate: delegate)
-        defer { try? FileManager.default.removeItem(at: tempURL) }
-        if let http = response as? HTTPURLResponse, http.statusCode != 200 {
-            throw NSError(
-                domain: "taijobi.dict",
-                code: http.statusCode,
-                userInfo: [
-                    NSLocalizedDescriptionKey: "\(name): HTTP \(http.statusCode)"
-                ]
+        return try await withCheckedThrowingContinuation { continuation in
+            // Session-per-download so the delegate is set at the session
+            // level (where URLSessionDownloadDelegate callbacks actually
+            // fire, unlike the per-task delegate of the async overload).
+            // finishTasksAndInvalidate from the delegate frees both the
+            // session and the delegate's strong refs once the task ends.
+            let delegate = StreamingDownloadDelegate(
+                onProgress: onProgress,
+                continuation: continuation
             )
+            let session = URLSession(
+                configuration: sessionConfig,
+                delegate: delegate,
+                delegateQueue: nil
+            )
+            session.downloadTask(with: url).resume()
         }
-        return try Data(contentsOf: tempURL)
     }
 }
 
-/// URLSessionDownloadDelegate that forwards progress as a 0…1 fraction.
-/// NSObject-backed because URLSession delegates predate Swift protocols.
-private final class ProgressDelegate: NSObject, URLSessionTaskDelegate, URLSessionDownloadDelegate {
-    let onProgress: @Sendable (Double) -> Void
-    init(onProgress: @escaping @Sendable (Double) -> Void) {
-        self.onProgress = onProgress
-    }
+/// One-shot delegate scoped to a single download. Forwards
+/// `didWriteData` as a 0…1 fraction, resumes the parent continuation
+/// from `didFinishDownloadingTo` (success) or `didCompleteWithError`
+/// (failure). NSObject-backed because URLSession delegates predate
+/// Swift protocols.
+private final class StreamingDownloadDelegate: NSObject,
+	URLSessionDelegate, URLSessionTaskDelegate, URLSessionDownloadDelegate
+{
+	let onProgress: @Sendable (Double) -> Void
+	// Stored as Optional so we can null it out after resuming — Swift
+	// will trap if a CheckedContinuation is resumed twice (e.g. by both
+	// didFinishDownloading and a tail didCompleteWithError on the same
+	// task).
+	private var continuation: CheckedContinuation<Data, Error>?
 
-    // Required but unused — `download(from:delegate:)` returns the temp URL
-    // via the async-await wrapper rather than this delegate callback.
-    func urlSession(
-        _ session: URLSession,
-        downloadTask: URLSessionDownloadTask,
-        didFinishDownloadingTo location: URL
-    ) {}
+	init(
+		onProgress: @escaping @Sendable (Double) -> Void,
+		continuation: CheckedContinuation<Data, Error>
+	) {
+		self.onProgress = onProgress
+		self.continuation = continuation
+	}
 
-    func urlSession(
-        _ session: URLSession,
-        downloadTask: URLSessionDownloadTask,
-        didWriteData bytesWritten: Int64,
-        totalBytesWritten: Int64,
-        totalBytesExpectedToWrite: Int64
-    ) {
-        guard totalBytesExpectedToWrite > 0 else { return }
-        let fraction = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
-        onProgress(min(max(fraction, 0), 1))
-    }
+	func urlSession(
+		_: URLSession,
+		downloadTask _: URLSessionDownloadTask,
+		didWriteData _: Int64,
+		totalBytesWritten: Int64,
+		totalBytesExpectedToWrite: Int64
+	) {
+		guard totalBytesExpectedToWrite > 0 else { return }
+		let fraction = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
+		onProgress(min(max(fraction, 0), 1))
+	}
+
+	func urlSession(
+		_ session: URLSession,
+		downloadTask: URLSessionDownloadTask,
+		didFinishDownloadingTo location: URL
+	) {
+		defer { session.finishTasksAndInvalidate() }
+		guard let cont = continuation else { return }
+		continuation = nil
+		// Reject non-200 responses so callers see a real error instead of
+		// a corrupted body. CF returns text/plain "404 not found" for
+		// missing dict files, which would otherwise pass through and
+		// fail later at the WASM magic check with a less obvious message.
+		if let http = downloadTask.response as? HTTPURLResponse,
+		   http.statusCode != 200
+		{
+			cont.resume(throwing: NSError(
+				domain: "taijobi.dict",
+				code: http.statusCode,
+				userInfo: [
+					NSLocalizedDescriptionKey:
+						"HTTP \(http.statusCode) für \(downloadTask.originalRequest?.url?.lastPathComponent ?? "?")",
+				]
+			))
+			return
+		}
+		do {
+			let data = try Data(contentsOf: location)
+			cont.resume(returning: data)
+		} catch {
+			cont.resume(throwing: error)
+		}
+	}
+
+	func urlSession(
+		_ session: URLSession,
+		task _: URLSessionTask,
+		didCompleteWithError error: Error?
+	) {
+		// `didFinishDownloadingTo` resolved the continuation already on
+		// the success path; only act here if the request failed before
+		// the download finished (no temp file written).
+		guard let error, let cont = continuation else { return }
+		continuation = nil
+		session.finishTasksAndInvalidate()
+		cont.resume(throwing: error)
+	}
 }

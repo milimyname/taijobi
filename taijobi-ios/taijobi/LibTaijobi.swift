@@ -79,6 +79,21 @@ final class LibTaijobi {
     private var initialized = false
     private let abiLock = NSRecursiveLock()
 
+    /// Fires after every write that mutates the SQLite store. SyncService
+    /// hooks this to push diffs to the server without the user having to
+    /// tap the Sync button — same pattern as web's `setOnDataChanged`.
+    /// Called inside the abi lock; callers should dispatch any real work
+    /// off-thread to avoid blocking the write that just completed.
+    private var onMutate: (() -> Void)?
+
+    func setOnMutate(_ callback: (() -> Void)?) {
+        withAbi { onMutate = callback }
+    }
+
+    private func fireMutate() {
+        onMutate?()
+    }
+
     private func withAbi<R>(_ body: () throws -> R) rethrows -> R {
         abiLock.lock()
         defer { abiLock.unlock() }
@@ -128,7 +143,7 @@ final class LibTaijobi {
     /// the word was empty / already present (check `lastError()` for which).
     @discardableResult
     func addWord(_ word: String) throws -> AddWordResult? {
-        try withAbi {
+        let result: AddWordResult? = try withAbi {
             try ensureInitLocked()
             let bytes = Data(word.utf8)
             let payload: Data? = bytes.withUnsafeBytes { (raw: UnsafeRawBufferPointer) -> Data? in
@@ -141,6 +156,12 @@ final class LibTaijobi {
             guard let data = payload else { return nil }
             return try? JSONDecoder().decode(AddWordResult.self, from: data)
         }
+        // Fire outside the abi lock in withAbi epilogue — the callback may
+        // hop to a Task, but we still want it called from inside withAbi so
+        // the lock guarantees the row is durably written by the time the
+        // sync push runs.
+        if result != nil { withAbi { fireMutate() } }
+        return result
     }
 
     func getLexicon() throws -> [LexiconEntry] {
@@ -155,7 +176,7 @@ final class LibTaijobi {
 
     @discardableResult
     func removeWord(id: String) throws -> Bool {
-        try withAbi {
+        let ok: Bool = try withAbi {
             try ensureInitLocked()
             let bytes = Data(id.utf8)
             let rc: Int32 = bytes.withUnsafeBytes { raw in
@@ -164,6 +185,8 @@ final class LibTaijobi {
             }
             return rc == 0
         }
+        if ok { withAbi { fireMutate() } }
+        return ok
     }
 
     // MARK: - Dictionary lookup

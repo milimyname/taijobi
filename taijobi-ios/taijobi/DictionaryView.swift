@@ -103,6 +103,18 @@ struct DictionaryView: View {
                         .progressViewStyle(.linear)
                         .tint(.accentColor)
                         .animation(.linear(duration: 0.15), value: dict.progress)
+                    // iOS suspends URLSession.default download tasks when the
+                    // app backgrounds. For dict-en (~135 MB on cellular this
+                    // can be 30+ s) walking away kills the download. Until we
+                    // migrate to URLSessionConfiguration.background + a local
+                    // notification on completion, surface a hint so the user
+                    // knows to stay put.
+                    if active.approxSizeMB >= 30 {
+                        Text("Lass die App offen, bis der Download fertig ist — iOS pausiert ihn sonst im Hintergrund.")
+                            .font(.caption2)
+                            .foregroundStyle(.orange)
+                            .padding(.top, 2)
+                    }
                 }
             }
             if let err = dict.lastError {

@@ -21,6 +21,49 @@ final class SyncService: ObservableObject {
     @Published var hasKey: Bool = KeychainService.get(KeychainService.syncKey) != nil
 
     private var encryptionKey: Data?
+    private var pendingSyncTask: Task<Void, Never>?
+
+    // MARK: - Auto-sync wiring
+
+    /// Wire the mutation callback + run an initial sync once a key is set.
+    /// Called from `taijobiApp.init` and from Settings → "Sync verknüpfen".
+    /// Mirrors the web client's `connectSync()`: after every local write
+    /// (addWord/removeWord) we schedule a debounced push so the user never
+    /// has to think about hitting the Sync button.
+    func start() {
+        LibTaijobi.shared.setOnMutate { [weak self] in
+            // setOnMutate fires inside the abi lock — hop off-thread so we
+            // don't block the write, then debounce.
+            Task { @MainActor in
+                self?.debouncedSync()
+            }
+        }
+        if hasKey {
+            Task { @MainActor in await sync() }
+        }
+    }
+
+    /// Coalesces bursts of mutations (e.g. the share extension dropping 20
+    /// words at once) into a single sync round-trip ~1.5 s after the last
+    /// write. Cancels any previously-scheduled sync so they don't pile up.
+    func debouncedSync() {
+        pendingSyncTask?.cancel()
+        pendingSyncTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            if Task.isCancelled { return }
+            await self?.sync()
+        }
+    }
+
+    /// Pull-only when the user comes back to the app — mutations during
+    /// foreground get pushed via the mutation callback already, so a return
+    /// from background mostly needs to hear what other devices changed.
+    /// Still calls full sync() for the rare case where a queued mutation
+    /// was cut short by app suspension.
+    func onForeground() {
+        guard hasKey else { return }
+        Task { @MainActor in await sync() }
+    }
 
     var syncKey: String? {
         KeychainService.get(KeychainService.syncKey)
@@ -34,6 +77,10 @@ final class SyncService: ObservableObject {
         KeychainService.set(KeychainService.syncKey, value: trimmed)
         encryptionKey = nil
         hasKey = true
+        // Fresh key — pull existing rows from the other devices immediately
+        // so the user doesn't see an empty lexicon while waiting for a
+        // mutation to trigger the auto-sync.
+        Task { @MainActor in await sync() }
     }
 
     func clearSyncKey() {
