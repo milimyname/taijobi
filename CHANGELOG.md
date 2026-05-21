@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.7.8 (2026-05-21)
+
+- feat: ios real-time WebSocket sync, drop iOS reading mode
+
 ## v0.7.7 (2026-05-21)
 
 - feat: ios auto-sync + dict download progress fix + may session log
