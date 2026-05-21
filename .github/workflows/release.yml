@@ -184,6 +184,11 @@ jobs:
       - name: Install XcodeGen
         run: brew install xcodegen
 
+      # Needed by the cert-cleanup step at the bottom of the job. Cheap
+      # (~3s) and we depend on it only for one ~150-line TS script, but
+      # without it `bun run scripts/revoke-ci-certs.ts` exits 127.
+      - uses: oven-sh/setup-bun@v2
+
       - name: Show toolchain versions
         run: |
           sw_vers
@@ -249,6 +254,21 @@ jobs:
             -authenticationKeyID "$ASC_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
             -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8
+
+      # Apple caps Development certs at 2 per account. Every CI run mints
+      # a fresh one via -allowProvisioningUpdates and never reuses it, so
+      # without cleanup we hit the cap every ~2 unattended releases and
+      # the next build dies with "Choose a certificate to revoke." Walk
+      # the portal here and drop anything created in the last 24h
+      # (= certs whose 1-year validity is still >364 days out — see the
+      # script for why this heuristic is safe for human-owned certs).
+      # `if: always()` so a failed upload still cleans up its cert.
+      - name: Revoke this run's iOS Development cert
+        if: always()
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: bun run scripts/revoke-ci-certs.ts
 
   deploy-sync:
     needs: check
