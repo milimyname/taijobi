@@ -10,6 +10,11 @@ on:
         description: "Tag to release (e.g. v0.7.0). Uses latest tag if empty."
         required: false
         type: string
+      dry_run_certs:
+        description: "Preview iOS dev cert cleanup without revoking. Use once to eyeball which certs the heuristic would target."
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -268,6 +273,12 @@ jobs:
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          # workflow_dispatch toggle (false on tag-pushed runs since
+          # `inputs.dry_run_certs` is null there → `&& '1' || ''` → '').
+          # Set to true via `gh workflow run ... -f dry_run_certs=true`
+          # to log candidates without actually revoking. Useful once for
+          # first-run verification.
+          DRY_RUN: ${{ inputs.dry_run_certs && '1' || '' }}
         run: bun run scripts/revoke-ci-certs.ts
 
   deploy-sync:
