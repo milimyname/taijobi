@@ -234,6 +234,7 @@
 		'/more',
 		'/stats',
 		'/dictionary',
+		'/read',
 		'/packs',
 		'/lessons',
 		'/lexicon',
@@ -308,6 +309,7 @@
 
 				{#each [
 					{ href: '/dictionary', label: 'Wörterbuch', Icon: Dictionary },
+					{ href: '/read', label: 'Lesen', Icon: Book2 },
 					{ href: '/stats', label: 'Statistik', Icon: BarChart },
 					{ href: '/packs', label: 'Pakete', Icon: Inventory2 },
 					{ href: '/lexicon', label: 'Lexikon', Icon: Book2 },

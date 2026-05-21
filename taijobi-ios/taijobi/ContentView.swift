@@ -15,6 +15,10 @@ struct ContentView: View {
                 .tabItem {
                     Label("Wörterbuch", systemImage: "magnifyingglass")
                 }
+            ReadingView()
+                .tabItem {
+                    Label("Lesen", systemImage: "text.book.closed")
+                }
             SettingsView()
                 .tabItem {
                     Label("Einstellungen", systemImage: "gearshape")
