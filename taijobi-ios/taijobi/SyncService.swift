@@ -38,7 +38,11 @@ final class SyncService: ObservableObject {
                 self?.debouncedSync()
             }
         }
-        if hasKey {
+        if hasKey, let key = syncKey {
+            // Connect the WebSocket so changes from other devices (web,
+            // another iPhone) arrive in real time, not just on the next
+            // foreground/mutation cycle. Mirrors web's connectSync().
+            SyncWS.shared.connect(key: key)
             Task { @MainActor in await sync() }
         }
     }
@@ -79,11 +83,15 @@ final class SyncService: ObservableObject {
         hasKey = true
         // Fresh key — pull existing rows from the other devices immediately
         // so the user doesn't see an empty lexicon while waiting for a
-        // mutation to trigger the auto-sync.
+        // mutation to trigger the auto-sync. Reconnect the WebSocket so
+        // subsequent broadcasts on this key land in real time.
+        SyncWS.shared.disconnect()
+        SyncWS.shared.connect(key: trimmed)
         Task { @MainActor in await sync() }
     }
 
     func clearSyncKey() {
+        SyncWS.shared.disconnect()
         KeychainService.delete(KeychainService.syncKey)
         UserDefaults.standard.removeObject(forKey: TaijobiConfig.udSyncLastTS)
         encryptionKey = nil
@@ -166,6 +174,10 @@ final class SyncService: ObservableObject {
         else { throw SyncError.localRead }
         let plain = try JSONDecoder().decode(PlainPayload.self, from: changesData)
         if plain.rows.isEmpty { return }
+        // The server broadcasts every push to all WS subscribers, including
+        // the sender. Mark a 2 s window so SyncWS skips re-applying our
+        // own writes when the echo lands.
+        SyncWS.shared.suppressEcho()
 
         guard let ekey = encryptionKey else { throw SyncError.derivation }
         var encryptedRows: [WireRow] = []
