@@ -4,6 +4,12 @@ import SwiftUI
 struct TaijobiApp: App {
     @State private var initError: String?
     @Environment(\.scenePhase) private var scenePhase
+    // SwiftUI's App protocol has no hook for
+    // `application(_:handleEventsForBackgroundURLSession:completionHandler:)`,
+    // which the background URLSession needs in order to finish dict
+    // downloads while the app is suspended/terminated. The adaptor wires
+    // a classic UIApplicationDelegate so we can receive that callback.
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     var body: some Scene {
         WindowGroup {

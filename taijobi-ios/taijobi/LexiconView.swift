@@ -235,13 +235,13 @@ struct LexiconView: View {
                         .progressViewStyle(.linear)
                         .tint(.accentColor)
                         .animation(.linear(duration: 0.15), value: dict.progress)
-                    // iOS suspends URLSession.default downloads in background.
-                    // Until we migrate to URLSessionConfiguration.background +
-                    // a local notification on completion, surface a hint.
+                    // Background URLSession keeps the transfer alive even
+                    // if the user switches apps or closes taijobi. The
+                    // hint reassures rather than warns now.
                     if active.approxSizeMB >= 30 {
-                        Text("Lass die App offen, bis der Download fertig ist — iOS pausiert ihn sonst im Hintergrund.")
+                        Text("Läuft auch im Hintergrund weiter — du wirst per Mitteilung benachrichtigt, wenn fertig.")
                             .font(.caption2)
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(.secondary)
                             .padding(.top, 2)
                     }
                 }
