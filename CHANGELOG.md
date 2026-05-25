@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.7.10 (2026-05-25)
+
+- feat: ios background URLSession for dict downloads + completion ping
+
 ## v0.7.9 (2026-05-25)
 
 - feat: ios merge Lexikon+Wörterbuch, sync auto-refetch, speaker buttons
