@@ -20,13 +20,35 @@ mkdir -p "$BUILD_DIR"/{ios,sim}
 
 cd "$LIB"
 
+# Zig 0.16 uses llvm-ar for static-library output, which writes archive
+# member offsets at 4-byte alignment. Apple's `ld` (and `xcodebuild
+# archive`) require 8-byte alignment for 64-bit Mach-O members and fail
+# with "not 8-byte aligned in '.../libtaijobi.a'". Re-pack with macOS's
+# `libtool -static` after each zig build — libtool writes correct
+# alignment and produces a Mach-O-friendly archive. Drop this workaround
+# when the Zig issue (tracked upstream) lands a fix.
+repack_archive() {
+    local src
+    src="$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
+    local dest="$2"
+    local tmp
+    tmp=$(mktemp -d)
+    (cd "$tmp" && /usr/bin/ar -x "$src")
+    # Zig 0.16's llvm-ar stores members with mode 0, so `ar -x` writes
+    # them as ----------. libtool then refuses to read them. Force
+    # rw-r--r-- before re-archiving.
+    chmod 644 "$tmp"/*.o
+    /usr/bin/xcrun libtool -static -o "$dest" "$tmp"/*.o
+    rm -rf "$tmp"
+}
+
 echo "=== Building for aarch64-ios (device) ==="
 zig build -Dtarget=aarch64-ios --release=small
-cp zig-out/lib/libtaijobi.a "$BUILD_DIR/ios/libtaijobi.a"
+repack_archive zig-out/lib/libtaijobi.a "$BUILD_DIR/ios/libtaijobi.a"
 
 echo "=== Building for aarch64-ios-simulator ==="
 zig build -Dtarget=aarch64-ios-simulator --release=small
-cp zig-out/lib/libtaijobi.a "$BUILD_DIR/sim/libtaijobi.a"
+repack_archive zig-out/lib/libtaijobi.a "$BUILD_DIR/sim/libtaijobi.a"
 
 echo "=== Creating XCFramework ==="
 rm -rf "$BUILD_DIR/libtaijobi.xcframework"
