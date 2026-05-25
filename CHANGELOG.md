@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.7.9 (2026-05-25)
+
+- feat: ios merge Lexikon+Wörterbuch, sync auto-refetch, speaker buttons
+- feat: merge /lexicon + /dictionary, drop /stats + /read
+- docs: update CLAUDE.md — iOS auto-sync, WebSocket, deferred backlog
+
 ## v0.7.8 (2026-05-21)
 
 - feat: ios real-time WebSocket sync, drop iOS reading mode
