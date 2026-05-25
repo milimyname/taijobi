@@ -110,9 +110,6 @@
 	<div>
 		<div class="mb-4 flex items-center justify-between">
 			<h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Heute</h3>
-			<a href="/stats" class="text-xs font-bold uppercase tracking-wider text-primary hover:underline">
-				Alle Statistiken
-			</a>
 		</div>
 		<div
 			class="flex items-center justify-between rounded-xl border border-primary/10 bg-white p-4 dark:bg-white/5"

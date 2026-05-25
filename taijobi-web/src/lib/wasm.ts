@@ -82,6 +82,9 @@ interface WasmExports {
 	hanzi_restore_word: (id: number, len: number) => number;
 	hanzi_update_word: (id: number, idLen: number, trans: number, transLen: number) => number;
 	hanzi_lookup: (query: number, len: number) => number;
+	/** Optional — only present after the next WASM rebuild ships. Caller
+	 *  must `typeof === 'function'` guard. */
+	hanzi_detect_language?: (text: number, len: number) => number;
 	hanzi_search_cards: (query: number, len: number, limit: number) => number;
 	hanzi_get_last_reviewed_card: () => number;
 	hanzi_get_card_by_id: (id: number, len: number) => number;
@@ -662,6 +665,34 @@ export function lookupWord(query: string): DictResult[] {
  * (e.g. command palette previews). Card-sized UIs should consume the
  * structured fields directly.
  */
+/**
+ * Heuristic language detection — calls the Zig export when available so
+ * TS + Swift + Zig all agree on which voice to pick. Returns one of
+ * `'en' | 'de' | 'zh' | 'ar'`. Returns `null` if the WASM hasn't loaded
+ * the export yet (older bundle); callers should fall back to a local
+ * heuristic in that case.
+ */
+export function detectLanguage(text: string): 'en' | 'de' | 'zh' | 'ar' | null {
+	if (!wasm || typeof wasm.hanzi_detect_language !== 'function') return null;
+	wasm.hanzi_reset_alloc();
+	const encoded = new TextEncoder().encode(text);
+	if (encoded.length === 0) return 'en';
+	const ptr = writeBytes(encoded);
+	const code = wasm.hanzi_detect_language(ptr, encoded.length);
+	switch (code) {
+		case 0:
+			return 'en';
+		case 1:
+			return 'de';
+		case 2:
+			return 'zh';
+		case 3:
+			return 'ar';
+		default:
+			return null;
+	}
+}
+
 export function flattenDictResult(r: DictResult): string {
 	const parts: string[] = [];
 	for (const g of r.groups) {

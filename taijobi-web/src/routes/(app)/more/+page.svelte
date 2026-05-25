@@ -1,7 +1,4 @@
 <script lang="ts">
-	import BarChart from '$lib/icons/BarChart.svelte';
-	import Book from '$lib/icons/Book.svelte';
-	import Dictionary from '$lib/icons/Dictionary.svelte';
 	import Inventory2 from '$lib/icons/Inventory2.svelte';
 	import Style from '$lib/icons/Style.svelte';
 	import Translate from '$lib/icons/Translate.svelte';
@@ -18,25 +15,11 @@
 
 	const items: MoreItem[] = [
 		{
-			href: '/stats',
-			label: 'Statistik',
-			desc: 'Streak, Reviews, Aktivität',
-			icon: BarChart,
-			tint: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300'
-		},
-		{
-			href: '/dictionary',
-			label: 'Wörterbuch',
-			desc: 'CEDICT, Wiktionary EN/DE',
-			icon: Dictionary,
-			tint: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300'
-		},
-		{
-			href: '/read',
-			label: 'Lesen',
-			desc: 'Text einfügen, antippen, speichern',
-			icon: Book,
-			tint: 'bg-teal-100 text-teal-600 dark:bg-teal-500/15 dark:text-teal-300'
+			href: '/lexicon',
+			label: 'Wörter',
+			desc: 'Lexikon + Wörterbuch-Suche',
+			icon: Style,
+			tint: 'bg-rose-100 text-rose-600 dark:bg-rose-500/15 dark:text-rose-300'
 		},
 		{
 			href: '/packs',
@@ -44,13 +27,6 @@
 			desc: 'HSK, Lóng, CSV/Anki Import',
 			icon: Inventory2,
 			tint: 'bg-amber-100 text-amber-600 dark:bg-amber-500/15 dark:text-amber-300'
-		},
-		{
-			href: '/lexicon',
-			label: 'Lexikon',
-			desc: 'Persönliche Wortsammlung',
-			icon: Style,
-			tint: 'bg-rose-100 text-rose-600 dark:bg-rose-500/15 dark:text-rose-300'
 		},
 		{
 			href: '/characters',

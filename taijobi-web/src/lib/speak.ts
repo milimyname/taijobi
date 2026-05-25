@@ -1,7 +1,13 @@
 /**
  * Text-to-speech using the browser's SpeechSynthesis API.
- * Supports Chinese, German, and English with automatic voice selection.
+ *
+ * Language detection is delegated to the Zig `hanzi_detect_language`
+ * export so TS + Swift + lexicon insert all agree on which voice to
+ * pick. A tiny inline fallback covers the window where the older WASM
+ * bundle hasn't been re-fetched from cache yet.
  */
+
+import { detectLanguage } from './wasm';
 
 const LANG_MAP: Record<string, string> = {
 	zh: 'zh-CN',
@@ -15,17 +21,30 @@ const LANG_MAP: Record<string, string> = {
 	ru: 'ru-RU'
 };
 
-export function speak(text: string, language: string = 'zh'): void {
+/** Single source of truth lives in libtaijobi/src/lang.zig. Falls back
+ *  to a coarse heuristic only when the WASM export isn't loaded yet. */
+export function detectSpeakLang(text: string): string {
+	const zigGuess = detectLanguage(text);
+	if (zigGuess) return zigGuess;
+	const t = text.trim();
+	if (!t) return 'en';
+	if (/[一-鿿㐀-䶿]/.test(t)) return 'zh';
+	if (/[؀-ۿ]/.test(t)) return 'ar';
+	if (/[äöüÄÖÜß]/.test(t)) return 'de';
+	return 'en';
+}
+
+export function speak(text: string, language: string | 'auto' = 'auto'): void {
 	if (!('speechSynthesis' in window)) return;
 
-	// Cancel any ongoing speech
+	const lang = language === 'auto' ? detectSpeakLang(text) : language;
+
 	window.speechSynthesis.cancel();
 
 	const utterance = new SpeechSynthesisUtterance(text);
-	utterance.lang = LANG_MAP[language] ?? 'en-US';
+	utterance.lang = LANG_MAP[lang] ?? 'en-US';
 	utterance.rate = 0.85;
 
-	// Try to find a matching voice
 	const voices = window.speechSynthesis.getVoices();
 	const match = voices.find((v) => v.lang.startsWith(utterance.lang.split('-')[0]));
 	if (match) utterance.voice = match;

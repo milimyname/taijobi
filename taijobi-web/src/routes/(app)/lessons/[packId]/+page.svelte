@@ -327,7 +327,7 @@
 										<td class="max-w-[200px] truncate px-3 py-2 text-slate-700 dark:text-slate-300">{word.translation ?? ''}</td>
 										<td class="px-2 py-2">
 											<button
-												onclick={() => speak(word.word, isChinese ? 'zh' : isArabic ? 'ar' : 'en')}
+												onclick={() => speak(word.word, isChinese ? 'zh' : isArabic ? 'ar' : 'auto')}
 												class="text-primary/40 hover:text-primary"
 											>
 												<VolumeUp class="text-[18px]" />

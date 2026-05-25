@@ -344,14 +344,14 @@
 			if (hasChinese(item.value.simplified) && isSingleHanzi(item.value.simplified)) {
 				goto(`/character/${encodeURIComponent(item.value.simplified)}`);
 			} else {
-				goto(`/dictionary?q=${encodeURIComponent(item.value.simplified)}`);
+				goto(`/lexicon?q=${encodeURIComponent(item.value.simplified)}`);
 			}
 			return;
 		}
 		if (item.kind === 'wikt') {
 			saveRecent(query.trim());
 			close();
-			goto(`/dictionary?q=${encodeURIComponent(item.value.word)}`);
+			goto(`/lexicon?q=${encodeURIComponent(item.value.word)}`);
 			return;
 		}
 		if (item.kind === 'character') {
@@ -517,7 +517,7 @@
 						data-idx={idx}
 						onclick={() => executeItem({ kind: 'quickadd', value: query.trim() })}
 						disabled={adding}
-						class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors disabled:opacity-50 {selectedIndex === idx ? 'border-l-[3px] border-primary bg-primary/10' : 'hover:bg-slate-50 dark:hover:bg-white/5'}"
+						class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors disabled:opacity-50 {selectedIndex === idx ? 'bg-primary/10 dark:bg-primary/20' : 'hover:bg-slate-50 dark:hover:bg-white/5'}"
 					>
 						<Add class="text-primary" />
 						<span class="text-sm font-medium text-slate-900 dark:text-slate-100">
@@ -533,7 +533,7 @@
 						<button
 							data-idx={idx}
 							onclick={() => executeItem({ kind: 'pack', value: p })}
-							class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors {selectedIndex === idx ? 'border-l-[3px] border-primary bg-primary/10' : 'hover:bg-slate-50 dark:hover:bg-white/5'}"
+							class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors {selectedIndex === idx ? 'bg-primary/10 dark:bg-primary/20' : 'hover:bg-slate-50 dark:hover:bg-white/5'}"
 						>
 							{#if p.kind === 'dictionary'}
 								<Dictionary class="text-slate-400" />
@@ -555,7 +555,7 @@
 						<button
 							data-idx={idx}
 							onclick={() => executeItem({ kind: 'drill-pack', value: p })}
-							class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors {selectedIndex === idx ? 'border-l-[3px] border-primary bg-primary/10' : 'hover:bg-slate-50 dark:hover:bg-white/5'}"
+							class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors {selectedIndex === idx ? 'bg-primary/10 dark:bg-primary/20' : 'hover:bg-slate-50 dark:hover:bg-white/5'}"
 						>
 							<PlayArrow class="text-primary" />
 							<span class="truncate text-sm font-medium text-slate-900 dark:text-slate-100">Drill: {p.name}</span>
@@ -569,7 +569,7 @@
 					<button
 						data-idx={idx}
 						onclick={() => executeItem({ kind: 'last-reviewed', value: lastReviewed })}
-						class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors {selectedIndex === idx ? 'border-l-[3px] border-primary bg-primary/10' : 'hover:bg-slate-50 dark:hover:bg-white/5'}"
+						class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors {selectedIndex === idx ? 'bg-primary/10 dark:bg-primary/20' : 'hover:bg-slate-50 dark:hover:bg-white/5'}"
 					>
 						<PlayCircle class="text-primary" />
 						<div class="flex min-w-0 flex-1 flex-col">
@@ -604,7 +604,7 @@
 						<button
 							data-idx={idx}
 							onclick={() => executeItem({ kind: 'recent', value: r })}
-							class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors {selectedIndex === idx ? 'border-l-[3px] border-primary bg-primary/10' : 'hover:bg-slate-50 dark:hover:bg-white/5'}"
+							class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors {selectedIndex === idx ? 'bg-primary/10 dark:bg-primary/20' : 'hover:bg-slate-50 dark:hover:bg-white/5'}"
 						>
 							<Today class="text-slate-400" />
 							<span class="text-sm text-slate-700 dark:text-slate-200">{r}</span>
@@ -619,7 +619,7 @@
 						<button
 							data-idx={idx}
 							onclick={() => executeItem({ kind: 'action', value: a })}
-							class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors {selectedIndex === idx ? 'border-l-[3px] border-primary bg-primary/10' : 'hover:bg-slate-50 dark:hover:bg-white/5'} {a.danger ? 'text-red-600 dark:text-red-400' : 'text-slate-800 dark:text-slate-100'}"
+							class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors {selectedIndex === idx ? 'bg-primary/10 dark:bg-primary/20' : 'hover:bg-slate-50 dark:hover:bg-white/5'} {a.danger ? 'text-red-600 dark:text-red-400' : 'text-slate-800 dark:text-slate-100'}"
 						>
 							<span class="material-symbols-outlined text-base text-slate-400">{a.icon}</span>
 							<span class="text-sm font-medium">{a.label}</span>
@@ -634,7 +634,7 @@
 						<button
 							data-idx={idx}
 							onclick={() => executeItem({ kind: 'card', value: c })}
-							class="flex w-full min-w-0 flex-col gap-0.5 overflow-hidden rounded-xl px-3 py-2.5 text-left transition-colors {selectedIndex === idx ? 'border-l-[3px] border-primary bg-primary/10' : 'hover:bg-slate-50 dark:hover:bg-white/5'}"
+							class="flex w-full min-w-0 flex-col gap-0.5 overflow-hidden rounded-xl px-3 py-2.5 text-left transition-colors {selectedIndex === idx ? 'bg-primary/10 dark:bg-primary/20' : 'hover:bg-slate-50 dark:hover:bg-white/5'}"
 						>
 							<div class="flex items-baseline gap-2">
 								<span class="text-base font-medium text-slate-900 dark:text-slate-100">{c.word}</span>
@@ -659,7 +659,7 @@
 						<button
 							data-idx={idx}
 							onclick={() => executeItem({ kind: 'pinyin', value: p })}
-							class="flex w-full items-baseline gap-2 rounded-xl px-3 py-2.5 text-left transition-colors {selectedIndex === idx ? 'border-l-[3px] border-primary bg-primary/10' : 'hover:bg-slate-50 dark:hover:bg-white/5'}"
+							class="flex w-full items-baseline gap-2 rounded-xl px-3 py-2.5 text-left transition-colors {selectedIndex === idx ? 'bg-primary/10 dark:bg-primary/20' : 'hover:bg-slate-50 dark:hover:bg-white/5'}"
 						>
 							<span class="shrink-0 text-base font-medium text-slate-900 dark:text-slate-100">{p.word}</span>
 							<span class="shrink-0 text-xs text-slate-500 dark:text-slate-400">{p.pinyin}</span>
@@ -677,7 +677,7 @@
 						<button
 							data-idx={idx}
 							onclick={() => executeItem({ kind: 'dict', value: d })}
-							class="flex w-full min-w-0 flex-col gap-0.5 overflow-hidden rounded-xl px-3 py-2.5 text-left transition-colors {selectedIndex === idx ? 'border-l-[3px] border-primary bg-primary/10' : 'hover:bg-slate-50 dark:hover:bg-white/5'}"
+							class="flex w-full min-w-0 flex-col gap-0.5 overflow-hidden rounded-xl px-3 py-2.5 text-left transition-colors {selectedIndex === idx ? 'bg-primary/10 dark:bg-primary/20' : 'hover:bg-slate-50 dark:hover:bg-white/5'}"
 						>
 							<div class="flex items-baseline gap-2">
 								<span class="text-base font-medium text-slate-900 dark:text-slate-100">{d.simplified}</span>
@@ -693,7 +693,7 @@
 						<button
 							data-idx={idx}
 							onclick={() => executeItem({ kind: 'wikt', value: w })}
-							class="flex w-full min-w-0 flex-col gap-0.5 overflow-hidden rounded-xl px-3 py-2.5 text-left transition-colors {selectedIndex === idx ? 'border-l-[3px] border-primary bg-primary/10' : 'hover:bg-slate-50 dark:hover:bg-white/5'}"
+							class="flex w-full min-w-0 flex-col gap-0.5 overflow-hidden rounded-xl px-3 py-2.5 text-left transition-colors {selectedIndex === idx ? 'bg-primary/10 dark:bg-primary/20' : 'hover:bg-slate-50 dark:hover:bg-white/5'}"
 						>
 							<div class="flex items-baseline gap-2">
 								<span class="text-base font-medium text-slate-900 dark:text-slate-100">{w.word}</span>
@@ -714,7 +714,7 @@
 					<button
 						data-idx={idx}
 						onclick={() => executeItem({ kind: 'character', value: query.trim() })}
-						class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors {selectedIndex === idx ? 'border-l-[3px] border-primary bg-primary/10' : 'hover:bg-slate-50 dark:hover:bg-white/5'}"
+						class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors {selectedIndex === idx ? 'bg-primary/10 dark:bg-primary/20' : 'hover:bg-slate-50 dark:hover:bg-white/5'}"
 					>
 						<span class="text-2xl font-light text-slate-900 dark:text-slate-100">{query.trim()}</span>
 						<span class="text-sm text-slate-500 dark:text-slate-400">Zeichen-Detail öffnen</span>

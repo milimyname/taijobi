@@ -1,7 +1,5 @@
 <script lang="ts">
-	import BarChart from '$lib/icons/BarChart.svelte';
 	import Book2 from '$lib/icons/Book2.svelte';
-	import Dictionary from '$lib/icons/Dictionary.svelte';
 	import Explore from '$lib/icons/Explore.svelte';
 	import Home from '$lib/icons/Home.svelte';
 	import Inventory2 from '$lib/icons/Inventory2.svelte';
@@ -169,8 +167,6 @@
 				d: '/drill',
 				l: '/lexicon',
 				p: '/packs',
-				s: '/stats',
-				w: '/dictionary',
 				e: '/settings',
 				c: '/characters',
 			};
@@ -209,7 +205,7 @@
 		page.url.pathname === '/drill'
 			? 'Drill'
 			: page.url.pathname === '/lexicon'
-				? 'Lexikon'
+				? 'Wörter'
 				: page.url.pathname === '/packs'
 					? 'Pakete'
 					: page.url.pathname.startsWith('/lessons')
@@ -218,23 +214,16 @@
 							? 'Zeichen'
 							: page.url.pathname.startsWith('/character')
 								? 'Zeichen'
-								: page.url.pathname === '/dictionary'
-									? 'Wörterbuch'
-									: page.url.pathname === '/stats'
-										? 'Statistik'
-										: page.url.pathname === '/settings'
-											? 'Einstellungen'
-											: page.url.pathname === '/more'
-												? 'Mehr'
-												: 'Taijobi',
+								: page.url.pathname === '/settings'
+									? 'Einstellungen'
+									: page.url.pathname === '/more'
+										? 'Mehr'
+										: 'Taijobi',
 	);
 
 	// Routes that live under the "Mehr" tab — used to highlight it as active.
 	const MORE_ROUTES = [
 		'/more',
-		'/stats',
-		'/dictionary',
-		'/read',
 		'/packs',
 		'/lessons',
 		'/lexicon',
@@ -308,11 +297,8 @@
 				<div class="my-3 border-t border-slate-100 dark:border-white/5"></div>
 
 				{#each [
-					{ href: '/dictionary', label: 'Wörterbuch', Icon: Dictionary },
-					{ href: '/read', label: 'Lesen', Icon: Book2 },
-					{ href: '/stats', label: 'Statistik', Icon: BarChart },
+					{ href: '/lexicon', label: 'Wörter', Icon: Book2 },
 					{ href: '/packs', label: 'Pakete', Icon: Inventory2 },
-					{ href: '/lexicon', label: 'Lexikon', Icon: Book2 },
 					{ href: '/characters', label: 'Zeichen', Icon: Language },
 				] as item (item.href)}
 					<a
@@ -477,7 +463,7 @@
 				<p class="text-[11px] font-bold uppercase tracking-wider text-primary">Tastenkürzel</p>
 				<h3 class="mt-1 text-lg font-bold text-slate-900 dark:text-slate-100">Navigation</h3>
 				<div class="mt-4 space-y-2 text-sm">
-					{#each [['⌘ K', 'Befehlspalette'], ['g h', 'Start'], ['g d', 'Üben'], ['g s', 'Statistik'], ['g w', 'Wörterbuch'], ['g p', 'Pakete'], ['g l', 'Lexikon'], ['g c', 'Zeichen'], ['g e', 'Einstellungen']] as [keys, label]}
+					{#each [['⌘ K', 'Befehlspalette'], ['g h', 'Start'], ['g d', 'Üben'], ['g p', 'Pakete'], ['g l', 'Wörter'], ['g c', 'Zeichen'], ['g e', 'Einstellungen']] as [keys, label]}
 						<div class="flex items-center justify-between">
 							<span class="text-slate-600 dark:text-slate-300">{label}</span>
 							<kbd class="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 font-mono text-xs text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">{keys}</kbd>

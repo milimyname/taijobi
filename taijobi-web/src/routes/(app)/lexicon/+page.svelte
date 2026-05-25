@@ -1,34 +1,49 @@
 <script lang="ts">
 	import Add from '$lib/icons/Add.svelte';
+	import AddCircle from '$lib/icons/AddCircle.svelte';
 	import Book2 from '$lib/icons/Book2.svelte';
-	import Check from '$lib/icons/Check.svelte';
+	import CheckCircle from '$lib/icons/CheckCircle.svelte';
 	import Close from '$lib/icons/Close.svelte';
 	import Delete from '$lib/icons/Delete.svelte';
 	import Edit from '$lib/icons/Edit.svelte';
+	import HourglassEmpty from '$lib/icons/HourglassEmpty.svelte';
 	import Search from '$lib/icons/Search.svelte';
+	import VolumeUp from '$lib/icons/VolumeUp.svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { addWord, removeWord, restoreWord, updateWord, lookupWord, type LexiconEntry, type DictResult } from '$lib/wasm';
+	import {
+		addWord,
+		removeWord,
+		restoreWord,
+		updateWord,
+		lookupWord,
+		lookupCedict,
+		type CedictResult,
+		type LexiconEntry,
+		type DictResult,
+	} from '$lib/wasm';
 	import WiktEntry from '../../../components/WiktEntry.svelte';
+	import { speak, canSpeak } from '$lib/speak';
 	import { data } from '$lib/data.svelte';
 	import { toastStore } from '$lib/toast.svelte';
 
+	type DictHit =
+		| { type: 'cedict'; word: string; pinyin: string; definition: string; entry: CedictResult }
+		| { type: 'wikt'; word: string; entry: DictResult };
+
 	let adding = $state(false);
+	let busyWord = $state<string | null>(null);
 	let filter = $state('all');
 	let editingId = $state<string | null>(null);
 	let editTranslation = $state('');
-	// Inline dictionary panel — at most one row expanded at a time. Lookup is
-	// done once on expand (WASM binary search is sub-millisecond, so caching
-	// across collapse/expand cycles isn't worth the bookkeeping). Only the
-	// exact-match dictionary entry is shown; prefix matches would just be
-	// noise here since the user already chose this exact word.
+	// Inline definition panel — one expanded lexicon row at a time.
 	let expandedId = $state<string | null>(null);
 	let expandedHit = $state<DictResult | null>(null);
-	// Single input does double duty: live-filters the list while the user
-	// types, and adds the trimmed query as a new lexicon word on Enter / via
-	// the + button (only when there's no exact match — find-or-create).
-	// Initialised from ?q=… so the command palette can deep-link.
+	// One input does triple duty: filter lexicon · search dictionary · add new
+	// word on Enter (when no exact lexicon match exists).
 	let searchQuery = $state(page.url.searchParams.get('q') ?? '');
+	let dictHits: DictHit[] = $state([]);
+	let debounceTimer: ReturnType<typeof setTimeout> | undefined;
 
 	$effect(() => {
 		const current = page.url.searchParams.get('q') ?? '';
@@ -56,6 +71,65 @@
 			const p = (e.pinyin ?? '').toLowerCase();
 			return w.includes(searchNeedle) || t.includes(searchNeedle) || p.includes(searchNeedle);
 		});
+	});
+
+	let lexiconMap = $derived(new Map(entries.map((e) => [e.word, e.id])));
+
+	function hasChinese(text: string): boolean {
+		return [...text].some((ch) => {
+			const code = ch.codePointAt(0) ?? 0;
+			return (code >= 0x4e00 && code <= 0x9fff) || (code >= 0x3400 && code <= 0x4dbf);
+		});
+	}
+
+	function splitChars(text: string): string[] {
+		return [...text].filter((ch) => ch.charCodeAt(0) > 0x2e80);
+	}
+
+	// Debounced dictionary lookup — runs whenever the query changes. Only
+	// matters when something is typed; empty query clears the list.
+	$effect(() => {
+		const q = searchQuery.trim();
+		clearTimeout(debounceTimer);
+		if (!q) {
+			dictHits = [];
+			return;
+		}
+		debounceTimer = setTimeout(() => {
+			const unified: DictHit[] = [];
+			if (hasChinese(q)) {
+				for (const r of lookupCedict(q).slice(0, 8)) {
+					unified.push({
+						type: 'cedict',
+						word: r.simplified,
+						pinyin: r.pinyin,
+						definition: r.english,
+						entry: r,
+					});
+				}
+			}
+			for (const r of lookupWord(q).slice(0, 8)) {
+				unified.push({ type: 'wikt', word: r.word, entry: r });
+			}
+			// Fall back to CEDICT for non-CJK queries (pinyin/English) when the
+			// Wiktionary search returned nothing.
+			if (!hasChinese(q) && unified.length === 0) {
+				for (const r of lookupCedict(q).slice(0, 8)) {
+					unified.push({
+						type: 'cedict',
+						word: r.simplified,
+						pinyin: r.pinyin,
+						definition: r.english,
+						entry: r,
+					});
+				}
+			}
+			// Drop entries that already exist as a lexicon row matching the
+			// current filter — they're already visible above with full edit
+			// controls; showing them again as bare dictionary hits would be
+			// redundant.
+			dictHits = unified.filter((h) => !filtered.some((e) => e.word === h.word));
+		}, 150);
 	});
 
 	async function handleAdd() {
@@ -95,6 +169,27 @@
 		}
 	}
 
+	async function handleDictToggle(word: string) {
+		if (busyWord) return;
+		busyWord = word;
+		try {
+			const existingId = lexiconMap.get(word);
+			if (existingId) {
+				await removeWord(existingId);
+				toastStore.show(`«${word}» entfernt`);
+			} else {
+				await addWord(word);
+				toastStore.show(`«${word}» zum Lexikon hinzugefügt`);
+			}
+		} catch (e) {
+			const msg = e instanceof Error ? e.message : 'Fehler';
+			toastStore.show(msg.includes('already') ? `«${word}» ist bereits im Lexikon` : msg);
+			data.bump();
+		} finally {
+			busyWord = null;
+		}
+	}
+
 	function startEdit(entry: LexiconEntry) {
 		editingId = entry.id;
 		editTranslation = entry.translation ?? '';
@@ -122,7 +217,7 @@
 	}
 
 	function toggleExpand(entry: LexiconEntry) {
-		if (editingId === entry.id) return; // never toggle while editing the row
+		if (editingId === entry.id) return;
 		if (expandedId === entry.id) {
 			expandedId = null;
 			expandedHit = null;
@@ -165,13 +260,11 @@
 		if (entry.stability > 5) return 'Gelernt';
 		return 'Wiederholen';
 	}
-
 </script>
 
-<!-- Combined search + add input.
-     Type to filter · Enter (or +) to add the trimmed query · disabled when
-     the word is already in the lexicon. Styling matches /characters and
-     /dictionary so the search bar feels consistent across the app. -->
+<!-- Combined search + add input — type to filter lexicon AND search the
+     dictionary; Enter (or +) adds the trimmed query as a new lexicon word
+     when it isn't already saved. -->
 <section class="mt-4 flex items-center gap-2">
 	<div
 		class="flex h-12 min-w-0 flex-1 items-center gap-2 overflow-hidden rounded-xl border border-primary/10 bg-primary/5 px-4 transition-all focus-within:border-primary/30"
@@ -208,7 +301,7 @@
 	>
 		<Add />
 	</button>
-	</section>
+</section>
 
 {#if searchQuery.trim() && !exactMatch && !adding}
 	<p class="mt-1.5 px-1 text-[11px] text-slate-400 dark:text-slate-500">
@@ -218,60 +311,38 @@
 
 <!-- Filter Chips -->
 <section class="mt-4 flex gap-2 overflow-x-auto no-scrollbar">
-	<button
-		onclick={() => (filter = 'all')}
-		class="flex h-9 shrink-0 items-center justify-center rounded-full px-5 text-sm font-semibold transition-colors {filter === 'all'
-			? 'bg-primary text-white'
-			: 'bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-300'}"
-	>
-		Alle
-	</button>
-	<button
-		onclick={() => (filter = 'zh')}
-		class="flex h-9 shrink-0 items-center justify-center rounded-full px-5 text-sm font-medium transition-colors {filter === 'zh'
-			? 'bg-primary text-white'
-			: 'bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-300'}"
-	>
-		中文
-	</button>
-	<button
-		onclick={() => (filter = 'de')}
-		class="flex h-9 shrink-0 items-center justify-center rounded-full px-5 text-sm font-medium transition-colors {filter === 'de'
-			? 'bg-primary text-white'
-			: 'bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-300'}"
-	>
-		Deutsch
-	</button>
-	<button
-		onclick={() => (filter = 'en')}
-		class="flex h-9 shrink-0 items-center justify-center rounded-full px-5 text-sm font-medium transition-colors {filter === 'en'
-			? 'bg-primary text-white'
-			: 'bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-300'}"
-	>
-		English
-	</button>
+	{#each [
+		['all', 'Alle'],
+		['zh', '中文'],
+		['de', 'Deutsch'],
+		['en', 'English'],
+	] as [k, label] (k)}
+		<button
+			onclick={() => (filter = k)}
+			class="flex h-9 shrink-0 items-center justify-center rounded-full px-5 text-sm font-medium transition-colors {filter === k
+				? 'bg-primary text-white'
+				: 'bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-300'}"
+		>
+			{label}
+		</button>
+	{/each}
 </section>
 
-<!-- Word List -->
+<!-- Lexicon list -->
 <section class="mt-6 space-y-6">
-	{#if filtered.length === 0}
-		<div class="rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-white/5">
+	{#if filtered.length === 0 && !searchNeedle}
+		<div
+			class="rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-white/5"
+		>
 			<Book2 class="mx-auto mb-2 block text-[32px] text-slate-300 dark:text-slate-500" />
-			{#if searchNeedle || filter !== 'all'}
-				<p class="text-sm text-slate-500 dark:text-slate-400">
-					Keine Treffer{#if searchNeedle} für «{searchQuery}»{/if}.
-				</p>
-			{:else}
-				<p class="text-sm text-slate-500 dark:text-slate-400">
-					Noch keine Wörter. Füge Wörter hinzu, die dir beim Lesen begegnen.
-				</p>
-			{/if}
+			<p class="text-sm text-slate-500 dark:text-slate-400">
+				Noch keine Wörter. Füge Wörter hinzu, die dir beim Lesen begegnen.
+			</p>
 		</div>
-	{:else}
-		<!-- Word group -->
+	{:else if filtered.length > 0}
 		<div>
 			<h3 class="mb-3 px-1 text-[11px] font-bold uppercase tracking-wider text-primary">
-				Lexikon ({filtered.length} Wörter)
+				Lexikon ({filtered.length} {filtered.length === 1 ? 'Wort' : 'Wörter'})
 			</h3>
 			<div class="space-y-3">
 				{#each filtered as entry (entry.id)}
@@ -279,7 +350,6 @@
 						class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm dark:border-white/5 dark:bg-slate-800/40"
 					>
 						{#if editingId === entry.id}
-							<!-- Edit mode -->
 							<div class="flex items-center gap-2">
 								<input
 									type="text"
@@ -292,7 +362,7 @@
 									onclick={saveEdit}
 									class="rounded-lg bg-primary p-2 text-white transition-colors hover:bg-primary/90"
 								>
-									<Check class="text-[18px]" />
+									<CheckCircle class="text-[18px]" />
 								</button>
 								<button
 									onclick={cancelEdit}
@@ -302,9 +372,6 @@
 								</button>
 							</div>
 						{:else}
-							<!-- Display mode: tap the word/translation area to expand the
-							     full Wiktionary entry inline; action buttons + CJK char
-							     links handle their own click via stopPropagation. -->
 							<div class="flex items-center">
 								<div
 									role="button"
@@ -320,11 +387,16 @@
 												href="/character/{encodeURIComponent(entry.word)}"
 												onclick={(e) => e.stopPropagation()}
 												class="chinese-char text-lg font-bold text-slate-900 hover:text-primary dark:text-slate-100"
-											>{entry.word}</a>
+												>{entry.word}</a
+											>
 										{:else if entry.language === 'ar'}
-											<span dir="rtl" class="text-xl font-bold text-slate-900 dark:text-slate-100">{entry.word}</span>
+											<span dir="rtl" class="text-xl font-bold text-slate-900 dark:text-slate-100"
+												>{entry.word}</span
+											>
 										{:else}
-											<span class="text-lg font-bold text-slate-900 dark:text-slate-100">{entry.word}</span>
+											<span class="text-lg font-bold text-slate-900 dark:text-slate-100"
+												>{entry.word}</span
+											>
 										{/if}
 										<span
 											class="rounded bg-primary/5 px-1.5 py-0.5 text-[10px] font-bold text-primary"
@@ -347,15 +419,33 @@
 									</p>
 								</div>
 								<div class="flex items-center gap-1">
+									{#if canSpeak()}
+										<button
+											onclick={(e) => {
+												e.stopPropagation();
+												speak(entry.word, entry.language || 'auto');
+											}}
+											class="rounded-lg p-1.5 text-slate-300 transition-colors hover:bg-slate-100 hover:text-primary dark:text-slate-500 dark:hover:bg-white/10 dark:hover:text-primary"
+											title="Aussprechen"
+										>
+											<VolumeUp class="text-[18px]" />
+										</button>
+									{/if}
 									<button
-										onclick={(e) => { e.stopPropagation(); startEdit(entry); }}
+										onclick={(e) => {
+											e.stopPropagation();
+											startEdit(entry);
+										}}
 										class="rounded-lg p-1.5 text-slate-300 transition-colors hover:bg-slate-100 hover:text-primary dark:text-slate-500 dark:hover:bg-white/10 dark:hover:text-primary"
 										title="Bearbeiten"
 									>
 										<Edit class="text-[18px]" />
 									</button>
 									<button
-										onclick={(e) => { e.stopPropagation(); handleRemove(entry); }}
+										onclick={(e) => {
+											e.stopPropagation();
+											handleRemove(entry);
+										}}
 										class="rounded-lg p-1.5 text-slate-300 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-slate-500 dark:hover:bg-red-950"
 										title="Entfernen"
 									>
@@ -383,6 +473,96 @@
 					</div>
 				{/each}
 			</div>
+		</div>
+	{/if}
+
+	<!-- Dictionary hits — only when actively searching and not editing. -->
+	{#if searchNeedle && dictHits.length > 0}
+		<div>
+			<h3 class="mb-3 px-1 text-[11px] font-bold uppercase tracking-wider text-primary">
+				Wörterbuch ({dictHits.length})
+			</h3>
+			<div class="space-y-3">
+				{#each dictHits as hit, i (hit.word + i)}
+					<div
+						class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm dark:border-white/5 dark:bg-slate-800/40"
+					>
+						<div class="flex items-start gap-3">
+							<div class="min-w-0 flex-1">
+								<div class="mb-2 flex flex-wrap items-baseline gap-2">
+									{#if hit.type === 'cedict'}
+										<span class="text-2xl font-light">
+											{#each splitChars(hit.word) as char (char)}
+												<a
+													href="/character/{encodeURIComponent(char)}"
+													class="chinese-char hover:text-primary">{char}</a
+												>
+											{/each}
+											{#if splitChars(hit.word).length === 0}
+												<span>{hit.word}</span>
+											{/if}
+										</span>
+										<span class="text-sm text-primary/70 dark:text-accent">{hit.pinyin}</span>
+									{:else}
+										<span class="text-xl font-semibold text-slate-900 dark:text-slate-100"
+											>{hit.word}</span
+										>
+									{/if}
+								</div>
+
+								{#if hit.type === 'cedict'}
+									<p class="text-[13px] leading-relaxed text-slate-600 dark:text-slate-400">
+										{hit.definition}
+									</p>
+								{:else}
+									<WiktEntry result={hit.entry} />
+								{/if}
+							</div>
+
+							<div class="flex shrink-0 items-center gap-1">
+								<button
+									onclick={() => speak(hit.word, hit.type === 'cedict' ? 'zh' : 'auto')}
+									class="rounded-lg p-1.5 text-slate-300 transition-colors hover:bg-slate-100 hover:text-primary dark:text-slate-500 dark:hover:bg-white/10"
+									title="Aussprechen"
+								>
+									<VolumeUp class="text-[20px]" />
+								</button>
+								<button
+									onclick={() => handleDictToggle(hit.word)}
+									disabled={busyWord === hit.word}
+									class="rounded-lg p-1.5 transition-colors disabled:opacity-50 {lexiconMap.has(
+										hit.word,
+									)
+										? 'text-primary hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950'
+										: 'text-slate-300 hover:bg-primary/10 hover:text-primary dark:text-slate-500 dark:hover:bg-primary/20'}"
+									title={lexiconMap.has(hit.word)
+										? 'Aus Lexikon entfernen'
+										: 'Zum Lexikon hinzufügen'}
+								>
+									{#if busyWord === hit.word}
+										<HourglassEmpty class="text-[20px]" />
+									{:else if lexiconMap.has(hit.word)}
+										<CheckCircle class="text-[20px]" />
+									{:else}
+										<AddCircle class="text-[20px]" />
+									{/if}
+								</button>
+							</div>
+						</div>
+					</div>
+				{/each}
+			</div>
+		</div>
+	{/if}
+
+	{#if searchNeedle && filtered.length === 0 && dictHits.length === 0}
+		<div
+			class="rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm dark:border-white/5 dark:bg-white/5"
+		>
+			<Search class="mx-auto mb-2 block text-[32px] text-slate-300 dark:text-slate-500" />
+			<p class="text-sm text-slate-500 dark:text-slate-400">
+				Keine Treffer für «{searchQuery}». Enter drücken, um es trotzdem zu speichern.
+			</p>
 		</div>
 	{/if}
 </section>

@@ -69,22 +69,6 @@ export function getActions(): PaletteAction[] {
 			handler: () => goto('/drill')
 		},
 		{
-			id: 'nav-stats',
-			label: 'Statistiken',
-			icon: 'bar_chart',
-			group: 'Navigation',
-			keywords: ['stats', 'statistiken'],
-			handler: () => goto('/stats')
-		},
-		{
-			id: 'nav-dict',
-			label: 'Wörterbuch',
-			icon: 'menu_book',
-			group: 'Navigation',
-			keywords: ['dictionary', 'wörterbuch'],
-			handler: () => goto('/dictionary')
-		},
-		{
 			id: 'nav-packs',
 			label: 'Pakete',
 			icon: 'inventory_2',
@@ -94,10 +78,10 @@ export function getActions(): PaletteAction[] {
 		},
 		{
 			id: 'nav-lex',
-			label: 'Lexikon',
+			label: 'Wörter',
 			icon: 'style',
 			group: 'Navigation',
-			keywords: ['lexicon', 'lexikon'],
+			keywords: ['lexicon', 'lexikon', 'wörter', 'dictionary', 'wörterbuch'],
 			handler: () => goto('/lexicon')
 		},
 		{
