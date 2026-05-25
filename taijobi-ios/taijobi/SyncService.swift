@@ -1,27 +1,43 @@
 import Foundation
+import Network
 
 /// HTTP push/pull sync against the wimg-sync Worker (sync.taijobi.com).
-/// Mirrors taijobi-web/src/lib/sync.ts for the parts iOS actually needs;
-/// WebSocket real-time is intentionally deferred until daily use proves it
-/// matters.
+/// Mirrors taijobi-web/src/lib/sync.ts.
 ///
 /// Wire format matches the web client exactly so a phone's pushes show up
 /// on laptop and vice versa:
 ///   POST /sync/{key}        { rows: [encrypted rows] }
 ///   GET  /sync/{key}?since= → { rows: [encrypted rows] }
+///
+/// iOS divergence vs. web — neither platform gets reconnect-on-online for
+/// free. The browser at least surfaces `online`/`offline` events and keeps
+/// a WebSocket alive in the background tab; iOS suspends sockets the
+/// moment the app backgrounds and provides no equivalent event. We bridge
+/// that gap with `NWPathMonitor` + a manual `SyncWS.reconnect()` on
+/// foreground transitions — ~30 lines of iOS-specific glue, no library.
 @MainActor
 final class SyncService: ObservableObject {
     static let shared = SyncService()
-    private init() {}
+    private init() {
+        startNetworkMonitor()
+    }
 
     @Published var syncing = false
     @Published var lastError: String?
     @Published var lastSyncMs: Int64 = UserDefaults.standard
         .object(forKey: TaijobiConfig.udSyncLastTS) as? Int64 ?? 0
     @Published var hasKey: Bool = KeychainService.get(KeychainService.syncKey) != nil
+    /// Bumps whenever `applyChanges` lands new rows from a pull or a WS
+    /// broadcast. Views observe it via `@StateObject` + `.onChange(of:)`
+    /// so the UI refreshes the moment remote changes arrive — without
+    /// this, a phone that's still on the Wörter tab when the laptop saves
+    /// a word wouldn't show it until the user navigated away and back.
+    @Published var dataVersion: UInt64 = 0
 
     private var encryptionKey: Data?
     private var pendingSyncTask: Task<Void, Never>?
+    private var networkMonitor: NWPathMonitor?
+    private var wasOnline = true
 
     // MARK: - Auto-sync wiring
 
@@ -59,14 +75,42 @@ final class SyncService: ObservableObject {
         }
     }
 
-    /// Pull-only when the user comes back to the app — mutations during
-    /// foreground get pushed via the mutation callback already, so a return
-    /// from background mostly needs to hear what other devices changed.
-    /// Still calls full sync() for the rare case where a queued mutation
-    /// was cut short by app suspension.
+    /// Called whenever the app becomes active. Two things matter here:
+    ///   1. Kick the WebSocket — iOS killed it the moment we backgrounded,
+    ///      and the receive-loop's scheduled reconnect may have backed off
+    ///      up to 30 s. Forcing reconnect now means real-time broadcasts
+    ///      resume immediately instead of after the next backoff tick.
+    ///   2. Run a full HTTP sync so any rows we missed while the WS was
+    ///      down (or while the app was offline entirely) land before the
+    ///      user reads them.
     func onForeground() {
         guard hasKey else { return }
+        SyncWS.shared.reconnect()
         Task { @MainActor in await sync() }
+    }
+
+    // MARK: - Network reachability
+
+    /// `NWPathMonitor` is iOS's closest analogue to the browser's
+    /// `online`/`offline` events. Without it, regaining Wi-Fi after a
+    /// flight or stepping back inside from cellular dead zone leaves the
+    /// WebSocket dead and `lastSyncMs` stale until the user manually
+    /// taps "Jetzt synchronisieren".
+    private func startNetworkMonitor() {
+        let monitor = NWPathMonitor()
+        networkMonitor = monitor
+        monitor.pathUpdateHandler = { [weak self] path in
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                let online = path.status == .satisfied
+                let regained = online && !self.wasOnline
+                self.wasOnline = online
+                guard regained, self.hasKey else { return }
+                SyncWS.shared.reconnect()
+                await self.sync()
+            }
+        }
+        monitor.start(queue: DispatchQueue(label: "taijobi.network"))
     }
 
     var syncKey: String? {
@@ -128,9 +172,16 @@ final class SyncService: ObservableObject {
         do {
             try ensureEncryptionKey(for: key)
             try await push(key: key)
-            try await pull(key: key)
+            let appliedRows = try await pull(key: key)
             lastSyncMs = Int64(Date().timeIntervalSince1970 * 1000)
             UserDefaults.standard.set(lastSyncMs, forKey: TaijobiConfig.udSyncLastTS)
+            // Bump dataVersion only when pull actually applied rows —
+            // otherwise every onForeground tick (which fires `sync()` for
+            // the empty-rows case) would re-render every observing view
+            // for nothing.
+            if appliedRows {
+                dataVersion &+= 1
+            }
         } catch {
             lastError = "\(error.localizedDescription)"
         }
@@ -206,7 +257,9 @@ final class SyncService: ObservableObject {
         }
     }
 
-    private func pull(key: String) async throws {
+    /// Returns true when at least one row was applied locally — caller
+    /// uses that to decide whether to bump `dataVersion`.
+    private func pull(key: String) async throws -> Bool {
         let url = URL(
             string:
                 "\(TaijobiConfig.syncBaseURL)/sync/\(key)?since=\(lastSyncMs)")!
@@ -215,7 +268,7 @@ final class SyncService: ObservableObject {
             throw SyncError.server(status: http.statusCode)
         }
         let wire = try JSONDecoder().decode(WirePayload.self, from: data)
-        if wire.rows.isEmpty { return }
+        if wire.rows.isEmpty { return false }
 
         guard let ekey = encryptionKey else { throw SyncError.derivation }
         var plainRows: [PlainRow] = []
@@ -238,6 +291,7 @@ final class SyncService: ObservableObject {
         if !LibTaijobi.shared.applyChanges(body) {
             throw SyncError.localWrite
         }
+        return true
     }
 }
 

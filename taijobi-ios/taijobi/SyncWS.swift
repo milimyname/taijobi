@@ -73,6 +73,23 @@ final class SyncWS: ObservableObject {
 		connected = false
 	}
 
+	/// Force an immediate reconnect — called from `SyncService.onForeground()`
+	/// and from `NetworkMonitor` when connectivity is regained. iOS drops
+	/// WebSocket tasks when the app backgrounds, and without this kick the
+	/// next message wouldn't arrive until the natural backoff timer (up to
+	/// 30 s) fired. Cancelling the current task triggers the receive loop's
+	/// `.failure` branch, which calls `scheduleReconnect()`, but we bypass
+	/// the backoff by resetting `reconnectDelay` and connecting immediately.
+	func reconnect() {
+		guard !closed, syncKey != nil else { return }
+		task?.cancel(with: .goingAway, reason: nil)
+		task = nil
+		session?.invalidateAndCancel()
+		session = nil
+		reconnectDelay = 1.0
+		doConnect()
+	}
+
 	/// Called by SyncService right before every HTTP push so the broadcast
 	/// we receive back for our own change gets ignored (avoids round-tripping
 	/// applyChanges on data we already wrote locally).
@@ -185,6 +202,11 @@ final class SyncWS: ObservableObject {
 		let now = Int64(Date().timeIntervalSince1970 * 1000)
 		SyncService.shared.lastSyncMs = now
 		UserDefaults.standard.set(now, forKey: TaijobiConfig.udSyncLastTS)
+		// Tell observing views (LexiconView etc.) that the underlying
+		// SQLite has changed so they re-fetch — without this, real-time
+		// WS pushes land silently in the DB and the UI only refreshes
+		// the next time a view `.onAppear`s.
+		SyncService.shared.dataVersion &+= 1
 	}
 
 	private func scheduleReconnect() {

@@ -229,6 +229,28 @@ final class LibTaijobi {
         }
     }
 
+    /// Returns the language Zig's `lang.detect()` infers for the given
+    /// text — single source of truth shared with the web client + the
+    /// lexicon insert path. Used by Speak.detect(_:) so the TTS voice
+    /// matches what the lexicon-insert path would tag.
+    func detectLanguage(_ text: String) -> String? {
+        withAbi {
+            guard initialized, !text.isEmpty else { return nil }
+            let bytes = Data(text.utf8)
+            let code = bytes.withUnsafeBytes { raw -> Int32 in
+                guard let base = raw.baseAddress else { return 0 }
+                return hanzi_detect_language(base, bytes.count)
+            }
+            switch code {
+            case 0: return "en"
+            case 1: return "de"
+            case 2: return "zh"
+            case 3: return "ar"
+            default: return nil
+            }
+        }
+    }
+
     // MARK: - Dictionary data loading
     //
     // libtaijobi keeps dictionary blobs in a separate "persistent" allocator
