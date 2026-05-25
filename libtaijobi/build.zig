@@ -175,14 +175,23 @@ pub fn build(b: *std.Build) void {
 fn addAppleSdkPaths(b: *std.Build, step: *std.Build.Step.Compile) !void {
     const target_val = step.rootModuleTarget();
 
-    const libc = try std.zig.LibCInstallation.findNative(.{
-        .allocator = b.allocator,
-        .target = &target_val,
-        .verbose = false,
-    });
+    // Zig 0.16: findNative now takes (gpa, io, args). The args struct gained
+    // a required environ_map field — we pull both io and environ_map off
+    // b.graph since the build runner owns them.
+    const libc = try std.zig.LibCInstallation.findNative(
+        b.allocator,
+        b.graph.io,
+        .{
+            .target = &target_val,
+            .environ_map = &b.graph.environ_map,
+            .verbose = false,
+        },
+    );
 
-    // Render libc.txt compatible with Zig's --libc flag
-    var stream: std.io.Writer.Allocating = .init(b.allocator);
+    // Render libc.txt compatible with Zig's --libc flag. Writer.Allocating
+    // moved from std.io to std.Io in 0.16; the .init / .deinit / .written
+    // / .writer surface is unchanged.
+    var stream: std.Io.Writer.Allocating = .init(b.allocator);
     defer stream.deinit();
     try libc.render(&stream.writer);
 

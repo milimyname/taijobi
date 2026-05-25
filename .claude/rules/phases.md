@@ -365,29 +365,49 @@ get enriched from CEDICT. All words reviewable via FSRS.
 
 ---
 
-## Toolchain — Zig 0.16 upgrade (deferred)
+## Toolchain — Zig 0.16 upgrade (done 2026-05-25)
 
-Zig 0.16 shipped in April 2026. Don't upgrade until Phase 6.2 (MCP) is
-fully shipped and stable. Reasons:
+Upgraded from 0.15.2 → 0.16.0. CI pin (`mlugg/setup-zig@v2`) bumped in
+`.github/workflows/{ci,release}.yml`. iOS XCFramework still built on
+macos-15 — comment kept in case the macos-26 libSystem issue resurfaces.
 
-1. **Zero pressure.** `zig build` + `zig build test` + `zig build -Dmcp=true`
-   all pass on 0.15.2. No bug is waiting on a 0.16 fix.
-2. **Zig minor bumps routinely break things.** 0.13 → 0.14 changed the `std.io`
-   reader/writer API; 0.14 → 0.15 changed allocator interfaces and some build
-   system APIs. Expect 0.15 → 0.16 to have similar churn.
-3. **Taijobi is tightly coupled to specific Zig APIs.** `std.io.fixedBufferStream`,
-   `std.heap.FixedBufferAllocator`, `std.fmt.format` into writers, `@memcpy` +
-   `std.mem.readInt`, and build-system bits like `b.addOptions` and
-   `wasm_mod.addCSourceFile` — any of these can rename or move.
-4. **Pipeline is pinned.** `.github/workflows/release.yml` uses
-   `mlugg/setup-zig@v2 version: 0.15.2`. Bumping the toolchain requires every
-   dev + CI to bump in lock-step.
-5. **Ecosystem-settle tax.** Wait 4–6 weeks for the first patch release
-   (0.16.1) that fixes the common migration papercuts before jumping.
+**Migration notes** — what 0.16 broke and how each was fixed:
 
-**When to actually do it** (dedicated PR, no other changes mixed in):
-- After Phase 6.2 lands with no open bugs touching `libtaijobi/`.
-- Run `zig fmt --check src/` + `zig build test` + `zig build` + `zig build -Dmcp=true`;
-  fix each failure in turn.
-- Update the pin in `release.yml` from `0.15.2` → `0.16.x`.
-- Allocate ~2 hours; usually takes less but don't rush it.
+1. **`std.zig.LibCInstallation.findNative` signature change.**
+   0.15: `findNative(.{ .allocator, .target, .verbose })`.
+   0.16: `findNative(gpa, io, .{ .target, .environ_map, .verbose })`.
+   `io` + `environ_map` now live on `b.graph`. Touched: `build.zig:178`.
+
+2. **`std.io` → `std.Io` (capital).** The lowercase namespace is gone in
+   0.16. `std.io.Writer.Allocating` → `std.Io.Writer.Allocating`. Same
+   `.init(allocator) / .deinit() / .written() / .writer` surface.
+
+3. **`std.io.fixedBufferStream` removed.** Replacement:
+   `std.Io.Writer.fixed(buffer)` — writes directly via the unified
+   `Writer` interface. The new writer carries its own `.end` position
+   (no more `stream.pos`) and exposes `.buffered()` to read what was
+   written. Touched: `db.zig:75`.
+
+4. **`std.fmt.format(writer, fmt, args)` removed.** Replacement: call
+   `writer.print(fmt, args)` directly. The `Writer` type now owns the
+   format machinery. Touched: `db.zig:100,103,106,121,137`.
+
+5. **`std.time.milliTimestamp()` removed.** Wall-clock time now flows
+   through an `Io` instance (`Io.Clock`), which we don't have at the
+   libtaijobi layer. Fix: call `std.c.clock_gettime(.REALTIME, &ts)`
+   directly on native; WASM keeps `js_time_ms()`. Touched: `root.zig:77`.
+
+6. **`std.fs.cwd()` removed.** Replacement: `std.Io.Dir.cwd()`. Every
+   file op now requires an `Io` arg — `dir.createFile(io, path, flags)`,
+   `file.writeStreamingAll(io, bytes)`, `file.close(io)`,
+   `dir.deleteFile(io, path)`. For test-only paths we use
+   `std.testing.io`. Touched: `apkg.zig:467,652` — gated on
+   `builtin.is_test` since this path only runs under `zig build test`.
+
+**Things that did NOT break** (despite being on the watchlist):
+`std.heap.FixedBufferAllocator`, `b.addOptions`, `wasm_mod.addCSourceFile`,
+`@memcpy`, `std.mem.readInt`, `std.unicode.utf8Decode`, all `export fn`
+signatures.
+
+**Took ~1 hour end-to-end** including the new `hanzi_detect_language`
+C ABI export that started this whole thread.

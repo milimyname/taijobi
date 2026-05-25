@@ -33,7 +33,7 @@ jobs:
 
       - uses: mlugg/setup-zig@v2
         with:
-          version: 0.15.2
+          version: 0.16.0
 
       - uses: oven-sh/setup-bun@v2
 
@@ -80,7 +80,7 @@ jobs:
 
       - uses: mlugg/setup-zig@v2
         with:
-          version: 0.15.2
+          version: 0.16.0
 
       - uses: oven-sh/setup-bun@v2
 
@@ -120,9 +120,10 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
   build-libtaijobi-ios:
-    # Zig 0.15.2's build runner can't link on macos-26 (missing
-    # __availability_version_check in libSystem). Build the static .a on
-    # macos-15 — the XCFramework is portable across SDK versions.
+    # Pinned to macos-15 because Zig 0.15.2 hit a libSystem linker break
+    # on macos-26 (missing __availability_version_check). Likely fixed in
+    # 0.16, but the XCFramework is portable across SDK versions so the
+    # pin costs nothing and keeps the upgrade narrowly scoped.
     needs: check
     runs-on: macos-15
     steps:
@@ -130,7 +131,7 @@ jobs:
 
       - uses: mlugg/setup-zig@v2
         with:
-          version: 0.15.2
+          version: 0.16.0
 
       - uses: oven-sh/setup-bun@v2
 
@@ -289,7 +290,7 @@ jobs:
 
       - uses: mlugg/setup-zig@v2
         with:
-          version: 0.15.2
+          version: 0.16.0
 
       - uses: oven-sh/setup-bun@v2
 

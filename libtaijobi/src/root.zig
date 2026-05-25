@@ -78,7 +78,12 @@ fn now() i64 {
     if (is_wasm) {
         return js_time_ms();
     }
-    return std.time.milliTimestamp();
+    // Zig 0.16: std.time.milliTimestamp() is gone — wall-clock time is now
+    // accessed through an Io instance which we don't have at this layer.
+    // Call clock_gettime directly via libc on native (tests + iOS).
+    var ts: std.c.timespec = undefined;
+    _ = std.c.clock_gettime(.REALTIME, &ts);
+    return @as(i64, @intCast(ts.sec)) * 1000 + @divTrunc(@as(i64, @intCast(ts.nsec)), 1_000_000);
 }
 
 /// Returns length-prefixed data: 4-byte LE u32 length + data bytes
@@ -860,6 +865,22 @@ export fn hanzi_lookup_word(query_ptr: [*]const u8, query_len: usize) ?[*]const 
 
 fn isEmptyJsonArray(s: []const u8) bool {
     return s.len == 2 and s[0] == '[' and s[1] == ']';
+}
+
+/// Returns a small integer code so the platform shells can pick the right
+/// TTS voice without duplicating the heuristic in TS + Swift. Same logic
+/// as the internal `lang.detect()` used during lexicon insert — keeping
+/// one source of truth means a fix here automatically benefits both
+/// shells on the next dictionary build.
+///   0 = en, 1 = de, 2 = zh, 3 = ar
+export fn hanzi_detect_language(text_ptr: [*]const u8, text_len: usize) i32 {
+    const text = text_ptr[0..text_len];
+    return switch (lang_mod.detect(text)) {
+        .en => 0,
+        .de => 1,
+        .zh => 2,
+        .ar => 3,
+    };
 }
 
 // === WASM-only exports ===

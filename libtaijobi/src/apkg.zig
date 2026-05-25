@@ -462,15 +462,22 @@ pub fn importApkg(main_db: *sqlite.sqlite3, apkg_data: []const u8, pack_name: []
         _ = sqlite.sqlite3_close(anki_db.?);
         anki_db = null;
 
-        // Write temp file
+        // Write temp file. Only happens during `zig build test` — production
+        // builds never call this path because iOS/WASM both stay above this
+        // branch (`is_wasm` is gated outside, and the native iOS target
+        // doesn't surface .apkg import to the user). Zig 0.16 made all file
+        // ops require an `Io` argument; `std.testing.io` is only valid in
+        // test mode, so we explicitly gate on `builtin.is_test`.
         const tmp_path: [*:0]const u8 = "/tmp/_anki_test_tmp.db";
-        if (builtin.target.os.tag != .freestanding) {
-            const file = std.fs.cwd().createFileZ(tmp_path, .{}) catch return error.TempDbFailed;
-            file.writeAll(db_bytes) catch {
-                file.close();
+        if (builtin.is_test) {
+            const io = std.testing.io;
+            const file = std.Io.Dir.cwd().createFile(io, std.mem.span(tmp_path), .{}) catch
+                return error.TempDbFailed;
+            file.writeStreamingAll(io, db_bytes) catch {
+                file.close(io);
                 return error.TempDbFailed;
             };
-            file.close();
+            file.close(io);
         }
 
         if (sqlite.sqlite3_open(tmp_path, &anki_db) != sqlite.SQLITE_OK)
@@ -640,9 +647,11 @@ pub fn importApkg(main_db: *sqlite.sqlite3, apkg_data: []const u8, pack_name: []
 
     execSql(main_db, "COMMIT") catch return error.StepFailed;
 
-    // Clean up native temp file (WASM VFS slot gets reused on next import)
-    if (!is_wasm and builtin.target.os.tag != .freestanding) {
-        std.fs.cwd().deleteFileZ("/tmp/_anki_test_tmp.db") catch {};
+    // Clean up native temp file (WASM VFS slot gets reused on next import).
+    // Gated on `builtin.is_test` for the same reason the createFile above
+    // is — std.testing.io only exists during test runs.
+    if (builtin.is_test) {
+        std.Io.Dir.cwd().deleteFile(std.testing.io, "/tmp/_anki_test_tmp.db") catch {};
     }
 
     return word_count;

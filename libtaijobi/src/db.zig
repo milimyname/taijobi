@@ -72,8 +72,13 @@ pub const Db = struct {
             col_names[i] = sqlite.sqlite3_column_name(s, @intCast(i)) orelse "?";
         }
 
-        var stream = std.io.fixedBufferStream(buf[0..buf_size]);
-        const w = stream.writer();
+        // Zig 0.16: std.io.fixedBufferStream is gone — replaced by
+        // std.Io.Writer.fixed(buffer), which writes directly through the
+        // unified Writer interface. `std.fmt.format(writer, ...)` is also
+        // gone; call `writer.print(...)` instead. The new Writer carries
+        // its own end-position so we read `w.end` in place of the old
+        // `stream.pos`.
+        var w = std.Io.Writer.fixed(buf[0..buf_size]);
 
         w.writeAll("{\"columns\":[") catch return null;
         for (0..cols) |i| {
@@ -97,13 +102,13 @@ pub const Db = struct {
                     w.writeAll("null") catch return null;
                 } else if (col_type == sqlite.SQLITE_INTEGER) {
                     const v = sqlite.sqlite3_column_int64(s, @intCast(i));
-                    std.fmt.format(w, "{d}", .{v}) catch return null;
+                    w.print("{d}", .{v}) catch return null;
                 } else if (col_type == sqlite.SQLITE_FLOAT) {
                     const v = sqlite.sqlite3_column_double(s, @intCast(i));
-                    std.fmt.format(w, "{d}", .{v}) catch return null;
+                    w.print("{d}", .{v}) catch return null;
                 } else if (col_type == sqlite.SQLITE_BLOB) {
                     const len: usize = @intCast(sqlite.sqlite3_column_bytes(s, @intCast(i)));
-                    std.fmt.format(w, "\"<BLOB {d} bytes>\"", .{len}) catch return null;
+                    w.print("\"<BLOB {d} bytes>\"", .{len}) catch return null;
                 } else { // TEXT
                     const ptr = sqlite.sqlite3_column_text(s, @intCast(i));
                     const len: usize = @intCast(sqlite.sqlite3_column_bytes(s, @intCast(i)));
@@ -118,7 +123,7 @@ pub const Db = struct {
                                 '\t' => w.writeAll("\\t") catch return null,
                                 else => {
                                     if (ch < 0x20) {
-                                        std.fmt.format(w, "\\u{x:0>4}", .{@as(u16, ch)}) catch return null;
+                                        w.print("\\u{x:0>4}", .{@as(u16, ch)}) catch return null;
                                     } else {
                                         w.writeByte(ch) catch return null;
                                     }
@@ -134,9 +139,9 @@ pub const Db = struct {
         }
 
         w.writeAll("]") catch return null;
-        std.fmt.format(w, ",\"count\":{d},\"truncated\":{s}}}", .{ row_idx, if (row_idx >= max_rows) "true" else "false" }) catch return null;
+        w.print(",\"count\":{d},\"truncated\":{s}}}", .{ row_idx, if (row_idx >= max_rows) "true" else "false" }) catch return null;
 
-        return stream.pos;
+        return w.end;
     }
 
     fn migrate(self: *Db) DbError!void {

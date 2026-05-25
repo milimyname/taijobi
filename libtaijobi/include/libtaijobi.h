@@ -80,6 +80,11 @@ int32_t hanzi_dedict_loaded(void);
 const void *hanzi_lookup_word(const void *query, size_t len);
 const void *hanzi_search_cards(const void *query, size_t len, uint32_t limit);
 
+/* Heuristic language detection — returns 0=en, 1=de, 2=zh, 3=ar. Same
+   detector lexicon insert uses; expose so TS + Swift TTS pick the right
+   voice without duplicating the heuristic. */
+int32_t hanzi_detect_language(const void *text, size_t len);
+
 /* Sync — E2E-encrypted change log over HTTP (wimg-sync protocol) */
 const void *hanzi_get_changes(int64_t since_ts);
 int32_t     hanzi_apply_changes(const void *data, uint32_t len);
