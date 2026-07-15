@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.7.11 (2026-07-15)
+
+- Version bump
+
 ## v0.7.10 (2026-05-25)
 
 - feat: ios background URLSession for dict downloads + completion ping
