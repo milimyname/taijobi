@@ -271,7 +271,7 @@
 	>
 		<Search class="shrink-0 text-[20px] text-primary/40" />
 		<input
-			type="search"
+			type="text"
 			bind:value={searchQuery}
 			onkeydown={handleKeydown}
 			placeholder="Suchen oder hinzufügen..."
