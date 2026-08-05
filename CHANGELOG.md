@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.7.13 (2026-08-05)
+
+- perf: debounce lexicon URL sync, refresh docs for merged routes
+
 ## v0.7.12 (2026-08-05)
 
 - fix: endless navigation loop when search query has trailing whitespace
