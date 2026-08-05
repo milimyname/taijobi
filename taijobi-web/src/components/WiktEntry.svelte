@@ -8,8 +8,8 @@
 <!--
   Structured Wiktionary entry: POS chips, optional etymology, numbered senses
   with tags + example sentences, plus synonyms/antonyms/hypernyms per sense.
-  Shared by /dictionary results and /lexicon inline expansion so both render
-  the same layout from the same source.
+  Shared by the /lexicon dictionary-hit cards and the inline expansion of a
+  saved lexicon row, so both render the same layout from the same source.
 -->
 <div class="space-y-3">
 	{#each result.groups as group (group.pos)}

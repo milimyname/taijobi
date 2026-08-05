@@ -294,9 +294,10 @@ get enriched from CEDICT. All words reviewable via FSRS.
 **taijobi-sync:** ✅ DONE so far
 - [x] `src/wasm.d.ts` — `*.wasm` → `WebAssembly.Module` declaration (wrangler bundles).
 - [x] `src/mcp-wasm.ts` — `WasmInstance` class wrapping the compact WASM. `env` imports match the web client (`js_console_log`, `js_time_ms`). Typed wrappers for the 11 tool exports + crypto (`deriveEncryptionKey`, `encryptField`, `decryptField`) + sync (`getChanges`, `applyChanges`) + `decryptRows` helper.
-- [x] `src/mcp-tools.ts` — 11 tools with Zod schemas + handlers:
+- [x] `src/mcp-tools.ts` — 10 tools with Zod schemas + handlers:
   - **Read (6):** `due_count`, `get_due_cards`, `search_cards`, `get_lexicon`, `get_stats`, `list_packs`.
-  - **Write (5):** `add_word`, `import_kindle_clippings` (parse → bulk-add composed), `review_card`, `install_pack`, `add_lesson_to_pack` (non-destructive append onto an existing pack — preserves FSRS state).
+  - **Write (4):** `add_word`, `review_card`, `install_pack`, `add_lesson_to_pack` (non-destructive append onto an existing pack — preserves FSRS state).
+  - `import_kindle_clippings` was dropped with the rest of the Kindle surface (2026-05-20); the `hanzi_parse_kindle` + `hanzi_bulk_add_lexicon` Zig exports remain for compat but nothing calls them.
   - `WRITE_TOOL_NAMES` set drives session's push-to-sync behavior.
 - [x] `src/mcp-session.ts` — `McpSession` Durable Object, one per sync key. Lazily instantiates WASM on first POST, pulls encrypted rows from `SyncRoom` on init + every 60 s on reads, dispatches JSON-RPC (`initialize` / `tools/list` / `tools/call` / `ping` / `notifications/initialized`). Write tools fire-and-forget `state.waitUntil(pushToSync())` — client response isn't blocked. `DELETE /mcp` evicts the session. Generates `Mcp-Session-Id` on `initialize` and validates on subsequent calls.
 

@@ -1,5 +1,5 @@
-// Shared display helpers for Wiktionary dict results — used by /dictionary
-// and the lexicon expand-on-click panel so both surfaces show the same labels.
+// Shared display helpers for Wiktionary dict results — used by the /lexicon
+// dictionary hits and its expand-on-click panel so both show the same labels.
 
 const POS_LABEL: Record<string, string> = {
 	n: 'Substantiv',

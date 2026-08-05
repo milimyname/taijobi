@@ -31,6 +31,11 @@
 		| { type: 'cedict'; word: string; pinyin: string; definition: string; entry: CedictResult }
 		| { type: 'wikt'; word: string; entry: DictResult };
 
+	// Dictionary lookup fires while you type; the URL write waits a bit longer
+	// so it lands once per word rather than once per keystroke.
+	const DICT_LOOKUP_MS = 150;
+	const URL_SYNC_MS = 300;
+
 	let adding = $state(false);
 	let busyWord = $state<string | null>(null);
 	let filter = $state('all');
@@ -50,6 +55,9 @@
 	// leading/trailing whitespace (Gboard appends a space when you tap a
 	// suggestion): the guard stays false, goto reassigns page.url, the effect
 	// re-runs, and the app spins in an endless navigation loop.
+	// Debounced so a word isn't one full SvelteKit navigation per keystroke —
+	// that's noticeable jank on a mid-range phone. The effect's cleanup cancels
+	// the pending write on every re-run, so only the last keystroke navigates.
 	$effect(() => {
 		const trimmed = searchQuery.trim();
 		const current = page.url.searchParams.get('q') ?? '';
@@ -57,7 +65,11 @@
 		const next = new URL(page.url);
 		if (trimmed) next.searchParams.set('q', trimmed);
 		else next.searchParams.delete('q');
-		goto(next.pathname + next.search, { replaceState: true, keepFocus: true, noScroll: true });
+		const target = next.pathname + next.search;
+		const timer = setTimeout(() => {
+			goto(target, { replaceState: true, keepFocus: true, noScroll: true });
+		}, URL_SYNC_MS);
+		return () => clearTimeout(timer);
 	});
 
 	let entries: LexiconEntry[] = $derived(data.lexicon());
@@ -135,7 +147,7 @@
 			// controls; showing them again as bare dictionary hits would be
 			// redundant.
 			dictHits = unified.filter((h) => !filtered.some((e) => e.word === h.word));
-		}, 150);
+		}, DICT_LOOKUP_MS);
 	});
 
 	async function handleAdd() {
