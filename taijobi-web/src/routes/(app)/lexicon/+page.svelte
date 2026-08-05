@@ -45,11 +45,17 @@
 	let dictHits: DictHit[] = $state([]);
 	let debounceTimer: ReturnType<typeof setTimeout> | undefined;
 
+	// Compare against the *trimmed* query — that's what actually lands in the
+	// URL. Comparing the raw input instead never converges when it has
+	// leading/trailing whitespace (Gboard appends a space when you tap a
+	// suggestion): the guard stays false, goto reassigns page.url, the effect
+	// re-runs, and the app spins in an endless navigation loop.
 	$effect(() => {
+		const trimmed = searchQuery.trim();
 		const current = page.url.searchParams.get('q') ?? '';
-		if (current === searchQuery) return;
+		if (current === trimmed) return;
 		const next = new URL(page.url);
-		if (searchQuery.trim()) next.searchParams.set('q', searchQuery.trim());
+		if (trimmed) next.searchParams.set('q', trimmed);
 		else next.searchParams.delete('q');
 		goto(next.pathname + next.search, { replaceState: true, keepFocus: true, noScroll: true });
 	});
