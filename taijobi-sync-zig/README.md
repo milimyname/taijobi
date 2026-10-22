@@ -43,14 +43,15 @@ into the Store (and broadcasts them over WebSocket). About 125 ms per call with
 all six HSK packs (5.2k rows) synced. `install_pack` runs a Zig port of
 `packs/validator.ts` `validatePackLenient`.
 
-Dual-era transport: requests carrying
-`params._meta["io.modelcontextprotocol/protocolVersion"]` are served as MCP
-**2026-07-28** (stateless: no `initialize`, no `Mcp-Session-Id`,
-`server/discover`, `resultType` + `_meta` serverInfo on results, `ttlMs` /
-`cacheScope` on `tools/list`, `MCP-Protocol-Version` / `Mcp-Method` /
-`Mcp-Name` must match the body or 400 + `-32020`, unknown versions 400 +
-`-32022`). Everything else gets the 2025-03-26 flow Claude Desktop speaks via
-`mcp-remote`. Code Mode is not adopted: it needs a V8 sandbox (Cloudflare's
+Transport: MCP **2026-07-28 only** (stateless: no `initialize`, no
+`Mcp-Session-Id`; every request carries
+`params._meta["io.modelcontextprotocol/protocolVersion"]`; `server/discover`,
+`resultType` + `_meta` serverInfo on results, `ttlMs` / `cacheScope` on
+`tools/list`; `MCP-Protocol-Version` / `Mcp-Method` / `Mcp-Name` must match the
+body or 400 + `-32020`). Initialize-era clients get 400 + `-32022` naming the
+one supported version; `GET`/`DELETE /mcp` are 405. Same choice as wimg. Known
+consequence: `mcp-remote` 0.15.2 (Claude Desktop's bridge) still opens with
+`initialize` `2025-11-25` and can't connect until it speaks 2026-07-28. Code Mode is not adopted: it needs a V8 sandbox (Cloudflare's
 Dynamic Worker Loader) and only pays off for very large tool surfaces.
 
 ## Build & run (Zig 0.17)
