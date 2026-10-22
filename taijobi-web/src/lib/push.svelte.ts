@@ -49,6 +49,33 @@ class PushStore {
 		} catch {
 			this.subscribed = false;
 		}
+		if (this.subscribed && this.permission === 'granted') void this.resync();
+	}
+
+	/**
+	 * Re-send the browser's existing subscription on every start. The server
+	 * upserts, so this is a no-op normally — but it rebuilds the server's copy
+	 * after a server move (sync.taijobi.com left Cloudflare) or data loss, which
+	 * would otherwise silently stop reminders until the user toggled push off/on.
+	 */
+	private async resync(): Promise<void> {
+		const syncKey = getSyncKey();
+		if (!syncKey) return;
+		try {
+			const reg = await navigator.serviceWorker.ready;
+			const sub = await reg.pushManager.getSubscription();
+			if (!sub) return;
+			await fetch(`${SYNC_API_URL}/push/subscribe`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${syncKey}`
+				},
+				body: JSON.stringify({ subscription: sub.toJSON() })
+			});
+		} catch {
+			/* offline or SW not ready — next start retries */
+		}
 	}
 
 	async enable(): Promise<void> {
