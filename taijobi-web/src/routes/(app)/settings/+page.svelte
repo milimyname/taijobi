@@ -533,8 +533,9 @@ wiederherstellen.
 							MCP für KI-Agenten
 						</p>
 						<p class="text-xs text-slate-500 dark:text-slate-400">
-							Der Sync-Schlüssel dient auch als MCP-Zugang. Claude Desktop kann
-							Wörter hinzufügen, Pakete installieren und Reviews abfragen.
+							Der Sync-Schlüssel dient auch als MCP-Zugang (MCP 2026-07-28) — KI-Agenten
+							können Wörter hinzufügen, Pakete installieren und Reviews abfragen. Claude
+							Desktop wird unterstützt, sobald sein Connector diese Protokollversion spricht.
 						</p>
 					</div>
 				</div>
