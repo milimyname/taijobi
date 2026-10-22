@@ -923,7 +923,7 @@ pub const Db = struct {
 
             _ = sqlite.sqlite3_bind_text(log_stmt.?, 1, review_id.ptr, @intCast(review_id.len), sqlite.SQLITE_STATIC);
             _ = sqlite.sqlite3_bind_text(log_stmt.?, 2, card_id.ptr, @intCast(card_id.len), sqlite.SQLITE_STATIC);
-            _ = sqlite.sqlite3_bind_int(log_stmt.?, 3, @intFromEnum(rating));
+            _ = sqlite.sqlite3_bind_int(log_stmt.?, 3, @backingInt(rating));
             _ = sqlite.sqlite3_bind_text(log_stmt.?, 4, now_str.ptr, @intCast(now_str.len), sqlite.SQLITE_STATIC);
             _ = sqlite.sqlite3_bind_double(log_stmt.?, 5, state.stability);
             _ = sqlite.sqlite3_bind_double(log_stmt.?, 6, new_state.stability);

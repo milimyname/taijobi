@@ -79,7 +79,7 @@ test "deriveKey produces deterministic 32-byte key" {
 test "encrypt then decrypt roundtrip" {
     const key = deriveKey("my-sync-key");
     const plaintext = "Hello, taijobi!";
-    const nonce = [_]u8{1} ** 24;
+    const nonce: [24]u8 = @splat(1);
 
     var encrypted: [256]u8 = undefined;
     const enc_len = try encryptField(plaintext, key, nonce, &encrypted);
@@ -98,7 +98,7 @@ test "decrypt with wrong key fails" {
     const key1 = deriveKey("key-1");
     const key2 = deriveKey("key-2");
     const plaintext = "secret data";
-    const nonce = [_]u8{42} ** 24;
+    const nonce: [24]u8 = @splat(42);
 
     var encrypted: [256]u8 = undefined;
     const enc_len = try encryptField(plaintext, key1, nonce, &encrypted);
@@ -111,7 +111,7 @@ test "decrypt with wrong key fails" {
 test "decrypt with tampered ciphertext fails" {
     const key = deriveKey("tamper-test");
     const plaintext = "important data";
-    const nonce = [_]u8{7} ** 24;
+    const nonce: [24]u8 = @splat(7);
 
     var encrypted: [256]u8 = undefined;
     const enc_len = try encryptField(plaintext, key, nonce, &encrypted);
@@ -126,7 +126,7 @@ test "decrypt with tampered ciphertext fails" {
 
 test "empty plaintext encrypt/decrypt" {
     const key = deriveKey("empty-test");
-    const nonce = [_]u8{0} ** 24;
+    const nonce: [24]u8 = @splat(0);
 
     var encrypted: [256]u8 = undefined;
     const enc_len = try encryptField("", key, nonce, &encrypted);
@@ -141,7 +141,7 @@ test "empty plaintext encrypt/decrypt" {
 
 test "large plaintext encrypt/decrypt" {
     const key = deriveKey("large-test");
-    const nonce = [_]u8{99} ** 24;
+    const nonce: [24]u8 = @splat(99);
 
     // 4KB plaintext
     var plaintext: [4096]u8 = undefined;

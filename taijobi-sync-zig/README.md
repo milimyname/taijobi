@@ -40,7 +40,7 @@ Dual-era transport: requests carrying
 `mcp-remote`. Code Mode is not adopted: it needs a V8 sandbox (Cloudflare's
 Dynamic Worker Loader) and only pays off for very large tool surfaces.
 
-## Build & run
+## Build & run (Zig 0.17)
 
 ```sh
 zig build test                     # store + protocol + routing

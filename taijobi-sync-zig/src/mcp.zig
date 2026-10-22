@@ -785,7 +785,7 @@ test "TOOLS_LIST is valid JSON with all ten tools" {
     const parsed = try std.json.parseFromSlice(std.json.Value, gpa, TOOLS_LIST, .{});
     defer parsed.deinit();
     const tools = parsed.value.object.get("tools").?.array.items;
-    try std.testing.expectEqual(@as(usize, std.meta.fields(Tool).len), tools.len);
+    try std.testing.expectEqual(@as(usize, std.enums.values(Tool).len), tools.len);
     for (tools) |t| {
         try std.testing.expect(std.meta.stringToEnum(Tool, t.object.get("name").?.string) != null);
     }

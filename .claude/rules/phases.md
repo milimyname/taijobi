@@ -366,6 +366,28 @@ get enriched from CEDICT. All words reviewable via FSRS.
 
 ---
 
+## Toolchain — Zig 0.17 upgrade (done 2026-10-22)
+
+Upgraded from 0.16.0 → 0.17.0 (same day as wimg). CI pins in
+`.github/workflows/{ci,release}.yml` bumped; iOS XCFramework stays on
+macos-15.
+
+**What 0.17 broke** — small, three edits:
+
+1. **`b.args` removed.** `run_cmd.addPassthruArgs()` replaces
+   `if (b.args) |args| run_cmd.addArgs(args)` (`taijobi-sync-zig/build.zig`).
+2. **Array multiplication (`[_]u8{1} ** 24`) removed** → `const x: [24]u8 =
+   @splat(1);` (test nonces in `crypto.zig`).
+3. **`std.meta.fields` is a compile error** → `std.enums.values(T).len` for
+   the enum count in `taijobi-sync-zig/src/mcp.zig`'s test.
+
+`zig fmt` auto-rewrites the deprecated `@intFromEnum` → `@backingInt`
+(`fsrs.zig`, `db.zig`). Verified: WASM (web + MCP), `aarch64-ios` +
+`-simulator` static libs, and the native sync server all build; server tests
+and the MCP end-to-end run against the real client WASM pass. libtaijobi's
+own `zig build test` needs the gitignored dictionary `.bin` files, so it runs
+in CI only.
+
 ## Toolchain — Zig 0.16 upgrade (done 2026-05-25)
 
 Upgraded from 0.15.2 → 0.16.0. CI pin (`mlugg/setup-zig@v2`) bumped in

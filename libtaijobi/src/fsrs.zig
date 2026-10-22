@@ -30,19 +30,19 @@ pub fn retrievability(elapsed_days: f64, stability: f64) f64 {
 
 /// Initial stability for a new card, based on first rating.
 fn initialStability(rating: Rating) f64 {
-    return w[@as(usize, @intFromEnum(rating)) - 1];
+    return w[@as(usize, @backingInt(rating)) - 1];
 }
 
 /// Initial difficulty for a new card, based on first rating.
 fn initialDifficulty(rating: Rating) f64 {
-    const g: f64 = @floatFromInt(@intFromEnum(rating));
+    const g: f64 = @floatFromInt(@backingInt(rating));
     const raw = w[4] - @exp(w[5] * (g - 1.0)) + 1.0;
     return clamp(raw, 1.0, 10.0);
 }
 
 /// Next difficulty after a review.
 fn nextDifficulty(d: f64, rating: Rating) f64 {
-    const g: f64 = @floatFromInt(@intFromEnum(rating));
+    const g: f64 = @floatFromInt(@backingInt(rating));
     const delta = -w[6] * (g - 3.0);
     // Mean reversion toward initial difficulty
     const d_new = d + delta * (1.0 - (1.0 / (1.0 + @exp(-d + 5.0))));
