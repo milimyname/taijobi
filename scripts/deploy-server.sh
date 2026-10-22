@@ -51,7 +51,7 @@ deploy_sync() {
 
 	echo "==> Uploading binary, units, Caddy fragments"
 	# COPYFILE_DISABLE: keep macOS xattrs out of the archive (GNU tar warns).
-	COPYFILE_DISABLE=1 tar czf - -C "$ROOT" \
+	COPYFILE_DISABLE=1 tar --no-xattrs --no-mac-metadata -czf - -C "$ROOT" \
 		infra/scripts/setup-server.sh \
 		infra/systemd/taijobi-sync.service \
 		infra/taijobi-sync.caddy \
