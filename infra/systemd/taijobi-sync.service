@@ -1,0 +1,54 @@
+[Unit]
+Description=taijobi sync server (Zig) — sync, MCP, Web Push
+Documentation=https://github.com/komiljonmaksudov/taijobi
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=taijobi
+Group=taijobi
+WorkingDirectory=/var/lib/taijobi
+# Loopback only — Caddy (same host) reverse-proxies to it.
+Environment=BIND=127.0.0.1
+# :8080 is Vaultwarden, :8091 is wimg-sync on this shared box. Must match the
+# reverse_proxy upstream in infra/taijobi-sync.caddy.
+Environment=PORT=8092
+# VAPID_PRIVATE_KEY='<jwk>' — written once by `taijobi-sync gen-vapid` (see
+# infra/scripts/setup-server.sh). Optional: without it push sending is off.
+EnvironmentFile=-/etc/taijobi/env
+ExecStart=/usr/local/bin/taijobi-sync
+Restart=on-failure
+RestartSec=5s
+
+# No core dumps — they'd contain sync keys and the VAPID key.
+LimitCORE=0
+
+# Sandboxing (same set as wimg-sync). Outbound network stays open: the push
+# cron POSTs to FCM / Mozilla / Apple.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+SystemCallArchitectures=native
+ReadWritePaths=/var/lib/taijobi
+
+# One process for every sync key: ~32 MB of static libtaijobi buffers for MCP
+# plus a thread per connection.
+MemoryMax=512M
+TasksMax=256
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=taijobi-sync
+
+[Install]
+WantedBy=multi-user.target

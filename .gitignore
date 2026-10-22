@@ -60,3 +60,6 @@ docs/taijobi-full.md
 
 # Claude Code worktrees — local-only scratch checkouts
 .claude/worktrees/
+
+# Native sync server local dev database
+taijobi-sync-zig/dev-sync.db*

@@ -72,7 +72,10 @@ jobs:
         working-directory: taijobi-web
         run: bun run check
 
-  build-and-deploy-web:
+  # Builds the web app as a release check and for the WASM artifact. Deploying
+  # it is `make deploy-web` from a Mac to the Hetzner VPS (no server SSH key in
+  # CI) — taijobi.com left Cloudflare Workers with the adapter-static switch.
+  build-web:
     needs: check
     runs-on: ubuntu-latest
     steps:
@@ -95,9 +98,6 @@ jobs:
       - name: Build WASM
         run: ./scripts/build-wasm.sh
 
-      - name: Strip .bin files from deploy (served from R2 via .github/workflows/data-upload.yml)
-        run: rm -f taijobi-web/static/data/*.bin
-
       - name: Upload WASM artifact
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
@@ -111,13 +111,6 @@ jobs:
       - name: Build web
         working-directory: taijobi-web
         run: bun run build
-
-      - name: Deploy to Cloudflare Workers
-        working-directory: taijobi-web
-        run: bunx wrangler deploy
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
   build-libtaijobi-ios:
     # Pinned to macos-15 because Zig 0.15.2 hit a libSystem linker break
@@ -282,6 +275,9 @@ jobs:
           DRY_RUN: ${{ inputs.dry_run_certs && '1' || '' }}
         run: bun run scripts/revoke-ci-certs.ts
 
+  # The Cloudflare Worker still serves sync.taijobi.com until the DNS switch to
+  # the native server (taijobi-sync-zig, `make deploy-sync`). Delete this job
+  # and taijobi-sync/ after cutover.
   deploy-sync:
     needs: check
     runs-on: ubuntu-latest
@@ -320,7 +316,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
   release:
-    needs: [build-and-deploy-web, build-libtaijobi-ios, build-ios, deploy-sync]
+    needs: [build-web, build-libtaijobi-ios, build-ios, deploy-sync]
     if: always() && !failure() && !cancelled()
     runs-on: ubuntu-latest
     steps:

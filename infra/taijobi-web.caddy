@@ -1,0 +1,62 @@
+# taijobi web app (static SvelteKit build) — a *fragment*, installed to
+# /etc/caddy/conf.d/taijobi-web.caddy and pulled in by `import conf.d/*.caddy`.
+# Never replaces the main /etc/caddy/Caddyfile; see taijobi-sync.caddy for why.
+#
+# Built by `bun run build` in taijobi-web/ (@sveltejs/adapter-static) and
+# uploaded to /var/www/taijobi by scripts/deploy-server.sh. Dictionary files
+# live in /var/www/taijobi/data/ and are uploaded separately (`make deploy-data`)
+# — the web upload never touches that directory.
+#
+# DNS for taijobi.com + www must point straight at this box ("DNS only").
+
+www.taijobi.com {
+	redir https://taijobi.com{uri} permanent
+}
+
+taijobi.com {
+	root * /var/www/taijobi
+	encode zstd gzip
+
+	header {
+		# REQUIRED — OPFS and SharedArrayBuffer need cross-origin isolation.
+		# These came from _headers on Cloudflare; drop them and the app silently
+		# loses persistence. Same values as vite.config.ts uses in dev.
+		Cross-Origin-Opener-Policy "same-origin"
+		Cross-Origin-Embedder-Policy "require-corp"
+
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	# Content-hashed filenames — safe to cache forever.
+	header /_app/immutable/* Cache-Control "public, max-age=31536000, immutable"
+	# These decide when a client notices a new deploy; they must revalidate.
+	header /service-worker.js Cache-Control "no-cache"
+	header /_app/version.json Cache-Control "no-cache"
+	header /libtaijobi.wasm Cache-Control "no-cache"
+	# Dictionaries: same headers the R2 proxy in hooks.server.ts used to send.
+	# HEAD requests (download-size probes) get Content-Length from file_server.
+	header /data/*.bin Cache-Control "public, max-age=604800, immutable"
+
+	# A wrong Content-Type breaks WebAssembly.instantiateStreaming outright.
+	@wasm path *.wasm
+	header @wasm Content-Type "application/wasm"
+
+	# Prerendered pages are `<route>.html`; client-only routes (/character/X,
+	# /lessons/Y) fall back to the SPA shell. Not index.html — that is the
+	# prerendered landing page.
+	try_files {path} {path}.html {path}/index.html /200.html
+
+	file_server {
+		# adapter-static ran with precompress: true — serve the .br/.gz siblings.
+		precompressed zstd br gzip
+	}
+
+	log {
+		output stderr
+		format json
+	}
+}

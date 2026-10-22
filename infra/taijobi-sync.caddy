@@ -1,0 +1,48 @@
+# taijobi-sync reverse proxy — a *fragment*, not a whole Caddyfile.
+#
+# Installs to /etc/caddy/conf.d/taijobi-sync.caddy and is pulled in by the
+# `import conf.d/*.caddy` line in the main /etc/caddy/Caddyfile. The box is
+# shared (eigenheim, packsil, wimg, Vaultwarden) and its main Caddyfile carries
+# a `default_bind` global that keeps Caddy off the Tailscale IPs, so it must
+# never be overwritten wholesale. Same layout as wimg's infra/wimg-sync.caddy.
+#
+# The Zig server speaks plain HTTP on 127.0.0.1:8092 (wimg-sync has :8091,
+# Vaultwarden :8080). The port comes from `Environment=PORT=` in
+# infra/systemd/taijobi-sync.service; the two must agree.
+#
+# DNS for sync.taijobi.com must point straight at this box (on Cloudflare DNS:
+# "DNS only", grey cloud) so Caddy can complete the Let's Encrypt challenge.
+
+sync.taijobi.com {
+	encode gzip zstd
+
+	# CORS is handled by the Zig server (clients run on any origin).
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "no-referrer"
+		-Server
+	}
+
+	reverse_proxy 127.0.0.1:8092 {
+		# WebSocket sync holds connections open indefinitely — no buffering.
+		flush_interval -1
+		header_up X-Forwarded-For {remote_host}
+		header_up X-Real-IP {remote_host}
+	}
+
+	# Metadata only. Bodies carry encrypted rows and the Authorization header
+	# carries the sync key — Caddy's JSON access log omits both by default, and
+	# the sync key in /sync/<key> and /ws/<key> paths is why `uri` is dropped.
+	log {
+		output stderr
+		format filter {
+			wrap json
+			fields {
+				request>uri delete
+				request>headers>Authorization delete
+			}
+		}
+	}
+}
