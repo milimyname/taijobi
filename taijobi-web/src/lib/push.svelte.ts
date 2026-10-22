@@ -3,14 +3,17 @@
  *
  * Handles the full lifecycle: request permission → subscribe via PushManager
  * → send the subscription to the sync Worker → heartbeat on each review.
- * The private VAPID key lives as a Cloudflare Worker secret; only the public
- * key is in this file (safe to commit).
+ * The server publishes its VAPID public key at /push/vapid-public-key and
+ * the client follows it: when the key a subscription was made with no longer
+ * matches, the client re-subscribes silently (permission is already granted),
+ * so the server's key can rotate without an app release.
  */
 import { SYNC_API_URL, LS_SYNC_KEY } from './config';
 
-// VAPID public key — base64url-encoded, 65-byte uncompressed EC P-256 point.
-// The matching private key is stored as a wrangler secret in taijobi-sync.
-const VAPID_PUBLIC_KEY =
+// Fallback VAPID public key (base64url, 65-byte uncompressed P-256 point) for
+// servers without /push/vapid-public-key — the Cloudflare Worker, whose private
+// key is a wrangler secret.
+const FALLBACK_VAPID_PUBLIC_KEY =
 	'BK9oASOZIlC4POEOW-VROIDMJlCA7qR88-m7R6GIRg6lGAZlHq6F8cTGXZKDPYb6my4MTFWz3Z6LGPWMCfiRsAQ';
 
 const LS_PUSH_SUBSCRIBED = 'taijobi_push_subscribed';
@@ -22,6 +25,35 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 	const out = new Uint8Array(raw.length);
 	for (let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
 	return out;
+}
+
+function uint8ArrayToUrlBase64(bytes: Uint8Array): string {
+	let s = '';
+	for (const b of bytes) s += String.fromCharCode(b);
+	return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+/**
+ * The server's current VAPID public key; the fallback when the server answers
+ * but doesn't publish one (the Worker); null when it can't be reached — then
+ * callers must leave existing subscriptions alone rather than guess.
+ */
+async function fetchVapidKey(): Promise<string | null> {
+	let res: Response;
+	try {
+		res = await fetch(`${SYNC_API_URL}/push/vapid-public-key`);
+	} catch {
+		return null;
+	}
+	if (res.ok) {
+		try {
+			const { key } = (await res.json()) as { key?: string };
+			if (key) return key;
+		} catch {
+			/* malformed — treat like a server without the endpoint */
+		}
+	}
+	return FALLBACK_VAPID_PUBLIC_KEY;
 }
 
 function getSyncKey(): string | null {
@@ -53,18 +85,26 @@ class PushStore {
 	}
 
 	/**
-	 * Re-send the browser's existing subscription on every start. The server
-	 * upserts, so this is a no-op normally — but it rebuilds the server's copy
-	 * after a server move (sync.taijobi.com left Cloudflare) or data loss, which
-	 * would otherwise silently stop reminders until the user toggled push off/on.
+	 * Re-send the browser's subscription on every start. The server upserts,
+	 * so this is a no-op normally — but it rebuilds the server's copy after a
+	 * server move (sync.taijobi.com left Cloudflare) or data loss, and swaps the
+	 * subscription for a fresh one when the server's VAPID key changed. Without
+	 * it, reminders would silently stop until the user toggled push off/on.
 	 */
 	private async resync(): Promise<void> {
 		const syncKey = getSyncKey();
 		if (!syncKey) return;
 		try {
 			const reg = await navigator.serviceWorker.ready;
-			const sub = await reg.pushManager.getSubscription();
-			if (!sub) return;
+			let sub = await reg.pushManager.getSubscription();
+			const serverKey = await fetchVapidKey();
+			if (!serverKey) return; // offline — keep whatever we have
+			const subKey = sub?.options.applicationServerKey;
+			if (!sub || !subKey || uint8ArrayToUrlBase64(new Uint8Array(subKey)) !== serverKey) {
+				// Missing, or tied to an old key the server can't sign for anymore.
+				await sub?.unsubscribe();
+				sub = await subscribeWith(reg, serverKey);
+			}
 			await fetch(`${SYNC_API_URL}/push/subscribe`, {
 				method: 'POST',
 				headers: {
@@ -86,11 +126,9 @@ class PushStore {
 		if (perm !== 'granted') return;
 
 		const reg = await navigator.serviceWorker.ready;
-		const keyBytes = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
-		const sub = await reg.pushManager.subscribe({
-			userVisibleOnly: true,
-			applicationServerKey: keyBytes.buffer as ArrayBuffer
-		});
+		const key = await fetchVapidKey();
+		if (!key) return; // offline — the toggle stays off, user can retry
+		const sub = await subscribeWith(reg, key);
 
 		const syncKey = getSyncKey();
 		if (!syncKey) {
@@ -156,6 +194,13 @@ class PushStore {
 			body: JSON.stringify({ ts: Date.now() })
 		}).catch(() => {});
 	}
+}
+
+function subscribeWith(reg: ServiceWorkerRegistration, key: string): Promise<PushSubscription> {
+	return reg.pushManager.subscribe({
+		userVisibleOnly: true,
+		applicationServerKey: urlBase64ToUint8Array(key).buffer as ArrayBuffer
+	});
 }
 
 export const pushStore = new PushStore();

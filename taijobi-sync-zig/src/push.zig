@@ -48,6 +48,20 @@ pub const Vapid = struct {
         return v;
     }
 
+    /// A fresh key pair as a private JWK — the `VAPID_PRIVATE_KEY` format.
+    /// Written into `buf`; the private key never leaves this process.
+    pub fn generateJwk(io: std.Io, buf: *[192]u8) []const u8 {
+        const kp = Ecdsa.KeyPair.generate(io);
+        const sec1 = kp.public_key.toUncompressedSec1(); // 0x04 || x || y
+        var d: [43]u8 = undefined;
+        var x: [43]u8 = undefined;
+        var y: [43]u8 = undefined;
+        _ = b64url.Encoder.encode(&d, &kp.secret_key.toBytes());
+        _ = b64url.Encoder.encode(&x, sec1[1..33]);
+        _ = b64url.Encoder.encode(&y, sec1[33..65]);
+        return std.fmt.bufPrint(buf, "{{\"kty\":\"EC\",\"crv\":\"P-256\",\"d\":\"{s}\",\"x\":\"{s}\",\"y\":\"{s}\"}}", .{ &d, &x, &y }) catch unreachable;
+    }
+
     /// `vapid t=<jwt>, k=<public key>` for an endpoint's origin.
     fn authorization(self: Vapid, gpa: std.mem.Allocator, audience: []const u8, now_s: i64) ![]u8 {
         const header_b64 = comptime blk: {
@@ -300,4 +314,17 @@ test "originOf and hashSyncKey" {
     try std.testing.expect(originOf("not a url") == null);
     // Matches the Worker's crypto.subtle SHA-256 hex.
     try std.testing.expectEqualStrings("2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae", &hashSyncKey("foo"));
+}
+
+test "generateJwk round-trips through fromJwk" {
+    const gpa = std.testing.allocator;
+    var buf: [192]u8 = undefined;
+    const jwk = Vapid.generateJwk(std.testing.io, &buf);
+    const vapid = try Vapid.fromJwk(gpa, jwk);
+    // x/y in the JWK are the same point fromJwk derived from d.
+    const parsed = try std.json.parseFromSlice(std.json.Value, gpa, jwk, .{});
+    defer parsed.deinit();
+    const sec1 = vapid.key_pair.public_key.toUncompressedSec1();
+    try std.testing.expectEqualSlices(u8, sec1[1..33], &try decodeFixed(32, parsed.value.object.get("x").?.string));
+    try std.testing.expectEqualSlices(u8, sec1[33..65], &try decodeFixed(32, parsed.value.object.get("y").?.string));
 }

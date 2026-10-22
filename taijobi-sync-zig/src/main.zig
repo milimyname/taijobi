@@ -99,30 +99,59 @@ const Context = struct {
     io: std.Io,
     store: *Store,
     registry: *Registry,
+    /// Null when VAPID_PRIVATE_KEY isn't configured (push sending disabled).
+    vapid: ?webpush.Vapid = null,
 };
 
 /// Start the hourly streak-reminder thread if the VAPID key is configured
 /// (same JWK the Worker kept as the `VAPID_PRIVATE_KEY` wrangler secret).
-fn startPushCron(gpa: std.mem.Allocator, io: std.Io, store: *Store) void {
+fn startPushCron(gpa: std.mem.Allocator, io: std.Io, store: *Store) ?webpush.Vapid {
     const jwk = getenv("VAPID_PRIVATE_KEY") orelse {
         std.debug.print("push cron disabled: VAPID_PRIVATE_KEY not set\n", .{});
-        return;
+        return null;
     };
     const vapid = webpush.Vapid.fromJwk(gpa, std.mem.span(jwk)) catch |err| {
         std.debug.print("push cron disabled: bad VAPID_PRIVATE_KEY ({s})\n", .{@errorName(err)});
-        return;
+        return null;
     };
     const run_now = getenv("PUSH_CRON_RUN_ON_START") != null;
     const thread = std.Thread.spawn(.{}, webpush.cronThread, .{ gpa, io, store, vapid, run_now }) catch |err| {
         std.debug.print("push cron disabled: {s}\n", .{@errorName(err)});
-        return;
+        return null;
     };
     thread.detach();
     std.debug.print("push cron enabled (VAPID key {s})\n", .{vapid.public_b64[0..12]});
+    return vapid;
 }
 
-pub fn main() !void {
+/// `taijobi-sync gen-vapid`: print a new key as a `VAPID_PRIVATE_KEY='…'` env
+/// line (stdout, for the env file) and its public key (stderr, for reference).
+/// Single quotes: both systemd's EnvironmentFile and `sh` strip unquoted
+/// double quotes, which would corrupt the JWK.
+/// Run it on the server so the private key never leaves the box.
+fn genVapid(io: std.Io) !void {
+    var buf: [192]u8 = undefined;
+    const jwk = webpush.Vapid.generateJwk(io, &buf);
+    const vapid = try webpush.Vapid.fromJwk(std.heap.smp_allocator, jwk);
+    var line: [256]u8 = undefined;
+    try std.Io.File.stdout().writeStreamingAll(io, try std.fmt.bufPrint(&line, "VAPID_PRIVATE_KEY='{s}'\n", .{jwk}));
+    std.debug.print("public key (clients fetch it from GET /push/vapid-public-key): {s}\n", .{&vapid.public_b64});
+}
+
+pub fn main(init: std.process.Init.Minimal) !void {
     const gpa = std.heap.smp_allocator;
+
+    var args = init.args.iterate();
+    _ = args.next(); // program name
+    if (args.next()) |cmd| {
+        if (std.mem.eql(u8, cmd, "gen-vapid")) {
+            var gen_threaded = std.Io.Threaded.init(gpa, .{});
+            defer gen_threaded.deinit();
+            return genVapid(gen_threaded.io());
+        }
+        std.debug.print("usage: taijobi-sync [gen-vapid]\n", .{});
+        return error.UnknownCommand;
+    }
 
     // Defaults match the Caddyfile (reverse_proxy → :8080) and the systemd unit
     // (WorkingDirectory=/var/lib/taijobi, so "sync.db" lands there). Override with
@@ -146,7 +175,7 @@ pub fn main() !void {
     const io = threaded.io();
 
     var ctx = Context{ .io = io, .store = &store, .registry = &registry };
-    startPushCron(gpa, io, &store);
+    ctx.vapid = startPushCron(gpa, io, &store);
 
     const addr = try std.Io.net.IpAddress.parseIp4(host, port);
     var server = try addr.listen(io, .{ .reuse_address = true });
@@ -247,6 +276,14 @@ fn routeRequest(ctx: *Context, request: *Server.Request) !void {
             .DELETE => handlePushUnsubscribe(ctx, request),
             else => request.respond("method not allowed", .{ .status = .method_not_allowed }),
         };
+    }
+    // Clients subscribe with whatever key this returns and re-subscribe when
+    // it changes, so the VAPID key can rotate without an app release.
+    if (std.mem.eql(u8, path, "/push/vapid-public-key") and method == .GET) {
+        const v = ctx.vapid orelse return request.respond("{\"error\":\"push disabled\"}", .{ .status = .not_found, .extra_headers = &json_headers });
+        var out: [128]u8 = undefined;
+        const body = std.fmt.bufPrint(&out, "{{\"key\":\"{s}\"}}", .{&v.public_b64}) catch unreachable;
+        return request.respond(body, .{ .status = .ok, .extra_headers = &json_headers });
     }
     if (std.mem.eql(u8, path, "/push/heartbeat") and method == .POST) {
         return handlePushHeartbeat(ctx, request);

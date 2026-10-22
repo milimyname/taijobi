@@ -19,13 +19,18 @@ terminates TLS in front.
 Sync, MCP and push are wire-compatible with the Worker, so clients keep talking
 to `sync.taijobi.com` unchanged once DNS points here.
 
-Push: set `VAPID_PRIVATE_KEY` to the same JWK the Worker holds as a wrangler
-secret, or browsers' existing subscriptions won't accept our pushes. Without it
-the routes still store subscriptions but the cron is off.
+Push: generate the key on the server with `taijobi-sync gen-vapid >> env-file`
+(prints `VAPID_PRIVATE_KEY='<jwk>'`; single-quoted so systemd and `sh` keep
+the JSON intact). It's a new key — the Worker's is a write-only wrangler secret.
+`GET /push/vapid-public-key` publishes the public half, and the web client
+re-subscribes whenever its subscription was made with a different key, so
+rotating needs no app release. Without the key the routes still store
+subscriptions but the cron is off and the endpoint returns 404.
 `PUSH_CRON_RUN_ON_START=1` fires one tick at startup (like
 `wrangler dev --test-scheduled`). Subscriptions live in the Worker's PushSubs
-DO and aren't migrated; the web client re-sends its subscription on startup
-(see taijobi-web `push.svelte.ts`) so they rebuild after cutover.
+DO and aren't migrated; the web client re-sends (or re-creates) its
+subscription on every start (taijobi-web `push.svelte.ts`), so they rebuild
+after cutover.
 
 ## MCP
 
