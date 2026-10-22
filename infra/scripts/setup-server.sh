@@ -2,7 +2,7 @@
 # taijobi server setup — idempotent, runs ON the VPS as root. Called by
 # scripts/deploy-server.sh before every sync deploy; safe to re-run.
 #
-# The box is shared with eigenheim, packsil, wimg and Vaultwarden and was
+# The box is shared with eigenheim, wimg and Vaultwarden and was
 # provisioned by wimg's infra/scripts/setup-vps.sh (SSH hardening, ufw, Caddy,
 # no core dumps). This script deliberately does NOT redo any of that — wimg's
 # version resets ufw, which would be disruptive here. It only adds what

@@ -10,7 +10,7 @@
 #   ./scripts/deploy-server.sh data     # dictionary .bin files → /var/www/taijobi/data
 #
 # VPS defaults to the `wimg-vps` alias in ~/.ssh/config (the shared box that
-# also serves eigenheim, packsil and wimg). Override with VPS=root@<ip>.
+# also serves eigenheim and wimg). Override with VPS=root@<ip>.
 
 set -euo pipefail
 

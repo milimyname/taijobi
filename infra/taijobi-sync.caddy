@@ -2,7 +2,7 @@
 #
 # Installs to /etc/caddy/conf.d/taijobi-sync.caddy and is pulled in by the
 # `import conf.d/*.caddy` line in the main /etc/caddy/Caddyfile. The box is
-# shared (eigenheim, packsil, wimg, Vaultwarden) and its main Caddyfile carries
+# shared (eigenheim, wimg, Vaultwarden) and its main Caddyfile carries
 # a `default_bind` global that keeps Caddy off the Tailscale IPs, so it must
 # never be overwritten wholesale. Same layout as wimg's infra/wimg-sync.caddy.
 #
