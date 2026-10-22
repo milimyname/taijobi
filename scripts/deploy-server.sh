@@ -50,7 +50,8 @@ deploy_sync() {
 	file "$bin" | grep -q 'ELF 64-bit.*x86-64' || die "$bin is not a Linux x86_64 binary — refusing to ship it"
 
 	echo "==> Uploading binary, units, Caddy fragments"
-	tar czf - -C "$ROOT" \
+	# COPYFILE_DISABLE: keep macOS xattrs out of the archive (GNU tar warns).
+	COPYFILE_DISABLE=1 tar czf - -C "$ROOT" \
 		infra/scripts/setup-server.sh \
 		infra/systemd/taijobi-sync.service \
 		infra/taijobi-sync.caddy \

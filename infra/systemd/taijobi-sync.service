@@ -20,6 +20,8 @@ EnvironmentFile=-/etc/taijobi/env
 ExecStart=/usr/local/bin/taijobi-sync
 Restart=on-failure
 RestartSec=5s
+# sync.db holds ciphertext + push subscriptions: owner/group only.
+UMask=0027
 
 # No core dumps — they'd contain sync keys and the VAPID key.
 LimitCORE=0

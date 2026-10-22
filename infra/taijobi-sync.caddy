@@ -28,7 +28,7 @@ sync.taijobi.com {
 	reverse_proxy 127.0.0.1:8092 {
 		# WebSocket sync holds connections open indefinitely — no buffering.
 		flush_interval -1
-		header_up X-Forwarded-For {remote_host}
+		# X-Forwarded-For is passed by default; X-Real-IP is not.
 		header_up X-Real-IP {remote_host}
 	}
 
