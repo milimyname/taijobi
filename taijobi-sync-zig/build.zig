@@ -5,7 +5,9 @@ const sqlite_dir = "../libtaijobi/vendor";
 // One SQLite build for the whole binary. THREADSAFE=2 (multi-thread): each
 // connection is used by a single thread at a time (Store via spinlock), but
 // different connections run concurrently — so sqlite must protect its global
-// state. Reuses libtaijobi's vendored amalgamation rather than a second copy.
+// state. Reuses libtaijobi's vendored amalgamation rather than a second copy;
+// libtaijobi itself is linked WITHOUT sqlite3.c, so its sqlite symbols resolve
+// against the copy compiled into the exe.
 const sqlite_flags: []const []const u8 = &.{
     "-DSQLITE_OMIT_LOAD_EXTENSION=1",
     "-DSQLITE_THREADSAFE=2",
@@ -29,6 +31,7 @@ pub fn build(b: *std.Build) void {
         }),
     });
     addSqlite(b, exe);
+    exe.root_module.linkLibrary(libtaijobi(b, target, optimize));
     nativeLibc(b, exe);
     b.installArtifact(exe);
 
@@ -41,7 +44,8 @@ pub fn build(b: *std.Build) void {
     // --- Tests ---
     const test_step = b.step("test", "Run unit tests");
 
-    for ([_][]const u8{ "src/store.zig", "src/protocol.zig", "src/main.zig" }) |src| {
+    // store + protocol are pure storage — only need sqlite, not libtaijobi.
+    for ([_][]const u8{ "src/store.zig", "src/protocol.zig" }) |src| {
         const t = b.addTest(.{
             .root_module = b.createModule(.{
                 .root_source_file = b.path(src),
@@ -53,6 +57,41 @@ pub fn build(b: *std.Build) void {
         nativeLibc(b, t);
         test_step.dependOn(&b.addRunArtifact(t).step);
     }
+
+    // main + mcp call libtaijobi externs, so their test targets link it.
+    for ([_][]const u8{ "src/main.zig", "src/mcp.zig" }) |src| {
+        const t = b.addTest(.{
+            .root_module = b.createModule(.{
+                .root_source_file = b.path(src),
+                .target = target,
+                .optimize = optimize,
+            }),
+        });
+        addSqlite(b, t);
+        t.root_module.linkLibrary(libtaijobi(b, target, optimize));
+        nativeLibc(b, t);
+        test_step.dependOn(&b.addRunArtifact(t).step);
+    }
+}
+
+/// libtaijobi as a static lib from its native root. No sqlite3.c here — the exe
+/// supplies one shared copy. `mcp=true` picks the compact 16 MB allocators: the
+/// server never loads dictionaries.
+fn libtaijobi(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.builtin.OptimizeMode) *std.Build.Step.Compile {
+    const opts = b.addOptions();
+    opts.addOption(bool, "mcp", true);
+    const lib = b.addLibrary(.{
+        .name = "taijobi",
+        .linkage = .static,
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("../libtaijobi/src/root.zig"),
+            .target = target,
+            .optimize = optimize,
+        }),
+    });
+    lib.root_module.addOptions("build_options", opts);
+    nativeLibc(b, lib);
+    return lib;
 }
 
 fn addSqlite(b: *std.Build, step: *std.Build.Step.Compile) void {

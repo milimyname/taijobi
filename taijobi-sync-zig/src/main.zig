@@ -8,7 +8,8 @@
 //!   POST /sync/:key        → {"merged": N}     (LWW upsert of {"rows":[...]})
 //!   GET  /sync/:key?since= → {"rows":[...]}    (rows newer than `since`)
 //!   GET  /ws/:key          → real-time sync    (broadcasts `changes` frames)
-//!   /mcp, /push/*          → 501 until ported (still served by the Worker)
+//!   POST /mcp              → MCP JSON-RPC       (10 tools, see mcp.zig)
+//!   /push/*                → 501 until ported (still served by the Worker)
 //!
 //! One OS thread per connection. The Worker gave each sync key its own Durable
 //! Object; here a mutex-guarded `Registry` tracks the live WebSocket connections
@@ -18,9 +19,11 @@ const std = @import("std");
 const store_mod = @import("store.zig");
 const Store = store_mod.Store;
 const protocol = @import("protocol.zig");
+const mcp = @import("mcp.zig");
 
 const Server = std.http.Server;
 
+extern fn arc4random_buf(buf: [*]u8, len: usize) void;
 extern fn getenv(name: [*:0]const u8) ?[*:0]const u8;
 
 const json_headers = [_]std.http.Header{
@@ -200,16 +203,40 @@ fn routeRequest(ctx: *Context, request: *Server.Request) !void {
         };
     }
 
+    if (std.mem.eql(u8, path, "/mcp")) {
+        return switch (method) {
+            .POST => handleMcp(ctx, request),
+            .GET => request.respond(": connected\n\n", .{ // no-op SSE stream (Streamable HTTP)
+                .status = .ok,
+                .extra_headers = &.{
+                    .{ .name = "content-type", .value = "text/event-stream" },
+                    .{ .name = "access-control-allow-origin", .value = "*" },
+                },
+            }),
+            .DELETE => request.respond("OK", .{ .status = .ok, .extra_headers = &json_headers }),
+            else => request.respond("method not allowed", .{ .status = .method_not_allowed }),
+        };
+    }
+
     // Not ported yet — the Cloudflare Worker keeps serving these until cutover.
-    if (std.mem.eql(u8, path, "/mcp") or std.mem.startsWith(u8, path, "/push/")) {
+    if (std.mem.startsWith(u8, path, "/push/")) {
         return request.respond("{\"error\":\"not implemented\"}", .{ .status = .not_implemented, .extra_headers = &json_headers });
     }
 
     return request.respond("not found", .{ .status = .not_found });
 }
 
-fn handlePush(ctx: *Context, request: *Server.Request, key: []const u8) !void {
+fn handlePush(ctx: *Context, request: *Server.Request, key_path: []const u8) !void {
     const gpa = ctx.registry.gpa;
+
+    // `key_path` points into the connection's read buffer, which the body
+    // reader overwrites once the body outgrows it (a full-sync push easily
+    // does) — copy it out first or the rows land under garbage bytes.
+    var key_buf: [256]u8 = undefined;
+    if (key_path.len > key_buf.len) return request.respond("key too long", .{ .status = .bad_request });
+    @memcpy(key_buf[0..key_path.len], key_path);
+    const key = key_buf[0..key_path.len];
+
     var body_buf: [16 * 1024]u8 = undefined;
     const reader = request.readerExpectContinue(&body_buf) catch
         return request.respond("bad request", .{ .status = .bad_request });
@@ -233,6 +260,80 @@ fn handlePush(ctx: *Context, request: *Server.Request, key: []const u8) !void {
     var out: [64]u8 = undefined;
     const reply = std.fmt.bufPrint(&out, "{{\"merged\":{d}}}", .{merged}) catch unreachable;
     return request.respond(reply, .{ .status = .ok, .extra_headers = &json_headers });
+}
+
+fn handleMcp(ctx: *Context, request: *Server.Request) !void {
+    const gpa = ctx.registry.gpa;
+
+    // Bearer token == sync key. Capture before reading the body (the header
+    // strings are invalidated once the body reader initializes).
+    var key_buf: [256]u8 = undefined;
+    var key_len: usize = 0;
+    var session_buf: [128]u8 = undefined;
+    var session_len: usize = 0;
+    var it = request.iterateHeaders();
+    while (it.next()) |h| {
+        if (std.ascii.eqlIgnoreCase(h.name, "authorization")) {
+            if (std.ascii.startsWithIgnoreCase(h.value, "bearer ")) {
+                const tok = std.mem.trim(u8, h.value["bearer ".len..], " ");
+                if (tok.len <= key_buf.len) {
+                    @memcpy(key_buf[0..tok.len], tok);
+                    key_len = tok.len;
+                }
+            }
+        } else if (std.ascii.eqlIgnoreCase(h.name, "mcp-session-id")) {
+            if (h.value.len <= session_buf.len) {
+                @memcpy(session_buf[0..h.value.len], h.value);
+                session_len = h.value.len;
+            }
+        }
+    }
+    if (key_len == 0) {
+        return request.respond(
+            "{\"jsonrpc\":\"2.0\",\"id\":null,\"error\":{\"code\":-32600,\"message\":\"Missing Authorization: Bearer <sync-key>\"}}",
+            .{ .status = .unauthorized, .extra_headers = &json_headers },
+        );
+    }
+    const key = key_buf[0..key_len];
+
+    var body_buf: [16 * 1024]u8 = undefined;
+    const reader = request.readerExpectContinue(&body_buf) catch
+        return request.respond("bad request", .{ .status = .bad_request });
+    const body = reader.allocRemaining(gpa, .limited(MAX_BODY)) catch
+        return request.respond("body too large", .{ .status = .payload_too_large });
+    defer gpa.free(body);
+
+    const rpc = mcp.handleRpc(gpa, ctx.store, key, body) catch
+        return request.respond("{\"jsonrpc\":\"2.0\",\"id\":null,\"error\":{\"code\":-32603,\"message\":\"Internal error\"}}", .{ .status = .internal_server_error, .extra_headers = &json_headers });
+    defer gpa.free(rpc.body);
+    defer if (rpc.broadcast) |b| gpa.free(b);
+
+    // A write tool fanned out changes — push them to this key's WS listeners.
+    if (rpc.broadcast) |b| ctx.registry.broadcast(key, b, null);
+
+    // Notifications produce no body.
+    if (rpc.body.len == 0) {
+        return request.respond("", .{ .status = .accepted, .extra_headers = &json_headers });
+    }
+
+    // Echo an incoming Mcp-Session-Id, or mint one on initialize so clients that
+    // track sessions are satisfied (we're stateless, so the value is opaque).
+    var minted: [32]u8 = undefined;
+    const session: []const u8 = if (session_len > 0) session_buf[0..session_len] else blk: {
+        var raw: [16]u8 = undefined;
+        arc4random_buf(&raw, raw.len);
+        _ = std.fmt.bufPrint(&minted, "{x}", .{&raw}) catch unreachable;
+        break :blk minted[0..32];
+    };
+
+    return request.respond(rpc.body, .{
+        .status = .ok,
+        .extra_headers = &.{
+            .{ .name = "content-type", .value = "application/json" },
+            .{ .name = "access-control-allow-origin", .value = "*" },
+            .{ .name = "mcp-session-id", .value = session },
+        },
+    });
 }
 
 fn handlePull(ctx: *Context, request: *Server.Request, key: []const u8, target: []const u8) !void {
