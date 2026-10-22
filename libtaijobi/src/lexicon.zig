@@ -357,7 +357,10 @@ pub fn getStats(db: *sqlite.sqlite3, now_ms: i64, days: u32, buf: []u8) ?[]const
             \\FROM review_log ORDER BY day DESC
         ;
         if (sqlite.sqlite3_prepare_v2(db, sql, @intCast(sql.len), &stmt, null) == sqlite.SQLITE_OK) {
-            defer _ = sqlite.sqlite3_finalize(stmt.?);
+            // Null-safe: the body below finalizes and nulls `stmt` itself.
+            defer if (stmt) |s| {
+                _ = sqlite.sqlite3_finalize(s);
+            };
             var expected_day = today_day;
             var streak: i64 = 0;
             var first = true;
