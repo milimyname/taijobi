@@ -271,6 +271,11 @@ fn handleMcp(ctx: *Context, request: *Server.Request) !void {
     var key_len: usize = 0;
     var session_buf: [128]u8 = undefined;
     var session_len: usize = 0;
+    // MCP 2026-07-28 mirrored headers, copied for the same reason.
+    var version_buf: [32]u8 = undefined;
+    var method_buf: [64]u8 = undefined;
+    var name_buf: [256]u8 = undefined;
+    var mcp_headers: mcp.Headers = .{};
     var it = request.iterateHeaders();
     while (it.next()) |h| {
         if (std.ascii.eqlIgnoreCase(h.name, "authorization")) {
@@ -281,6 +286,12 @@ fn handleMcp(ctx: *Context, request: *Server.Request) !void {
                     key_len = tok.len;
                 }
             }
+        } else if (std.ascii.eqlIgnoreCase(h.name, "mcp-protocol-version")) {
+            mcp_headers.protocol_version = copyHeader(&version_buf, h.value);
+        } else if (std.ascii.eqlIgnoreCase(h.name, "mcp-method")) {
+            mcp_headers.method = copyHeader(&method_buf, h.value);
+        } else if (std.ascii.eqlIgnoreCase(h.name, "mcp-name")) {
+            mcp_headers.name = copyHeader(&name_buf, h.value);
         } else if (std.ascii.eqlIgnoreCase(h.name, "mcp-session-id")) {
             if (h.value.len <= session_buf.len) {
                 @memcpy(session_buf[0..h.value.len], h.value);
@@ -303,7 +314,7 @@ fn handleMcp(ctx: *Context, request: *Server.Request) !void {
         return request.respond("body too large", .{ .status = .payload_too_large });
     defer gpa.free(body);
 
-    const rpc = mcp.handleRpc(gpa, ctx.store, key, body) catch
+    const rpc = mcp.handleRpc(gpa, ctx.store, key, body, mcp_headers) catch
         return request.respond("{\"jsonrpc\":\"2.0\",\"id\":null,\"error\":{\"code\":-32603,\"message\":\"Internal error\"}}", .{ .status = .internal_server_error, .extra_headers = &json_headers });
     defer gpa.free(rpc.body);
     defer if (rpc.broadcast) |b| gpa.free(b);
@@ -316,8 +327,14 @@ fn handleMcp(ctx: *Context, request: *Server.Request) !void {
         return request.respond("", .{ .status = .accepted, .extra_headers = &json_headers });
     }
 
-    // Echo an incoming Mcp-Session-Id, or mint one on initialize so clients that
-    // track sessions are satisfied (we're stateless, so the value is opaque).
+    // 2026-07-28 has no sessions: never mint or echo one for modern requests.
+    if (!rpc.session) {
+        return request.respond(rpc.body, .{ .status = rpc.status, .extra_headers = &json_headers });
+    }
+
+    // Legacy: echo an incoming Mcp-Session-Id, or mint one on initialize so
+    // clients that track sessions are satisfied (we're stateless, so the value
+    // is opaque).
     var minted: [32]u8 = undefined;
     const session: []const u8 = if (session_len > 0) session_buf[0..session_len] else blk: {
         var raw: [16]u8 = undefined;
@@ -434,6 +451,13 @@ fn broadcastChanges(ctx: *Context, gpa: std.mem.Allocator, key: []const u8, rows
 fn logReq(tag: []const u8, key: []const u8, n: i64) void {
     const kp = key[0..@min(key.len, 8)];
     std.debug.print("[taijobi-sync] {s} key={s}… n={d}\n", .{ tag, kp, n });
+}
+
+/// Copy a header value into `buf`; empty when it doesn't fit (treated as missing).
+fn copyHeader(buf: []u8, value: []const u8) []const u8 {
+    if (value.len > buf.len) return "";
+    @memcpy(buf[0..value.len], value);
+    return buf[0..value.len];
 }
 
 /// Path portion of a request target (everything before `?`).

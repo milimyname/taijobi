@@ -12,6 +12,13 @@
 //! writes) re-encrypt the changed rows back into our own Store so they persist
 //! and fan out over WebSocket.
 //!
+//! Dual-era transport: a request carrying modern per-request `_meta`
+//! (`io.modelcontextprotocol/protocolVersion`) is served under MCP 2026-07-28 —
+//! no handshake, no session, `server/discover`, mirrored-header validation,
+//! `resultType` + cache hints. Anything else gets the 2025-03-26 behavior the
+//! Worker had (initialize → tools/list → tools/call), which is what Claude
+//! Desktop via `mcp-remote` still speaks.
+//!
 //! Natively we share libtaijobi's address space, so strings are passed by
 //! (ptr, len) directly — no `hanzi_alloc` bounce. Every length-prefixed result
 //! lives in libtaijobi's arena, which `hanzi_reset_alloc` resets wholesale; so
@@ -63,6 +70,11 @@ const SpinLock = struct {
 };
 
 pub const RpcResult = struct {
+    /// HTTP status. Modern requests use 400/404 for protocol errors.
+    status: std.http.Status = .ok,
+    /// False for modern requests: 2026-07-28 has no sessions, so the caller
+    /// must not mint or echo `Mcp-Session-Id`.
+    session: bool = true,
     /// JSON-RPC response body. Empty slice → it was a notification (caller
     /// replies 202 with no body).
     body: []u8,
@@ -71,7 +83,21 @@ pub const RpcResult = struct {
     broadcast: ?[]u8 = null,
 };
 
+/// Legacy (initialize-handshake) revision the Worker spoke.
 const PROTOCOL_VERSION = "2025-03-26";
+/// Modern stateless revision.
+const MODERN_VERSION = "2026-07-28";
+const SUPPORTED_VERSIONS_JSON = "[\"" ++ MODERN_VERSION ++ "\",\"2025-11-25\",\"2025-06-18\",\"" ++ PROTOCOL_VERSION ++ "\"]";
+const SERVER_INFO_JSON = "{\"name\":\"taijobi\",\"version\":\"0.2.0\"}";
+/// Tool list and discovery never vary per user, so shared caches may keep them.
+const CACHE_HINTS_JSON = "\"ttlMs\":3600000,\"cacheScope\":\"public\"";
+
+/// The MCP request headers the HTTP layer captured (empty when absent).
+pub const Headers = struct {
+    protocol_version: []const u8 = "",
+    method: []const u8 = "",
+    name: []const u8 = "",
+};
 
 // --- length-prefixed helpers ---
 
@@ -97,7 +123,7 @@ fn lastError(gpa: std.mem.Allocator, fallback: []const u8) ![]u8 {
 
 /// Handle one JSON-RPC request body. Caller holds nothing; this serializes on
 /// the libtaijobi lock internally. Returned slices are owned by `gpa`.
-pub fn handleRpc(gpa: std.mem.Allocator, store: *Store, key: []const u8, body: []const u8) !RpcResult {
+pub fn handleRpc(gpa: std.mem.Allocator, store: *Store, key: []const u8, body: []const u8, headers: Headers) !RpcResult {
     const parsed = std.json.parseFromSlice(std.json.Value, gpa, body, .{}) catch
         return errorResponse(gpa, null, -32700, "Parse error");
     defer parsed.deinit();
@@ -116,24 +142,117 @@ pub fn handleRpc(gpa: std.mem.Allocator, store: *Store, key: []const u8, body: [
         null;
     defer if (id_json) |id| gpa.free(id);
 
+    const params = obj.get("params");
+    if (modernVersion(params)) |version| {
+        return handleModern(gpa, store, key, id_json, method, params, version, headers);
+    }
+
     if (std.mem.eql(u8, method, "initialize")) {
         return .{ .body = try result(gpa, id_json, "{\"protocolVersion\":\"" ++ PROTOCOL_VERSION ++
-            "\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"taijobi\",\"version\":\"0.2.0\"}}") };
+            "\",\"capabilities\":{\"tools\":{}},\"serverInfo\":" ++ SERVER_INFO_JSON ++ "}", false) };
     }
     if (std.mem.startsWith(u8, method, "notifications/")) {
         return .{ .body = "" }; // notification — no response
     }
     if (std.mem.eql(u8, method, "ping")) {
-        return .{ .body = try result(gpa, id_json, "{}") };
+        return .{ .body = try result(gpa, id_json, "{}", false) };
     }
     if (std.mem.eql(u8, method, "tools/list")) {
-        return .{ .body = try result(gpa, id_json, TOOLS_LIST) };
+        return .{ .body = try result(gpa, id_json, TOOLS_LIST, false) };
     }
     if (std.mem.eql(u8, method, "tools/call")) {
-        return handleToolCall(gpa, store, key, id_json, obj.get("params"));
+        return handleToolCall(gpa, store, key, id_json, params, false);
     }
 
     return errorResponse(gpa, id_json, -32601, "Method not found");
+}
+
+/// `params._meta["io.modelcontextprotocol/protocolVersion"]`, present only on
+/// modern (2026-07-28+) requests.
+fn modernVersion(params: ?std.json.Value) ?[]const u8 {
+    const p = params orelse return null;
+    if (p != .object) return null;
+    const meta = p.object.get("_meta") orelse return null;
+    if (meta != .object) return null;
+    return switch (meta.object.get("io.modelcontextprotocol/protocolVersion") orelse return null) {
+        .string => |v| v,
+        else => null,
+    };
+}
+
+/// Serve one stateless 2026-07-28 request.
+fn handleModern(
+    gpa: std.mem.Allocator,
+    store: *Store,
+    key: []const u8,
+    id_json: ?[]u8,
+    method: []const u8,
+    params: ?std.json.Value,
+    version: []const u8,
+    headers: Headers,
+) !RpcResult {
+    if (!std.mem.eql(u8, version, MODERN_VERSION)) {
+        var data: std.ArrayList(u8) = .empty;
+        defer data.deinit(gpa);
+        try data.appendSlice(gpa, "{\"supported\":" ++ SUPPORTED_VERSIONS_JSON ++ ",\"requested\":");
+        try appendJsonString(gpa, &data, version);
+        try data.append(gpa, '}');
+        return modernError(gpa, id_json, .bad_request, -32022, "Unsupported protocol version", data.items);
+    }
+
+    // Mirrored headers must be present and match the body (SEP-2243), so a
+    // gateway routing on headers can't be steered apart from what we execute.
+    if (!std.mem.eql(u8, headers.protocol_version, version))
+        return modernError(gpa, id_json, .bad_request, -32020, "Header mismatch: MCP-Protocol-Version", null);
+    if (!std.mem.eql(u8, headers.method, method))
+        return modernError(gpa, id_json, .bad_request, -32020, "Header mismatch: Mcp-Method", null);
+    if (std.mem.eql(u8, method, "tools/call")) {
+        const body_name = if (params) |p| (if (p == .object) optStr(p.object, "name") else null) else null;
+        var name_buf: [256]u8 = undefined;
+        const header_name = decodeHeaderValue(headers.name, &name_buf) orelse
+            return modernError(gpa, id_json, .bad_request, -32020, "Header mismatch: Mcp-Name malformed", null);
+        if (body_name == null or !std.mem.eql(u8, header_name, body_name.?))
+            return modernError(gpa, id_json, .bad_request, -32020, "Header mismatch: Mcp-Name", null);
+    }
+
+    if (std.mem.eql(u8, method, "server/discover")) {
+        return .{ .session = false, .body = try result(gpa, id_json, "{\"supportedVersions\":" ++ SUPPORTED_VERSIONS_JSON ++
+            ",\"capabilities\":{\"tools\":{}},\"instructions\":\"taijobi vocabulary trainer: read due cards, stats and the lexicon; add words, record reviews, install packs. Call list_packs before install_pack or add_lesson_to_pack.\"," ++ CACHE_HINTS_JSON ++ "}", true) };
+    }
+    if (std.mem.eql(u8, method, "tools/list")) {
+        // TOOLS_LIST is `{"tools":[...]}` — splice the cache hints in before its closing brace.
+        const with_hints = TOOLS_LIST[0 .. TOOLS_LIST.len - 1] ++ "," ++ CACHE_HINTS_JSON ++ "}";
+        return .{ .session = false, .body = try result(gpa, id_json, with_hints, true) };
+    }
+    if (std.mem.eql(u8, method, "tools/call")) {
+        var r = try handleToolCall(gpa, store, key, id_json, params, true);
+        r.session = false;
+        return r;
+    }
+    // initialize, ping and the rest don't exist in 2026-07-28.
+    return modernError(gpa, id_json, .not_found, -32601, "Method not found", null);
+}
+
+/// Decode an `Mcp-Name` value: plain ASCII, or the `=?base64?…?=` sentinel.
+fn decodeHeaderValue(value: []const u8, buf: []u8) ?[]const u8 {
+    const prefix = "=?base64?";
+    const suffix = "?=";
+    if (!(std.mem.startsWith(u8, value, prefix) and std.mem.endsWith(u8, value, suffix) and value.len >= prefix.len + suffix.len))
+        return value;
+    const enc = value[prefix.len .. value.len - suffix.len];
+    const n = std.base64.standard.Decoder.calcSizeForSlice(enc) catch return null;
+    if (n > buf.len) return null;
+    std.base64.standard.Decoder.decode(buf[0..n], enc) catch return null;
+    return buf[0..n];
+}
+
+fn modernError(gpa: std.mem.Allocator, id_json: ?[]u8, status: std.http.Status, code: i32, message: []const u8, data: ?[]const u8) !RpcResult {
+    const id = id_json orelse "null";
+    const body = if (data) |d|
+        try std.fmt.allocPrint(gpa, "{{\"jsonrpc\":\"2.0\",\"id\":{s},\"error\":{{\"code\":{d},\"message\":\"{s}\",\"data\":{s}}}}}", .{ id, code, message, d })
+    else
+        try std.fmt.allocPrint(gpa, "{{\"jsonrpc\":\"2.0\",\"id\":{s},\"error\":{{\"code\":{d},\"message\":\"{s}\"}}}}", .{ id, code, message });
+    return .{ .body = body, .status = status, .session = false };
 }
 
 const Tool = enum {
@@ -180,7 +299,7 @@ const Outcome = union(enum) {
     }
 };
 
-fn handleToolCall(gpa: std.mem.Allocator, store: *Store, key: []const u8, id_json: ?[]u8, params: ?std.json.Value) !RpcResult {
+fn handleToolCall(gpa: std.mem.Allocator, store: *Store, key: []const u8, id_json: ?[]u8, params: ?std.json.Value, modern: bool) !RpcResult {
     const p = (params orelse return errorResponse(gpa, id_json, -32602, "Missing params"));
     if (p != .object) return errorResponse(gpa, id_json, -32602, "Invalid params");
     const name = switch (p.object.get("name") orelse return errorResponse(gpa, id_json, -32602, "Missing tool name")) {
@@ -214,10 +333,10 @@ fn handleToolCall(gpa: std.mem.Allocator, store: *Store, key: []const u8, id_jso
             try text.appendSlice(gpa, "{\"error\":");
             try appendJsonString(gpa, &text, msg);
             try text.append(gpa, '}');
-            return toolResult(gpa, id_json, text.items, true);
+            return toolResult(gpa, id_json, text.items, true, modern);
         },
         .ok => |text| {
-            var r = try toolResult(gpa, id_json, text, false);
+            var r = try toolResult(gpa, id_json, text, false, modern);
             if (tool.isWrite()) r.broadcast = try writeBackChanges(&s);
             return r;
         },
@@ -585,9 +704,12 @@ fn writeBackChanges(s: *Session) !?[]u8 {
 
 // --- response builders ---
 
-fn result(gpa: std.mem.Allocator, id_json: ?[]u8, result_json: []const u8) ![]u8 {
+/// Wrap a result object. Modern results also carry `resultType` and the
+/// server's identity in `_meta` (`result_json` must be a non-empty object).
+fn result(gpa: std.mem.Allocator, id_json: ?[]u8, result_json: []const u8, modern: bool) ![]u8 {
     const id = id_json orelse "null";
-    return std.fmt.allocPrint(gpa, "{{\"jsonrpc\":\"2.0\",\"id\":{s},\"result\":{s}}}", .{ id, result_json });
+    if (!modern) return std.fmt.allocPrint(gpa, "{{\"jsonrpc\":\"2.0\",\"id\":{s},\"result\":{s}}}", .{ id, result_json });
+    return std.fmt.allocPrint(gpa, "{{\"jsonrpc\":\"2.0\",\"id\":{s},\"result\":{{\"resultType\":\"complete\",\"_meta\":{{\"io.modelcontextprotocol/serverInfo\":{s}}},{s}}}", .{ id, SERVER_INFO_JSON, result_json[1..] });
 }
 
 fn errorResponse(gpa: std.mem.Allocator, id_json: ?[]u8, code: i32, message: []const u8) !RpcResult {
@@ -598,13 +720,13 @@ fn errorResponse(gpa: std.mem.Allocator, id_json: ?[]u8, code: i32, message: []c
 
 /// MCP `tools/call` result: `{content:[{type:"text",text:<payload>}]}`, plus
 /// `isError:true` for tool failures.
-fn toolResult(gpa: std.mem.Allocator, id_json: ?[]u8, payload: []const u8, is_error: bool) !RpcResult {
+fn toolResult(gpa: std.mem.Allocator, id_json: ?[]u8, payload: []const u8, is_error: bool, modern: bool) !RpcResult {
     var content: std.ArrayList(u8) = .empty;
     defer content.deinit(gpa);
     try content.appendSlice(gpa, "{\"content\":[{\"type\":\"text\",\"text\":");
     try appendJsonString(gpa, &content, payload);
     try content.appendSlice(gpa, if (is_error) "}],\"isError\":true}" else "}]}");
-    return .{ .body = try result(gpa, id_json, content.items) };
+    return .{ .body = try result(gpa, id_json, content.items, modern) };
 }
 
 // --- small helpers ---

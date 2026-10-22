@@ -30,6 +30,16 @@ into the Store (and broadcasts them over WebSocket). About 125 ms per call with
 all six HSK packs (5.2k rows) synced. `install_pack` runs a Zig port of
 `packs/validator.ts` `validatePackLenient`.
 
+Dual-era transport: requests carrying
+`params._meta["io.modelcontextprotocol/protocolVersion"]` are served as MCP
+**2026-07-28** (stateless: no `initialize`, no `Mcp-Session-Id`,
+`server/discover`, `resultType` + `_meta` serverInfo on results, `ttlMs` /
+`cacheScope` on `tools/list`, `MCP-Protocol-Version` / `Mcp-Method` /
+`Mcp-Name` must match the body or 400 + `-32020`, unknown versions 400 +
+`-32022`). Everything else gets the 2025-03-26 flow Claude Desktop speaks via
+`mcp-remote`. Code Mode is not adopted: it needs a V8 sandbox (Cloudflare's
+Dynamic Worker Loader) and only pays off for very large tool surfaces.
+
 ## Build & run
 
 ```sh
