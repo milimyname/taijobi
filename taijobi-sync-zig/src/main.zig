@@ -9,7 +9,8 @@
 //!   GET  /sync/:key?since= → {"rows":[...]}    (rows newer than `since`)
 //!   GET  /ws/:key          → real-time sync    (broadcasts `changes` frames)
 //!   POST /mcp              → MCP JSON-RPC       (10 tools, see mcp.zig)
-//!   /push/*                → 501 until ported (still served by the Worker)
+//!   POST/DELETE /push/subscribe, POST /push/heartbeat → Web Push (Bearer)
+//!   + an hourly streak-reminder thread when VAPID_PRIVATE_KEY is set
 //!
 //! One OS thread per connection. The Worker gave each sync key its own Durable
 //! Object; here a mutex-guarded `Registry` tracks the live WebSocket connections
@@ -20,6 +21,7 @@ const store_mod = @import("store.zig");
 const Store = store_mod.Store;
 const protocol = @import("protocol.zig");
 const mcp = @import("mcp.zig");
+const webpush = @import("push.zig");
 
 const Server = std.http.Server;
 
@@ -99,6 +101,26 @@ const Context = struct {
     registry: *Registry,
 };
 
+/// Start the hourly streak-reminder thread if the VAPID key is configured
+/// (same JWK the Worker kept as the `VAPID_PRIVATE_KEY` wrangler secret).
+fn startPushCron(gpa: std.mem.Allocator, io: std.Io, store: *Store) void {
+    const jwk = getenv("VAPID_PRIVATE_KEY") orelse {
+        std.debug.print("push cron disabled: VAPID_PRIVATE_KEY not set\n", .{});
+        return;
+    };
+    const vapid = webpush.Vapid.fromJwk(gpa, std.mem.span(jwk)) catch |err| {
+        std.debug.print("push cron disabled: bad VAPID_PRIVATE_KEY ({s})\n", .{@errorName(err)});
+        return;
+    };
+    const run_now = getenv("PUSH_CRON_RUN_ON_START") != null;
+    const thread = std.Thread.spawn(.{}, webpush.cronThread, .{ gpa, io, store, vapid, run_now }) catch |err| {
+        std.debug.print("push cron disabled: {s}\n", .{@errorName(err)});
+        return;
+    };
+    thread.detach();
+    std.debug.print("push cron enabled (VAPID key {s})\n", .{vapid.public_b64[0..12]});
+}
+
 pub fn main() !void {
     const gpa = std.heap.smp_allocator;
 
@@ -124,6 +146,7 @@ pub fn main() !void {
     const io = threaded.io();
 
     var ctx = Context{ .io = io, .store = &store, .registry = &registry };
+    startPushCron(gpa, io, &store);
 
     const addr = try std.Io.net.IpAddress.parseIp4(host, port);
     var server = try addr.listen(io, .{ .reuse_address = true });
@@ -218,9 +241,15 @@ fn routeRequest(ctx: *Context, request: *Server.Request) !void {
         };
     }
 
-    // Not ported yet — the Cloudflare Worker keeps serving these until cutover.
-    if (std.mem.startsWith(u8, path, "/push/")) {
-        return request.respond("{\"error\":\"not implemented\"}", .{ .status = .not_implemented, .extra_headers = &json_headers });
+    if (std.mem.eql(u8, path, "/push/subscribe")) {
+        return switch (method) {
+            .POST => handlePushSubscribe(ctx, request),
+            .DELETE => handlePushUnsubscribe(ctx, request),
+            else => request.respond("method not allowed", .{ .status = .method_not_allowed }),
+        };
+    }
+    if (std.mem.eql(u8, path, "/push/heartbeat") and method == .POST) {
+        return handlePushHeartbeat(ctx, request);
     }
 
     return request.respond("not found", .{ .status = .not_found });
@@ -351,6 +380,98 @@ fn handleMcp(ctx: *Context, request: *Server.Request) !void {
             .{ .name = "mcp-session-id", .value = session },
         },
     });
+}
+
+// --- Web Push (port of the Worker's /push routes + PushSubs DO) ---
+
+/// SHA-256 hex of the `Authorization: Bearer <sync-key>`. Must run before the
+/// body is read — header strings don't survive the body reader.
+fn bearerHash(request: *Server.Request) ?[64]u8 {
+    var it = request.iterateHeaders();
+    while (it.next()) |h| {
+        if (std.ascii.eqlIgnoreCase(h.name, "authorization") and std.ascii.startsWithIgnoreCase(h.value, "bearer ")) {
+            const tok = std.mem.trim(u8, h.value["bearer ".len..], " ");
+            if (tok.len > 0) return webpush.hashSyncKey(tok);
+        }
+    }
+    return null;
+}
+
+fn readJsonBody(ctx: *Context, request: *Server.Request) ?std.json.Parsed(std.json.Value) {
+    const gpa = ctx.registry.gpa;
+    var body_buf: [16 * 1024]u8 = undefined;
+    const reader = request.readerExpectContinue(&body_buf) catch return null;
+    const body = reader.allocRemaining(gpa, .limited(64 * 1024)) catch return null;
+    defer gpa.free(body);
+    return std.json.parseFromSlice(std.json.Value, gpa, body, .{ .allocate = .alloc_always }) catch null;
+}
+
+const missing_auth = "{\"error\":\"Missing Authorization\"}";
+const ok_json = "{\"ok\":true}";
+
+fn handlePushSubscribe(ctx: *Context, request: *Server.Request) !void {
+    const hash = bearerHash(request) orelse return request.respond(missing_auth, .{ .status = .unauthorized, .extra_headers = &json_headers });
+    const parsed = readJsonBody(ctx, request) orelse
+        return request.respond("{\"error\":\"Invalid subscription\"}", .{ .status = .bad_request, .extra_headers = &json_headers });
+    defer parsed.deinit();
+
+    // {"subscription":{"endpoint":"…","keys":{"p256dh":"…","auth":"…"}}}
+    const sub = jsonPath(parsed.value, &.{"subscription"});
+    const endpoint = jsonStr(jsonPath(sub, &.{"endpoint"}));
+    const p256dh = jsonStr(jsonPath(sub, &.{ "keys", "p256dh" }));
+    const auth = jsonStr(jsonPath(sub, &.{ "keys", "auth" }));
+    if (endpoint == null or p256dh == null or auth == null or !std.mem.startsWith(u8, endpoint.?, "https://"))
+        return request.respond("{\"error\":\"Invalid subscription\"}", .{ .status = .bad_request, .extra_headers = &json_headers });
+
+    const now_ms = std.Io.Clock.now(.real, ctx.io).toMilliseconds();
+    ctx.store.pushSubscribe(&hash, endpoint.?, p256dh.?, auth.?, now_ms) catch
+        return request.respond("{\"error\":\"store failed\"}", .{ .status = .internal_server_error, .extra_headers = &json_headers });
+    logReq("push subscribe", &hash, 0);
+    return request.respond(ok_json, .{ .status = .ok, .extra_headers = &json_headers });
+}
+
+fn handlePushUnsubscribe(ctx: *Context, request: *Server.Request) !void {
+    const hash = bearerHash(request) orelse return request.respond(missing_auth, .{ .status = .unauthorized, .extra_headers = &json_headers });
+    ctx.store.pushUnsubscribe(&hash) catch {};
+    logReq("push unsubscribe", &hash, 0);
+    return request.respond(ok_json, .{ .status = .ok, .extra_headers = &json_headers });
+}
+
+fn handlePushHeartbeat(ctx: *Context, request: *Server.Request) !void {
+    const hash = bearerHash(request) orelse return request.respond(missing_auth, .{ .status = .unauthorized, .extra_headers = &json_headers });
+    const now_ms = std.Io.Clock.now(.real, ctx.io).toMilliseconds();
+    // {"ts": <ms>} — falls back to now, like the Worker.
+    var ts: i64 = now_ms;
+    if (readJsonBody(ctx, request)) |parsed| {
+        defer parsed.deinit();
+        if (jsonPath(parsed.value, &.{"ts"})) |v| switch (v) {
+            .integer => |i| if (i > 0) {
+                ts = i;
+            },
+            .float => |f| if (f > 0) {
+                ts = @intFromFloat(f);
+            },
+            else => {},
+        };
+    }
+    ctx.store.pushHeartbeat(&hash, ts) catch {};
+    return request.respond(ok_json, .{ .status = .ok, .extra_headers = &json_headers });
+}
+
+fn jsonPath(root: ?std.json.Value, keys: []const []const u8) ?std.json.Value {
+    var v = root orelse return null;
+    for (keys) |k| {
+        if (v != .object) return null;
+        v = v.object.get(k) orelse return null;
+    }
+    return v;
+}
+
+fn jsonStr(v: ?std.json.Value) ?[]const u8 {
+    return switch (v orelse return null) {
+        .string => |s| if (s.len > 0) s else null,
+        else => null,
+    };
 }
 
 fn handlePull(ctx: *Context, request: *Server.Request, key: []const u8, target: []const u8) !void {

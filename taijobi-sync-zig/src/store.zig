@@ -67,6 +67,19 @@ pub const Store = struct {
             \\CREATE INDEX IF NOT EXISTS idx_sync_rows_pull
             \\  ON sync_rows (sync_key, updated_at);
         );
+        // Web Push subscriptions — the Worker's PushSubs Durable Object table.
+        // Keyed by SHA-256(sync key), never the raw key.
+        try self.exec(
+            \\CREATE TABLE IF NOT EXISTS push_subs (
+            \\  sync_key_hash    TEXT PRIMARY KEY,
+            \\  endpoint         TEXT NOT NULL,
+            \\  p256dh           TEXT NOT NULL,
+            \\  auth             TEXT NOT NULL,
+            \\  last_review_at   INTEGER NOT NULL DEFAULT 0,
+            \\  last_notified_at INTEGER NOT NULL DEFAULT 0,
+            \\  created_at       INTEGER NOT NULL
+            \\);
+        );
         return self;
     }
 
@@ -160,6 +173,103 @@ pub const Store = struct {
         }
 
         try out.appendSlice(gpa, "]}");
+    }
+
+    // --- Web Push subscriptions ---
+
+    pub const PushSub = struct { sync_key_hash: []const u8, endpoint: []const u8, p256dh: []const u8, auth: []const u8 };
+
+    /// Owned result of `pushDue`; strings point into `arena`.
+    pub const PushDue = struct {
+        arena: std.heap.ArenaAllocator,
+        subs: []PushSub,
+
+        pub fn deinit(self: *PushDue) void {
+            self.arena.deinit();
+        }
+    };
+
+    /// Upsert a subscription. A re-subscribe keeps the review/notify clocks.
+    pub fn pushSubscribe(self: *Store, hash: []const u8, endpoint: []const u8, p256dh: []const u8, auth: []const u8, now_ms: i64) Error!void {
+        self.mutex.lock();
+        defer self.mutex.unlock();
+        const sql =
+            \\INSERT INTO push_subs (sync_key_hash, endpoint, p256dh, auth, last_review_at, last_notified_at, created_at)
+            \\VALUES (?1, ?2, ?3, ?4, ?5, 0, ?5)
+            \\ON CONFLICT (sync_key_hash) DO UPDATE SET
+            \\  endpoint = excluded.endpoint, p256dh = excluded.p256dh, auth = excluded.auth;
+        ;
+        const stmt = try self.prepare(sql);
+        defer _ = c.sqlite3_finalize(stmt);
+        bindText(stmt, 1, hash);
+        bindText(stmt, 2, endpoint);
+        bindText(stmt, 3, p256dh);
+        bindText(stmt, 4, auth);
+        _ = c.sqlite3_bind_int64(stmt, 5, now_ms);
+        if (c.sqlite3_step(stmt) != c.SQLITE_DONE) return error.StepFailed;
+    }
+
+    pub fn pushUnsubscribe(self: *Store, hash: []const u8) Error!void {
+        try self.execHash("DELETE FROM push_subs WHERE sync_key_hash = ?1;", hash, null);
+    }
+
+    /// Record the client's last review time (the heartbeat after each review).
+    pub fn pushHeartbeat(self: *Store, hash: []const u8, ts_ms: i64) Error!void {
+        try self.execHash("UPDATE push_subs SET last_review_at = ?2 WHERE sync_key_hash = ?1;", hash, ts_ms);
+    }
+
+    pub fn pushNotified(self: *Store, hash: []const u8, now_ms: i64) Error!void {
+        try self.execHash("UPDATE push_subs SET last_notified_at = ?2 WHERE sync_key_hash = ?1;", hash, now_ms);
+    }
+
+    /// Subscriptions whose last review is 20–28 h old and that weren't notified
+    /// in the last 18 h — same window as the Worker's `/due`.
+    pub fn pushDue(self: *Store, gpa: std.mem.Allocator, now_ms: i64) !PushDue {
+        self.mutex.lock();
+        defer self.mutex.unlock();
+        const hour: i64 = 3600 * 1000;
+        const sql =
+            \\SELECT sync_key_hash, endpoint, p256dh, auth FROM push_subs
+            \\WHERE last_review_at > ?1 AND last_review_at < ?2 AND last_notified_at < ?3;
+        ;
+        const stmt = try self.prepare(sql);
+        defer _ = c.sqlite3_finalize(stmt);
+        _ = c.sqlite3_bind_int64(stmt, 1, now_ms - 28 * hour);
+        _ = c.sqlite3_bind_int64(stmt, 2, now_ms - 20 * hour);
+        _ = c.sqlite3_bind_int64(stmt, 3, now_ms - 18 * hour);
+
+        var arena = std.heap.ArenaAllocator.init(gpa);
+        errdefer arena.deinit();
+        const a = arena.allocator();
+        var subs: std.ArrayList(PushSub) = .empty;
+        while (c.sqlite3_step(stmt) == c.SQLITE_ROW) {
+            try subs.append(a, .{
+                .sync_key_hash = try a.dupe(u8, columnText(stmt, 0)),
+                .endpoint = try a.dupe(u8, columnText(stmt, 1)),
+                .p256dh = try a.dupe(u8, columnText(stmt, 2)),
+                .auth = try a.dupe(u8, columnText(stmt, 3)),
+            });
+        }
+        return .{ .arena = arena, .subs = try subs.toOwnedSlice(a) };
+    }
+
+    fn prepare(self: *Store, sql: []const u8) Error!?*c.sqlite3_stmt {
+        var stmt: ?*c.sqlite3_stmt = null;
+        if (c.sqlite3_prepare_v2(self.db, sql.ptr, @intCast(sql.len), &stmt, null) != c.SQLITE_OK or stmt == null) {
+            return error.PrepareFailed;
+        }
+        return stmt;
+    }
+
+    /// Run a statement binding ?1 = hash and, if given, ?2 = an integer.
+    fn execHash(self: *Store, sql: []const u8, hash: []const u8, int2: ?i64) Error!void {
+        self.mutex.lock();
+        defer self.mutex.unlock();
+        const stmt = try self.prepare(sql);
+        defer _ = c.sqlite3_finalize(stmt);
+        bindText(stmt, 1, hash);
+        if (int2) |v| _ = c.sqlite3_bind_int64(stmt, 2, v);
+        if (c.sqlite3_step(stmt) != c.SQLITE_DONE) return error.StepFailed;
     }
 };
 
@@ -262,4 +372,37 @@ test "rows are partitioned by sync key" {
     defer out.deinit(gpa);
     try store.rowsSinceJson(gpa, "alice", 0, &out);
     try std.testing.expectEqualStrings("{\"rows\":[{\"table\":\"t\",\"id\":\"1\",\"data\":{},\"updated_at\":10}]}", out.items);
+}
+
+test "push subscriptions: upsert, heartbeat window, notified, unsubscribe" {
+    const gpa = std.testing.allocator;
+    var store = try Store.open(":memory:");
+    defer store.close();
+    const hour: i64 = 3600 * 1000;
+    const now: i64 = 1_000 * hour;
+
+    try store.pushSubscribe("h1", "https://a/1", "p", "a", now - 48 * hour);
+    try store.pushSubscribe("h2", "https://a/2", "p", "a", now - 48 * hour);
+    try store.pushHeartbeat("h1", now - 24 * hour); // in the 20–28 h window
+    try store.pushHeartbeat("h2", now - 2 * hour); // reviewed recently
+
+    var due = try store.pushDue(gpa, now);
+    try std.testing.expectEqual(@as(usize, 1), due.subs.len);
+    try std.testing.expectEqualStrings("h1", due.subs[0].sync_key_hash);
+    due.deinit();
+
+    // Re-subscribing (new endpoint) keeps the heartbeat; notifying silences it.
+    try store.pushSubscribe("h1", "https://a/1b", "p", "a", now);
+    var due2 = try store.pushDue(gpa, now);
+    try std.testing.expectEqualStrings("https://a/1b", due2.subs[0].endpoint);
+    due2.deinit();
+    try store.pushNotified("h1", now);
+    var due3 = try store.pushDue(gpa, now);
+    try std.testing.expectEqual(@as(usize, 0), due3.subs.len);
+    due3.deinit();
+
+    try store.pushUnsubscribe("h1");
+    var due4 = try store.pushDue(gpa, now + 30 * hour);
+    try std.testing.expectEqual(@as(usize, 0), due4.subs.len);
+    due4.deinit();
 }

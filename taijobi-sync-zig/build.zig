@@ -44,8 +44,8 @@ pub fn build(b: *std.Build) void {
     // --- Tests ---
     const test_step = b.step("test", "Run unit tests");
 
-    // store + protocol are pure storage — only need sqlite, not libtaijobi.
-    for ([_][]const u8{ "src/store.zig", "src/protocol.zig" }) |src| {
+    // store / protocol / push only need sqlite, not libtaijobi.
+    for ([_][]const u8{ "src/store.zig", "src/protocol.zig", "src/push.zig" }) |src| {
         const t = b.addTest(.{
             .root_module = b.createModule(.{
                 .root_source_file = b.path(src),

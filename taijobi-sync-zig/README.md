@@ -14,11 +14,18 @@ terminates TLS in front.
 | `GET /sync/:key?since=` (pull) | ✅ |
 | `GET /ws/:key` (real-time WebSocket) | ✅ |
 | `POST /mcp` (10 tools) | ✅ — `mcp.zig`, links libtaijobi natively (no WASM) |
-| `/push/*` + hourly streak cron | ⏳ 501 — port VAPID + RFC 8291 from `push-send.ts` |
+| `/push/subscribe`, `/push/heartbeat` + hourly streak cron | ✅ — `push.zig`, VAPID (ES256) + RFC 8291 on `std.crypto`, sent via `std.http.Client` |
 
-Sync is wire-compatible with the Worker, so clients keep talking to
-`sync.taijobi.com` unchanged once DNS points here. Cutover has to wait for MCP
-and push, or those features break.
+Sync, MCP and push are wire-compatible with the Worker, so clients keep talking
+to `sync.taijobi.com` unchanged once DNS points here.
+
+Push: set `VAPID_PRIVATE_KEY` to the same JWK the Worker holds as a wrangler
+secret, or browsers' existing subscriptions won't accept our pushes. Without it
+the routes still store subscriptions but the cron is off.
+`PUSH_CRON_RUN_ON_START=1` fires one tick at startup (like
+`wrangler dev --test-scheduled`). Subscriptions live in the Worker's PushSubs
+DO and aren't migrated; the web client re-sends its subscription on startup
+(see taijobi-web `push.svelte.ts`) so they rebuild after cutover.
 
 ## MCP
 
