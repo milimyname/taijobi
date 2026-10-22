@@ -26,16 +26,16 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           fetch-depth: 0
           fetch-tags: true
 
-      - uses: mlugg/setup-zig@v2
+      - uses: mlugg/setup-zig@d1434d08867e3ee9daa34448df10607b98908d29 # v2
         with:
           version: 0.16.0
 
-      - uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
 
       - name: Download SQLite amalgamation
         working-directory: libtaijobi/vendor
@@ -76,13 +76,13 @@ jobs:
     needs: check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
-      - uses: mlugg/setup-zig@v2
+      - uses: mlugg/setup-zig@d1434d08867e3ee9daa34448df10607b98908d29 # v2
         with:
           version: 0.16.0
 
-      - uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
 
       - name: Download SQLite amalgamation
         working-directory: libtaijobi/vendor
@@ -99,7 +99,7 @@ jobs:
         run: rm -f taijobi-web/static/data/*.bin
 
       - name: Upload WASM artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: libtaijobi-wasm
           path: taijobi-web/static/libtaijobi.wasm
@@ -127,13 +127,13 @@ jobs:
     needs: check
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
-      - uses: mlugg/setup-zig@v2
+      - uses: mlugg/setup-zig@d1434d08867e3ee9daa34448df10607b98908d29 # v2
         with:
           version: 0.16.0
 
-      - uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
 
       - name: Download SQLite amalgamation
         working-directory: libtaijobi/vendor
@@ -157,7 +157,7 @@ jobs:
         run: zip -r libtaijobi.xcframework.zip libtaijobi.xcframework
 
       - name: Upload iOS artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: libtaijobi-ios
           path: libtaijobi/build-ios/libtaijobi.xcframework.zip
@@ -166,7 +166,7 @@ jobs:
     needs: build-libtaijobi-ios
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
       - name: Verify App Store Connect secrets are set
         # Fail fast with a clear message instead of letting xcodebuild
@@ -193,7 +193,7 @@ jobs:
       # Needed by the cert-cleanup step at the bottom of the job. Cheap
       # (~3s) and we depend on it only for one ~150-line TS script, but
       # without it `bun run scripts/revoke-ci-certs.ts` exits 127.
-      - uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
 
       - name: Show toolchain versions
         run: |
@@ -202,7 +202,7 @@ jobs:
           xcrun --show-sdk-version --sdk iphoneos
 
       - name: Download XCFramework
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: libtaijobi-ios
           path: artifacts
@@ -286,13 +286,13 @@ jobs:
     needs: check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
-      - uses: mlugg/setup-zig@v2
+      - uses: mlugg/setup-zig@d1434d08867e3ee9daa34448df10607b98908d29 # v2
         with:
           version: 0.16.0
 
-      - uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
 
       - name: Download SQLite amalgamation
         working-directory: libtaijobi/vendor
@@ -324,19 +324,19 @@ jobs:
     if: always() && !failure() && !cancelled()
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           fetch-depth: 0
 
       - name: Download WASM artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         continue-on-error: true
         with:
           name: libtaijobi-wasm
           path: artifacts/libtaijobi-wasm
 
       - name: Download iOS artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         continue-on-error: true
         with:
           name: libtaijobi-ios
