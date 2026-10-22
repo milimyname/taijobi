@@ -463,14 +463,14 @@ fn handlePushSubscribe(ctx: *Context, request: *Server.Request) !void {
     const now_ms = std.Io.Clock.now(.real, ctx.io).toMilliseconds();
     ctx.store.pushSubscribe(&hash, endpoint.?, p256dh.?, auth.?, now_ms) catch
         return request.respond("{\"error\":\"store failed\"}", .{ .status = .internal_server_error, .extra_headers = &json_headers });
-    logReq("push subscribe", &hash, 0);
+    logHash("push subscribe", &hash, 0);
     return request.respond(ok_json, .{ .status = .ok, .extra_headers = &json_headers });
 }
 
 fn handlePushUnsubscribe(ctx: *Context, request: *Server.Request) !void {
     const hash = bearerHash(request) orelse return request.respond(missing_auth, .{ .status = .unauthorized, .extra_headers = &json_headers });
     ctx.store.pushUnsubscribe(&hash) catch {};
-    logReq("push unsubscribe", &hash, 0);
+    logHash("push unsubscribe", &hash, 0);
     return request.respond(ok_json, .{ .status = .ok, .extra_headers = &json_headers });
 }
 
@@ -606,9 +606,15 @@ fn broadcastChanges(ctx: *Context, gpa: std.mem.Allocator, key: []const u8, rows
 
 /// One-line request log to stderr (the dev terminal). The sync key is a secret,
 /// so only its first 8 chars are shown — enough to correlate, not to leak.
+/// One-line request log to journald. The sync key is the user's only secret,
+/// so not even a prefix of it is logged — only the first 8 hex chars of its
+/// SHA-256 (the same id the push routes store), enough to correlate lines.
 fn logReq(tag: []const u8, key: []const u8, n: i64) void {
-    const kp = key[0..@min(key.len, 8)];
-    std.debug.print("[taijobi-sync] {s} key={s}… n={d}\n", .{ tag, kp, n });
+    logHash(tag, &webpush.hashSyncKey(key), n);
+}
+
+fn logHash(tag: []const u8, hash: *const [64]u8, n: i64) void {
+    std.debug.print("[taijobi-sync] {s} key#{s} n={d}\n", .{ tag, hash[0..8], n });
 }
 
 /// Copy a header value into `buf`; empty when it doesn't fit (treated as missing).
