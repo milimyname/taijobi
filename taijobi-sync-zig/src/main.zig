@@ -25,7 +25,6 @@ const webpush = @import("push.zig");
 
 const Server = std.http.Server;
 
-extern fn arc4random_buf(buf: [*]u8, len: usize) void;
 extern fn getenv(name: [*:0]const u8) ?[*:0]const u8;
 
 const json_headers = [_]std.http.Header{
@@ -236,7 +235,7 @@ fn routeRequest(ctx: *Context, request: *Server.Request) !void {
             .extra_headers = &.{
                 .{ .name = "access-control-allow-origin", .value = "*" },
                 .{ .name = "access-control-allow-methods", .value = "GET, POST, DELETE, OPTIONS" },
-                .{ .name = "access-control-allow-headers", .value = "Content-Type, Authorization, Mcp-Session-Id" },
+                .{ .name = "access-control-allow-headers", .value = "Content-Type, Authorization, MCP-Protocol-Version, Mcp-Method, Mcp-Name" },
             },
         });
     }
@@ -256,16 +255,10 @@ fn routeRequest(ctx: *Context, request: *Server.Request) !void {
     }
 
     if (std.mem.eql(u8, path, "/mcp")) {
+        // MCP 2026-07-28: POST only — the GET stream and DELETE (session
+        // teardown) of earlier Streamable HTTP revisions are gone.
         return switch (method) {
             .POST => handleMcp(ctx, request),
-            .GET => request.respond(": connected\n\n", .{ // no-op SSE stream (Streamable HTTP)
-                .status = .ok,
-                .extra_headers = &.{
-                    .{ .name = "content-type", .value = "text/event-stream" },
-                    .{ .name = "access-control-allow-origin", .value = "*" },
-                },
-            }),
-            .DELETE => request.respond("OK", .{ .status = .ok, .extra_headers = &json_headers }),
             else => request.respond("method not allowed", .{ .status = .method_not_allowed }),
         };
     }
@@ -335,8 +328,6 @@ fn handleMcp(ctx: *Context, request: *Server.Request) !void {
     // strings are invalidated once the body reader initializes).
     var key_buf: [256]u8 = undefined;
     var key_len: usize = 0;
-    var session_buf: [128]u8 = undefined;
-    var session_len: usize = 0;
     // MCP 2026-07-28 mirrored headers, copied for the same reason.
     var version_buf: [32]u8 = undefined;
     var method_buf: [64]u8 = undefined;
@@ -358,11 +349,6 @@ fn handleMcp(ctx: *Context, request: *Server.Request) !void {
             mcp_headers.method = copyHeader(&method_buf, h.value);
         } else if (std.ascii.eqlIgnoreCase(h.name, "mcp-name")) {
             mcp_headers.name = copyHeader(&name_buf, h.value);
-        } else if (std.ascii.eqlIgnoreCase(h.name, "mcp-session-id")) {
-            if (h.value.len <= session_buf.len) {
-                @memcpy(session_buf[0..h.value.len], h.value);
-                session_len = h.value.len;
-            }
         }
     }
     if (key_len == 0) {
@@ -388,35 +374,7 @@ fn handleMcp(ctx: *Context, request: *Server.Request) !void {
     // A write tool fanned out changes — push them to this key's WS listeners.
     if (rpc.broadcast) |b| ctx.registry.broadcast(key, b, null);
 
-    // Notifications produce no body.
-    if (rpc.body.len == 0) {
-        return request.respond("", .{ .status = .accepted, .extra_headers = &json_headers });
-    }
-
-    // 2026-07-28 has no sessions: never mint or echo one for modern requests.
-    if (!rpc.session) {
-        return request.respond(rpc.body, .{ .status = rpc.status, .extra_headers = &json_headers });
-    }
-
-    // Legacy: echo an incoming Mcp-Session-Id, or mint one on initialize so
-    // clients that track sessions are satisfied (we're stateless, so the value
-    // is opaque).
-    var minted: [32]u8 = undefined;
-    const session: []const u8 = if (session_len > 0) session_buf[0..session_len] else blk: {
-        var raw: [16]u8 = undefined;
-        arc4random_buf(&raw, raw.len);
-        _ = std.fmt.bufPrint(&minted, "{x}", .{&raw}) catch unreachable;
-        break :blk minted[0..32];
-    };
-
-    return request.respond(rpc.body, .{
-        .status = .ok,
-        .extra_headers = &.{
-            .{ .name = "content-type", .value = "application/json" },
-            .{ .name = "access-control-allow-origin", .value = "*" },
-            .{ .name = "mcp-session-id", .value = session },
-        },
-    });
+    return request.respond(rpc.body, .{ .status = rpc.status, .extra_headers = &json_headers });
 }
 
 // --- Web Push (port of the Worker's /push routes + PushSubs DO) ---
