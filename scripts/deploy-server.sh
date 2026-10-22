@@ -23,8 +23,12 @@ WHAT="${1:-all}"
 # Mac binary.
 SYNC_TARGET="x86_64-linux-gnu.2.39"
 SYNC_PORT=8092
-# Where `data` fetches dictionaries it can't find locally. While taijobi.com is
-# still on Cloudflare this is the R2-backed copy the apps download today.
+# What `data` ships lives in data/dist (gitignored): filled by `make data-fetch`
+# from the CI `dictionaries` artifact, else fetched from the live site so a
+# redeploy never changes a file users already have. Deliberately NOT
+# taijobi-web/static/data — build-wasm.sh recompiles those for dev, and a
+# fresh compile differs by a few bytes, which makes every client re-download.
+DATA_DIR=data/dist
 DATA_SOURCE="${DATA_SOURCE:-https://taijobi.com/data}"
 DICTS=(cedict decomp strokes endict dedict)
 
@@ -108,7 +112,7 @@ deploy_web() {
 }
 
 deploy_data() {
-	local dir=taijobi-web/static/data
+	local dir=$DATA_DIR
 	local files=()
 	mkdir -p "$dir"
 	for d in "${DICTS[@]}"; do

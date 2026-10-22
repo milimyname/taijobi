@@ -3,8 +3,9 @@
 // Imported by:
 //   scripts/generate-catalog.ts    — validatePack (strict): build-time gate
 //                                    on packs/official + packs/community
-//   taijobi-sync/src/mcp-tools.ts  — validatePackLenient: install_pack accepts
-//                                    partial packs (translation optional)
+//   taijobi-sync-zig/src/mcp.zig   — a Zig port of validatePackLenient for
+//                                    MCP install_pack (translation optional);
+//                                    keep the two in sync
 //
 // Both variants throw on the first bad field with `path: reason`. They share
 // structure + regex rules; strict additionally requires translation non-empty.

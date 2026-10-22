@@ -1,12 +1,11 @@
-name: Dictionary Data Upload
+name: Dictionary Data Build
 
-# Builds and uploads the dictionary binary files (cedict, decomp, strokes,
-# endict, dedict) to the `taijobi-data` R2 bucket. Previously this lived
-# inside the release workflow and ran on every deploy — 80 MB re-uploaded
-# for nothing. Now it's its own workflow, triggered only when something
-# that actually changes the binaries changes, or manually.
-#
-# Fresh R2 bucket? → `gh workflow run data-upload.yml` once to seed it.
+# Builds the dictionary binary files (cedict, decomp, strokes, endict, dedict)
+# and publishes them as the `dictionaries` workflow artifact. CI does the
+# multi-GB Wiktextract downloads so a laptop doesn't have to. Shipping them is
+# local: `make data-fetch` (downloads the latest artifact into
+# taijobi-web/static/data) then `make deploy-data` (rsync to the VPS).
+# Until 2026-10 this uploaded to Cloudflare R2.
 
 on:
   workflow_dispatch:
@@ -38,14 +37,6 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
-
-      # bunx fetches wrangler globally here (no package.json at repo root),
-      # so its shebang runs under the runner's system Node. Wrangler bails
-      # if Node < 22, so pin Node 22 explicitly.
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: "22"
-          check-latest: true
 
       - name: Cache Wiktextract JSONL
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
@@ -126,13 +117,10 @@ jobs:
           done
           exit $fail
 
-      - name: Upload to R2 (taijobi-data bucket)
-        run: |
-          for f in upload/data/*.bin; do
-            key="data/$(basename $f)"
-            echo "Uploading $key ($(stat -c%s $f) bytes)..."
-            bunx wrangler r2 object put "taijobi-data/$key" --file "$f" --remote
-          done
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - name: Upload dictionaries artifact
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: dictionaries
+          path: upload/data/*.bin
+          retention-days: 90
+          compression-level: 0 # already dense binaries

@@ -73,8 +73,8 @@ jobs:
         run: bun run check
 
   # Builds the web app as a release check and for the WASM artifact. Deploying
-  # it is `make deploy-web` from a Mac to the Hetzner VPS (no server SSH key in
-  # CI) — taijobi.com left Cloudflare Workers with the adapter-static switch.
+  # it (and the sync server) is `make deploy` from a Mac to the Hetzner VPS —
+  # no server SSH key in CI.
   build-web:
     needs: check
     runs-on: ubuntu-latest
@@ -275,48 +275,8 @@ jobs:
           DRY_RUN: ${{ inputs.dry_run_certs && '1' || '' }}
         run: bun run scripts/revoke-ci-certs.ts
 
-  # The Cloudflare Worker still serves sync.taijobi.com until the DNS switch to
-  # the native server (taijobi-sync-zig, `make deploy-sync`). Delete this job
-  # and taijobi-sync/ after cutover.
-  deploy-sync:
-    needs: check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-
-      - uses: mlugg/setup-zig@d1434d08867e3ee9daa34448df10607b98908d29 # v2
-        with:
-          version: 0.17.0
-
-      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
-
-      - name: Download SQLite amalgamation
-        working-directory: libtaijobi/vendor
-        run: |
-          curl -fsSL https://www.sqlite.org/2026/sqlite-amalgamation-3520000.zip -o sqlite.zip
-          unzip -o sqlite.zip
-          cp sqlite-amalgamation-3520000/sqlite3.c sqlite3.c
-          cp sqlite-amalgamation-3520000/sqlite3.h sqlite3.h
-
-      - name: Build compact MCP WASM
-        working-directory: libtaijobi
-        run: |
-          zig build -Dmcp=true --release=small
-          cp zig-out/bin/libtaijobi-mcp.wasm ../taijobi-sync/libtaijobi-mcp.wasm
-
-      - name: Install sync worker dependencies
-        working-directory: taijobi-sync
-        run: bun install --frozen-lockfile
-
-      - name: Deploy sync worker
-        working-directory: taijobi-sync
-        run: bunx wrangler deploy
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-
   release:
-    needs: [build-web, build-libtaijobi-ios, build-ios, deploy-sync]
+    needs: [build-web, build-libtaijobi-ios, build-ios]
     if: always() && !failure() && !cancelled()
     runs-on: ubuntu-latest
     steps:

@@ -1,6 +1,7 @@
 # taijobi-sync-zig
 
-Native Zig replacement for the `taijobi-sync` Cloudflare Worker, ported from
+Serves sync.taijobi.com from the Hetzner VPS (since 2026-10-22). Native Zig
+replacement for the former `taijobi-sync` Cloudflare Worker, ported from
 wimg's `wimg-sync-zig/` (the wire protocol is identical, so `store.zig`,
 `protocol.zig` and `sqlite.zig` are copied nearly verbatim). Plain HTTP; Caddy
 terminates TLS in front.

@@ -5,7 +5,7 @@
 SHELL := /bin/bash
 .DEFAULT_GOAL := help
 
-.PHONY: help dev dev-native wasm web sync ios \
+.PHONY: help dev wasm web sync ios data-fetch \
 	test check fmt lint \
 	deploy deploy-web deploy-sync deploy-data release-patch release-minor
 
@@ -15,11 +15,8 @@ help: ## List targets
 
 # --- Dev ---------------------------------------------------------------------
 
-dev: ## Web :6173 + Cloudflare Worker sync :8788
+dev: ## Web :6173 + native sync server :8788
 	./scripts/dev.sh
-
-dev-native: ## Same, with the native Zig sync server (what the VPS runs)
-	TAIJOBI_NATIVE_SYNC=1 ./scripts/dev.sh
 
 # --- Build -------------------------------------------------------------------
 
@@ -35,6 +32,10 @@ sync: ## Build the native sync server for this machine
 ios: ## Build the XCFramework + regenerate the Xcode project
 	./scripts/build-ios.sh
 	./scripts/gen-xcodeproj.sh
+
+data-fetch: ## Download the latest CI-built dictionaries into data/dist
+	rm -rf data/dist.new && gh run download --name dictionaries -D data/dist.new
+	rm -rf data/dist && mv data/dist.new data/dist && ls -la data/dist
 
 # --- Quality (same gate as CI) ----------------------------------------------
 
@@ -64,7 +65,7 @@ deploy-sync: ## Build + push only the sync server (+ Caddy fragments, unit)
 deploy-web: ## Build + push only the web app
 	./scripts/deploy-server.sh web
 
-deploy-data: ## Push the dictionary .bin files (fetches missing ones)
+deploy-data: ## Push data/dist dictionaries (missing ones come from the live site)
 	./scripts/deploy-server.sh data
 
 release-patch: ## Bump patch, tag, push (CI builds iOS + the GitHub Release)

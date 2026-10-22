@@ -17,13 +17,11 @@ cp zig-out/bin/libtaijobi.wasm "$ROOT/taijobi-web/static/libtaijobi.wasm"
 echo "=== Copied to taijobi-web/static/libtaijobi.wasm ==="
 ls -lh "$ROOT/taijobi-web/static/libtaijobi.wasm"
 
-echo "=== Building libtaijobi-mcp.wasm (MCP, compact) ==="
-zig build -Dmcp=true --release=small
-cp zig-out/bin/libtaijobi-mcp.wasm "$ROOT/taijobi-sync/libtaijobi-mcp.wasm"
-echo "=== Copied to taijobi-sync/libtaijobi-mcp.wasm ==="
-ls -lh "$ROOT/taijobi-sync/libtaijobi-mcp.wasm"
+# (The compact -Dmcp=true WASM was for the Cloudflare Worker's MCP server; the
+# native taijobi-sync-zig links libtaijobi directly.)
 
-# Copy Chinese data files as separate static assets (on-demand download)
+# Copy Chinese data files for local dev (vite serves static/data). What ships
+# to the VPS comes from data/dist instead — see scripts/deploy-server.sh.
 echo "=== Copying Chinese data files to static/data/ ==="
 mkdir -p "$ROOT/taijobi-web/static/data"
 cp "$ROOT/libtaijobi/src/cedict.bin" "$ROOT/taijobi-web/static/data/"

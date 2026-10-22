@@ -54,8 +54,7 @@ jobs:
               - '.github/workflows/ci.yml'
             sync:
               - 'libtaijobi/**'
-              - 'taijobi-sync/**'
-              - 'scripts/build-wasm.sh'
+              - 'taijobi-sync-zig/**'
               - '.github/workflows/ci.yml'
             ios:
               - 'libtaijobi/**'
@@ -128,15 +127,31 @@ jobs:
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
-      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+      - uses: mlugg/setup-zig@d1434d08867e3ee9daa34448df10607b98908d29 # v2
+        with:
+          version: 0.17.0
 
-      - name: Install sync worker dependencies
-        working-directory: taijobi-sync
-        run: bun install --frozen-lockfile
+      # The native server reuses libtaijobi's (gitignored) amalgamation.
+      - name: Download SQLite amalgamation
+        working-directory: libtaijobi/vendor
+        run: |
+          curl -fsSL https://www.sqlite.org/2026/sqlite-amalgamation-3520000.zip -o sqlite.zip
+          unzip -o sqlite.zip
+          cp sqlite-amalgamation-3520000/sqlite3.c sqlite3.c
+          cp sqlite-amalgamation-3520000/sqlite3.h sqlite3.h
 
-      - name: Type-check sync worker
-        working-directory: taijobi-sync
-        run: bun run typecheck
+      - name: Zig fmt check
+        working-directory: taijobi-sync-zig
+        run: zig fmt --check src/ build.zig
+
+      - name: Sync server tests (store, protocol, MCP, Web Push)
+        working-directory: taijobi-sync-zig
+        run: zig build test
+
+      # Same target as scripts/deploy-server.sh ships to the VPS.
+      - name: Cross-compile for the VPS (x86_64-linux-gnu.2.39)
+        working-directory: taijobi-sync-zig
+        run: zig build --release=safe -Dtarget=x86_64-linux-gnu.2.39
 
   # iOS-side check — only builds the XCFramework slice so we catch Zig
   # iOS-target compile breaks before tagging a release. SwiftUI app build
